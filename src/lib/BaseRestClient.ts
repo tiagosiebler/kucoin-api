@@ -192,23 +192,27 @@ export abstract class BaseRestClient {
     return axios(options)
       .then((response) => {
         if (response.status == 200) {
-          // if (
-          //   typeof response.data?.code === 'string' &&
-          //   response.data?.code !== '00000'
-          // ) {
-          //   throw { response };
-          // }
+          // Throw if API returns an error (e.g. insufficient balance)
+          if (
+            typeof response.data?.code === 'string' &&
+            response.data?.code !== '200000'
+          ) {
+            throw { response };
+          }
+
           return response.data;
         }
         throw { response };
       })
-      .catch((e) => this.parseException(e));
+      .catch((e) =>
+        this.parseException(e, { method, endpoint, requestUrl, params }),
+      );
   }
 
   /**
    * @private generic handler to parse request exceptions
    */
-  parseException(e: any): unknown {
+  parseException(e: any, requestParams: any): unknown {
     if (this.options.parseExceptions === false) {
       throw e;
     }
@@ -236,9 +240,11 @@ export abstract class BaseRestClient {
       requestOptions: {
         ...this.options,
         // Prevent credentials from leaking into error messages
-        apiPass: 'omittedFromError',
+        apiKey: 'omittedFromError',
         apiSecret: 'omittedFromError',
+        apiPassphrase: 'omittedFromError',
       },
+      requestParams,
     };
   }
 

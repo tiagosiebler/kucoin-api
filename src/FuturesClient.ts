@@ -9,12 +9,12 @@ import {
 } from './lib/requestUtils.js';
 import { NewSpotOrderV1 } from './types/request/spot.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
-import { SpotAccountBalance } from './types/response/spot.types.js';
+import { NewFuturesOrderV1 } from './types/request/futures.types.js';
 
 /**
  *
  */
-export class SpotClient extends BaseRestClient {
+export class FuturesClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
@@ -24,7 +24,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   getClientType(): RestClientType {
-    return REST_CLIENT_TYPE_ENUM.main;
+    return REST_CLIENT_TYPE_ENUM.futures;
   }
 
   /**
@@ -47,36 +47,13 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Basic Info
-   *
-   */
-
-  getAccountSummary(): Promise<APISuccessResponse<{}>> {
-    return this.getPrivate('api/v2/user-info');
-  }
-
-  /**
-   * Get a list of acounts and their balance states
-   */
-  getAccountBalances(): Promise<APISuccessResponse<SpotAccountBalance[]>> {
-    return this.getPrivate('api/v1/accounts');
-  }
-
-  /**
-   *
-   ***********
-   * Spot Trading
-   ***********
-   *
-   */
-
-  /**
-   *
    * Orders
    *
    */
 
-  submitSpotOrder(params: NewSpotOrderV1): Promise<APISuccessResponse<any>> {
+  submitFuturesOrder(
+    params: NewFuturesOrderV1,
+  ): Promise<APISuccessResponse<{ orderId: string }>> {
     return this.postPrivate('api/v1/orders', params);
   }
 }

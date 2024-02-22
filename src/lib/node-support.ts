@@ -6,7 +6,7 @@ export async function signMessage(
   secret: string,
   method: 'hex' | 'base64',
 ): Promise<string> {
-  console.log('sign message: ', { message, secret, method });
+  // console.log('sign message: ', { message, secret, method });
   const hmac = createHmac('sha256', secret).update(message);
 
   switch (method) {
