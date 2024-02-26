@@ -1,47 +1,36 @@
 import { SpotClient } from '../src';
 
-const readWriteAccount = {
-  key: 'keyHere',
-  secret: 'secretHere',
-  memo: 'memoHere',
-};
-
 async function start() {
-  const account = readWriteAccount;
+  const account = {
+    key: 'keyHere',
+    secret: 'secretHere',
+    passphrase: 'memoHere',
+  };
 
   const client = new SpotClient({
     apiKey: account.key,
     apiSecret: account.secret,
-    apiMemo: account.memo,
+    apiPassphrase: account.passphrase,
   });
 
   try {
-    const usdValue = 6;
-    const price = 52000;
-    const qty = usdValue / price;
-
-    const limitBuyOrder = {
-      symbol: 'BTC_USDT',
+    const spotBuyResult = await client.submitSpotOrder({
+      clientOid: client.generateNewOrderID(),
       side: 'buy',
-      type: 'limit',
-      size: String(qty),
-      price: String(price),
-    };
+      type: 'market',
+      symbol: 'BTC-USDT',
+      size: '0.00001',
+    });
+    console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
 
-    // const res = await client.submitSpotOrder({
-    //   symbol: 'BTC_USDT',
-    //   side: 'buy',
-    //   type: 'market',
-    //   size: String(qty),
-    // });
-
-    const res = await client.submitSpotOrder({
-      symbol: 'BTC_USDT',
+    const spotSellResult = await client.submitSpotOrder({
+      clientOid: client.generateNewOrderID(),
       side: 'sell',
       type: 'market',
-      size: String(0.00011),
+      symbol: 'BTC-USDT',
+      size: '0.00001',
     });
-    console.log('res ', JSON.stringify(res, null, 2));
+    console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
   } catch (e) {
     console.error(`Req error: `, e);
   }
