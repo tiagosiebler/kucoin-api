@@ -69,7 +69,7 @@ if (ENABLE_HTTP_TRACE) {
         status: response.status,
         statusText: response.statusText,
         headers: response.headers,
-        data: response.data,
+        data: JSON.stringify(response.data, null, 2),
       },
     });
     return response;

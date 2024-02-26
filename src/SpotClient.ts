@@ -62,6 +62,32 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/accounts');
   }
 
+  getAccountSpotMarginLedgers(params?: any): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v1/accounts/ledgers', params);
+  }
+
+  /**
+   *
+   ***********
+   * Funding
+   ***********
+   *
+   */
+
+  /**
+   *
+   * Deposit
+   *
+   */
+
+  getDeposits(params?: any): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v1/deposits', params);
+  }
+
+  getHistoricalDeposits(params?: any): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v1/hist-deposits', params);
+  }
+
   /**
    *
    ***********
