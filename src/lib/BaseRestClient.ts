@@ -1,16 +1,16 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 
-import { signMessage } from './node-support.js';
 import { neverGuard } from './misc-util.js';
+import { signMessage } from './node-support.js';
 import {
   APIIDFutures,
   APIIDFuturesSign,
   APIIDMain,
   APIIDMainSign,
+  getRestBaseUrl,
   REST_CLIENT_TYPE_ENUM,
   RestClientOptions,
   RestClientType,
-  getRestBaseUrl,
   serializeParams,
 } from './requestUtils.js';
 

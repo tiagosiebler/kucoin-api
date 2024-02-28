@@ -7,9 +7,8 @@ import {
   RestClientOptions,
   RestClientType,
 } from './lib/requestUtils.js';
-import { NewSpotOrderV1 } from './types/request/spot.types.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
 import { NewFuturesOrderV1 } from './types/request/futures.types.js';
+import { APISuccessResponse } from './types/response/shared.types.js';
 
 /**
  *

@@ -28,5 +28,5 @@
   },
   "compileOnSave": true,
   "exclude": ["node_modules", "dist", "test"],
-  "include": ["src/**/*.*"]
+  "include": ["src/**/*.*", ".eslintrc.cjs"]
 }
