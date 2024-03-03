@@ -59,20 +59,33 @@ export class SpotClient extends BaseRestClient {
    *
    * Get Account List - Spot/Margin/trade_hf
    */
-  getBalances(): Promise<SpotAccountBalance[]> {
-    return this.getPrivate('api/v1/accounts');
+  getBalances(params?: {
+    currency?: string;
+    type?: 'main' | 'trade' | 'margin' | 'trade_hf';
+  }): Promise<SpotAccountBalance[]> {
+    return this.getPrivate('api/v1/accounts', params);
   }
 
-  getAccount(params?: { accountId: any }): Promise<any> {
-    return this.getPrivate('api/v1/accounts', params);
+  getAccount(params: { accountId: any }): Promise<any> {
+    return this.getPrivate(`api/v1/accounts/${params.accountId}`);
   }
 
   /**
    * Get Account Ledgers - Spot/Margin
    */
   getAccountSpotMarginTransactions(params: {
-    currency: string;
-    startAt: number;
+    currency?: string; // Comma-separated list of currencies if more than one
+    direction?: 'in' | 'out';
+    bizType?:
+      | 'DEPOSIT'
+      | 'WITHDRAW'
+      | 'TRANSFER'
+      | 'SUB_TRANSFER'
+      | 'TRADE_EXCHANGE'
+      | 'MARGIN_EXCHANGE'
+      | 'KUCOIN_BONUS';
+    startAt?: number;
+    endAt?: number;
   }): Promise<any> {
     return this.getPrivate('api/v1/accounts/ledgers', params);
   }
@@ -81,9 +94,13 @@ export class SpotClient extends BaseRestClient {
    * Get Account Ledgers - trade_hf
    */
   getAccountHFTransactions(params: {
-    bizType: string;
-    currency: string;
-    startAt: number;
+    currency?: string; // Comma-separated list of currencies if more than one
+    direction?: 'in' | 'out';
+    bizType?: 'TRANSFER' | 'TRADE_EXCHANGE';
+    lastId?: number;
+    limit?: number;
+    startAt?: number;
+    endAt?: number;
   }): Promise<any> {
     return this.getPrivate('api/v1/hf/accounts/ledgers', params);
   }
@@ -92,9 +109,18 @@ export class SpotClient extends BaseRestClient {
    * Get Account Ledgers - margin_hf
    */
   getAccountHFMarginTransactions(params: {
-    bizType: string;
-    currency: string;
-    startAt: number;
+    currency?: string; // Comma-separated list of currencies if more than one
+    direction?: 'in' | 'out';
+    bizType?:
+      | 'TRANSFER'
+      | 'MARGIN_EXCHANGE'
+      | 'ISOLATED_EXCHANGE'
+      | 'LIQUIDATION'
+      | 'ASSERT_RETURN';
+    lastId?: number;
+    limit?: number;
+    startAt?: number;
+    endAt?: number;
   }): Promise<any> {
     return this.getPrivate('api/v3/hf/margin/account/ledgers', params);
   }
@@ -103,9 +129,18 @@ export class SpotClient extends BaseRestClient {
    * Get Account Ledgers - Futures
    */
   getAccountFuturesTransactions(params: {
-    offset: number;
-    forward: boolean;
-    maxCount: number;
+    startAt?: number;
+    endAt?: number;
+    type?:
+      | 'RealisedPNL'
+      | 'Deposit'
+      | 'Withdrawal'
+      | 'Transferin'
+      | 'TransferOut';
+    offset?: number;
+    maxCount?: number;
+    currency?: string;
+    forward?: boolean;
   }): Promise<any> {
     return this.getPrivate('api/v1/transaction-history', params);
   }
@@ -120,24 +155,38 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/sub/user');
   }
 
-  getSubAccountsV2(): Promise<any> {
-    return this.getPrivate('api/v2/sub/user');
+  getSubAccountsV2(params: {
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
+    return this.getPrivate('api/v2/sub/user', params);
   }
 
-  createSubAccount(params: {}): Promise<any> {
+  createSubAccount(params: {
+    password: string;
+    remarks?: string;
+    subName: string;
+    access: string;
+  }): Promise<any> {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
 
-  getSubAccountBalance(params: { subUserId: any }): Promise<any> {
-    return this.getPrivate('api/v1/sub-accounts', params);
+  getSubAccountBalance(params: {
+    subUserId: string;
+    includeBaseAmount: boolean;
+  }): Promise<any> {
+    return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
 
   getSubAccountBalancesV1(): Promise<any> {
     return this.getPrivate('api/v1/sub-accounts');
   }
 
-  getSubAccountBalancesV2(): Promise<any> {
-    return this.getPrivate('api/v2/sub-accounts');
+  getSubAccountBalancesV2(params: {
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
+    return this.getPrivate('api/v2/sub-accounts', params);
   }
 
   /**
@@ -147,19 +196,40 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSubAccountAPIs(params: any): Promise<any> {
+  getSubAccountAPIs(params: {
+    apiKey?: string;
+    subName: string;
+  }): Promise<any> {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 
-  createSubAccountAPI(params: any): Promise<any> {
+  createSubAccountAPI(params: {
+    subName: string;
+    passphrase: string;
+    remark: string;
+    permission?: string;
+    ipWhitelist?: string;
+    expire?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
-  updateSubAccountAPI(params: any): Promise<any> {
+  updateSubAccountAPI(params: {
+    subName: string;
+    apiKey: string;
+    passphrase: string;
+    permission?: string;
+    ipWhitelist?: string;
+    expire?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
-  deleteSubAccountAPI(params: any): Promise<any> {
+  deleteSubAccountAPI(params: {
+    apiKey: string;
+    passphrase: string;
+    subName: string;
+  }): Promise<any> {
     return this.deletePrivate('api/v1/sub/api-key', params);
   }
 
@@ -175,19 +245,22 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/margin/account');
   }
 
-  getMarginAccountBalanceDetail(params: {
-    quoteCurrency: string;
+  getMarginAccountBalanceDetail(params?: {
+    quoteCurrency?: string;
+    queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
   }): Promise<any> {
     return this.getPrivate('api/v3/margin/accounts', params);
   }
 
-  getIsolatedMarginAccountBalanceDetail(params: {
-    quoteCurrency: string;
+  getIsolatedMarginAccountBalanceDetail(params?: {
+    symbol?: string;
+    quoteCurrency?: string;
+    queryType?: 'ISOLATED' | 'ISOLATED_V2' | 'ALL';
   }): Promise<any> {
     return this.getPrivate('api/v3/isolated/accounts', params);
   }
 
-  getFuturesAccountBalance(params: { currency: string }): Promise<any> {
+  getFuturesAccountBalance(params?: { currency?: string }): Promise<any> {
     return this.getPrivate('api/v1/account-overview', params);
   }
 
@@ -203,23 +276,39 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  createDepositAddress(params: any): Promise<any> {
+  createDepositAddress(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/deposit-addresses', params);
   }
 
-  getDepositAddressesV2(params: any): Promise<any> {
+  getDepositAddressesV2(params: { currency: string }): Promise<any> {
     return this.getPrivate('api/v2/deposit-addresses', params);
   }
 
-  getDepositAddress(params: any): Promise<any> {
+  getDepositAddress(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<any> {
     return this.getPrivate('api/v1/deposit-addresses', params);
   }
 
-  getDepositList(params: any): Promise<any> {
+  getDepositList(params?: {
+    currency?: string;
+    startAt?: number;
+    endAt?: number;
+    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  }): Promise<any> {
     return this.getPrivate('api/v1/deposits', params);
   }
 
-  getV1HistoricalDepositsList(params: any): Promise<any> {
+  getV1HistoricalDepositsList(params?: {
+    currency?: string;
+    startAt?: number;
+    endAt?: number;
+    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  }): Promise<any> {
     return this.getPrivate('api/v1/hist-deposits', params);
   }
 
@@ -229,24 +318,46 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getWithdrawalsList(params: any): Promise<any> {
+  getWithdrawalsList(params?: {
+    currency?: string;
+    status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
+    startAt?: number;
+    endAt?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/withdrawals', params);
   }
 
-  getV1HistoricalWithdrawalsList(params: any): Promise<any> {
+  getV1HistoricalWithdrawalsList(params?: {
+    currency?: string;
+    startAt?: number;
+    endAt?: number;
+    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  }): Promise<any> {
     return this.getPrivate('api/v1/hist-withdrawals', params);
   }
 
-  getWithdrawalQuotas(params: any): Promise<any> {
+  getWithdrawalQuotas(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<any> {
     return this.getPrivate('api/v1/withdrawals/quotas', params);
   }
 
-  applyWithdraw(params: any): Promise<any> {
+  applyWithdraw(params: {
+    currency: string;
+    address: string;
+    amount: number;
+    memo?: string;
+    isInner?: boolean;
+    remark?: string;
+    chain?: string;
+    feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+  }): Promise<any> {
     return this.postPrivate('api/v1/withdrawals', params);
   }
 
-  cancelWithdrawal(params: any): Promise<any> {
-    return this.deletePrivate('api/v1/withdrawals/{withdrawalId}', params);
+  cancelWithdrawal(params: { withdrawalId: string }): Promise<any> {
+    return this.deletePrivate(`api/v1/withdrawals/${params.withdrawalId}`);
   }
 
   /**
@@ -255,34 +366,113 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getTransferable(params: any): Promise<any> {
+  getTransferable(params: {
+    currency: string;
+    type: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'ISOLATED';
+    tag?: string;
+  }): Promise<any> {
     return this.getPrivate('api/v1/accounts/transferable', params);
   }
 
-  flexTransfer(params: any): Promise<any> {
+  flexTransfer(params: {
+    clientOid: string;
+    currency?: string;
+    amount: string;
+    fromUserId?: string;
+    fromAccountType:
+      | 'MAIN'
+      | 'TRADE'
+      | 'CONTRACT'
+      | 'MARGIN'
+      | 'ISOLATED'
+      | 'TRADE_HF'
+      | 'MARGIN_V2'
+      | 'ISOLATED_V2';
+    fromAccountTag?: string;
+    type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
+    toUserId?: string;
+    toAccountType:
+      | 'MAIN'
+      | 'TRADE'
+      | 'CONTRACT'
+      | 'MARGIN'
+      | 'ISOLATED'
+      | 'TRADE_HF'
+      | 'MARGIN_V2'
+      | 'ISOLATED_V2';
+    toAccountTag?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v3/accounts/universal-transfer', params);
   }
 
-  transferBetweenMasterAndSubAccount(params: any): Promise<any> {
+  transferBetweenMasterAndSubAccount(params: {
+    clientOid: string;
+    currency: string;
+    amount: string;
+    direction: 'OUT' | 'IN';
+    accountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
+    subAccountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
+    subUserId: string;
+  }): Promise<any> {
     return this.postPrivate('api/v2/accounts/sub-transfer', params);
   }
 
-  innerTransfer(params: any): Promise<any> {
+  innerTransfer(params: {
+    clientOid: string;
+    currency: string;
+    from:
+      | 'main'
+      | 'trade'
+      | 'trade_hf'
+      | 'margin'
+      | 'isolated'
+      | 'margin_v2'
+      | 'isolated_v2'
+      | 'contract';
+    to:
+      | 'main'
+      | 'trade'
+      | 'trade_hf'
+      | 'margin'
+      | 'isolated'
+      | 'margin_v2'
+      | 'isolated_v2'
+      | 'contract';
+    amount: string;
+    fromTag?: string;
+    toTag?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v2/accounts/inner-transfer', params);
   }
 
   // Futures
-  transferFromFuturesAccount(params: any): Promise<any> {
+  transferFromFuturesAccount(params: {
+    amount: number;
+    currency: string;
+    recAccountType: 'MAIN' | 'TRADE';
+  }): Promise<any> {
     return this.postPrivate('api/v3/transfer-out', params);
   }
 
   // Futures
-  transferToFuturesAccount(params: any): Promise<any> {
+  transferToFuturesAccount(params: {
+    amount: number;
+    currency: string;
+    payAccountType: 'MAIN' | 'TRADE';
+  }): Promise<any> {
     return this.postPrivate('api/v1/transfer-in', params);
   }
 
   // Futures
-  getFuturesTransferOutRequestRecords(params: any): Promise<any> {
+  getFuturesTransferOutRequestRecords(params: {
+    startAt?: number;
+    endAt?: number;
+    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+    queryStatus?: Array<'PROCESSING' | 'SUCCESS' | 'FAILURE'>;
+    currency?: string;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/transfer-list', params);
   }
 
@@ -292,11 +482,11 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getBasicUserFee(params: any): Promise<any> {
+  getBasicUserFee(params: { currencyType: string }): Promise<any> {
     return this.getPrivate('api/v1/base-fee', params);
   }
 
-  getTradingPairActualFee(params: any): Promise<any> {
+  getTradingPairActualFee(params: { symbols: string }): Promise<any> {
     return this.getPrivate('api/v1/trade-fees', params);
   }
 
@@ -314,62 +504,88 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSpotCurrencyList(params: any): Promise<any> {
-    return this.get('api/v3/currencies', params);
+  getSpotCurrencyList(): Promise<any> {
+    return this.get('api/v3/currencies');
   }
 
-  getSpotCurrencyDetail(params: any): Promise<any> {
-    // Replace {currency} in the URL with the actual currency parameter provided
-    return this.get(`api/v3/currencies`, params);
+  getSpotCurrencyDetail(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<any> {
+    return this.get(`api/v3/currencies/${params.currency}`, params);
   }
 
-  getSpotSymbolsList(): Promise<any> {
-    return this.get('api/v2/symbols');
+  getSpotSymbolsList(params?: { market?: string }): Promise<any> {
+    return this.get('api/v2/symbols', params);
   }
 
-  getSpotTicker(params: any): Promise<any> {
-    // Append the symbol query parameter to the request URL
-    return this.get(`api/v1/market/orderbook`, params);
+  getSpotTicker(params: { symbol: string }): Promise<any> {
+    return this.get(`api/v1/market/orderbook/level1`, params);
   }
 
   getSpotAllTickers(): Promise<any> {
     return this.get('api/v1/market/allTickers');
   }
 
-  getSpot24hrStats(params: any): Promise<any> {
+  getSpot24hrStats(params: { symbol: string }): Promise<any> {
     return this.get('api/v1/market/stats', params);
   }
 
-  getSpotMarketList(params: any): Promise<any> {
-    return this.get('api/v1/markets', params);
+  getSpotMarketList(): Promise<any> {
+    return this.get('api/v1/markets');
   }
 
-  getSpotPartOrderBook(params: any): Promise<any> {
-    return this.get(`api/v1/market/orderbook`, params);
+  getSpotPartOrderBookLevel20(params: { symbol: string }): Promise<any> {
+    return this.get(`api/v1/market/orderbook/level2_20`, params);
   }
 
-  getSpotFullOrderBook(params: any): Promise<any> {
+  getSpotPartOrderBookLevel100(params: { symbol: string }): Promise<any> {
+    return this.get(`api/v1/market/orderbook/level2_100`, params);
+  }
+
+  getSpotFullOrderBook(params: { symbol: string }): Promise<any> {
     return this.get('api/v3/market/orderbook/level2', params);
   }
 
-  getSpotTradeHistories(params: any): Promise<any> {
+  getSpotTradeHistories(params: { symbol: string }): Promise<any> {
     return this.get('api/v1/market/histories', params);
   }
 
-  getSpotKlines(params: any): Promise<any> {
+  getSpotKlines(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    type:
+      | '1min'
+      | '3min'
+      | '5min'
+      | '15min'
+      | '30min'
+      | '1hour'
+      | '2hour'
+      | '4hour'
+      | '6hour'
+      | '8hour'
+      | '12hour'
+      | '1day'
+      | '1week';
+  }): Promise<any> {
     return this.get('api/v1/market/candles', params);
   }
 
-  getSpotFiatPrice(params: any): Promise<any> {
+  getSpotFiatPrice(params?: {
+    base?: string;
+    currencies?: string;
+  }): Promise<any> {
     return this.get('api/v1/prices', params);
   }
 
-  getSpotServerTime(params: any): Promise<any> {
-    return this.get('api/v1/timestamp', params);
+  getSpotServerTime(): Promise<any> {
+    return this.get('api/v1/timestamp');
   }
 
-  getSpotServiceStatus(params: any): Promise<any> {
-    return this.get('api/v1/status', params);
+  getSpotServiceStatus(): Promise<any> {
+    return this.get('api/v1/status');
   }
 
   /**
@@ -377,98 +593,195 @@ export class SpotClient extends BaseRestClient {
    * Spot HF trade
    *
    */
-  placeSpotHFOrder(params: any): Promise<any> {
+  placeSpotHFOrder(params: {
+    clientOid?: string;
+    symbol: string;
+    type: 'limit' | 'market';
+    side: 'buy' | 'sell';
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    tags?: string;
+    remark?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/hf/orders', params);
   }
 
-  placeSpotHFOrderTest(params: any): Promise<any> {
-    return this.postPrivate('api/v1/hf/orders/test', params);
+  placeSpotHFOrderTest(): Promise<any> {
+    return this.postPrivate('api/v1/hf/orders/test');
   }
 
-  placeSpotHFOrderSync(params: any): Promise<any> {
+  placeSpotHFOrderSync(params: {
+    clientOid?: string;
+    symbol: string;
+    type: 'limit' | 'market';
+    side: 'buy' | 'sell';
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    tags?: string;
+    remark?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/hf/orders/sync', params);
   }
 
-  placeSpotMultipleHFOrders(params: any): Promise<any> {
+  placeSpotMultipleHFOrders(params: {
+    clientOid?: string;
+    symbol: string;
+    type: 'limit' | 'market';
+    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    side: 'buy' | 'sell';
+    price: string;
+    size: string;
+    cancelAfter?: number;
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: string;
+    tags?: string;
+    remark?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
 
-  placeSpotMultipleHFOrdersSync(params: any): Promise<any> {
+  placeSpotMultipleHFOrdersSync(params: {
+    clientOid?: string;
+    symbol: string;
+    type: 'limit' | 'market';
+    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    side: 'buy' | 'sell';
+    price: string;
+    size: string;
+    cancelAfter?: number;
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: string;
+    tags?: string;
+    remark?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
 
-  modifySpotHFOrder(params: any): Promise<any> {
+  modifySpotHFOrder(params: {
+    symbol: string;
+    clientOid?: string;
+    orderId?: string;
+    newPrice?: string;
+    newSize?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/hf/orders/alter', params);
   }
 
-  // check this one for Tiago
-  cancelSpotHFOrder(params: any): Promise<any> {
-    return this.deletePrivate(
-      `api/v1/hf/orders/${params.orderId}?symbol=${params.symbol}`,
-    );
+  cancelSpotHFOrder(params: { orderId: string; symbol: string }): Promise<any> {
+    return this.deletePrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
-  syncSpotCancelHFOrder(params: any): Promise<any> {
+  syncSpotCancelHFOrder(params: {
+    orderId: string;
+    symbol: string;
+  }): Promise<any> {
     return this.deletePrivate(
-      `api/v1/hf/orders/sync/${params.orderId}/cancel`,
+      `api/v1/hf/orders/sync/${params.orderId}`,
       params,
     );
   }
 
-  cancelSpotHFOrderByClientOId(params: any): Promise<any> {
+  cancelSpotHFOrderByClientOId(params: {
+    clientOid: string;
+    symbol: string;
+  }): Promise<any> {
     return this.deletePrivate(
-      `api/v1/hf/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
+      `api/v1/hf/orders/client-order/${params.clientOid}`,
+      params,
     );
   }
 
-  syncSpotCancelHFOrderByClientOId(params: any): Promise<any> {
-    return this.deletePrivate(`api/v1/hf/orders/sync/client-order`, params);
+  syncSpotCancelHFOrderByClientOId(params: {
+    clientOid: string;
+    symbol: string;
+  }): Promise<any> {
+    return this.deletePrivate(
+      `api/v1/hf/orders/sync/client-order/${params.clientOid}`,
+      params,
+    );
   }
 
-  cancelSpotSpecifiedNumberHFOrders(params: any): Promise<any> {
-    return this.deletePrivate(`api/v1/hf/orders/cancel`, params);
+  cancelSpotSpecifiedNumberHFOrders(params: {
+    orderId: string;
+    symbol: string;
+    cancelSize: string;
+  }): Promise<any> {
+    return this.deletePrivate(
+      `api/v1/hf/orders/cancel/${params.orderId}`,
+      params,
+    );
   }
 
-  cancelSpotAllHFOrdersBySymbol(params: any): Promise<any> {
+  cancelSpotAllHFOrdersBySymbol(params: { symbol: string }): Promise<any> {
     return this.deletePrivate(`api/v1/hf/orders`, params);
   }
 
-  cancelSpotAllHFOrders(params: any): Promise<any> {
-    return this.deletePrivate(`api/v1/hf/orders/cancelAll`, params);
+  cancelSpotAllHFOrders(): Promise<any> {
+    return this.deletePrivate(`api/v1/hf/orders/cancelAll`);
   }
 
-  getSpotActiveHFOrders(params: any): Promise<any> {
+  getSpotActiveHFOrders(params: { symbol: string }): Promise<any> {
     return this.getPrivate(`api/v1/hf/orders/active`, params);
   }
 
-  getSpotActiveHFOrdersSymbols(params: any): Promise<any> {
-    return this.getPrivate(`api/v1/hf/orders/active/symbols`, params);
+  getSpotActiveHFSymbols(): Promise<any> {
+    return this.getPrivate(`api/v1/hf/orders/active/symbols`);
   }
 
-  getSpotHFCompletedOrders(params: any): Promise<any> {
+  getSpotHFCompletedOrders(params: {
+    symbol: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market';
+    startAt?: number;
+    endAt?: number;
+    lastId?: number;
+    limit?: number;
+  }): Promise<any> {
     return this.getPrivate(`api/v1/hf/orders/done`, params);
   }
 
-  getSpotHFOrderDetailsByOrderId(params: any): Promise<any> {
-    return this.getPrivate(`api/v1/hf/orders`, params);
+  getSpotHFOrderDetailsByOrderId(params: {
+    orderId: string;
+    symbol: string;
+  }): Promise<any> {
+    return this.getPrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
-  getSpotHFOrderDetailsByClientOid(params: any): Promise<any> {
+  getSpotHFOrderDetailsByClientOid(params: {
+    clientOid: string;
+    symbol: string;
+  }): Promise<any> {
     return this.getPrivate(
       `api/v1/hf/orders/client-order/${params.clientOid}`,
-      { symbol: params.symbol },
+      params,
     );
   }
 
-  autoCancelSpotHFOrderSetting(params: any): Promise<any> {
+  autoCancelSpotHFOrderSetting(params: {
+    timeout: number;
+    symbols?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/hf/orders/dead-cancel-all', params);
   }
 
-  autoCancelSpotHFOrderSettingQuery(params: any): Promise<any> {
-    return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query', params);
+  autoCancelSpotHFOrderSettingQuery(): Promise<any> {
+    return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query');
   }
 
-  getSpotHFFilledList(params: any): Promise<any> {
+  getSpotHFFilledList(params: {
+    orderId?: string;
+    symbol: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market';
+    startAt?: number;
+    endAt?: number;
+    lastId?: number;
+    limit?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/hf/fills', params);
   }
 
@@ -479,43 +792,89 @@ export class SpotClient extends BaseRestClient {
    */
 
   // SPOT and MARGIN
-  placeOrder(params: any): Promise<any> {
+  placeOrder(params: {
+    clientOid: string;
+    side: 'buy' | 'sell';
+    symbol: string;
+    type?: 'limit' | 'market';
+    remark?: string;
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    tradeType?: 'TRADE' | 'MARGIN_TRADE';
+    price?: string;
+    size?: string;
+    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+    cancelAfter?: number;
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: string;
+    funds?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/orders', params);
   }
 
   // SPOT and MARGIN
-  placeOrderTest(params: any): Promise<any> {
-    return this.postPrivate('api/v1/orders/test', params);
+  placeOrderTest(): Promise<any> {
+    return this.postPrivate('api/v1/orders/test');
   }
 
   //SPOT
-  placeMultipleOrders(params: any): Promise<any> {
+  placeMultipleOrders(params: {
+    clientOid: string;
+    side: 'buy' | 'sell';
+    symbol: string;
+    type?: 'limit';
+    remark?: string;
+    stop?: 'loss' | 'entry';
+    stopPrice?: string;
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    tradeType?: 'TRADE';
+    price: string;
+    size: string;
+    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+    cancelAfter?: number;
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
   // Used for Spot and Margin Trading: Cancels a single order by orderId.
-  cancelOrderById(params: any): Promise<any> {
+  cancelOrderById(params: { orderId: string }): Promise<any> {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
   }
 
   // Used for Spot and Margin Trading: Cancels a single order by clientOid.
-  cancelOrderByClientOid(params: any): Promise<any> {
+  cancelOrderByClientOid(params: { clientOid: string }): Promise<any> {
     return this.deletePrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
   // Used for Spot and Margin Trading: Cancels all open orders.
-  cancelAllOrders(params?: any): Promise<any> {
+  cancelAllOrders(params?: {
+    symbol?: string;
+    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  }): Promise<any> {
     return this.deletePrivate('api/v1/orders', params);
   }
 
   // Retrieves the current list of orders. Supports filtering by status and trade type.
-  getOrderList(params?: any): Promise<any> {
+  getOrderList(params?: {
+    status?: 'active' | 'done';
+    symbol?: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+    startAt?: number;
+    endAt?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/orders', params);
   }
 
   // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
-  getRecentOrdersList(params?: any): Promise<any> {
-    return this.getPrivate('api/v1/limit/orders', params);
+  getRecentOrdersList(): Promise<any> {
+    return this.getPrivate('api/v1/limit/orders');
   }
 
   // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
@@ -535,13 +894,21 @@ export class SpotClient extends BaseRestClient {
    */
 
   // General permission, Retrieves a list of the most recent fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
-  getSpotFilledList(params?: any): Promise<any> {
+  getSpotFilledList(params?: {
+    orderId?: string;
+    symbol?: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+    startAt?: number;
+    endAt?: number;
+    tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  }): Promise<any> {
     return this.getPrivate('api/v1/fills', params);
   }
 
   // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
-  getSpotRecentFillsList(params?: any): Promise<any> {
-    return this.getPrivate('api/v1/limit/fills', params);
+  getSpotRecentFillsList(): Promise<any> {
+    return this.getPrivate('api/v1/limit/fills');
   }
 
   /**
@@ -551,7 +918,26 @@ export class SpotClient extends BaseRestClient {
    */
 
   // Spot and margin trading, places a stop order on the platform.
-  placeStopOrder(params: { orderId: string }): Promise<any> {
+  placeStopOrder(params: {
+    clientOid: string;
+    side: 'buy' | 'sell';
+    symbol: string;
+    type?: 'limit' | 'market';
+    remark?: string;
+    stop?: 'loss' | 'entry';
+    stopPrice?: string;
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+    price?: string;
+    size?: string;
+    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+    cancelAfter?: number;
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: string;
+    funds?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/stop-order', params);
   }
 
@@ -562,7 +948,10 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Cancels a stop order by clientOid. Requires "Spot Trading" or "Margin Trading" permission.
-  cancelStopOrderByClientOid(params: any): Promise<any> {
+  cancelStopOrderByClientOid(params: {
+    clientOid: string;
+    symbol?: string;
+  }): Promise<any> {
     return this.deletePrivate(
       `api/v1/stop-order/cancelOrderByClientOid`,
       params,
@@ -570,22 +959,40 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Cancels a batch of stop orders. Requires "Spot Trading" or "Margin Trading" permission.
-  cancelStopOrders(params: any): Promise<any> {
+  cancelStopOrders(params?: {
+    symbol?: string;
+    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+    orderIds?: string;
+  }): Promise<any> {
     return this.deletePrivate(`api/v1/stop-order/cancel`, params);
   }
 
   // Retrieves your current untriggered stop order list, paginated and sorted to show the latest first.
-  getStopOrdersList(params: any): Promise<any> {
+  getStopOrdersList(params?: {
+    symbol?: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+    startAt?: number;
+    endAt?: number;
+    currentPage?: number;
+    orderIds?: string;
+    pageSize?: number;
+    stop?: 'stop' | 'oco';
+  }): Promise<any> {
     return this.getPrivate('api/v1/stop-order', params);
   }
 
   // Retrieves the details of a single stop order by its orderId.
-  getStopOrderDetailsByOrderId(params: any): Promise<any> {
+  getStopOrderDetailsByOrderId(params: { orderId: string }): Promise<any> {
     return this.getPrivate(`api/v1/stop-order/${params.orderId}`);
   }
 
   // Retrieves the details of a single stop order by its clientOid.
-  getStopOrderDetailsByClientOid(params: any): Promise<any> {
+  getStopOrderDetailsByClientOid(params: {
+    clientOid: string;
+    symbol?: string;
+  }): Promise<any> {
     return this.getPrivate('api/v1/stop-order/queryOrderByClientOid', params);
   }
   /**
@@ -595,42 +1002,62 @@ export class SpotClient extends BaseRestClient {
    */
 
   // Places an OCO (One Cancels the Other) order on the platform.
-  placeOCOOrder(params: any): Promise<any> {
+  placeOCOOrder(params: {
+    symbol: string;
+    side: 'buy' | 'sell';
+    price: string;
+    size: string;
+    stopPrice: string;
+    limitPrice: string;
+    tradeType?: 'TRADE'; // Currently only supports TRADE
+    clientOid: string;
+    remark?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v3/oco/order', params);
   }
 
   // Cancels a single OCO order by orderId.
-  cancelOCOOrderById(params: any): Promise<any> {
+  cancelOCOOrderById(params: { orderId: string }): Promise<any> {
     return this.deletePrivate(`api/v3/oco/order/${params.orderId}`);
   }
 
   // Cancels a single OCO order by clientOid.
-  cancelOCOOrderByClientOid(params: any): Promise<any> {
+  cancelOCOOrderByClientOid(params: { clientOid: string }): Promise<any> {
     return this.deletePrivate(`api/v3/oco/client-order/${params.clientOid}`);
   }
 
   // Batch cancels OCO orders through orderIds.
-  cancelMultipleOCOOrders(params: any): Promise<any> {
+  cancelMultipleOCOOrders(params?: {
+    orderIds?: string;
+    symbol?: string;
+  }): Promise<any> {
     return this.deletePrivate('api/v3/oco/orders', params);
   }
 
   // Retrieves the details of a single OCO order by its orderId.
-  getOCOOrderDetailsByOrderId(params: any): Promise<any> {
+  getOCOOrderDetailsByOrderId(params: { orderId: string }): Promise<any> {
     return this.getPrivate(`api/v3/oco/order/${params.orderId}`);
   }
 
   // Retrieves the details of a single OCO order by its orderId, including detailed information about the individual orders.
-  getOCOOrderDetails(params: any): Promise<any> {
+  getOCOOrderDetails(params: { orderId: string }): Promise<any> {
     return this.getPrivate(`api/v3/oco/order/details/${params.orderId}`);
   }
 
   // Retrieves the details of a single OCO order by its clientOid.
-  getOCOOrderDetailsByClientOid(params: any): Promise<any> {
+  getOCOOrderDetailsByClientOid(params: { clientOid: string }): Promise<any> {
     return this.getPrivate(`api/v3/oco/client-order/${params.clientOid}`);
   }
 
   // Retrieves your current OCO order list, paginated and sorted to show the latest first.
-  getOCOOrdersList(params: any): Promise<any> {
+  getOCOOrdersList(params: {
+    pageSize: string;
+    currentPage: string;
+    symbol?: string;
+    startAt?: number;
+    endAt?: number;
+    orderIds?: string;
+  }): Promise<any> {
     return this.getPrivate('api/v3/oco/orders', params);
   }
 
