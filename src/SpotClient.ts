@@ -1387,35 +1387,60 @@ export class SpotClient extends BaseRestClient {
     return this.get(`api/v1/contracts/${params.symbol}`);
   }
 
-  getFuturesTicker(params: any): Promise<any> {
+  getFuturesTicker(params: { symbol: string }): Promise<any> {
     return this.get('api/v1/ticker', params);
   }
 
-  getFuturesFullOrderBookLevel2(params: any): Promise<any> {
+  getFuturesFullOrderBookLevel2(params: { symbol: string }): Promise<any> {
     return this.get('api/v1/level2/snapshot', params);
   }
 
-  getFuturesPartOrderBookLevel2Depth20(params: any): Promise<any> {
+  getFuturesPartOrderBookLevel2Depth20(params: {
+    symbol: string;
+  }): Promise<any> {
     return this.get('api/v1/level2/depth20', params);
   }
 
-  getFuturesPartOrderBookLevel2Depth100(params: any): Promise<any> {
+  getFuturesPartOrderBookLevel2Depth100(params: {
+    symbol: string;
+  }): Promise<any> {
     return this.get('api/v1/level2/depth100', params);
   }
 
-  getFuturesTransactionHistory(params: any): Promise<any> {
+  getFuturesTransactionHistory(params: { symbol: string }): Promise<any> {
     return this.get('api/v1/trade/history', params);
   }
 
-  getFuturesKlines(params: any): Promise<any> {
+  getFuturesKlines(params: {
+    symbol: string;
+    granularity: number;
+    from?: number;
+    to?: number;
+  }): Promise<any> {
     return this.get('api/v1/kline/query', params);
   }
 
-  getFuturesInterestRateList(params: any): Promise<any> {
+  getFuturesInterestRateList(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    reverse?: boolean;
+    offset?: number;
+    forward?: boolean;
+    maxCount?: number;
+  }): Promise<any> {
     return this.get('api/v1/interest/query', params);
   }
 
-  getFuturesIndexList(params: any): Promise<any> {
+  getFuturesIndexList(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    reverse?: boolean;
+    offset?: number;
+    forward?: boolean;
+    maxCount?: number;
+  }): Promise<any> {
     return this.get('api/v1/index/query', params);
   }
 
@@ -1423,7 +1448,15 @@ export class SpotClient extends BaseRestClient {
     return this.get(`api/v1/mark-price/${params.symbol}/current`);
   }
 
-  getFuturesPremiumIndex(params: any): Promise<any> {
+  getFuturesPremiumIndex(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    reverse?: boolean;
+    offset?: number;
+    forward?: boolean;
+    maxCount?: number;
+  }): Promise<any> {
     return this.get('api/v1/premium/query', params);
   }
 
@@ -1445,43 +1478,104 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  submitFuturesOrder(params: any): Promise<any> {
+  submitFuturesOrder(params: {
+    clientOid: string;
+    side: 'buy' | 'sell';
+    symbol: string;
+    leverage: string;
+    type?: 'limit' | 'market';
+    remark?: string;
+    stop?: 'down' | 'up';
+    stopPriceType?: 'TP' | 'IP' | 'MP';
+    stopPrice?: string;
+    reduceOnly?: boolean;
+    closeOrder?: boolean;
+    forceHold?: boolean;
+    stp?: 'CN' | 'CO' | 'CB';
+    price: string;
+    size?: number;
+    timeInForce?: 'GTC' | 'IOC';
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: number;
+  }): Promise<any> {
     return this.postPrivate('api/v1/orders', params);
   }
 
-  sumbitFuturesOrderTest(params: any): Promise<any> {
-    return this.postPrivate('api/v1/orders/test', params);
+  sumbitFuturesOrderTest(): Promise<any> {
+    return this.postPrivate('api/v1/orders/test');
   }
 
   cancelFuturesOrderById(params: { orderId: string }): Promise<any> {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
   }
 
+  //check docs, very weird. Maybe ask API guys to check
   cancelFuturesOrderByClientOid(params: { clientOid: string }): Promise<any> {
     return this.deletePrivate(`api/v1/orders/client-order/${params.clientOid}`);
   }
 
-  submitMultipleFuturesOrders(params: any): Promise<any> {
+  submitMultipleFuturesOrders(params: {
+    clientOid: string;
+    side: 'buy' | 'sell';
+    symbol: string;
+    leverage: string;
+    type?: 'limit' | 'market';
+    remark?: string;
+    stop?: 'down' | 'up';
+    stopPriceType?: 'TP' | 'IP' | 'MP';
+    stopPrice?: string;
+    reduceOnly?: boolean;
+    closeOrder?: boolean;
+    forceHold?: boolean;
+    stp?: 'CN' | 'CO' | 'CB';
+    // Parameters specific to limit orders
+    price?: string; // Mandatory for limit orders
+    size?: number; // Mandatory for both limit and market orders
+    timeInForce?: 'GTC' | 'IOC';
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: number;
+  }): Promise<any> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
-  cancelMultipleFuturesOrders(params?: any): Promise<any> {
+  cancelMultipleFuturesOrders(params?: { symbol?: string }): Promise<any> {
     return this.deletePrivate('api/v1/orders', params);
   }
 
-  cancelMultipleFuturesStopOrders(params?: any): Promise<any> {
+  cancelMultipleFuturesStopOrders(params?: { symbol?: string }): Promise<any> {
     return this.deletePrivate('api/v1/stopOrders', params);
   }
 
-  getFuturesOrderList(params?: any): Promise<any> {
+  getFuturesOrderList(params?: {
+    status?: 'active' | 'done';
+    symbol?: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+    startAt?: number;
+    endAt?: number;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/orders', params);
   }
 
-  getFuturesUntriggeredStopOrdersList(params: any): Promise<any> {
+  getFuturesUntriggeredStopOrdersList(params?: {
+    symbol?: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market';
+    startAt?: number;
+    endAt?: number;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/stopOrders', params);
   }
 
-  getFuturesRecentOrdersList(params?: any): Promise<any> {
+  getFuturesRecentOrdersList(params?: { symbol?: string }): Promise<any> {
     return this.getPrivate('api/v1/recentDoneOrders', params);
   }
 
@@ -1489,7 +1583,9 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
-  getFuturesOrderDetailsByClientOid(params: any): Promise<any> {
+  getFuturesOrderDetailsByClientOid(params: {
+    clientOid: string;
+  }): Promise<any> {
     return this.getPrivate(`api/v1/orders/byClientOid`, params);
   }
 
@@ -1499,15 +1595,24 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getFuturesFilledList(params?: any): Promise<any> {
+  getFuturesFilledList(params?: {
+    orderId?: string;
+    symbol?: string;
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+    startAt?: number;
+    endAt?: number;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/fills', params);
   }
 
-  getFuturesRecentFilledList(params?: any): Promise<any> {
+  getFuturesRecentFilledList(params?: { symbol?: string }): Promise<any> {
     return this.getPrivate('api/v1/recentFills', params);
   }
 
-  getFuturesActiveOrderValue(params?: any): Promise<any> {
+  getFuturesActiveOrderValue(params: { symbol: string }): Promise<any> {
     return this.getPrivate('api/v1/openOrderStatistics', params);
   }
 
@@ -1517,30 +1622,40 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getFuturesPositionDetails(params: any): Promise<any> {
+  getFuturesPositionDetails(params: { symbol: string }): Promise<any> {
     return this.getPrivate('api/v1/position', params);
   }
 
-  getFuturesPositionList(params?: any): Promise<any> {
+  getFuturesPositionList(params?: { currency?: string }): Promise<any> {
     return this.getPrivate('api/v1/positions', params);
   }
 
-  modifyFuturesAutoDepositMarginStatus(params: any): Promise<any> {
+  modifyFuturesAutoDepositMarginStatus(params: {
+    symbol: string;
+    status: boolean;
+  }): Promise<any> {
     return this.postPrivate(
       'api/v1/position/margin/auto-deposit-status',
       params,
     );
   }
 
-  getFuturesMaxWithdrawMargin(params: any): Promise<any> {
+  getFuturesMaxWithdrawMargin(params: { symbol: string }): Promise<any> {
     return this.getPrivate('api/v1/margin/maxWithdrawMargin', params);
   }
 
-  removeFuturesMarginManually(params: any): Promise<any> {
+  removeFuturesMarginManually(params: {
+    symbol: string;
+    withdrawAmount: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/margin/withdrawMargin', params);
   }
 
-  addFuturesMarginManually(params: any): Promise<any> {
+  addFuturesMarginManually(params: {
+    symbol: string;
+    margin: number;
+    bizNo: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/position/margin/deposit-margin', params);
   }
 
@@ -1554,7 +1669,10 @@ export class SpotClient extends BaseRestClient {
     return this.get(`api/v1/contracts/risk-limit/${params.symbol}`);
   }
 
-  modifyFuturesRiskLimitLevel(params: any): Promise<any> {
+  modifyFuturesRiskLimitLevel(params: {
+    symbol: string;
+    level: number;
+  }): Promise<any> {
     return this.postPrivate('api/v1/position/risk-limit-level/change', params);
   }
 
@@ -1568,11 +1686,23 @@ export class SpotClient extends BaseRestClient {
     return this.get(`api/v1/funding-rate/${params.symbol}/current`);
   }
 
-  getFuturesPublicFundingHistory(params: any): Promise<any> {
+  getFuturesPublicFundingHistory(params: {
+    symbol: string;
+    from: number;
+    to: number;
+  }): Promise<any> {
     return this.get('api/v1/contract/funding-rates', params);
   }
 
-  getFuturesPrivateFundingHistory(params: any): Promise<any> {
+  getFuturesPrivateFundingHistory(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    reverse?: boolean;
+    offset?: number;
+    forward?: boolean;
+    maxCount?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v1/funding-history', params);
   }
 }
