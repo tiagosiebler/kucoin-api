@@ -1075,53 +1075,106 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  placeHFMarginOrder(params: any): Promise<any> {
+  placeHFMarginOrder(params: {
+    clientOid: string;
+    side: 'buy' | 'sell';
+    symbol: string;
+    type?: 'limit' | 'market';
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    isIsolated?: boolean;
+    autoBorrow?: boolean;
+    autoRepay?: boolean;
+    price?: string;
+    size?: string;
+    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+    cancelAfter?: number;
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: string;
+    funds?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v3/hf/margin/order', params);
   }
 
-  placeHFMarginOrderTest(params: any): Promise<any> {
-    return this.postPrivate('api/v3/hf/margin/order/test', params);
+  placeHFMarginOrderTest(): Promise<any> {
+    return this.postPrivate('api/v3/hf/margin/order/test');
   }
 
-  cancelHFMarginOrder(params: any): Promise<any> {
+  cancelHFMarginOrder(params: {
+    orderId: string;
+    symbol: string;
+  }): Promise<any> {
     return this.deletePrivate(
-      `api/v3/hf/margin/orders/${params.orderId}?symbol=${params.symbol}`,
+      `api/v3/hf/margin/orders/${params.orderId}`,
+      params,
     );
   }
 
-  cancelHFMarginOrderByClientOid(params: any): Promise<any> {
+  cancelHFMarginOrderByClientOid(params: {
+    clientOid: string;
+    symbol: string;
+  }): Promise<any> {
     return this.deletePrivate(
-      `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
+      `api/v3/hf/margin/orders/client-order/${params.clientOid}`,
+      params,
     );
   }
 
-  cancelAllHFMarginOrders(params: any): Promise<any> {
-    return this.deletePrivate(
-      `api/v3/hf/margin/orders?symbol=${params.symbol}&tradeType=${params.tradeType}`,
-    );
+  cancelAllHFMarginOrders(params: {
+    symbol: string;
+    tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  }): Promise<any> {
+    return this.deletePrivate(`api/v3/hf/margin/orders`, params);
   }
 
-  getActiveHFMarginOrders(params: any): Promise<any> {
+  getActiveHFMarginOrders(params: {
+    symbol: string;
+    tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  }): Promise<any> {
     return this.getPrivate(`api/v3/hf/margin/orders/active`, params);
   }
 
-  getHFMarginFilledList(params: any): Promise<any> {
+  getHFMarginFilledList(params: {
+    symbol: string;
+    tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market';
+    startAt?: number;
+    endAt?: number;
+    lastId?: number;
+    limit?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
   }
 
-  getHFMarginOrderDetailsByOrderId(params: any): Promise<any> {
-    return this.getPrivate(
-      `api/v3/hf/margin/orders/${params.orderId}?symbol=${params.symbol}`,
-    );
+  getHFMarginOrderDetailsByOrderId(params: {
+    orderId: string;
+    symbol: string;
+  }): Promise<any> {
+    return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
   }
 
-  getHFMarginOrderDetailsByClientOid(params: any): Promise<any> {
+  getHFMarginOrderDetailsByClientOid(params: {
+    clientOid: string;
+    symbol: string;
+  }): Promise<any> {
     return this.getPrivate(
       `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
     );
   }
 
-  getHFMarginTransactionRecords(params: any): Promise<any> {
+  getHFMarginTransactionRecords(params: {
+    orderId?: string;
+    symbol: string;
+    tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+    side?: 'buy' | 'sell';
+    type?: 'limit' | 'market';
+    startAt?: number;
+    endAt?: number;
+    lastId?: number;
+    limit?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v3/hf/margin/fills', params);
   }
 
@@ -1131,12 +1184,31 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  placeMarginOrder(params: any): Promise<any> {
+  placeMarginOrder(params: {
+    clientOid: string;
+    side: 'buy' | 'sell';
+    symbol: string;
+    type?: 'limit' | 'market';
+    remark?: string;
+    stp?: 'CN' | 'CO' | 'CB' | 'DC';
+    marginModel?: 'cross' | 'isolated';
+    autoBorrow?: boolean;
+    autoRepay?: boolean;
+    price: string;
+    size?: string;
+    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+    cancelAfter?: number;
+    postOnly?: boolean;
+    hidden?: boolean;
+    iceberg?: boolean;
+    visibleSize?: string;
+    funds?: string;
+  }): Promise<any> {
     return this.postPrivate('api/v1/margin/order', params);
   }
 
-  placeMarginOrderTest(params: any): Promise<any> {
-    return this.postPrivate('api/v1/margin/order/test', params);
+  placeMarginOrderTest(): Promise<any> {
+    return this.postPrivate('api/v1/margin/order/test');
   }
 
   /**
@@ -1145,19 +1217,23 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getMarginLeveragedTokenInfo(params: any): Promise<any> {
+  getMarginLeveragedTokenInfo(params?: { currency?: string }): Promise<any> {
     return this.get('api/v3/etf/info', params);
   }
 
-  getMarginMarkPrice(params: any): Promise<any> {
-    return this.get(`api/v1/mark-price/${params.symbol}/current`, params);
+  getMarginMarkPrice(params: { symbol: string }): Promise<any> {
+    return this.get(`api/v1/mark-price/${params.symbol}/current`);
   }
 
-  getMarginConfigInfo(params: any): Promise<any> {
-    return this.get('api/v1/margin/config', params);
+  getMarginConfigInfo(): Promise<any> {
+    return this.get('api/v1/margin/config');
   }
 
-  getMarginRiskLimitCurrencyConfig(params: any): Promise<any> {
+  getMarginRiskLimitCurrencyConfig(params: {
+    isIsolated: boolean;
+    symbol?: string;
+    currency?: string;
+  }): Promise<any> {
     return this.get('api/v3/margin/currencies', params);
   }
 
@@ -1167,16 +1243,18 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getIsolatedMarginSymbolsConfig(params: any): Promise<any> {
-    return this.getPrivate('api/v1/isolated/symbols', params);
+  getIsolatedMarginSymbolsConfig(): Promise<any> {
+    return this.getPrivate('api/v1/isolated/symbols');
   }
 
-  getIsolatedMarginAccountInfo(params: any): Promise<any> {
+  getIsolatedMarginAccountInfo(params?: {
+    balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
+  }): Promise<any> {
     return this.getPrivate('api/v1/isolated/accounts', params);
   }
 
-  getSingleIsolatedMarginAccountInfo(params: any): Promise<any> {
-    return this.getPrivate(`api/v1/isolated/account/${params.symbol}`, params);
+  getSingleIsolatedMarginAccountInfo(params: { symbol: string }): Promise<any> {
+    return this.getPrivate(`api/v1/isolated/account/${params.symbol}`);
   }
 
   /**
@@ -1185,19 +1263,48 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  marginBorrowV3(params: any): Promise<any> {
+  marginBorrowV3(params: {
+    isIsolated?: boolean;
+    symbol?: string;
+    currency: string;
+    size: number;
+    timeInForce: 'IOC' | 'FOK';
+  }): Promise<any> {
     return this.postPrivate('api/v3/margin/borrow', params);
   }
 
-  marginRepayV3(params: any): Promise<any> {
+  marginRepayV3(params: {
+    isIsolated?: boolean;
+    symbol?: string;
+    currency: string;
+    size: number;
+  }): Promise<any> {
     return this.postPrivate('api/v3/margin/repay', params);
   }
 
-  getMarginBorrowingHistoryV3(params: any): Promise<any> {
+  getMarginBorrowingHistoryV3(params: {
+    currency: string;
+    isIsolated?: boolean;
+    symbol?: string;
+    orderNo?: string;
+    startTime?: number;
+    endTime?: number;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v3/margin/borrow', params);
   }
 
-  getmarginRepaymentHistoryV3(params: any): Promise<any> {
+  getMarginRepaymentHistoryV3(params: {
+    currency: string;
+    isIsolated?: boolean;
+    symbol?: string;
+    orderNo?: string;
+    startTime?: number;
+    endTime?: number;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v3/margin/repay', params);
   }
 
@@ -1207,31 +1314,55 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getLendingMarketCurrencyInfoV3(params: any): Promise<any> {
+  getLendingMarketCurrencyInfoV3(params?: { currency?: string }): Promise<any> {
     return this.get('api/v3/project/list', params);
   }
 
-  getLendingMarketInterestRatesV3(params: any): Promise<any> {
+  getLendingMarketInterestRatesV3(params: { currency: string }): Promise<any> {
     return this.get('api/v3/project/marketInterestRate', params);
   }
 
-  initiateLendingSubscriptionV3(params: any): Promise<any> {
+  initiateLendingSubscriptionV3(params: {
+    currency: string;
+    size: string;
+    interestRate: string;
+  }): Promise<any> {
     return this.postPrivate('api/v3/purchase', params);
   }
 
-  initiateLendingRedemptionV3(params: any): Promise<any> {
+  initiateLendingRedemptionV3(params: {
+    currency: string;
+    size: string;
+    purchaseOrderNo: string;
+  }): Promise<any> {
     return this.postPrivate('api/v3/redeem', params);
   }
 
-  modifyLendingSubscriptionOrdersV3(params: any): Promise<any> {
+  modifyLendingSubscriptionOrdersV3(params: {
+    currency: string;
+    purchaseOrderNo: string;
+    interestRate: string;
+  }): Promise<any> {
     return this.postPrivate('api/v3/lend/purchase/update', params);
   }
 
-  getLendingRedemptionOrdersV3(params: any): Promise<any> {
+  getLendingRedemptionOrdersV3(params: {
+    currency: string;
+    redeemOrderNo?: string;
+    status: 'DONE' | 'PENDING';
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v3/redeem/orders', params);
   }
 
-  getLendingSubscriptionOrdersV3(params: any): Promise<any> {
+  getLendingSubscriptionOrdersV3(params: {
+    currency: string;
+    purchaseOrderNo?: string;
+    status: 'DONE' | 'PENDING';
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<any> {
     return this.getPrivate('api/v3/purchase/orders', params);
   }
 
