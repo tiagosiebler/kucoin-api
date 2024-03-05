@@ -36,6 +36,14 @@ export class SpotClient extends BaseRestClient {
     return nanoid(32);
   }
 
+  getServerTime(): Promise<any> {
+    return this.get('api/v1/timestamp');
+  }
+
+  getServiceStatus(): Promise<any> {
+    return this.get('api/v1/status');
+  }
+
   /**
    *
    ***********
@@ -578,14 +586,6 @@ export class SpotClient extends BaseRestClient {
     currencies?: string;
   }): Promise<any> {
     return this.get('api/v1/prices', params);
-  }
-
-  getSpotServerTime(): Promise<any> {
-    return this.get('api/v1/timestamp');
-  }
-
-  getSpotServiceStatus(): Promise<any> {
-    return this.get('api/v1/status');
   }
 
   /**
@@ -1364,142 +1364,5 @@ export class SpotClient extends BaseRestClient {
     pageSize?: number;
   }): Promise<any> {
     return this.getPrivate('api/v3/purchase/orders', params);
-  }
-
-  /**
-   *
-   ******************************************************************
-   * FUTURES TRADING
-   ******************************************************************
-   */
-
-  /**
-   *
-   * Futures Market Data
-   *
-   */
-
-  getFuturesSymbolsList(): Promise<any> {
-    return this.get('api/v1/contracts/active');
-  }
-
-  getFuturesSymbolDetail(params: { symbol: string }): Promise<any> {
-    return this.get(`api/v1/contracts/${params.symbol}`);
-  }
-
-  getFuturesTicker(params: { symbol: string }): Promise<any> {
-    return this.get('api/v1/ticker', params);
-  }
-
-  getFuturesFullOrderBookLevel2(params: { symbol: string }): Promise<any> {
-    return this.get('api/v1/level2/snapshot', params);
-  }
-
-  getFuturesPartOrderBookLevel2Depth20(params: {
-    symbol: string;
-  }): Promise<any> {
-    return this.get('api/v1/level2/depth20', params);
-  }
-
-  getFuturesPartOrderBookLevel2Depth100(params: {
-    symbol: string;
-  }): Promise<any> {
-    return this.get('api/v1/level2/depth100', params);
-  }
-
-  getFuturesTransactionHistory(params: { symbol: string }): Promise<any> {
-    return this.get('api/v1/trade/history', params);
-  }
-
-  getFuturesKlines(params: {
-    symbol: string;
-    granularity: number;
-    from?: number;
-    to?: number;
-  }): Promise<any> {
-    return this.get('api/v1/kline/query', params);
-  }
-
-  getFuturesInterestRateList(params: {
-    symbol: string;
-    startAt?: number;
-    endAt?: number;
-    reverse?: boolean;
-    offset?: number;
-    forward?: boolean;
-    maxCount?: number;
-  }): Promise<any> {
-    return this.get('api/v1/interest/query', params);
-  }
-
-  getFuturesIndexList(params: {
-    symbol: string;
-    startAt?: number;
-    endAt?: number;
-    reverse?: boolean;
-    offset?: number;
-    forward?: boolean;
-    maxCount?: number;
-  }): Promise<any> {
-    return this.get('api/v1/index/query', params);
-  }
-
-  getFuturesMarkPrice(params: { symbol: string }): Promise<any> {
-    return this.get(`api/v1/mark-price/${params.symbol}/current`);
-  }
-
-  getFuturesPremiumIndex(params: {
-    symbol: string;
-    startAt?: number;
-    endAt?: number;
-    reverse?: boolean;
-    offset?: number;
-    forward?: boolean;
-    maxCount?: number;
-  }): Promise<any> {
-    return this.get('api/v1/premium/query', params);
-  }
-
-  getFutures24HourTransactionVolume(): Promise<any> {
-    return this.get('api/v1/trade-statistics');
-  }
-
-  getServerTime(): Promise<any> {
-    return this.get('api/v1/timestamp');
-  }
-
-  getServiceStatus(): Promise<any> {
-    return this.get('api/v1/status');
-  }
-
-  /**
-   *
-   * Futures orders
-   *
-   */
-
-  submitFuturesOrder(params: {
-    clientOid: string;
-    side: 'buy' | 'sell';
-    symbol: string;
-    leverage: string;
-    type?: 'limit' | 'market';
-    remark?: string;
-    stop?: 'down' | 'up';
-    stopPriceType?: 'TP' | 'IP' | 'MP';
-    stopPrice?: string;
-    reduceOnly?: boolean;
-    closeOrder?: boolean;
-    forceHold?: boolean;
-    stp?: 'CN' | 'CO' | 'CB';
-    price: string;
-    size?: number;
-    timeInForce?: 'GTC' | 'IOC';
-    postOnly?: boolean;
-    hidden?: boolean;
-    iceberg?: boolean;
-    visibleSize?: number;
-  }): Promise<any> {
-    return this.postPrivate('api/v1/orders', params);
   }
 }

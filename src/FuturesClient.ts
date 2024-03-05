@@ -36,6 +36,101 @@ export class FuturesClient extends BaseRestClient {
     return nanoid(32);
   }
 
+  getServerTime(): Promise<any> {
+    return this.get('api/v1/timestamp');
+  }
+
+  getServiceStatus(): Promise<any> {
+    return this.get('api/v1/status');
+  }
+
+  /**
+   *
+   * Futures Market Data
+   *
+   */
+
+  getSymbols(): Promise<any> {
+    return this.get('api/v1/contracts/active');
+  }
+
+  getSymbol(params: { symbol: string }): Promise<any> {
+    return this.get(`api/v1/contracts/${params.symbol}`);
+  }
+
+  getTicker(params: { symbol: string }): Promise<any> {
+    return this.get('api/v1/ticker', params);
+  }
+
+  getFullOrderBookLevel2(params: { symbol: string }): Promise<any> {
+    return this.get('api/v1/level2/snapshot', params);
+  }
+
+  getPartOrderBookLevel2Depth20(params: { symbol: string }): Promise<any> {
+    return this.get('api/v1/level2/depth20', params);
+  }
+
+  getPartOrderBookLevel2Depth100(params: { symbol: string }): Promise<any> {
+    return this.get('api/v1/level2/depth100', params);
+  }
+
+  getMarketTrades(params: { symbol: string }): Promise<any> {
+    return this.get('api/v1/trade/history', params);
+  }
+
+  getKlines(params: {
+    symbol: string;
+    granularity: number;
+    from?: number;
+    to?: number;
+  }): Promise<any> {
+    return this.get('api/v1/kline/query', params);
+  }
+
+  getInterestRateList(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    reverse?: boolean;
+    offset?: number;
+    forward?: boolean;
+    maxCount?: number;
+  }): Promise<any> {
+    return this.get('api/v1/interest/query', params);
+  }
+
+  getIndexList(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    reverse?: boolean;
+    offset?: number;
+    forward?: boolean;
+    maxCount?: number;
+  }): Promise<any> {
+    return this.get('api/v1/index/query', params);
+  }
+
+  getMarkPrice(params: { symbol: string }): Promise<any> {
+    return this.get(`api/v1/mark-price/${params.symbol}/current`);
+  }
+
+  getPremiumIndex(params: {
+    symbol: string;
+    startAt?: number;
+    endAt?: number;
+    reverse?: boolean;
+    offset?: number;
+    forward?: boolean;
+    maxCount?: number;
+  }): Promise<any> {
+    return this.get('api/v1/premium/query', params);
+  }
+
+  get24HourTransactionVolume(): Promise<any> {
+    return this.get('api/v1/trade-statistics');
+  }
+
   /**
    *
    ***********
