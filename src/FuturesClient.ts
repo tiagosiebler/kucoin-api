@@ -45,6 +45,239 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
+   * REST - ACCOUNT  - BASIC INFO
+   * Get Account Ledgers - Futures
+   */
+  getAccountFuturesTransactions(params: {
+    startAt?: number;
+    endAt?: number;
+    type?:
+      | 'RealisedPNL'
+      | 'Deposit'
+      | 'Withdrawal'
+      | 'Transferin'
+      | 'TransferOut';
+    offset?: number;
+    maxCount?: number;
+    currency?: string;
+    forward?: boolean;
+  }): Promise<
+    APISuccessResponse<{
+      hasMore: boolean; // Whether there are more pages
+      dataList: Array<{
+        time: number; // Event time
+        type:
+          | 'RealisedPNL'
+          | 'Deposit'
+          | 'Withdrawal'
+          | 'TransferIn'
+          | 'TransferOut'; // Type
+        amount: number; // Transaction amount
+        fee: number | null; // Fees
+        accountEquity: number; // Account equity
+        status: 'Completed' | 'Pending'; // Status
+        remark: string; // Ticker symbol of the contract
+        offset: number; // Offset
+        currency: string; // Currency
+      }>;
+    }>
+  > {
+    return this.getPrivate('api/v1/transaction-history', params);
+  }
+
+  /**
+   * REST - ACCOUNT  - SUBACCOUNT API
+   */
+
+  getSubAccountAPIs(params: { apiKey?: string; subName: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        apiKey: string; // API-Key
+        createdAt: number; // Time of the event
+        ipWhitelist: string; // IP whitelist
+        permission: string; // Permissions
+        remark: string; // Remarks
+        subName: string; // Sub-account name
+      }>
+    >
+  > {
+    return this.getPrivate('api/v1/sub/api-key', params);
+  }
+
+  createSubAccountAPI(params: {
+    subName: string;
+    passphrase: string;
+    remark: string;
+    permission?: string;
+    ipWhitelist?: string;
+    expire?: string;
+  }): Promise<
+    APISuccessResponse<{
+      apiKey: string; // API-Key
+      createdAt: number; // Time of the event
+      ipWhitelist: string; // IP whitelist
+      permission: string; // Permissions
+      remark: string; // Remarks
+      subName: string; // Sub-account name
+      apiSecret: string; // API secret
+      passphrase: string; // Password
+    }>
+  > {
+    return this.postPrivate('api/v1/sub/api-key', params);
+  }
+
+  updateSubAccountAPI(params: {
+    subName: string;
+    apiKey: string;
+    passphrase: string;
+    permission?: string;
+    ipWhitelist?: string;
+    expire?: string;
+  }): Promise<
+    APISuccessResponse<{
+      apiKey: string; // API-Key
+      ipWhitelist: string; // IP whitelist
+      permission: string; // Permissions
+      subName: string; // Sub-account name
+    }>
+  > {
+    return this.postPrivate('api/v1/sub/api-key/update', params);
+  }
+
+  deleteSubAccountAPI(params: {
+    apiKey: string;
+    passphrase: string;
+    subName: string;
+  }): Promise<
+    APISuccessResponse<{
+      subName: string; // Sub-account name
+      apiKey: string; // API-Key
+    }>
+  > {
+    return this.deletePrivate('api/v1/sub/api-key', params);
+  }
+
+  /**
+   * REST - FUNDING - FUNDING OVERVIEW
+   */
+
+  getFuturesAccountBalance(params?: { currency?: string }): Promise<
+    APISuccessResponse<{
+      accountEquity: number; // Account equity = marginBalance + Unrealised PNL
+      unrealisedPNL: number; // Unrealised profit and loss
+      marginBalance: number; // Margin balance = positionMargin + orderMargin + frozenFunds + availableBalance - unrealisedPNL
+      positionMargin: number; // Position margin
+      orderMargin: number; // Order margin
+      frozenFunds: number; // Frozen funds for withdrawal and out-transfer
+      availableBalance: number; // Available balance
+      currency: string; // currency code
+    }>
+  > {
+    return this.getPrivate('api/v1/account-overview', params);
+  }
+
+  getAllSubAccountFuturesBalances(params?: { currency?: string }): Promise<
+    APISuccessResponse<{
+      summary: {
+        accountEquityTotal: number; // Total Account Equity
+        unrealisedPNLTotal: number; // Total unrealisedPNL
+        marginBalanceTotal: number; // Total Margin Balance
+        positionMarginTotal: number; // Total Position margin
+        orderMarginTotal: number; // Total Order Margin
+        frozenFundsTotal: number; // Total frozen funds for withdrawal and out-transfer
+        availableBalanceTotal: number; // total available balance
+        currency: string; // currency
+      };
+      accounts: Array<{
+        accountName: string; // Account name, main account is main
+        accountEquity: number; // Account Equity = marginBalance + unrealisedPNL
+        unrealisedPNL: number; // unrealisedPNL
+        marginBalance: number; // Margin Balance = positionMargin + orderMargin + frozenFunds + availableBalance - unrealisedPNL
+        positionMargin: number; // Position margin
+        orderMargin: number; // Order Margin
+        frozenFunds: number; // Frozen funds for withdrawal and out-transfer
+        availableBalance: number; // Available balance
+        currency: string; // currency
+      }>;
+    }>
+  > {
+    return this.getPrivate('api/v1/account-overview-all', params);
+  }
+
+  /**
+   * REST - FUNDING - TRANSFER
+   */
+
+  transferFromFuturesAccount(params: {
+    amount: number;
+    currency: string;
+    recAccountType: 'MAIN' | 'TRADE';
+  }): Promise<
+    Promise<
+      APISuccessResponse<{
+        applyId: string; // Transfer-out request ID
+        bizNo: string; // Business number
+        payAccountType: string; // Pay account type
+        payTag: string; // Pay account sub type
+        remark: string; // User remark
+        recAccountType: string; // Receive account type
+        recTag: string; // Receive account sub type
+        recRemark: string; // Receive account tx remark
+        recSystem: string; // Receive system
+        status: string; // Status: APPLY, PROCESSING, PENDING_APPROVAL, APPROVED, REJECTED, PENDING_CANCEL, CANCEL, SUCCESS
+        currency: string; // Currency
+        amount: string; // Transfer amount
+        fee: string; // Transfer fee
+        sn: number; // Serial number
+        reason: string; // Fail Reason
+        createdAt: number; // Create time
+        updatedAt: number; // Update time
+      }>
+    >
+  > {
+    return this.postPrivate('api/v3/transfer-out', params);
+  }
+
+  transferToFuturesAccount(params: {
+    amount: number;
+    currency: string;
+    payAccountType: 'MAIN' | 'TRADE';
+  }): Promise<any> {
+    return this.postPrivate('api/v1/transfer-in', params);
+  }
+
+  getFuturesTransferOutRequestRecords(params: {
+    startAt?: number;
+    endAt?: number;
+    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+    queryStatus?: Array<'PROCESSING' | 'SUCCESS' | 'FAILURE'>;
+    currency?: string;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        applyId: string; // Transfer-out request ID
+        currency: string; // Currency
+        recRemark: string; // Receive account tx remark
+        recSystem: string; // Receive system
+        status: string; // Status: PROCESSING, SUCCESS, FAILURE
+        amount: string; // Transaction amount
+        reason: string; // Reason caused the failure
+        offset: number; // Offset
+        createdAt: number; // Request application time
+        remark: string; // User remark
+      }>;
+    }>
+  > {
+    return this.getPrivate('api/v1/transfer-list', params);
+  }
+
+  /**
    *
    * Futures Market Data
    *
