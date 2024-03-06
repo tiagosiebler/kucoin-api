@@ -1627,7 +1627,11 @@ export class SpotClient extends BaseRestClient {
     iceberg?: boolean;
     visibleSize?: string;
     funds?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // An order Id is returned once an order is successfully placed.
+    }>
+  > {
     return this.postPrivate('api/v1/orders', params);
   }
 
@@ -1655,17 +1659,51 @@ export class SpotClient extends BaseRestClient {
     hidden?: boolean;
     iceberg?: boolean;
     visibleSize?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        symbol: string; // symbol For Example，ETH-BTC
+        type?: string; // only limit (default is limit)
+        side: string; // buy or sell
+        price: string; // price per base currency
+        size: string; // amount of base currency to buy or sell
+        funds?: any; // Order amount (optional, can be null)
+        stp?: string; // self trade prevention, is divided into CN, CO, CB, and DC strategies
+        stop?: string; // Either loss or entry. Requires stopPrice to be defined
+        stopPrice?: any; // Need to be defined if stop is specified.
+        timeInForce?: string; // GTC, GTT, IOC, or FOK (default is GTC).
+        cancelAfter?: number; // Cancels in n seconds, with GTT as the time in force strategy
+        postOnly?: boolean; // Post only identifier, invalid when the time in force strategy is IOC or FOK
+        hidden?: boolean; // Hidden or not (not shown in order book)
+        iceberg?: boolean; // Whether or not only visible portions of orders are shown in iceberg orders
+        visibleSize?: any; // Maximum visible quantity in iceberg orders (optional, can be null)
+        channel: string; // Channel through which the order was placed
+        id: string; // Unique identifier for the order
+        status: string; // Order creation results (success, fail)
+        failMsg?: any; // Reason of failure (optional, can be null)
+        clientOid: string; // Client Order Id, unique identifier created by the user, the use of UUID is recommended
+      }>
+    >
+  > {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
   // Used for Spot and Margin Trading: Cancels a single order by orderId.
-  cancelOrderById(params: { orderId: string }): Promise<any> {
+  cancelOrderById(params: { orderId: string }): Promise<
+    APISuccessResponse<{
+      cancelledOrderIds: string[]; // Unique ID of the cancelled order
+    }>
+  > {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
   }
 
   // Used for Spot and Margin Trading: Cancels a single order by clientOid.
-  cancelOrderByClientOid(params: { clientOid: string }): Promise<any> {
+  cancelOrderByClientOid(params: { clientOid: string }): Promise<
+    APISuccessResponse<{
+      cancelledOrderId: string; // Unique ID of the cancelled order
+      clientOid: string; // Unique order id created by users to identify their orders
+    }>
+  > {
     return this.deletePrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
@@ -1673,7 +1711,11 @@ export class SpotClient extends BaseRestClient {
   cancelAllOrders(params?: {
     symbol?: string;
     tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      cancelledOrderIds: string[]; // Unique ID of the cancelled order
+    }>
+  > {
     return this.deletePrivate('api/v1/orders', params);
   }
 
@@ -1686,22 +1728,166 @@ export class SpotClient extends BaseRestClient {
     tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
     startAt?: number;
     endAt?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        id: string; // Order ID, the ID of an order.
+        symbol: string; // symbol
+        opType: string; // Operation type: DEAL
+        type: string; // order type
+        side: string; // transaction direction, include buy and sell
+        price: string; // order price
+        size: string; // order quantity
+        funds: string; // order funds
+        dealFunds: string; // executed size of funds
+        dealSize: string; // executed quantity
+        fee: string; // fee
+        feeCurrency: string; // charge fee currency
+        stp: string; // self trade prevention, include CN, CO, DC, CB
+        stop: string; // stop type, include entry and loss
+        stopTriggered: boolean; // stop order is triggered or not
+        stopPrice: string; // stop price
+        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
+        postOnly: boolean; // postOnly
+        hidden: boolean; // hidden order
+        iceberg: boolean; // iceberg order
+        visibleSize: string; // displayed quantity for iceberg order
+        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
+        channel: string; // order source
+        clientOid: string; // user-entered order unique mark
+        remark: string; // remark
+        tags: string; // tag order source
+        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
+        cancelExist: boolean; // order cancellation transaction record
+        createdAt: number; // create time
+        tradeType: string; // The type of trading
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/orders', params);
   }
 
   // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
-  getRecentOrdersList(): Promise<any> {
+  getRecentOrdersList(): Promise<
+    APISuccessResponse<
+      Array<{
+        id: string; // Order ID, unique identifier of an order.
+        symbol: string; // symbol
+        opType: string; // Operation type: DEAL
+        type: string; // order type, e.g. limit, market, stop_limit
+        side: string; // transaction direction, include buy and sell
+        price: number; // order price
+        size: number; // order quantity
+        funds: number; // order funds
+        dealFunds: number; // deal funds
+        dealSize: number; // deal quantity
+        fee: number; // fee
+        feeCurrency: string; // charge fee currency
+        stp: string; // self trade prevention, include CN, CO, DC, CB
+        stop: string; // stop type, include entry and loss
+        stopTriggered: boolean; // stop order is triggered
+        stopPrice: number; // stop price
+        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
+        postOnly: boolean; // postOnly
+        hidden: boolean; // hidden order
+        iceberg: boolean; // iceberg order
+        visibleSize: number; // display quantity for iceberg order
+        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
+        channel: string; // order source
+        clientOid: string; // user-entered order unique mark
+        remark: string; // remark
+        tags: string; // tag order source
+        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
+        cancelExist: boolean; // order cancellation transaction record
+        createdAt: string; // create time
+        tradeType: string; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+      }>
+    >
+  > {
     return this.getPrivate('api/v1/limit/orders');
   }
 
   // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
-  getOrderDetailsByOrderId(params: { orderId: string }): Promise<any> {
+  getOrderDetailsByOrderId(params: { orderId: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        id: string; // Order ID, unique identifier of an order.
+        symbol: string; // symbol
+        opType: string; // Operation type: DEAL
+        type: string; // order type, e.g. limit, market, stop_limit
+        side: string; // transaction direction, include buy and sell
+        price: number; // order price
+        size: number; // order quantity
+        funds: number; // order funds
+        dealFunds: number; // deal funds
+        dealSize: number; // deal quantity
+        fee: number; // fee
+        feeCurrency: string; // charge fee currency
+        stp: string; // self trade prevention, include CN, CO, DC, CB
+        stop: string; // stop type, include entry and loss
+        stopTriggered: boolean; // stop order is triggered
+        stopPrice: number; // stop price
+        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
+        postOnly: boolean; // postOnly
+        hidden: boolean; // hidden order
+        iceberg: boolean; // iceberg order
+        visibleSize: number; // display quantity for iceberg order
+        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
+        channel: string; // order source
+        clientOid: string; // user-entered order unique mark
+        remark: string; // remark
+        tags: string; // tag order source
+        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
+        cancelExist: boolean; // order cancellation transaction record
+        createdAt: string; // create time
+        tradeType: string; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+      }>
+    >
+  > {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
   // Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders placed with a unique client-provided identifier.
-  getOrderDetailsByClientOid(params: { clientOid: string }): Promise<any> {
+  getOrderDetailsByClientOid(params: { clientOid: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        id: string; // Order ID, unique identifier of an order.
+        symbol: string; // symbol
+        opType: string; // Operation type: DEAL
+        type: string; // order type, e.g. limit, market, stop_limit
+        side: string; // transaction direction, include buy and sell
+        price: number; // order price
+        size: number; // order quantity
+        funds: number; // order funds
+        dealFunds: number; // deal funds
+        dealSize: number; // deal quantity
+        fee: number; // fee
+        feeCurrency: string; // charge fee currency
+        stp: string; // self trade prevention, include CN, CO, DC, CB
+        stop: string; // stop type, include entry and loss
+        stopTriggered: boolean; // stop order is triggered
+        stopPrice: number; // stop price
+        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
+        postOnly: boolean; // postOnly
+        hidden: boolean; // hidden order
+        iceberg: boolean; // iceberg order
+        visibleSize: number; // display quantity for iceberg order
+        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
+        channel: string; // order source
+        clientOid: string; // user-entered order unique mark
+        remark: string; // remark
+        tags: string; // tag order source
+        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
+        cancelExist: boolean; // order cancellation transaction record
+        createdAt: string; // create time
+        tradeType: string; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+      }>
+    >
+  > {
     return this.getPrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
