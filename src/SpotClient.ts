@@ -8,7 +8,6 @@ import {
   RestClientType,
 } from './lib/requestUtils.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
-import { SpotAccountBalance } from './types/response/spot.types.js';
 
 /**
  *
@@ -58,7 +57,20 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getAccountSummary(): Promise<APISuccessResponse<{}>> {
+  getAccountSummary(): Promise<
+    APISuccessResponse<{
+      level: number;
+      subQuantity: number;
+      maxDefaultSubQuantity: number;
+      maxSubQuantity: number;
+      spotSubQuantity: number;
+      marginSubQuantity: number;
+      futuresSubQuantity: number;
+      maxSpotSubQuantity: number;
+      maxMarginSubQuantity: number;
+      maxFuturesSubQuantity: number;
+    }>
+  > {
     return this.getPrivate('api/v2/user-info');
   }
 
@@ -70,11 +82,31 @@ export class SpotClient extends BaseRestClient {
   getBalances(params?: {
     currency?: string;
     type?: 'main' | 'trade' | 'margin' | 'trade_hf';
-  }): Promise<SpotAccountBalance[]> {
+  }): Promise<
+    Promise<
+      APISuccessResponse<
+        {
+          id: string; // The ID of the account
+          currency: string; // Currency
+          type: 'main' | 'trade' | 'trade_hf' | 'margin'; // Account type
+          balance: string; // Total funds in the account
+          available: string; // Funds available to withdraw or trade
+          holds: string; // Funds on hold (not available for use)
+        }[]
+      >
+    >
+  > {
     return this.getPrivate('api/v1/accounts', params);
   }
 
-  getAccount(params: { accountId: any }): Promise<any> {
+  getAccount(params: { accountId: any }): Promise<
+    APISuccessResponse<{
+      currency: string; // The currency of the account
+      balance: string; // Total funds in the account
+      available: string; // Funds available to withdraw or trade
+      holds: string; // Funds on hold (not available for use)
+    }>
+  > {
     return this.getPrivate(`api/v1/accounts/${params.accountId}`);
   }
 
@@ -94,7 +126,26 @@ export class SpotClient extends BaseRestClient {
       | 'KUCOIN_BONUS';
     startAt?: number;
     endAt?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: {
+        id: string; // unique key
+        currency: string; // The currency of an account
+        amount: string; // The total amount of assets (fees included) involved in assets changes
+        fee: string; // Fees generated in transaction, withdrawal, etc.
+        balance: string; // Remaining funds after the transaction.
+        accountType: 'MAIN' | 'TRADE' | 'MARGIN' | 'CONTRACT'; // The account type
+        bizType: string; // Business type leading to the changes in funds
+        direction: 'in' | 'out'; // Side, out or in
+        createdAt: number; // Time of the event
+        context: string; // Business related information
+      }[];
+    }>
+  > {
     return this.getPrivate('api/v1/accounts/ledgers', params);
   }
 
@@ -109,7 +160,22 @@ export class SpotClient extends BaseRestClient {
     limit?: number;
     startAt?: number;
     endAt?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      {
+        id: string; // Unique key
+        currency: string; // currency
+        amount: string; // Change in funds balance
+        fee: string; // Deposit or withdrawal fee
+        balance: string; // Total balance of funds after change
+        accountType: 'TRADE_HF'; // Master account type TRADE_HF
+        bizType: 'TRANSFER' | 'TRADE_EXCHANGE'; // Transaction type
+        direction: 'out' | 'in'; // Direction of transfer
+        createdAt: string; // Created
+        context: string; // Core transaction parameter
+      }[]
+    >
+  > {
     return this.getPrivate('api/v1/hf/accounts/ledgers', params);
   }
 
@@ -129,28 +195,28 @@ export class SpotClient extends BaseRestClient {
     limit?: number;
     startAt?: number;
     endAt?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      {
+        id: string; // Unique key
+        currency: string; // currency
+        amount: string; // Change in funds balance
+        fee: string; // Deposit or withdrawal fee
+        balance: string; // Total balance of funds after change
+        accountType: 'MARGIN_V2' | 'ISOLATED_V2'; // Master account type MARGIN_V2, ISOLATED_V2
+        bizType:
+          | 'TRANSFER'
+          | 'MARGIN_EXCHANGE'
+          | 'ISOLATED_EXCHANGE'
+          | 'LIQUIDATION'
+          | 'ASSERT_RETURN'; // Transaction type
+        direction: 'out' | 'in'; // Direction of transfer
+        createdAt: string; // Created
+        context: string; // Core transaction parameter
+      }[]
+    >
+  > {
     return this.getPrivate('api/v3/hf/margin/account/ledgers', params);
-  }
-
-  /**
-   * Get Account Ledgers - Futures
-   */
-  getAccountFuturesTransactions(params: {
-    startAt?: number;
-    endAt?: number;
-    type?:
-      | 'RealisedPNL'
-      | 'Deposit'
-      | 'Withdrawal'
-      | 'Transferin'
-      | 'TransferOut';
-    offset?: number;
-    maxCount?: number;
-    currency?: string;
-    forward?: boolean;
-  }): Promise<any> {
-    return this.getPrivate('api/v1/transaction-history', params);
   }
 
   /**
@@ -159,14 +225,42 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSubAccountsV1(): Promise<any> {
+  getSubAccountsV1(): Promise<
+    APISuccessResponse<
+      Array<{
+        userId: string; // The user ID of your sub-account
+        uid: string; // The UID of your sub-account
+        subName: string; // The username of your sub-account
+        type: number; // The type of your sub-account
+        remarks: string; // Remark
+        access: string; // The permissions of your sub-account
+      }>
+    >
+  > {
     return this.getPrivate('api/v1/sub/user');
   }
 
   getSubAccountsV2(params: {
     currentPage?: number;
     pageSize?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        userId: string; // The user ID of your sub-account
+        uid: number; // Sub-account UID
+        subName: string; // Sub-account name
+        status: number; // Account status
+        type: number; // The type of your sub-account
+        access: string; // Permission
+        createdAt: number; // Time of the event
+        remarks: string | null; // Remarks
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v2/sub/user', params);
   }
 
@@ -175,25 +269,116 @@ export class SpotClient extends BaseRestClient {
     remarks?: string;
     subName: string;
     access: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      uid: number; // Sub-account UID
+      subName: string; // Sub-account name
+      remarks: string; // Remarks
+      access: string; // Permission
+    }>
+  > {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
 
   getSubAccountBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      subUserId: string; // The user ID of a sub-user.
+      subName: string; // The username of a sub-user.
+      mainAccounts: Array<{
+        currency: string; // Currency
+        balance: string; // Total funds in an account.
+        available: string; // Funds available to withdraw or trade.
+        holds: string; // Funds on hold (not available for use).
+        baseCurrency: string; // Calculated on this currency.
+        baseCurrencyPrice: string; // The base currency price.
+        baseAmount: string; // The base currency amount.
+      }>;
+      tradeAccounts: Array<{
+        currency: string; // Currency
+        balance: string; // Total funds in an account.
+        available: string; // Funds available to withdraw or trade.
+        holds: string; // Funds on hold (not available for use).
+        baseCurrency: string; // Calculated on this currency.
+        baseCurrencyPrice: string; // The base currency price.
+        baseAmount: string; // The base currency amount.
+      }>;
+      marginAccounts: Array<{
+        currency: string; // Currency
+        balance: string; // Total funds in an account.
+        available: string; // Funds available to withdraw or trade.
+        holds: string; // Funds on hold (not available for use).
+        baseCurrency: string; // Calculated on this currency.
+        baseCurrencyPrice: string; // The base currency price.
+        baseAmount: string; // The base currency amount.
+      }>;
+    }>
+  > {
     return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
 
-  getSubAccountBalancesV1(): Promise<any> {
+  getSubAccountBalancesV1(): Promise<
+    APISuccessResponse<{
+      subUserId: string; // The user ID of a sub-user.
+      subName: string; // The username of a sub-user.
+      mainAccounts: Array<{
+        currency: string; // Currency
+        balance: string; // Total funds in an account.
+        available: string; // Funds available to withdraw or trade.
+        holds: string; // Funds on hold (not available for use).
+        baseCurrency: string; // Calculated on this currency.
+        baseCurrencyPrice: string; // The base currency price.
+        baseAmount: string; // The base currency amount.
+      }>;
+      tradeAccounts: Array<{
+        currency: string; // Currency
+        balance: string; // Total funds in an account.
+        available: string; // Funds available to withdraw or trade.
+        holds: string; // Funds on hold (not available for use).
+        baseCurrency: string; // Calculated on this currency.
+        baseCurrencyPrice: string; // The base currency price.
+        baseAmount: string; // The base currency amount.
+      }>;
+      marginAccounts: Array<{
+        currency: string; // Currency
+        balance: string; // Total funds in an account.
+        available: string; // Funds available to withdraw or trade.
+        holds: string; // Funds on hold (not available for use).
+        baseCurrency: string; // Calculated on this currency.
+        baseCurrencyPrice: string; // The base currency price.
+        baseAmount: string; // The base currency amount.
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/sub-accounts');
   }
 
   getSubAccountBalancesV2(params: {
     currentPage?: number;
     pageSize?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        subUserId: string; // The user ID of the sub-user.
+        subName: string; // The username of the sub-user.
+        mainAccounts: Array<{
+          currency: string; // The currency of the account.
+          balance: string; // Total funds in the account.
+          available: string; // Funds available to withdraw or trade.
+          holds: string; // Funds on hold (not available for use).
+          baseCurrency: string; // Calculated on this currency.
+          baseCurrencyPrice: string; // The base currency price.
+          baseAmount: string; // The base currency amount.
+        }>;
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v2/sub-accounts', params);
   }
 
@@ -204,10 +389,18 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSubAccountAPIs(params: {
-    apiKey?: string;
-    subName: string;
-  }): Promise<any> {
+  getSubAccountAPIs(params: { apiKey?: string; subName: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        apiKey: string; // API-Key
+        createdAt: number; // Time of the event
+        ipWhitelist: string; // IP whitelist
+        permission: string; // Permissions
+        remark: string; // Remarks
+        subName: string; // Sub-account name
+      }>
+    >
+  > {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 
@@ -218,7 +411,18 @@ export class SpotClient extends BaseRestClient {
     permission?: string;
     ipWhitelist?: string;
     expire?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      apiKey: string; // API-Key
+      createdAt: number; // Time of the event
+      ipWhitelist: string; // IP whitelist
+      permission: string; // Permissions
+      remark: string; // Remarks
+      subName: string; // Sub-account name
+      apiSecret: string; // API secret
+      passphrase: string; // Password
+    }>
+  > {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
@@ -229,7 +433,14 @@ export class SpotClient extends BaseRestClient {
     permission?: string;
     ipWhitelist?: string;
     expire?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      apiKey: string; // API-Key
+      ipWhitelist: string; // IP whitelist
+      permission: string; // Permissions
+      subName: string; // Sub-account name
+    }>
+  > {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
@@ -237,7 +448,12 @@ export class SpotClient extends BaseRestClient {
     apiKey: string;
     passphrase: string;
     subName: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      subName: string; // Sub-account name
+      apiKey: string; // API-Key
+    }>
+  > {
     return this.deletePrivate('api/v1/sub/api-key', params);
   }
 
@@ -249,14 +465,51 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getMarginAccountBalances(): Promise<any> {
+  getMarginAccountBalances(): Promise<
+    APISuccessResponse<{
+      debtRatio: string; // Debt ratio
+      accounts: Array<{
+        currency: string; // Currency
+        totalBalance: string; // Total funds in the account
+        availableBalance: string; // Available funds in the account
+        holdBalance: string; // Funds on hold in the account
+        liability: string; // Total liabilities
+        maxBorrowSize: string; // Available size to borrow
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/margin/account');
   }
 
   getMarginAccountBalanceDetail(params?: {
     quoteCurrency?: string;
     queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      timestamp: number;
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        totalLiabilityOfQuoteCurrency: string; // Total Liability in Quote Currency
+        totalAssetOfQuoteCurrency: string; // Total Assets in Quote Currency
+        debtRatio: string; // debt ratio
+        status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW'; // Position status
+        assets: Array<{
+          currency: string; // currency
+          borrowEnabled: boolean; // Support borrow or not
+          repayEnabled: boolean; // Support repay or not
+          transferEnabled: boolean; // Support transfer or not
+          borrowed: string; // Liabilities
+          totalAsset: string; // Total Assets
+          available: string; // Account available assets (total assets - frozen)
+          hold: string; // Account frozen assets
+          maxBorrowSize: string; // The user's remaining maximum loan amount
+        }>;
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v3/margin/accounts', params);
   }
 
@@ -264,18 +517,48 @@ export class SpotClient extends BaseRestClient {
     symbol?: string;
     quoteCurrency?: string;
     queryType?: 'ISOLATED' | 'ISOLATED_V2' | 'ALL';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        totalAssetOfQuoteCurrency: string; // Total Assets in Quote Currency
+        totalLiabilityOfQuoteCurrency: string; // Total Liability in Quote Currency
+        timestamp: number; // timestamp
+        assets: Array<{
+          symbol: string; // symbol
+          debtRatio: string; // debt ratio
+          status:
+            | 'EFFECTIVE'
+            | 'BANKRUPTCY'
+            | 'LIQUIDATION'
+            | 'REPAY'
+            | 'BORROW'; // Position status
+          baseAsset: {
+            currency: string; // currency
+            borrowEnabled: boolean; // Support borrow or not
+            repayEnabled: boolean; // Support repay or not
+            transferEnabled: boolean; // Support transfer or not
+            borrowed: string; // Liabilities
+            totalAsset: string; // Total Assets
+            available: string; // Account available assets (total assets - frozen)
+            hold: string; // Account frozen assets
+            maxBorrowSize: string; // The user's remaining maximum loan amount
+          };
+          quoteAsset: {
+            currency: string; // currency
+            borrowEnabled: boolean; // Support borrow or not
+            repayEnabled: boolean; // Support repay or not
+            transferEnabled: boolean; // Support transfer or not
+            borrowed: string; // Liabilities
+            totalAsset: string; // Total Assets
+            available: string; // Account available assets (total assets - frozen)
+            hold: string; // Account frozen assets
+            maxBorrowSize: string; // The user's remaining maximum loan amount
+          };
+        }>;
+      }>
+    >
+  > {
     return this.getPrivate('api/v3/isolated/accounts', params);
-  }
-
-  getFuturesAccountBalance(params?: { currency?: string }): Promise<any> {
-    return this.getPrivate('api/v1/account-overview', params);
-  }
-
-  getAllSubAccountFuturesBalances(params?: {
-    currency?: string;
-  }): Promise<any> {
-    return this.getPrivate('api/v1/account-overview-all', params);
   }
 
   /**
@@ -284,21 +567,36 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  createDepositAddress(params: {
-    currency: string;
-    chain?: string;
-  }): Promise<any> {
+  createDepositAddress(params: { currency: string; chain?: string }): Promise<
+    APISuccessResponse<{
+      address: string; // Deposit address
+      memo: string; // Address remark. If there’s no remark, it is empty.
+      chain: string; // The chain name of currency
+    }>
+  > {
     return this.postPrivate('api/v1/deposit-addresses', params);
   }
 
-  getDepositAddressesV2(params: { currency: string }): Promise<any> {
+  getDepositAddressesV2(params: { currency: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        address: string; // Deposit address
+        memo: string; // Address remark. If there’s no remark, it is empty.
+        chain: string; // The chain name of currency.
+        contractAddress: string; // The token contract address.
+      }>
+    >
+  > {
     return this.getPrivate('api/v2/deposit-addresses', params);
   }
 
-  getDepositAddress(params: {
-    currency: string;
-    chain?: string;
-  }): Promise<any> {
+  getDepositAddress(params: { currency: string; chain?: string }): Promise<
+    APISuccessResponse<{
+      address: string; // Deposit address
+      memo: string; // Address remark. If there’s no remark, it is empty.
+      chain: string; // The chain name of currency
+    }>
+  > {
     return this.getPrivate('api/v1/deposit-addresses', params);
   }
 
@@ -307,7 +605,28 @@ export class SpotClient extends BaseRestClient {
     startAt?: number;
     endAt?: number;
     status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        address: string; // Deposit address
+        memo: string; // Address remark. If there’s no remark, it is empty.
+        amount: string; // Deposit amount
+        fee: string; // Fees charged for deposit
+        currency: string; // Currency
+        chain: string; // The chain of currency
+        isInner: boolean; // Internal deposit or not
+        walletTxId: string; // Wallet Txid
+        status: 'PROCESSING' | 'SUCCESS' | 'FAILURE'; // Status
+        remark: string; // remark
+        createdAt: number; // Creation time of the database record
+        updatedAt: number; // Update time of the database record
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/deposits', params);
   }
 
@@ -316,7 +635,22 @@ export class SpotClient extends BaseRestClient {
     startAt?: number;
     endAt?: number;
     status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        currency: string; // Currency
+        createAt: number; // Creation time of the database record
+        amount: string; // Deposit amount
+        walletTxId: string; // Wallet Txid
+        isInner: boolean; // Internal deposit or not
+        status: 'PROCESSING' | 'SUCCESS' | 'FAILURE'; // Status
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/hist-deposits', params);
   }
 
@@ -331,7 +665,29 @@ export class SpotClient extends BaseRestClient {
     status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
     startAt?: number;
     endAt?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        id: string; // Unique identity
+        address: string; // Withdrawal address
+        memo: string; // Address remark. If there’s no remark, it is empty.
+        currency: string; // Currency
+        chain: string; // The chain of currency
+        amount: string; // Withdrawal amount
+        fee: string; // Withdrawal fee
+        walletTxId: string; // Wallet Txid
+        isInner: boolean; // Internal withdrawal or not
+        status: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE'; // status
+        remark: string; // remark
+        createdAt: number; // Creation time
+        updatedAt: number; // Update time
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/withdrawals', params);
   }
 
@@ -340,14 +696,45 @@ export class SpotClient extends BaseRestClient {
     startAt?: number;
     endAt?: number;
     status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        currency: string; // Currency
+        createAt: number; // Creation time of the database record
+        amount: string; // Withdrawal amount
+        address: string; // Withdrawal address
+        walletTxId: string; // Wallet Txid
+        isInner: boolean; // Internal deposit or not
+        status: 'PROCESSING' | 'SUCCESS' | 'FAILURE'; // Status
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/hist-withdrawals', params);
   }
 
-  getWithdrawalQuotas(params: {
-    currency: string;
-    chain?: string;
-  }): Promise<any> {
+  getWithdrawalQuotas(params: { currency: string; chain?: string }): Promise<
+    APISuccessResponse<{
+      limitBTCAmount: string; // 24-hour total withdrawal limit, equivalent to BTC
+      quotaCurrency: string; // withdrawal limit currency
+      chain: string; // The chain name of currency
+      remainAmount: string; // Remaining amount available to withdraw the current day
+      innerWithdrawMinFee: string; // Fees for internal withdrawal
+      usedBTCAmount: string; // The estimated BTC amount (based on the daily fiat limit) that can be withdrawn within the current day
+      limitQuotaCurrencyAmount: string; // The intraday available withdrawal amount(withdrawal limit currency)
+      withdrawMinSize: string; // Minimum withdrawal amount
+      withdrawMinFee: string; // Minimum withdrawal fee
+      precision: number; // Floating point precision.
+      reason: string | null; // Reason for withdrawal limit (if any)
+      usedQuotaCurrencyAmount: string; // The intraday cumulative withdrawal amount(withdrawal limit currency)
+      currency: string; // Currency
+      availableAmount: string; // Current available withdrawal amount
+      isWithdrawEnabled: boolean; // Is the withdraw function enabled or not
+    }>
+  > {
     return this.getPrivate('api/v1/withdrawals/quotas', params);
   }
 
@@ -360,11 +747,13 @@ export class SpotClient extends BaseRestClient {
     remark?: string;
     chain?: string;
     feeDeductType?: 'INTERNAL' | 'EXTERNAL';
-  }): Promise<any> {
+  }): Promise<APISuccessResponse<{ withdrawalId: string }>> {
     return this.postPrivate('api/v1/withdrawals', params);
   }
 
-  cancelWithdrawal(params: { withdrawalId: string }): Promise<any> {
+  cancelWithdrawal(params: {
+    withdrawalId: string;
+  }): Promise<APISuccessResponse<{ withdrawalId: string }>> {
     return this.deletePrivate(`api/v1/withdrawals/${params.withdrawalId}`);
   }
 
@@ -378,7 +767,15 @@ export class SpotClient extends BaseRestClient {
     currency: string;
     type: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'ISOLATED';
     tag?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currency: string; // Currency
+      balance: string; // Total funds in an account.
+      available: string; // Funds available to withdraw or trade.
+      holds: string; // Funds on hold (not available for use).
+      transferable: string; // Funds available to transfer.
+    }>
+  > {
     return this.getPrivate('api/v1/accounts/transferable', params);
   }
 
@@ -409,7 +806,11 @@ export class SpotClient extends BaseRestClient {
       | 'MARGIN_V2'
       | 'ISOLATED_V2';
     toAccountTag?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // Transfer order ID
+    }>
+  > {
     return this.postPrivate('api/v3/accounts/universal-transfer', params);
   }
 
@@ -421,7 +822,11 @@ export class SpotClient extends BaseRestClient {
     accountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
     subAccountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
     subUserId: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // Transfer order ID
+    }>
+  > {
     return this.postPrivate('api/v2/accounts/sub-transfer', params);
   }
 
@@ -449,39 +854,12 @@ export class SpotClient extends BaseRestClient {
     amount: string;
     fromTag?: string;
     toTag?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // Transfer order ID
+    }>
+  > {
     return this.postPrivate('api/v2/accounts/inner-transfer', params);
-  }
-
-  // Futures
-  transferFromFuturesAccount(params: {
-    amount: number;
-    currency: string;
-    recAccountType: 'MAIN' | 'TRADE';
-  }): Promise<any> {
-    return this.postPrivate('api/v3/transfer-out', params);
-  }
-
-  // Futures
-  transferToFuturesAccount(params: {
-    amount: number;
-    currency: string;
-    payAccountType: 'MAIN' | 'TRADE';
-  }): Promise<any> {
-    return this.postPrivate('api/v1/transfer-in', params);
-  }
-
-  // Futures
-  getFuturesTransferOutRequestRecords(params: {
-    startAt?: number;
-    endAt?: number;
-    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-    queryStatus?: Array<'PROCESSING' | 'SUCCESS' | 'FAILURE'>;
-    currency?: string;
-    currentPage?: number;
-    pageSize?: number;
-  }): Promise<any> {
-    return this.getPrivate('api/v1/transfer-list', params);
   }
 
   /**
@@ -490,11 +868,24 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getBasicUserFee(params: { currencyType: string }): Promise<any> {
+  getBasicUserFee(params: { currencyType: string }): Promise<
+    APISuccessResponse<{
+      takerFeeRate: string; // Taker fee rate
+      makerFeeRate: string; // Maker fee rate
+    }>
+  > {
     return this.getPrivate('api/v1/base-fee', params);
   }
 
-  getTradingPairActualFee(params: { symbols: string }): Promise<any> {
+  getTradingPairActualFee(params: { symbols: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        symbol: string; // Trading pair
+        takerFeeRate: string; // Taker fee rate
+        makerFeeRate: string; // Maker fee rate
+      }>
+    >
+  > {
     return this.getPrivate('api/v1/trade-fees', params);
   }
 
@@ -512,50 +903,200 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSpotCurrencyList(): Promise<any> {
+  getSpotCurrencyList(): Promise<
+    APISuccessResponse<
+      Array<{
+        currency: string; // A unique currency code that will never change
+        name: string; // Currency name, will change after renaming
+        fullName: string; // Full name of a currency, will change after renaming
+        precision: number; // Currency precision
+        confirms: number | null; // Number of block confirmations
+        contractAddress: string | null; // Contract address
+        isMarginEnabled: boolean; // Support margin or not
+        isDebitEnabled: boolean; // Support debit or not
+        chains: Array<{
+          chainName: string; // Chain name of currency
+          withdrawalMinSize: string; // Minimum withdrawal amount
+          withdrawalMinFee: string; // Minimum fees charged for withdrawal
+          isWithdrawEnabled: boolean; // Support withdrawal or not
+          isDepositEnabled: boolean; // Support deposit or not
+          confirms: number; // Number of block confirmations
+          preConfirms: number; // The number of blocks (confirmations) for advance on-chain verification
+          contractAddress: string; // Contract address
+          chainId: string; // Chain of currency
+        }>;
+      }>
+    >
+  > {
     return this.get('api/v3/currencies');
   }
 
-  getSpotCurrencyDetail(params: {
-    currency: string;
-    chain?: string;
-  }): Promise<any> {
+  getSpotCurrencyDetail(params: { currency: string; chain?: string }): Promise<
+    APISuccessResponse<{
+      currency: string; // A unique currency code that will never change
+      name: string; // Currency name, will change after renaming
+      fullName: string; // Full name of a currency, will change after renaming
+      precision: number; // Currency precision
+      confirms: number | null; // Number of block confirmations
+      contractAddress: string | null; // Contract address
+      isMarginEnabled: boolean; // Support margin or not
+      isDebitEnabled: boolean; // Support debit or not
+      chains: Array<{
+        chainName: string; // Chain name of currency
+        withdrawalMinSize: string; // Minimum withdrawal amount
+        withdrawalMinFee: string; // Minimum fees charged for withdrawal
+        isWithdrawEnabled: boolean; // Support withdrawal or not
+        isDepositEnabled: boolean; // Support deposit or not
+        confirms: number; // Number of block confirmations
+        preConfirms: number; // The number of blocks (confirmations) for advance on-chain verification
+        contractAddress: string; // Contract address
+        chainId: string; // Chain of currency
+      }>;
+    }>
+  > {
     return this.get(`api/v3/currencies/${params.currency}`, params);
   }
 
-  getSpotSymbolsList(params?: { market?: string }): Promise<any> {
+  getSpotSymbolsList(params?: { market?: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        symbol: string; // unique code of a symbol, it would not change after renaming
+        name: string; // Name of trading pairs, it would change after renaming
+        baseCurrency: string; // Base currency,e.g. BTC.
+        quoteCurrency: string; // Quote currency,e.g. USDT.
+        feeCurrency: string; // The currency of charged fees.
+        market: string; // The trading market.
+        baseMinSize: string; // The minimum order quantity required to place an order.
+        quoteMinSize: string; // The minimum order funds required to place a market order.
+        baseMaxSize: string; // The maximum order size required to place an order.
+        quoteMaxSize: string; // The maximum order funds required to place a market order.
+        baseIncrement: string; // The increment of the order size. The value shall be a positive multiple of the baseIncrement.
+        quoteIncrement: string; // The increment of the funds required to place a market order. The value shall be a positive multiple of the quoteIncrement.
+        priceIncrement: string; // The increment of the price required to place a limit order. The value shall be a positive multiple of the priceIncrement.
+        priceLimitRate: string; // Threshold for price protection
+        minFunds: string; // the minimum spot and margin trading amounts
+        isMarginEnabled: boolean; // Available for margin or not.
+        enableTrading: boolean; // Available for transaction or not.
+      }>
+    >
+  > {
     return this.get('api/v2/symbols', params);
   }
 
-  getSpotTicker(params: { symbol: string }): Promise<any> {
+  getSpotTicker(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      sequence: string; // Sequence
+      price: string; // Last traded price
+      size: string; // Last traded size
+      bestAsk: string; // Best ask price
+      bestAskSize: string; // Best ask size
+      bestBid: string; // Best bid price
+      bestBidSize: string; // Best bid size
+      time: number; // timestamp
+    }>
+  > {
     return this.get(`api/v1/market/orderbook/level1`, params);
   }
 
-  getSpotAllTickers(): Promise<any> {
+  getSpotAllTickers(): Promise<
+    APISuccessResponse<{
+      time: number; // timestamp
+      ticker: Array<{
+        symbol: string; // Symbol
+        symbolName: string; // Name of trading pairs, it would change after renaming
+        buy: string; // Best bid price
+        sell: string; // Best ask price
+        bestBidSize: string; // Best bid size
+        bestAskSize: string; // Best ask size
+        changeRate: string; // 24h change rate
+        changePrice: string; // 24h change price
+        high: string; // Highest price in 24h
+        low: string; // Lowest price in 24h
+        vol: string; // 24h volume, executed based on base currency
+        volValue: string; // 24h traded amount
+        last: string; // Last traded price
+        averagePrice: string; // Average trading price in the last 24 hours
+        takerFeeRate: string; // Basic Taker Fee
+        makerFeeRate: string; // Basic Maker Fee
+        takerCoefficient: string; // Taker Fee Coefficient
+        makerCoefficient: string; // Maker Fee Coefficient
+      }>;
+    }>
+  > {
     return this.get('api/v1/market/allTickers');
   }
 
-  getSpot24hrStats(params: { symbol: string }): Promise<any> {
+  getSpot24hrStats(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      time: number; // timestamp
+      symbol: string; // Symbol
+      buy: string; // Best bid price
+      sell: string; // Best ask price
+      changeRate: string; // 24h change rate
+      changePrice: string; // 24h change price
+      high: string; // Highest price in 24h
+      low: string; // Lowest price in 24h
+      vol: string; // 24h volume, executed based on base currency
+      volValue: string; // 24h traded amount
+      last: string; // Last traded price
+      averagePrice: string; // Average trading price in the last 24 hours
+      takerFeeRate: string; // Basic Taker Fee
+      makerFeeRate: string; // Basic Maker Fee
+      takerCoefficient: string; // Taker Fee Coefficient
+      makerCoefficient: string; // Maker Fee Coefficient
+    }>
+  > {
     return this.get('api/v1/market/stats', params);
   }
 
-  getSpotMarketList(): Promise<any> {
+  getSpotMarketList(): Promise<APISuccessResponse<Array<string>>> {
     return this.get('api/v1/markets');
   }
 
-  getSpotPartOrderBookLevel20(params: { symbol: string }): Promise<any> {
+  getSpotPartOrderBookLevel20(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      sequence: string; // Sequence number
+      time: number; // Timestamp
+      bids: Array<[string, string]>; // bids [price, size]
+      asks: Array<[string, string]>; // asks [price, size]
+    }>
+  > {
     return this.get(`api/v1/market/orderbook/level2_20`, params);
   }
 
-  getSpotPartOrderBookLevel100(params: { symbol: string }): Promise<any> {
+  getSpotPartOrderBookLevel100(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      sequence: string; // Sequence number
+      time: number; // Timestamp
+      bids: Array<[string, string]>; // bids [price, size]
+      asks: Array<[string, string]>; // asks [price, size]
+    }>
+  > {
     return this.get(`api/v1/market/orderbook/level2_100`, params);
   }
 
-  getSpotFullOrderBook(params: { symbol: string }): Promise<any> {
+  getSpotFullOrderBook(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      sequence: string; // Sequence number
+      time: number; // Timestamp
+      bids: Array<[string, string]>; // bids [price, size]
+      asks: Array<[string, string]>; // asks [price, size]
+    }>
+  > {
     return this.get('api/v3/market/orderbook/level2', params);
   }
 
-  getSpotTradeHistories(params: { symbol: string }): Promise<any> {
+  getSpotTradeHistories(params: { symbol: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        sequence: string; // Sequence number
+        time: number; // Transaction time
+        price: string; // Filled price
+        size: string; // Filled amount
+        side: string; // Filled side. The filled side is set to the taker by default.
+      }>
+    >
+  > {
     return this.get('api/v1/market/histories', params);
   }
 
@@ -577,7 +1118,21 @@ export class SpotClient extends BaseRestClient {
       | '12hour'
       | '1day'
       | '1week';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<
+        [
+          string, // Start time of the candle cycle
+          string, // Opening price
+          string, // Closing price
+          string, // Highest price
+          string, // Lowest price
+          string, // Transaction volume (One-sided transaction volume)
+          string, // Transaction amount (One-sided transaction amount)
+        ]
+      >
+    >
+  > {
     return this.get('api/v1/market/candles', params);
   }
 
@@ -593,6 +1148,7 @@ export class SpotClient extends BaseRestClient {
    * Spot HF trade
    *
    */
+
   placeSpotHFOrder(params: {
     clientOid?: string;
     symbol: string;
@@ -601,7 +1157,11 @@ export class SpotClient extends BaseRestClient {
     stp?: 'CN' | 'CO' | 'CB' | 'DC';
     tags?: string;
     remark?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // Transfer order ID
+    }>
+  > {
     return this.postPrivate('api/v1/hf/orders', params);
   }
 
@@ -617,7 +1177,18 @@ export class SpotClient extends BaseRestClient {
     stp?: 'CN' | 'CO' | 'CB' | 'DC';
     tags?: string;
     remark?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // An order Id is returned once an order is successfully placed.
+      orderTime: string; // order time
+      originSize: string; // original order size
+      dealSize: string; // deal size
+      remainSize: string; // remain size
+      canceledSize: string; // Cumulative number of cancellations
+      status: string; // Order Status. open: the order is active; done: the order has been completed
+      matchTime: string; // matching time
+    }>
+  > {
     return this.postPrivate('api/v1/hf/orders/sync', params);
   }
 
@@ -637,7 +1208,13 @@ export class SpotClient extends BaseRestClient {
     visibleSize?: string;
     tags?: string;
     remark?: string;
-  }): Promise<any> {
+  }): Promise<
+    Array<{
+      orderId: string;
+      success?: boolean;
+      failMsg?: string; // Reason of failure, optional based on success status
+    }>
+  > {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
 
@@ -657,7 +1234,19 @@ export class SpotClient extends BaseRestClient {
     visibleSize?: string;
     tags?: string;
     remark?: string;
-  }): Promise<any> {
+  }): Promise<
+    Array<{
+      orderId: string; // An order Id is returned once an order is successfully placed.
+      orderTime: number; // order time
+      originSize: string; // original order size
+      dealSize: string; // deal size
+      remainSize: string; // remain size
+      canceledSize: string; // Cumulative number of cancellations
+      status: string; // Order Status. open: the order is active; done: the order has been completed
+      matchTime: number; // matching time
+      success: boolean; // Whether the order was placed successfully.
+    }>
+  > {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
 
@@ -667,18 +1256,32 @@ export class SpotClient extends BaseRestClient {
     orderId?: string;
     newPrice?: string;
     newSize?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      newOrderId: string; // New order ID
+    }>
+  > {
     return this.postPrivate('api/v1/hf/orders/alter', params);
   }
 
-  cancelSpotHFOrder(params: { orderId: string; symbol: string }): Promise<any> {
+  cancelSpotHFOrder(params: { orderId: string; symbol: string }): Promise<
+    APISuccessResponse<{
+      orderId: string; // New order ID
+    }>
+  > {
     return this.deletePrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
-  syncSpotCancelHFOrder(params: {
-    orderId: string;
-    symbol: string;
-  }): Promise<any> {
+  syncSpotCancelHFOrder(params: { orderId: string; symbol: string }): Promise<
+    APISuccessResponse<{
+      orderId: string; // order Id
+      originSize: string; // original order size
+      dealSize: string; // deal size
+      remainSize: string; // remain size
+      canceledSize: string; // Cumulative number of cancellations
+      status: string; // Order Status. open: the order is active; done: the order has been completed
+    }>
+  > {
     return this.deletePrivate(
       `api/v1/hf/orders/sync/${params.orderId}`,
       params,
@@ -688,7 +1291,11 @@ export class SpotClient extends BaseRestClient {
   cancelSpotHFOrderByClientOId(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      clientOid: string; // New order ID
+    }>
+  > {
     return this.deletePrivate(
       `api/v1/hf/orders/client-order/${params.clientOid}`,
       params,
@@ -698,7 +1305,16 @@ export class SpotClient extends BaseRestClient {
   syncSpotCancelHFOrderByClientOId(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // order Id
+      originSize: string; // original order size
+      dealSize: string; // deal size
+      remainSize: string; // remain size
+      canceledSize: string; // Cumulative number of cancellations
+      status: string; // Order Status. open: the order is active; done: the order has been completed
+    }>
+  > {
     return this.deletePrivate(
       `api/v1/hf/orders/sync/client-order/${params.clientOid}`,
       params,
@@ -716,19 +1332,74 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
-  cancelSpotAllHFOrdersBySymbol(params: { symbol: string }): Promise<any> {
+  cancelSpotAllHFOrdersBySymbol(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      orderId: string; // order Id
+      cancelSize: string; // Size of the order to be canceled
+    }>
+  > {
     return this.deletePrivate(`api/v1/hf/orders`, params);
   }
 
-  cancelSpotAllHFOrders(): Promise<any> {
+  cancelSpotAllHFOrders(): Promise<
+    APISuccessResponse<{
+      succeedSymbols?: Array<string>; // Cancel order successful symbol
+      failedSymbols?: Array<{
+        symbol: string; // Cancel order failed symbol
+        error: string; // Error message
+      }>;
+    }>
+  > {
     return this.deletePrivate(`api/v1/hf/orders/cancelAll`);
   }
 
-  getSpotActiveHFOrders(params: { symbol: string }): Promise<any> {
+  getSpotActiveHFOrders(params: { symbol: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        id: string; // Order id, a unique identifier pertaining to the order
+        symbol: string; // Trading pair
+        opType: string; // Operation type: DEAL
+        type: string; // Order type
+        side: string; // Buy or sell
+        price: string; // Order price
+        size: string; // Order size
+        dealSize: string; // Number of filled transactions
+        cancelledSize: string; // Number of canceled transactions
+        remainSize: string; // Number of remain transactions
+        funds: string; // Order amount
+        dealFunds: string; // Number of filled funds
+        cancelledFunds: string; // Number of canceled funds
+        remainFunds: string; // Number of remain funds
+        fee: string; // Service fee
+        feeCurrency: string; // Currency used to calculate fees
+        stp: string; // Self trade protection
+        timeInForce: string; // Time in force
+        postOnly: boolean; // Is it post only?
+        hidden: boolean; // Is it a hidden order?
+        iceberg: boolean; // Is it an iceberg order?
+        visibleSize: string; // Visible size of iceberg order in order book.
+        cancelAfter: number; // A GTT timeInForce that expires in n seconds
+        channel: string; // Source of orders
+        clientOid: string; // Identifier created by the client
+        remark: string; // Order description
+        tags: string; // Order identifier
+        active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+        inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+        cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+        createdAt: number; // Order creation time
+        lastUpdatedAt: number; // Last update time of order
+        tradeType: string; // Trade type: TRADE (Spot Trading)
+      }>
+    >
+  > {
     return this.getPrivate(`api/v1/hf/orders/active`, params);
   }
 
-  getSpotActiveHFSymbols(): Promise<any> {
+  getSpotActiveHFSymbols(): Promise<
+    APISuccessResponse<{
+      symbols: Array<string>;
+    }>
+  > {
     return this.getPrivate(`api/v1/hf/orders/active/symbols`);
   }
 
@@ -740,21 +1411,132 @@ export class SpotClient extends BaseRestClient {
     endAt?: number;
     lastId?: number;
     limit?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      lastId: number;
+      items: Array<{
+        id: string; // Order id, a unique identifier of the order
+        symbol: string; // Trading pair
+        opType: string; // Operation type: DEAL
+        type: string; // Order type
+        side: string; // Buy or sell
+        price: string; // Order price
+        size: string; // Order size
+        dealSize: string; // Number of filled transactions
+        cancelledSize: string; // Number of canceled transactions
+        remainSize: string; // Number of remain transactions
+        funds: string; // Order amount
+        dealFunds: string; // Number of filled funds
+        cancelledFunds: string; // Number of canceled funds
+        remainFunds: string; // Number of remain funds
+        fee: string; // Service fee
+        feeCurrency: string; // Currency used to calculate fees
+        stp: string; // Self trade protection
+        timeInForce: string; // Time in force
+        postOnly: boolean; // Is it post only?
+        hidden: boolean; // Is it a hidden order?
+        iceberg: boolean; // Is it an iceberg order?
+        visibleSize: string; // Visible size of iceberg order in order book.
+        cancelAfter: number; // A GTT timeInForce that expires in n seconds
+        channel: string; // Source of orders
+        clientOid: string; // Identifier created by the client
+        remark: string; // Order description
+        tags: string; // Order identifier
+        active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+        inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+        cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+        createdAt: number; // Order creation time
+        lastUpdatedAt: number; // Last update time of order
+        tradeType: string; // Trade type: TRADE (Spot Trading)
+      }>;
+    }>
+  > {
     return this.getPrivate(`api/v1/hf/orders/done`, params);
   }
 
   getSpotHFOrderDetailsByOrderId(params: {
     orderId: string;
     symbol: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      id: string; // Order id, a unique identifier of the order
+      symbol: string; // Trading pair
+      opType: string; // Operation type: DEAL
+      type: string; // Order type
+      side: string; // Buy or sell
+      price: string; // Order price
+      size: string; // Order size
+      dealSize: string; // Number of filled transactions
+      cancelledSize: string; // Number of canceled transactions
+      remainSize: string; // Number of remain transactions
+      funds: string; // Order amount
+      dealFunds: string; // Number of filled funds
+      cancelledFunds: string; // Number of canceled funds
+      remainFunds: string; // Number of remain funds
+      fee: string; // Service fee
+      feeCurrency: string; // Currency used to calculate fees
+      stp: string; // Self trade protection
+      timeInForce: string; // Time in force
+      postOnly: boolean; // Is it post only?
+      hidden: boolean; // Is it a hidden order?
+      iceberg: boolean; // Is it an iceberg order?
+      visibleSize: string; // Visible size of iceberg order in order book.
+      cancelAfter: number; // A GTT timeInForce that expires in n seconds
+      channel: string; // Source of orders
+      clientOid: string; // Identifier created by the client
+      remark: string; // Order description
+      tags: string; // Order identifier
+      active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+      inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+      cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+      createdAt: number; // Order creation time
+      lastUpdatedAt: number; // Last update time of order
+      tradeType: string; // Trade type: TRADE (Spot Trading)
+    }>
+  > {
     return this.getPrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
   getSpotHFOrderDetailsByClientOid(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      id: string; // Order id, a unique identifier of the order
+      symbol: string; // Trading pair
+      opType: string; // Operation type: DEAL
+      type: string; // Order type
+      side: string; // Buy or sell
+      price: string; // Order price
+      size: string; // Order size
+      dealSize: string; // Number of filled transactions
+      cancelledSize: string; // Number of canceled transactions
+      remainSize: string; // Number of remain transactions
+      funds: string; // Order amount
+      dealFunds: string; // Number of filled funds
+      cancelledFunds: string; // Number of canceled funds
+      remainFunds: string; // Number of remain funds
+      fee: string; // Service fee
+      feeCurrency: string; // Currency used to calculate fees
+      stp: string; // Self trade protection
+      timeInForce: string; // Time in force
+      postOnly: boolean; // Is it post only?
+      hidden: boolean; // Is it a hidden order?
+      iceberg: boolean; // Is it an iceberg order?
+      visibleSize: string; // Visible size of iceberg order in order book.
+      cancelAfter: number; // A GTT timeInForce that expires in n seconds
+      channel: string; // Source of orders
+      clientOid: string; // Identifier created by the client
+      remark: string; // Order description
+      tags: string; // Order identifier
+      active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+      inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+      cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+      createdAt: number; // Order creation time
+      lastUpdatedAt: number; // Last update time of order
+      tradeType: string; // Trade type: TRADE (Spot Trading)
+    }>
+  > {
     return this.getPrivate(
       `api/v1/hf/orders/client-order/${params.clientOid}`,
       params,
@@ -764,11 +1546,23 @@ export class SpotClient extends BaseRestClient {
   autoCancelSpotHFOrderSetting(params: {
     timeout: number;
     symbols?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentTime: number; // System current time (in seconds)
+      triggerTime: number; // Trigger cancellation time (in seconds)
+    }>
+  > {
     return this.postPrivate('api/v1/hf/orders/dead-cancel-all', params);
   }
 
-  autoCancelSpotHFOrderSettingQuery(): Promise<any> {
+  autoCancelSpotHFOrderSettingQuery(): Promise<
+    APISuccessResponse<{
+      timeout: number; // Auto cancel order trigger setting time, the unit is second. range: timeout=-1 (meaning unset) or 5 <= timeout <= 86400
+      symbols: string; // List of trading pairs. Separated by commas, empty means all trading pairs
+      currentTime: number; // System current time (in seconds)
+      triggerTime: number; // Trigger cancellation time (in seconds)
+    }>
+  > {
     return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query');
   }
 
@@ -781,7 +1575,31 @@ export class SpotClient extends BaseRestClient {
     endAt?: number;
     lastId?: number;
     limit?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      items: Array<{
+        id: number; // Id of transaction detail
+        symbol: string; // Trading pair
+        tradeId: number; // Trade Id
+        orderId: string; // Order Id
+        counterOrderId: string; // Counterparty order Id
+        side: string; // Buy or sell
+        liquidity: string; // Liquidity type: taker or maker
+        forceTaker: boolean; // Whether or not to forcefully process as taker
+        price: string; // Order price
+        size: string; // Order size
+        funds: string; // Turnover
+        fee: string; // Service fee
+        feeRate: string; // Fee rate
+        feeCurrency: string; // Currency used to calculate fees
+        stop: string; // Take Profit and Stop Loss type, currently HFT does not support the Take Profit and Stop Loss type, so it is empty
+        tradeType: string; // Trade type: TRADE(Spot Trading)
+        type: string; // Order type: limit or market
+        createdAt: number; // Transaction(Creation) time
+      }>;
+      lastId: number;
+    }>
+  > {
     return this.getPrivate('api/v1/hf/fills', params);
   }
 
