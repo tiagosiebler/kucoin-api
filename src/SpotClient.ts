@@ -2329,7 +2329,11 @@ export class SpotClient extends BaseRestClient {
     iceberg?: boolean;
     visibleSize?: string;
     funds?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderNo: string; // An order Id is returned once an order is successfully placed.
+    }>
+  > {
     return this.postPrivate('api/v3/hf/margin/order', params);
   }
 
@@ -2337,10 +2341,11 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/hf/margin/order/test');
   }
 
-  cancelHFMarginOrder(params: {
-    orderId: string;
-    symbol: string;
-  }): Promise<any> {
+  cancelHFMarginOrder(params: { orderId: string; symbol: string }): Promise<
+    APISuccessResponse<{
+      orderId: string; // Order id of the cancelled order
+    }>
+  > {
     return this.deletePrivate(
       `api/v3/hf/margin/orders/${params.orderId}`,
       params,
@@ -2350,7 +2355,11 @@ export class SpotClient extends BaseRestClient {
   cancelHFMarginOrderByClientOid(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      clientOid: string; // Order id of the cancelled order
+    }>
+  > {
     return this.deletePrivate(
       `api/v3/hf/margin/orders/client-order/${params.clientOid}`,
       params,
@@ -2367,7 +2376,41 @@ export class SpotClient extends BaseRestClient {
   getActiveHFMarginOrders(params: {
     symbol: string;
     tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        id: string; // Order id, a unique identifier pertaining to the order
+        symbol: string; // Trading pair
+        opType: 'DEAL'; // Operation type: DEAL
+        type: 'limit' | 'market'; // Order type
+        side: 'buy' | 'sell'; // Buy or sell
+        price: string; // Order price
+        size: string; // Order size
+        funds: string; // Order amount
+        dealFunds: string; // Number of filled funds
+        dealSize: string; // Number of filled transactions
+        fee: string; // Service fee
+        feeCurrency: string; // Currency used to calculate fees
+        stp: string; // Self trade prevention
+        timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+        postOnly: boolean; // Is it post only?
+        hidden: boolean; // Is it a hidden order?
+        iceberg: boolean; // Is it an iceberg order?
+        visibleSize: string; // Visible size of iceberg order in order book.
+        cancelAfter: number; // A GTT timeInForce that expires in n seconds
+        channel: string; // Source of orders
+        clientOid: string; // Identifier created by the client
+        remark: string; // Order description
+        tags: string; // Order identifier
+        active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+        inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+        cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+        createdAt: number; // Order creation time
+        lastUpdatedAt: number; // Last update time of order
+        tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Transaction type
+      }>
+    >
+  > {
     return this.getPrivate(`api/v3/hf/margin/orders/active`, params);
   }
 
@@ -2380,21 +2423,120 @@ export class SpotClient extends BaseRestClient {
     endAt?: number;
     lastId?: number;
     limit?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      lastId: number;
+      items: Array<{
+        id: string; // Order id, a unique identifier pertaining to the order
+        symbol: string; // Trading pair
+        opType: 'DEAL'; // Operation type: DEAL
+        type: 'limit' | 'market'; // Order type
+        side: 'buy' | 'sell'; // Buy or sell
+        price: string; // Order price
+        size: string; // Order size
+        funds: string; // Order amount
+        dealFunds: string; // Number of filled funds
+        dealSize: string; // Number of filled transactions
+        fee: string; // Service fee
+        feeCurrency: string; // Currency used to calculate fees
+        stp: string; // Self trade prevention
+        timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+        postOnly: boolean; // Is it post only?
+        hidden: boolean; // Is it a hidden order?
+        iceberg: boolean; // Is it an iceberg order?
+        visibleSize: string; // Visible size of iceberg order in order book.
+        cancelAfter: number; // A GTT timeInForce that expires in n seconds
+        channel: string; // Source of orders
+        clientOid: string; // Identifier created by the client
+        remark: string; // Order description
+        tags: string; // Order identifier
+        cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+        createdAt: number; // Order creation time
+        lastUpdatedAt: number; // Last update time of order
+        tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Transaction type
+        inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+        active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
   }
 
   getHFMarginOrderDetailsByOrderId(params: {
     orderId: string;
     symbol: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      id: string; // Order id, a unique identifier pertaining to the order
+      symbol: string; // Trading pair
+      opType: 'DEAL'; // Operation type: DEAL
+      type: 'limit' | 'market'; // Order type
+      side: 'buy' | 'sell'; // Buy or sell
+      price: string; // Order price
+      size: string; // Order size
+      funds: string; // Order amount
+      dealFunds: string; // Number of filled funds
+      dealSize: string; // Number of filled transactions
+      fee: string; // Service fee
+      feeCurrency: string; // Currency used to calculate fees
+      stp: string; // Self trade prevention
+      timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+      postOnly: boolean; // Is it post only?
+      hidden: boolean; // Is it a hidden order?
+      iceberg: boolean; // Is it an iceberg order?
+      visibleSize: string; // Visible size of iceberg order in order book.
+      cancelAfter: number; // A GTT timeInForce that expires in n seconds
+      channel: string; // Source of orders
+      clientOid: string; // Identifier created by the client
+      remark: string; // Order description
+      tags: string; // Order identifier
+      active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+      inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+      cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+      createdAt: number; // Order creation time
+      lastUpdatedAt: number; // Last update time of order
+      tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Transaction type
+    }>
+  > {
     return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
   }
 
   getHFMarginOrderDetailsByClientOid(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      id: string; // Order id, a unique identifier pertaining to the order
+      symbol: string; // Trading pair
+      opType: 'DEAL'; // Operation type: DEAL
+      type: 'limit' | 'market'; // Order type
+      side: 'buy' | 'sell'; // Buy or sell
+      price: string; // Order price
+      size: string; // Order size
+      funds: string; // Order amount
+      dealFunds: string; // Number of filled funds
+      dealSize: string; // Number of filled transactions
+      fee: string; // Service fee
+      feeCurrency: string; // Currency used to calculate fees
+      stp: string; // Self trade prevention
+      timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+      postOnly: boolean; // Is it post only?
+      hidden: boolean; // Is it a hidden order?
+      iceberg: boolean; // Is it an iceberg order?
+      visibleSize: string; // Visible size of iceberg order in order book.
+      cancelAfter: number; // A GTT timeInForce that expires in n seconds
+      channel: string; // Source of orders
+      clientOid: string; // Identifier created by the client
+      remark: string; // Order description
+      tags: string; // Order identifier
+      active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+      inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
+      cancelExist: boolean; // Are there any cancellation records pertaining to the order?
+      createdAt: number; // Order creation time
+      lastUpdatedAt: number; // Last update time of order
+      tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Transaction type
+    }>
+  > {
     return this.getPrivate(
       `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
     );
@@ -2410,7 +2552,31 @@ export class SpotClient extends BaseRestClient {
     endAt?: number;
     lastId?: number;
     limit?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      items: Array<{
+        id: number; // Id of transaction detail
+        symbol: string; // Trading pair
+        tradeId: number; // Trade Id
+        orderId: string; // Order Id
+        counterOrderId: string; // Counterparty order Id
+        side: 'buy' | 'sell'; // Buy or sell
+        liquidity: 'taker' | 'maker'; // Liquidity type: taker or maker
+        forceTaker: boolean; // Whether or not to forcefully process as taker
+        price: string; // Order price
+        size: string; // Order size
+        funds: string; // Turnover
+        fee: string; // Service fee
+        feeRate: string; // Fee rate
+        feeCurrency: string; // Currency used to calculate fees
+        type: 'limit' | 'market'; // Order type: limit or market
+        stop: string; // Take Profit and Stop Loss type, currently HFT does not support the Take Profit and Stop Loss type, so it is empty
+        createdAt: number; // Transaction(Creation) time
+        tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Trade type: MARGIN_TRADE - cross margin trade, MARGIN_ISOLATED_TRADE - isolated margin trade
+      }>;
+      lastId: number;
+    }>
+  > {
     return this.getPrivate('api/v3/hf/margin/fills', params);
   }
 
@@ -2439,7 +2605,13 @@ export class SpotClient extends BaseRestClient {
     iceberg?: boolean;
     visibleSize?: string;
     funds?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderId: string; // An order Id is returned once an order is successfully placed.
+      borrowSize?: number; // Borrowed amount. The field is returned only after placing the order under the mode of Auto-Borrow.
+      loanApplyId?: string; // ID of the borrowing response. The field is returned only after placing the order under the mode of Auto-Borrow.
+    }>
+  > {
     return this.postPrivate('api/v1/margin/order', params);
   }
 
@@ -2453,15 +2625,39 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getMarginLeveragedTokenInfo(params?: { currency?: string }): Promise<any> {
+  getMarginLeveragedTokenInfo(params?: { currency?: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        currency: string; // currency
+        netAsset: number; // Net worth
+        targetLeverage: string; // Target leverage
+        actualLeverage: string; // Actual leverage
+        assetsUnderManagement: string; // The amount of currency issued
+        basket: string; // basket information
+      }>
+    >
+  > {
     return this.get('api/v3/etf/info', params);
   }
 
-  getMarginMarkPrice(params: { symbol: string }): Promise<any> {
+  getMarginMarkPrice(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      symbol: string; // symbol
+      timePoint: number; // Time (millisecond)
+      value: number; // Mark price
+    }>
+  > {
     return this.get(`api/v1/mark-price/${params.symbol}/current`);
   }
 
-  getMarginConfigInfo(): Promise<any> {
+  getMarginConfigInfo(): Promise<
+    APISuccessResponse<{
+      currencyList: string[]; // Available currencies for margin trade
+      warningDebtRatio: string; // The warning debt ratio of the forced liquidation
+      liqDebtRatio: string; // The debt ratio of the forced liquidation
+      maxLeverage: number; // Max leverage available
+    }>
+  > {
     return this.get('api/v1/margin/config');
   }
 
@@ -2469,7 +2665,42 @@ export class SpotClient extends BaseRestClient {
     isIsolated: boolean;
     symbol?: string;
     currency?: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        timestamp: number;
+        currency?: string;
+        symbol?: string;
+        borrowMaxAmount?: string;
+        buyMaxAmount?: string;
+        holdMaxAmount?: string;
+        borrowCoefficient?: string;
+        marginCoefficient?: string;
+        precision?: number;
+        borrowMinAmount?: string;
+        borrowMinUnit?: string;
+        borrowEnabled?: boolean;
+        baseMaxBorrowAmount?: string;
+        quoteMaxBorrowAmount?: string;
+        baseMaxBuyAmount?: string;
+        quoteMaxBuyAmount?: string;
+        baseMaxHoldAmount?: string;
+        quoteMaxHoldAmount?: string;
+        basePrecision?: number;
+        quotePrecision?: number;
+        baseBorrowCoefficient?: string;
+        quoteBorrowCoefficient?: string;
+        baseMarginCoefficient?: string;
+        quoteMarginCoefficient?: string;
+        baseBorrowMinAmount?: string | null;
+        quoteBorrowMinAmount?: string | null;
+        baseBorrowMinUnit?: string | null;
+        quoteBorrowMinUnit?: string | null;
+        baseBorrowEnabled?: boolean;
+        quoteBorrowEnabled?: boolean;
+      }>
+    >
+  > {
     return this.get('api/v3/margin/currencies', params);
   }
 
@@ -2479,17 +2710,86 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getIsolatedMarginSymbolsConfig(): Promise<any> {
+  getIsolatedMarginSymbolsConfig(): Promise<
+    APISuccessResponse<
+      Array<{
+        symbol: string; // The trading pair code
+        symbolName: string; // Trading pair name
+        baseCurrency: string; // Base currency type
+        quoteCurrency: string; // Quote coin
+        maxLeverage: number; // Maximum leverage
+        flDebtRatio: string; // Liquidation debt ratio
+        tradeEnable: boolean; // Trade switch
+        autoRenewMaxDebtRatio: string; // During automatic renewal of the max debt ratio, the loan will only be renewed if it is lower than the debt ratio, with partial liquidation triggered for repayment if the debt ratio is in excess
+        baseBorrowEnable: boolean; // base coin type borrow switch
+        quoteBorrowEnable: boolean; // quote coin type borrow switch
+        baseTransferInEnable: boolean; // base coin type transfer switch
+        quoteTransferInEnable: boolean; // quote coin type transfer switch
+      }>
+    >
+  > {
     return this.getPrivate('api/v1/isolated/symbols');
   }
 
   getIsolatedMarginAccountInfo(params?: {
     balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      totalConversionBalance: string; // The total balance of the isolated margin account (in the specified coin)
+      liabilityConversionBalance: string; // Total liabilities of the isolated margin account (in the specified coin)
+      assets: Array<{
+        symbol: string; // Trading pairs, with each trading pair indicating a position
+        status: string; // The position status: Existing liabilities-DEBT, No liabilities-CLEAR, Bankrupcy (after position enters a negative balance)-BANKRUPTCY, Existing borrowings-IN_BORROW, Existing repayments-IN_REPAY, Under liquidation-IN_LIQUIDATION, Under auto-renewal assets-IN_AUTO_RENEW.
+        debtRatio: string; // Debt ratio
+        baseAsset: {
+          currency: string; // Coin type Code
+          totalBalance: string; // Current coin type asset amount
+          holdBalance: string; // Current coin type frozen
+          availableBalance: string; // The available balance (available assets - frozen assets)
+          liability: string; // Liability
+          interest: string; // Interest
+          borrowableAmount: string; // Borrowable amount
+        };
+        quoteAsset: {
+          currency: string; // Coin type Code
+          totalBalance: string; // Current coin type asset amount
+          holdBalance: string; // Current coin type frozen
+          availableBalance: string; // The available balance (available assets - frozen assets)
+          liability: string; // Liability
+          interest: string; // Interest
+          borrowableAmount: string; // Borrowable amount
+        };
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v1/isolated/accounts', params);
   }
 
-  getSingleIsolatedMarginAccountInfo(params: { symbol: string }): Promise<any> {
+  getSingleIsolatedMarginAccountInfo(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      symbol: string; // Trading pair
+      status: string; // The position status: Existing liabilities-DEBT, No liabilities-CLEAR, Bankrupcy (after position enters a negative balance)-BANKRUPTCY, Existing borrowings-IN_BORROW, Existing repayments-IN_REPAY, Under liquidation-IN_LIQUIDATION, Under auto-renewal-IN_AUTO_RENEW (permissions per state)
+      debtRatio: string; // Debt ratio
+      baseAsset: {
+        currency: string; // Coin type Code
+        totalBalance: string; // Current coin type asset amount
+        holdBalance: string; // Current coin type frozen
+        availableBalance: string; // The available balance (available assets - frozen assets)
+        liability: string; // The principal of the of current coin liability (the outstanding principal)
+        interest: string; // The interest of the liability of the current coin (the outstanding interest)
+        borrowableAmount: string; // The borrowable amount
+      };
+      quoteAsset: {
+        currency: string; // Coin type Code
+        totalBalance: string; // Current coin type asset amount
+        holdBalance: string; // Current coin type frozen
+        availableBalance: string; // The available balance (available assets - frozen assets)
+        liability: string; // The principal of the of current coin liability (the outstanding principal)
+        interest: string; // The interest of the liability of the current coin (the outstanding interest)
+        borrowableAmount: string; // The borrowable amount
+      };
+    }>
+  > {
     return this.getPrivate(`api/v1/isolated/account/${params.symbol}`);
   }
 
@@ -2505,7 +2805,12 @@ export class SpotClient extends BaseRestClient {
     currency: string;
     size: number;
     timeInForce: 'IOC' | 'FOK';
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderNo: string; // Borrow order number
+      actualSize: number; // Actual borrowed amount
+    }>
+  > {
     return this.postPrivate('api/v3/margin/borrow', params);
   }
 
@@ -2514,7 +2819,12 @@ export class SpotClient extends BaseRestClient {
     symbol?: string;
     currency: string;
     size: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      orderNo: string; // Borrow order number
+      actualSize: number; // Actual borrowed amount
+    }>
+  > {
     return this.postPrivate('api/v3/margin/repay', params);
   }
 
@@ -2527,7 +2837,19 @@ export class SpotClient extends BaseRestClient {
     endTime?: number;
     currentPage?: number;
     pageSize?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        orderNo: string; // Borrow order ID
+        symbol: string; // Isolated margin trading pair; empty for cross margin
+        currency: string; // Currency
+        size: number; // Initiated borrowing amount
+        actualSize: number; // Actual borrowed amount
+        status: string; // Status
+        createdTime: number; // Time of borrowing
+      }>
+    >
+  > {
     return this.getPrivate('api/v3/margin/borrow', params);
   }
 
@@ -2540,7 +2862,19 @@ export class SpotClient extends BaseRestClient {
     endTime?: number;
     currentPage?: number;
     pageSize?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        orderNo: string; // Borrow order ID
+        symbol: string; // Isolated margin trading pair; empty for cross margin
+        currency: string; // Currency
+        size: number; // Initiated borrowing amount
+        actualSize: number; // Actual borrowed amount
+        status: string; // Status
+        createdTime: number; // Time of borrowing
+      }>
+    >
+  > {
     return this.getPrivate('api/v3/margin/repay', params);
   }
 
@@ -2550,11 +2884,38 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getLendingMarketCurrencyInfoV3(params?: { currency?: string }): Promise<any> {
+  getLendingMarketCurrencyInfoV3(params?: { currency?: string }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        currency: string; // Currency
+        purchaseEnable: boolean; // Support subscription
+        redeemEnable: boolean; // Support redemption
+        increment: string; // Increment precision for subscription and redemption
+        minPurchaseSize: string; // Minimum subscription amount
+        minInterestRate: string; // Minimum annualized interest rate
+        maxInterestRate: string; // Maximum annualized interest rate
+        interestIncrement: string; // Increment precision for interest; default is 0.0001
+        maxPurchaseSize: string; // Maximum subscription limit per user
+        marketInterestRate: string; // Latest market annualized interest rate
+        autoPurchaseEnable: boolean; // Auto-Subscribe enabled?: true: enable, false: disable
+      }>;
+    }>
+  > {
     return this.get('api/v3/project/list', params);
   }
 
-  getLendingMarketInterestRatesV3(params: { currency: string }): Promise<any> {
+  getLendingMarketInterestRatesV3(params: { currency: string }): Promise<
+    APISuccessResponse<
+      Array<{
+        time: string; // Time: YYYYMMDDHH00
+        marketInterestRate: string; // Market interest rate
+      }>
+    >
+  > {
     return this.get('api/v3/project/marketInterestRate', params);
   }
 
@@ -2562,7 +2923,13 @@ export class SpotClient extends BaseRestClient {
     currency: string;
     size: string;
     interestRate: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        orderNo: string;
+      }>
+    >
+  > {
     return this.postPrivate('api/v3/purchase', params);
   }
 
@@ -2570,7 +2937,13 @@ export class SpotClient extends BaseRestClient {
     currency: string;
     size: string;
     purchaseOrderNo: string;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<
+      Array<{
+        orderNo: string;
+      }>
+    >
+  > {
     return this.postPrivate('api/v3/redeem', params);
   }
 
@@ -2588,7 +2961,23 @@ export class SpotClient extends BaseRestClient {
     status: 'DONE' | 'PENDING';
     currentPage?: number;
     pageSize?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        currency: string; // Currency
+        purchaseOrderNo: string; // Subscription order number
+        redeemOrderNo: string; // Redemption order number
+        redeemAmount: string; // Redemption amount
+        receiptAmount: string; // Redeemed amount
+        applyTime: number; // Time of redemption
+        status: 'DONE' | 'PENDING'; // Status: DONE-completed; PENDING-settling
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v3/redeem/orders', params);
   }
 
@@ -2598,7 +2987,25 @@ export class SpotClient extends BaseRestClient {
     status: 'DONE' | 'PENDING';
     currentPage?: number;
     pageSize?: number;
-  }): Promise<any> {
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: Array<{
+        currency: string; // Currency
+        purchaseOrderNo: string; // Subscription order number
+        purchaseAmount: string; // Total subscription amount
+        lendAmount: string; // Executed amount
+        redeemAmount: string; // Redeemed amount
+        interestRate: string; // Target annualized interest rate
+        incomeAmount: string; // Total earnings
+        applyTime: number; // Time of subscription
+        status: 'DONE' | 'PENDING'; // Status: DONE-completed; PENDING-settling
+      }>;
+    }>
+  > {
     return this.getPrivate('api/v3/purchase/orders', params);
   }
 }
