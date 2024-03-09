@@ -4,12 +4,36 @@ import {
   AccountHFMarginTransactionsRequest,
   AccountHFTransactionsRequest,
   AccountTransactionsRequest,
+  ApplyWithdrawRequest,
+  CancelAllOrdersRequest,
+  CancelSpecifiedNumberHFOrdersRequest,
+  CancelStopOrdersRequest,
   CreateSubAccountAPIRequest,
   CreateSubAccountRequest,
   DeleteSubAccountAPIRequest,
+  FlexTransferRequest,
   GetBalancesRequest,
+  GetDepositListRequest,
+  GetFilledListRequest,
+  GetHFCompletedOrdersRequest,
+  GetHFFilledListRequest,
   GetIsolatedMarginAccountBalanceDetailRequest,
+  GetKlinesRequest,
   GetMarginAccountBalanceDetailRequest,
+  GetOrderListRequest,
+  GetStopOrdersListRequest,
+  GetTransferableRequest,
+  GetV1HistoricalDepositsListRequest,
+  GetV1HistoricalWithdrawalsListRequest,
+  GetWithdrawalsListRequest,
+  InnerTransferRequest,
+  ModifyHFOrderRequest,
+  PlaceHFOrderRequest,
+  PlaceMultipleHFOrdersRequest,
+  PlaceMultipleOrdersRequest,
+  PlaceOrderRequest,
+  PlaceStopOrderRequest,
+  TransferBetweenMasterAndSubAccountRequest,
   UpdateSubAccountAPIRequest,
 } from 'types/request/spot.types.js';
 import {
@@ -18,17 +42,47 @@ import {
   AccountResponse,
   AccountSummaryResponse,
   AccountTransactionsResponse,
+  AllTickersInfo,
+  AutoCancelHFOrderSettingQueryResponse,
   BalancesResponse,
+  CancelAllHFOrdersResponse,
   CreateSubAccountAPIResponse,
   CreateSubAccountResponse,
+  CurrencyInfo,
+  DepositAddress,
+  DepositAddressV2,
+  FillItemResponse,
+  GetDepositListResponse,
+  GetFilledListResponse,
+  GetHFFilledListResponse,
   GetMarginAccountBalanceDetailResponse,
   GetMarginAccountBalancesResponse,
   GetSubAccountBalanceResponse,
   GetSubAccountBalancesV2Response,
   GetSubAccountsV2Response,
+  GetV1HistoricalDepositsListResponse,
+  GetV1HistoricalWithdrawalsListResponse,
+  GetWithdrawalQuotasResponse,
+  GetWithdrawalsListResponse,
+  HFOrder,
   IsolatedMarginAccountDetailResponse,
+  Kline,
+  OrderBookLevel,
+  OrderListItem,
+  OrderListResponse,
+  PlaceHFOrderSyncResponse,
+  PlaceMultipleHFOrdersResponse,
+  PlaceMultipleHFOrdersSyncResponse,
+  PlaceMultipleOrdersResponse,
+  StopOrderItemResponse,
+  StopOrdersListResponse,
   SubAccountAPIInfo,
   SubAccountInfo,
+  SymbolInfo,
+  SyncCancelHFOrderResponse,
+  TickerInfo,
+  TradeHistory,
+  TransferableResponse,
   UpdateSubAccountAPIResponse,
 } from 'types/response/spot.types.js';
 
@@ -246,90 +300,35 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  createDepositAddress(params: { currency: string; chain?: string }): Promise<
-    APISuccessResponse<{
-      address: string; // Deposit address
-      memo: string; // Address remark. If there’s no remark, it is empty.
-      chain: string; // The chain name of currency
-    }>
-  > {
+  createDepositAddress(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<APISuccessResponse<DepositAddress>> {
     return this.postPrivate('api/v1/deposit-addresses', params);
   }
 
-  getDepositAddressesV2(params: { currency: string }): Promise<
-    APISuccessResponse<
-      {
-        address: string; // Deposit address
-        memo: string; // Address remark. If there’s no remark, it is empty.
-        chain: string; // The chain name of currency.
-        contractAddress: string; // The token contract address.
-      }[]
-    >
-  > {
+  getDepositAddressesV2(params: {
+    currency: string;
+  }): Promise<APISuccessResponse<DepositAddressV2[]>> {
     return this.getPrivate('api/v2/deposit-addresses', params);
   }
 
-  getDepositAddress(params: { currency: string; chain?: string }): Promise<
-    APISuccessResponse<{
-      address: string; // Deposit address
-      memo: string; // Address remark. If there’s no remark, it is empty.
-      chain: string; // The chain name of currency
-    }>
-  > {
+  getDepositAddress(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<APISuccessResponse<DepositAddress>> {
     return this.getPrivate('api/v1/deposit-addresses', params);
   }
 
-  getDepositList(params?: {
-    currency?: string;
-    startAt?: number;
-    endAt?: number;
-    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        address: string; // Deposit address
-        memo: string; // Address remark. If there’s no remark, it is empty.
-        amount: string; // Deposit amount
-        fee: string; // Fees charged for deposit
-        currency: string; // Currency
-        chain: string; // The chain of currency
-        isInner: boolean; // Internal deposit or not
-        walletTxId: string; // Wallet Txid
-        status: 'PROCESSING' | 'SUCCESS' | 'FAILURE'; // Status
-        remark: string; // remark
-        createdAt: number; // Creation time of the database record
-        updatedAt: number; // Update time of the database record
-      }[];
-    }>
-  > {
+  getDepositList(
+    params?: GetDepositListRequest,
+  ): Promise<APISuccessResponse<GetDepositListResponse>> {
     return this.getPrivate('api/v1/deposits', params);
   }
 
-  getV1HistoricalDepositsList(params?: {
-    currency?: string;
-    startAt?: number;
-    endAt?: number;
-    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        currency: string; // Currency
-        createAt: number; // Creation time of the database record
-        amount: string; // Deposit amount
-        walletTxId: string; // Wallet Txid
-        isInner: boolean; // Internal deposit or not
-        status: 'PROCESSING' | 'SUCCESS' | 'FAILURE'; // Status
-      }[];
-    }>
-  > {
+  getV1HistoricalDepositsList(
+    params?: GetV1HistoricalDepositsListRequest,
+  ): Promise<APISuccessResponse<GetV1HistoricalDepositsListResponse>> {
     return this.getPrivate('api/v1/hist-deposits', params);
   }
 
@@ -339,94 +338,28 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getWithdrawalsList(params?: {
-    currency?: string;
-    status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
-    startAt?: number;
-    endAt?: number;
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        id: string; // Unique identity
-        address: string; // Withdrawal address
-        memo: string; // Address remark. If there’s no remark, it is empty.
-        currency: string; // Currency
-        chain: string; // The chain of currency
-        amount: string; // Withdrawal amount
-        fee: string; // Withdrawal fee
-        walletTxId: string; // Wallet Txid
-        isInner: boolean; // Internal withdrawal or not
-        status: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE'; // status
-        remark: string; // remark
-        createdAt: number; // Creation time
-        updatedAt: number; // Update time
-      }[];
-    }>
-  > {
+  getWithdrawalsList(
+    params?: GetWithdrawalsListRequest,
+  ): Promise<APISuccessResponse<GetWithdrawalsListResponse>> {
     return this.getPrivate('api/v1/withdrawals', params);
   }
 
-  getV1HistoricalWithdrawalsList(params?: {
-    currency?: string;
-    startAt?: number;
-    endAt?: number;
-    status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        currency: string; // Currency
-        createAt: number; // Creation time of the database record
-        amount: string; // Withdrawal amount
-        address: string; // Withdrawal address
-        walletTxId: string; // Wallet Txid
-        isInner: boolean; // Internal deposit or not
-        status: 'PROCESSING' | 'SUCCESS' | 'FAILURE'; // Status
-      }[];
-    }>
-  > {
+  getV1HistoricalWithdrawalsList(
+    params?: GetV1HistoricalWithdrawalsListRequest,
+  ): Promise<APISuccessResponse<GetV1HistoricalWithdrawalsListResponse>> {
     return this.getPrivate('api/v1/hist-withdrawals', params);
   }
 
-  getWithdrawalQuotas(params: { currency: string; chain?: string }): Promise<
-    APISuccessResponse<{
-      limitBTCAmount: string; // 24-hour total withdrawal limit, equivalent to BTC
-      quotaCurrency: string; // withdrawal limit currency
-      chain: string; // The chain name of currency
-      remainAmount: string; // Remaining amount available to withdraw the current day
-      innerWithdrawMinFee: string; // Fees for internal withdrawal
-      usedBTCAmount: string; // The estimated BTC amount (based on the daily fiat limit) that can be withdrawn within the current day
-      limitQuotaCurrencyAmount: string; // The intraday available withdrawal amount(withdrawal limit currency)
-      withdrawMinSize: string; // Minimum withdrawal amount
-      withdrawMinFee: string; // Minimum withdrawal fee
-      precision: number; // Floating point precision.
-      reason: string | null; // Reason for withdrawal limit (if any)
-      usedQuotaCurrencyAmount: string; // The intraday cumulative withdrawal amount(withdrawal limit currency)
-      currency: string; // Currency
-      availableAmount: string; // Current available withdrawal amount
-      isWithdrawEnabled: boolean; // Is the withdraw function enabled or not
-    }>
-  > {
+  getWithdrawalQuotas(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<APISuccessResponse<GetWithdrawalQuotasResponse>> {
     return this.getPrivate('api/v1/withdrawals/quotas', params);
   }
 
-  applyWithdraw(params: {
-    currency: string;
-    address: string;
-    amount: number;
-    memo?: string;
-    isInner?: boolean;
-    remark?: string;
-    chain?: string;
-    feeDeductType?: 'INTERNAL' | 'EXTERNAL';
-  }): Promise<APISuccessResponse<{ withdrawalId: string }>> {
+  applyWithdraw(
+    params: ApplyWithdrawRequest,
+  ): Promise<APISuccessResponse<{ withdrawalId: string }>> {
     return this.postPrivate('api/v1/withdrawals', params);
   }
 
@@ -442,50 +375,13 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getTransferable(params: {
-    currency: string;
-    type: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'ISOLATED';
-    tag?: string;
-  }): Promise<
-    APISuccessResponse<{
-      currency: string; // Currency
-      balance: string; // Total funds in an account.
-      available: string; // Funds available to withdraw or trade.
-      holds: string; // Funds on hold (not available for use).
-      transferable: string; // Funds available to transfer.
-    }>
-  > {
+  getTransferable(
+    params: GetTransferableRequest,
+  ): Promise<APISuccessResponse<TransferableResponse>> {
     return this.getPrivate('api/v1/accounts/transferable', params);
   }
 
-  flexTransfer(params: {
-    clientOid: string;
-    currency?: string;
-    amount: string;
-    fromUserId?: string;
-    fromAccountType:
-      | 'MAIN'
-      | 'TRADE'
-      | 'CONTRACT'
-      | 'MARGIN'
-      | 'ISOLATED'
-      | 'TRADE_HF'
-      | 'MARGIN_V2'
-      | 'ISOLATED_V2';
-    fromAccountTag?: string;
-    type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
-    toUserId?: string;
-    toAccountType:
-      | 'MAIN'
-      | 'TRADE'
-      | 'CONTRACT'
-      | 'MARGIN'
-      | 'ISOLATED'
-      | 'TRADE_HF'
-      | 'MARGIN_V2'
-      | 'ISOLATED_V2';
-    toAccountTag?: string;
-  }): Promise<
+  flexTransfer(params: FlexTransferRequest): Promise<
     APISuccessResponse<{
       orderId: string; // Transfer order ID
     }>
@@ -493,15 +389,9 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/accounts/universal-transfer', params);
   }
 
-  transferBetweenMasterAndSubAccount(params: {
-    clientOid: string;
-    currency: string;
-    amount: string;
-    direction: 'OUT' | 'IN';
-    accountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
-    subAccountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
-    subUserId: string;
-  }): Promise<
+  transferBetweenMasterAndSubAccount(
+    params: TransferBetweenMasterAndSubAccountRequest,
+  ): Promise<
     APISuccessResponse<{
       orderId: string; // Transfer order ID
     }>
@@ -509,31 +399,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v2/accounts/sub-transfer', params);
   }
 
-  innerTransfer(params: {
-    clientOid: string;
-    currency: string;
-    from:
-      | 'main'
-      | 'trade'
-      | 'trade_hf'
-      | 'margin'
-      | 'isolated'
-      | 'margin_v2'
-      | 'isolated_v2'
-      | 'contract';
-    to:
-      | 'main'
-      | 'trade'
-      | 'trade_hf'
-      | 'margin'
-      | 'isolated'
-      | 'margin_v2'
-      | 'isolated_v2'
-      | 'contract';
-    amount: string;
-    fromTag?: string;
-    toTag?: string;
-  }): Promise<
+  innerTransfer(params: InnerTransferRequest): Promise<
     APISuccessResponse<{
       orderId: string; // Transfer order ID
     }>
@@ -582,149 +448,36 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getCurrencyList(): Promise<
-    APISuccessResponse<
-      {
-        currency: string; // A unique currency code that will never change
-        name: string; // Currency name, will change after renaming
-        fullName: string; // Full name of a currency, will change after renaming
-        precision: number; // Currency precision
-        confirms: number | null; // Number of block confirmations
-        contractAddress: string | null; // Contract address
-        isMarginEnabled: boolean; // Support margin or not
-        isDebitEnabled: boolean; // Support debit or not
-        chains: {
-          chainName: string; // Chain name of currency
-          withdrawalMinSize: string; // Minimum withdrawal amount
-          withdrawalMinFee: string; // Minimum fees charged for withdrawal
-          isWithdrawEnabled: boolean; // Support withdrawal or not
-          isDepositEnabled: boolean; // Support deposit or not
-          confirms: number; // Number of block confirmations
-          preConfirms: number; // The number of blocks (confirmations) for advance on-chain verification
-          contractAddress: string; // Contract address
-          chainId: string; // Chain of currency
-        }[];
-      }[]
-    >
-  > {
+  getCurrencyList(): Promise<APISuccessResponse<CurrencyInfo[]>> {
     return this.get('api/v3/currencies');
   }
 
-  getCurrencyDetail(params: { currency: string; chain?: string }): Promise<
-    APISuccessResponse<{
-      currency: string; // A unique currency code that will never change
-      name: string; // Currency name, will change after renaming
-      fullName: string; // Full name of a currency, will change after renaming
-      precision: number; // Currency precision
-      confirms: number | null; // Number of block confirmations
-      contractAddress: string | null; // Contract address
-      isMarginEnabled: boolean; // Support margin or not
-      isDebitEnabled: boolean; // Support debit or not
-      chains: {
-        chainName: string; // Chain name of currency
-        withdrawalMinSize: string; // Minimum withdrawal amount
-        withdrawalMinFee: string; // Minimum fees charged for withdrawal
-        isWithdrawEnabled: boolean; // Support withdrawal or not
-        isDepositEnabled: boolean; // Support deposit or not
-        confirms: number; // Number of block confirmations
-        preConfirms: number; // The number of blocks (confirmations) for advance on-chain verification
-        contractAddress: string; // Contract address
-        chainId: string; // Chain of currency
-      }[];
-    }>
-  > {
+  getCurrencyDetail(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<APISuccessResponse<CurrencyInfo>> {
     return this.get(`api/v3/currencies/${params.currency}`, params);
   }
 
-  getSymbolsList(params?: { market?: string }): Promise<
-    APISuccessResponse<
-      {
-        symbol: string; // unique code of a symbol, it would not change after renaming
-        name: string; // Name of trading pairs, it would change after renaming
-        baseCurrency: string; // Base currency,e.g. BTC.
-        quoteCurrency: string; // Quote currency,e.g. USDT.
-        feeCurrency: string; // The currency of charged fees.
-        market: string; // The trading market.
-        baseMinSize: string; // The minimum order quantity required to place an order.
-        quoteMinSize: string; // The minimum order funds required to place a market order.
-        baseMaxSize: string; // The maximum order size required to place an order.
-        quoteMaxSize: string; // The maximum order funds required to place a market order.
-        baseIncrement: string; // The increment of the order size. The value shall be a positive multiple of the baseIncrement.
-        quoteIncrement: string; // The increment of the funds required to place a market order. The value shall be a positive multiple of the quoteIncrement.
-        priceIncrement: string; // The increment of the price required to place a limit order. The value shall be a positive multiple of the priceIncrement.
-        priceLimitRate: string; // Threshold for price protection
-        minFunds: string; // the minimum spot and margin trading amounts
-        isMarginEnabled: boolean; // Available for margin or not.
-        enableTrading: boolean; // Available for transaction or not.
-      }[]
-    >
-  > {
+  getSymbolsList(params?: {
+    market?: string;
+  }): Promise<APISuccessResponse<SymbolInfo[]>> {
     return this.get('api/v2/symbols', params);
   }
 
-  getTicker(params: { symbol: string }): Promise<
-    APISuccessResponse<{
-      sequence: string; // Sequence
-      price: string; // Last traded price
-      size: string; // Last traded size
-      bestAsk: string; // Best ask price
-      bestAskSize: string; // Best ask size
-      bestBid: string; // Best bid price
-      bestBidSize: string; // Best bid size
-      time: number; // timestamp
-    }>
-  > {
+  getTicker(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<TickerInfo>> {
     return this.get(`api/v1/market/orderbook/level1`, params);
   }
 
-  getAllTickers(): Promise<
-    APISuccessResponse<{
-      time: number; // timestamp
-      ticker: {
-        symbol: string; // Symbol
-        symbolName: string; // Name of trading pairs, it would change after renaming
-        buy: string; // Best bid price
-        sell: string; // Best ask price
-        bestBidSize: string; // Best bid size
-        bestAskSize: string; // Best ask size
-        changeRate: string; // 24h change rate
-        changePrice: string; // 24h change price
-        high: string; // Highest price in 24h
-        low: string; // Lowest price in 24h
-        vol: string; // 24h volume, executed based on base currency
-        volValue: string; // 24h traded amount
-        last: string; // Last traded price
-        averagePrice: string; // Average trading price in the last 24 hours
-        takerFeeRate: string; // Basic Taker Fee
-        makerFeeRate: string; // Basic Maker Fee
-        takerCoefficient: string; // Taker Fee Coefficient
-        makerCoefficient: string; // Maker Fee Coefficient
-      }[];
-    }>
-  > {
+  getAllTickers(): Promise<APISuccessResponse<AllTickersInfo>> {
     return this.get('api/v1/market/allTickers');
   }
 
-  get24hrStats(params: { symbol: string }): Promise<
-    APISuccessResponse<{
-      time: number; // timestamp
-      symbol: string; // Symbol
-      buy: string; // Best bid price
-      sell: string; // Best ask price
-      changeRate: string; // 24h change rate
-      changePrice: string; // 24h change price
-      high: string; // Highest price in 24h
-      low: string; // Lowest price in 24h
-      vol: string; // 24h volume, executed based on base currency
-      volValue: string; // 24h traded amount
-      last: string; // Last traded price
-      averagePrice: string; // Average trading price in the last 24 hours
-      takerFeeRate: string; // Basic Taker Fee
-      makerFeeRate: string; // Basic Maker Fee
-      takerCoefficient: string; // Taker Fee Coefficient
-      makerCoefficient: string; // Maker Fee Coefficient
-    }>
-  > {
+  get24hrStats(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<AllTickersInfo>> {
     return this.get('api/v1/market/stats', params);
   }
 
@@ -732,84 +485,31 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v1/markets');
   }
 
-  getPartOrderBookLevel20(params: { symbol: string }): Promise<
-    APISuccessResponse<{
-      sequence: string; // Sequence number
-      time: number; // Timestamp
-      bids: [string, string][]; // bids [price, size]
-      asks: [string, string][]; // asks [price, size]
-    }>
-  > {
+  getPartOrderBookLevel20(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<OrderBookLevel>> {
     return this.get(`api/v1/market/orderbook/level2_20`, params);
   }
 
-  getPartOrderBookLevel100(params: { symbol: string }): Promise<
-    APISuccessResponse<{
-      sequence: string; // Sequence number
-      time: number; // Timestamp
-      bids: [string, string][]; // bids [price, size]
-      asks: [string, string][]; // asks [price, size]
-    }>
-  > {
+  getPartOrderBookLevel100(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<OrderBookLevel>> {
     return this.get(`api/v1/market/orderbook/level2_100`, params);
   }
 
-  getFullOrderBook(params: { symbol: string }): Promise<
-    APISuccessResponse<{
-      sequence: string; // Sequence number
-      time: number; // Timestamp
-      bids: [string, string][]; // bids [price, size]
-      asks: [string, string][]; // asks [price, size]
-    }>
-  > {
+  getFullOrderBook(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<OrderBookLevel>> {
     return this.get('api/v3/market/orderbook/level2', params);
   }
 
-  getTradeHistories(params: { symbol: string }): Promise<
-    APISuccessResponse<
-      {
-        sequence: string; // Sequence number
-        time: number; // Transaction time
-        price: string; // Filled price
-        size: string; // Filled amount
-        side: string; // Filled side. The filled side is set to the taker by default.
-      }[]
-    >
-  > {
+  getTradeHistories(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<TradeHistory[]>> {
     return this.get('api/v1/market/histories', params);
   }
 
-  getKlines(params: {
-    symbol: string;
-    startAt?: number;
-    endAt?: number;
-    type:
-      | '1min'
-      | '3min'
-      | '5min'
-      | '15min'
-      | '30min'
-      | '1hour'
-      | '2hour'
-      | '4hour'
-      | '6hour'
-      | '8hour'
-      | '12hour'
-      | '1day'
-      | '1week';
-  }): Promise<
-    APISuccessResponse<
-      [
-        string, // Start time of the candle cycle
-        string, // Opening price
-        string, // Closing price
-        string, // Highest price
-        string, // Lowest price
-        string, // Transaction volume (One-sided transaction volume)
-        string, // Transaction amount (One-sided transaction amount)
-      ][]
-    >
-  > {
+  getKlines(params: GetKlinesRequest): Promise<APISuccessResponse<Kline[]>> {
     return this.get('api/v1/market/candles', params);
   }
 
@@ -823,15 +523,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  placeHFOrder(params: {
-    clientOid?: string;
-    symbol: string;
-    type: 'limit' | 'market';
-    side: 'buy' | 'sell';
-    stp?: 'CN' | 'CO' | 'CB' | 'DC';
-    tags?: string;
-    remark?: string;
-  }): Promise<
+  placeHFOrder(params: PlaceHFOrderRequest): Promise<
     APISuccessResponse<{
       orderId: string; // Transfer order ID
     }>
@@ -843,94 +535,25 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/hf/orders/test');
   }
 
-  placeHFOrderSync(params: {
-    clientOid?: string;
-    symbol: string;
-    type: 'limit' | 'market';
-    side: 'buy' | 'sell';
-    stp?: 'CN' | 'CO' | 'CB' | 'DC';
-    tags?: string;
-    remark?: string;
-  }): Promise<
-    APISuccessResponse<{
-      orderId: string; // An order Id is returned once an order is successfully placed.
-      orderTime: string; // order time
-      originSize: string; // original order size
-      dealSize: string; // deal size
-      remainSize: string; // remain size
-      canceledSize: string; // Cumulative number of cancellations
-      status: string; // Order Status. open: the order is active; done: the order has been completed
-      matchTime: string; // matching time
-    }>
-  > {
+  placeHFOrderSync(
+    params: PlaceHFOrderRequest,
+  ): Promise<APISuccessResponse<PlaceHFOrderSyncResponse>> {
     return this.postPrivate('api/v1/hf/orders/sync', params);
   }
 
-  placeMultipleHFOrders(params: {
-    clientOid?: string;
-    symbol: string;
-    type: 'limit' | 'market';
-    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-    stp?: 'CN' | 'CO' | 'CB' | 'DC';
-    side: 'buy' | 'sell';
-    price: string;
-    size: string;
-    cancelAfter?: number;
-    postOnly?: boolean;
-    hidden?: boolean;
-    iceberg?: boolean;
-    visibleSize?: string;
-    tags?: string;
-    remark?: string;
-  }): Promise<
-    {
-      orderId: string;
-      success?: boolean;
-      failMsg?: string; // Reason of failure, optional based on success status
-    }[]
-  > {
+  placeMultipleHFOrders(
+    params: PlaceMultipleHFOrdersRequest,
+  ): Promise<APISuccessResponse<PlaceMultipleHFOrdersResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
 
-  placeMultipleHFOrdersSync(params: {
-    clientOid?: string;
-    symbol: string;
-    type: 'limit' | 'market';
-    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-    stp?: 'CN' | 'CO' | 'CB' | 'DC';
-    side: 'buy' | 'sell';
-    price: string;
-    size: string;
-    cancelAfter?: number;
-    postOnly?: boolean;
-    hidden?: boolean;
-    iceberg?: boolean;
-    visibleSize?: string;
-    tags?: string;
-    remark?: string;
-  }): Promise<
-    {
-      orderId: string; // An order Id is returned once an order is successfully placed.
-      orderTime: number; // order time
-      originSize: string; // original order size
-      dealSize: string; // deal size
-      remainSize: string; // remain size
-      canceledSize: string; // Cumulative number of cancellations
-      status: string; // Order Status. open: the order is active; done: the order has been completed
-      matchTime: number; // matching time
-      success: boolean; // Whether the order was placed successfully.
-    }[]
-  > {
+  placeMultipleHFOrdersSync(
+    params: PlaceMultipleHFOrdersRequest,
+  ): Promise<APISuccessResponse<PlaceMultipleHFOrdersSyncResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
 
-  modifyHFOrder(params: {
-    symbol: string;
-    clientOid?: string;
-    orderId?: string;
-    newPrice?: string;
-    newSize?: string;
-  }): Promise<
+  modifyHFOrder(params: ModifyHFOrderRequest): Promise<
     APISuccessResponse<{
       newOrderId: string; // New order ID
     }>
@@ -946,16 +569,10 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
-  syncCancelHFOrder(params: { orderId: string; symbol: string }): Promise<
-    APISuccessResponse<{
-      orderId: string; // order Id
-      originSize: string; // original order size
-      dealSize: string; // deal size
-      remainSize: string; // remain size
-      canceledSize: string; // Cumulative number of cancellations
-      status: string; // Order Status. open: the order is active; done: the order has been completed
-    }>
-  > {
+  syncCancelHFOrder(params: {
+    orderId: string;
+    symbol: string;
+  }): Promise<APISuccessResponse<SyncCancelHFOrderResponse>> {
     return this.deletePrivate(
       `api/v1/hf/orders/sync/${params.orderId}`,
       params,
@@ -979,27 +596,16 @@ export class SpotClient extends BaseRestClient {
   syncCancelHFOrderByClientOId(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<
-    APISuccessResponse<{
-      orderId: string; // order Id
-      originSize: string; // original order size
-      dealSize: string; // deal size
-      remainSize: string; // remain size
-      canceledSize: string; // Cumulative number of cancellations
-      status: string; // Order Status. open: the order is active; done: the order has been completed
-    }>
-  > {
+  }): Promise<APISuccessResponse<SyncCancelHFOrderResponse>> {
     return this.deletePrivate(
       `api/v1/hf/orders/sync/client-order/${params.clientOid}`,
       params,
     );
   }
 
-  cancelSpecifiedNumberHFOrders(params: {
-    orderId: string;
-    symbol: string;
-    cancelSize: string;
-  }): Promise<any> {
+  cancelSpecifiedNumberHFOrders(
+    params: CancelSpecifiedNumberHFOrdersRequest,
+  ): Promise<any> {
     return this.deletePrivate(
       `api/v1/hf/orders/cancel/${params.orderId}`,
       params,
@@ -1015,57 +621,13 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/hf/orders`, params);
   }
 
-  cancelAllHFOrders(): Promise<
-    APISuccessResponse<{
-      succeedSymbols?: string[]; // Cancel order successful symbol
-      failedSymbols?: {
-        symbol: string; // Cancel order failed symbol
-        error: string; // Error message
-      }[];
-    }>
-  > {
+  cancelAllHFOrders(): Promise<APISuccessResponse<CancelAllHFOrdersResponse>> {
     return this.deletePrivate(`api/v1/hf/orders/cancelAll`);
   }
 
-  getActiveHFOrders(params: { symbol: string }): Promise<
-    APISuccessResponse<
-      {
-        id: string; // Order id, a unique identifier pertaining to the order
-        symbol: string; // Trading pair
-        opType: string; // Operation type: DEAL
-        type: string; // Order type
-        side: string; // Buy or sell
-        price: string; // Order price
-        size: string; // Order size
-        dealSize: string; // Number of filled transactions
-        cancelledSize: string; // Number of canceled transactions
-        remainSize: string; // Number of remain transactions
-        funds: string; // Order amount
-        dealFunds: string; // Number of filled funds
-        cancelledFunds: string; // Number of canceled funds
-        remainFunds: string; // Number of remain funds
-        fee: string; // Service fee
-        feeCurrency: string; // Currency used to calculate fees
-        stp: string; // Self trade protection
-        timeInForce: string; // Time in force
-        postOnly: boolean; // Is it post only?
-        hidden: boolean; // Is it a hidden order?
-        iceberg: boolean; // Is it an iceberg order?
-        visibleSize: string; // Visible size of iceberg order in order book.
-        cancelAfter: number; // A GTT timeInForce that expires in n seconds
-        channel: string; // Source of orders
-        clientOid: string; // Identifier created by the client
-        remark: string; // Order description
-        tags: string; // Order identifier
-        active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
-        inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
-        cancelExist: boolean; // Are there any cancellation records pertaining to the order?
-        createdAt: number; // Order creation time
-        lastUpdatedAt: number; // Last update time of order
-        tradeType: string; // Trade type: TRADE (Spot Trading)
-      }[]
-    >
-  > {
+  getActiveHFOrders(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<HFOrder[]>> {
     return this.getPrivate(`api/v1/hf/orders/active`, params);
   }
 
@@ -1077,52 +639,10 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate(`api/v1/hf/orders/active/symbols`);
   }
 
-  getHFCompletedOrders(params: {
-    symbol: string;
-    side?: 'buy' | 'sell';
-    type?: 'limit' | 'market';
-    startAt?: number;
-    endAt?: number;
-    lastId?: number;
-    limit?: number;
-  }): Promise<
+  getHFCompletedOrders(params: GetHFCompletedOrdersRequest): Promise<
     APISuccessResponse<{
       lastId: number;
-      items: {
-        id: string; // Order id, a unique identifier of the order
-        symbol: string; // Trading pair
-        opType: string; // Operation type: DEAL
-        type: string; // Order type
-        side: string; // Buy or sell
-        price: string; // Order price
-        size: string; // Order size
-        dealSize: string; // Number of filled transactions
-        cancelledSize: string; // Number of canceled transactions
-        remainSize: string; // Number of remain transactions
-        funds: string; // Order amount
-        dealFunds: string; // Number of filled funds
-        cancelledFunds: string; // Number of canceled funds
-        remainFunds: string; // Number of remain funds
-        fee: string; // Service fee
-        feeCurrency: string; // Currency used to calculate fees
-        stp: string; // Self trade protection
-        timeInForce: string; // Time in force
-        postOnly: boolean; // Is it post only?
-        hidden: boolean; // Is it a hidden order?
-        iceberg: boolean; // Is it an iceberg order?
-        visibleSize: string; // Visible size of iceberg order in order book.
-        cancelAfter: number; // A GTT timeInForce that expires in n seconds
-        channel: string; // Source of orders
-        clientOid: string; // Identifier created by the client
-        remark: string; // Order description
-        tags: string; // Order identifier
-        active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
-        inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
-        cancelExist: boolean; // Are there any cancellation records pertaining to the order?
-        createdAt: number; // Order creation time
-        lastUpdatedAt: number; // Last update time of order
-        tradeType: string; // Trade type: TRADE (Spot Trading)
-      }[];
+      items: HFOrder[];
     }>
   > {
     return this.getPrivate(`api/v1/hf/orders/done`, params);
@@ -1131,86 +651,14 @@ export class SpotClient extends BaseRestClient {
   getHFOrderDetailsByOrderId(params: {
     orderId: string;
     symbol: string;
-  }): Promise<
-    APISuccessResponse<{
-      id: string; // Order id, a unique identifier of the order
-      symbol: string; // Trading pair
-      opType: string; // Operation type: DEAL
-      type: string; // Order type
-      side: string; // Buy or sell
-      price: string; // Order price
-      size: string; // Order size
-      dealSize: string; // Number of filled transactions
-      cancelledSize: string; // Number of canceled transactions
-      remainSize: string; // Number of remain transactions
-      funds: string; // Order amount
-      dealFunds: string; // Number of filled funds
-      cancelledFunds: string; // Number of canceled funds
-      remainFunds: string; // Number of remain funds
-      fee: string; // Service fee
-      feeCurrency: string; // Currency used to calculate fees
-      stp: string; // Self trade protection
-      timeInForce: string; // Time in force
-      postOnly: boolean; // Is it post only?
-      hidden: boolean; // Is it a hidden order?
-      iceberg: boolean; // Is it an iceberg order?
-      visibleSize: string; // Visible size of iceberg order in order book.
-      cancelAfter: number; // A GTT timeInForce that expires in n seconds
-      channel: string; // Source of orders
-      clientOid: string; // Identifier created by the client
-      remark: string; // Order description
-      tags: string; // Order identifier
-      active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
-      inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
-      cancelExist: boolean; // Are there any cancellation records pertaining to the order?
-      createdAt: number; // Order creation time
-      lastUpdatedAt: number; // Last update time of order
-      tradeType: string; // Trade type: TRADE (Spot Trading)
-    }>
-  > {
+  }): Promise<APISuccessResponse<HFOrder>> {
     return this.getPrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
   getHFOrderDetailsByClientOid(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<
-    APISuccessResponse<{
-      id: string; // Order id, a unique identifier of the order
-      symbol: string; // Trading pair
-      opType: string; // Operation type: DEAL
-      type: string; // Order type
-      side: string; // Buy or sell
-      price: string; // Order price
-      size: string; // Order size
-      dealSize: string; // Number of filled transactions
-      cancelledSize: string; // Number of canceled transactions
-      remainSize: string; // Number of remain transactions
-      funds: string; // Order amount
-      dealFunds: string; // Number of filled funds
-      cancelledFunds: string; // Number of canceled funds
-      remainFunds: string; // Number of remain funds
-      fee: string; // Service fee
-      feeCurrency: string; // Currency used to calculate fees
-      stp: string; // Self trade protection
-      timeInForce: string; // Time in force
-      postOnly: boolean; // Is it post only?
-      hidden: boolean; // Is it a hidden order?
-      iceberg: boolean; // Is it an iceberg order?
-      visibleSize: string; // Visible size of iceberg order in order book.
-      cancelAfter: number; // A GTT timeInForce that expires in n seconds
-      channel: string; // Source of orders
-      clientOid: string; // Identifier created by the client
-      remark: string; // Order description
-      tags: string; // Order identifier
-      active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
-      inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
-      cancelExist: boolean; // Are there any cancellation records pertaining to the order?
-      createdAt: number; // Order creation time
-      lastUpdatedAt: number; // Last update time of order
-      tradeType: string; // Trade type: TRADE (Spot Trading)
-    }>
-  > {
+  }): Promise<APISuccessResponse<HFOrder>> {
     return this.getPrivate(
       `api/v1/hf/orders/client-order/${params.clientOid}`,
       params,
@@ -1230,50 +678,14 @@ export class SpotClient extends BaseRestClient {
   }
 
   autoCancelHFOrderSettingQuery(): Promise<
-    APISuccessResponse<{
-      timeout: number; // Auto cancel order trigger setting time, the unit is second. range: timeout=-1 (meaning unset) or 5 <= timeout <= 86400
-      symbols: string; // List of trading pairs. Separated by commas, empty means all trading pairs
-      currentTime: number; // System current time (in seconds)
-      triggerTime: number; // Trigger cancellation time (in seconds)
-    }>
+    APISuccessResponse<AutoCancelHFOrderSettingQueryResponse>
   > {
     return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query');
   }
 
-  getHFFilledList(params: {
-    orderId?: string;
-    symbol: string;
-    side?: 'buy' | 'sell';
-    type?: 'limit' | 'market';
-    startAt?: number;
-    endAt?: number;
-    lastId?: number;
-    limit?: number;
-  }): Promise<
-    APISuccessResponse<{
-      items: {
-        id: number; // Id of transaction detail
-        symbol: string; // Trading pair
-        tradeId: number; // Trade Id
-        orderId: string; // Order Id
-        counterOrderId: string; // Counterparty order Id
-        side: string; // Buy or sell
-        liquidity: string; // Liquidity type: taker or maker
-        forceTaker: boolean; // Whether or not to forcefully process as taker
-        price: string; // Order price
-        size: string; // Order size
-        funds: string; // Turnover
-        fee: string; // Service fee
-        feeRate: string; // Fee rate
-        feeCurrency: string; // Currency used to calculate fees
-        stop: string; // Take Profit and Stop Loss type, currently HFT does not support the Take Profit and Stop Loss type, so it is empty
-        tradeType: string; // Trade type: TRADE(Spot Trading)
-        type: string; // Order type: limit or market
-        createdAt: number; // Transaction(Creation) time
-      }[];
-      lastId: number;
-    }>
-  > {
+  getHFFilledList(
+    params: GetHFFilledListRequest,
+  ): Promise<APISuccessResponse<GetHFFilledListResponse>> {
     return this.getPrivate('api/v1/hf/fills', params);
   }
 
@@ -1284,24 +696,7 @@ export class SpotClient extends BaseRestClient {
    */
 
   // SPOT and MARGIN
-  placeOrder(params: {
-    clientOid: string;
-    side: 'buy' | 'sell';
-    symbol: string;
-    type?: 'limit' | 'market';
-    remark?: string;
-    stp?: 'CN' | 'CO' | 'CB' | 'DC';
-    tradeType?: 'TRADE' | 'MARGIN_TRADE';
-    price?: string;
-    size?: string;
-    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-    cancelAfter?: number;
-    postOnly?: boolean;
-    hidden?: boolean;
-    iceberg?: boolean;
-    visibleSize?: string;
-    funds?: string;
-  }): Promise<
+  placeOrder(params: PlaceOrderRequest): Promise<
     APISuccessResponse<{
       orderId: string; // An order Id is returned once an order is successfully placed.
     }>
@@ -1315,50 +710,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   //SPOT
-  placeMultipleOrders(params: {
-    clientOid: string;
-    side: 'buy' | 'sell';
-    symbol: string;
-    type?: 'limit';
-    remark?: string;
-    stop?: 'loss' | 'entry';
-    stopPrice?: string;
-    stp?: 'CN' | 'CO' | 'CB' | 'DC';
-    tradeType?: 'TRADE';
-    price: string;
-    size: string;
-    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-    cancelAfter?: number;
-    postOnly?: boolean;
-    hidden?: boolean;
-    iceberg?: boolean;
-    visibleSize?: string;
-  }): Promise<
-    APISuccessResponse<
-      {
-        symbol: string; // symbol For Example，ETH-BTC
-        type?: string; // only limit (default is limit)
-        side: string; // buy or sell
-        price: string; // price per base currency
-        size: string; // amount of base currency to buy or sell
-        funds?: any; // Order amount (optional, can be null)
-        stp?: string; // self trade prevention, is divided into CN, CO, CB, and DC strategies
-        stop?: string; // Either loss or entry. Requires stopPrice to be defined
-        stopPrice?: any; // Need to be defined if stop is specified.
-        timeInForce?: string; // GTC, GTT, IOC, or FOK (default is GTC).
-        cancelAfter?: number; // Cancels in n seconds, with GTT as the time in force strategy
-        postOnly?: boolean; // Post only identifier, invalid when the time in force strategy is IOC or FOK
-        hidden?: boolean; // Hidden or not (not shown in order book)
-        iceberg?: boolean; // Whether or not only visible portions of orders are shown in iceberg orders
-        visibleSize?: any; // Maximum visible quantity in iceberg orders (optional, can be null)
-        channel: string; // Channel through which the order was placed
-        id: string; // Unique identifier for the order
-        status: string; // Order creation results (success, fail)
-        failMsg?: any; // Reason of failure (optional, can be null)
-        clientOid: string; // Client Order Id, unique identifier created by the user, the use of UUID is recommended
-      }[]
-    >
-  > {
+  placeMultipleOrders(
+    params: PlaceMultipleOrdersRequest,
+  ): Promise<APISuccessResponse<PlaceMultipleOrdersResponse[]>> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
@@ -1382,10 +736,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Used for Spot and Margin Trading: Cancels all open orders.
-  cancelAllOrders(params?: {
-    symbol?: string;
-    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  }): Promise<
+  cancelAllOrders(params?: CancelAllOrdersRequest): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[]; // Unique ID of the cancelled order
     }>
@@ -1394,174 +745,28 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Retrieves the current list of orders. Supports filtering by status and trade type.
-  getOrderList(params?: {
-    status?: 'active' | 'done';
-    symbol?: string;
-    side?: 'buy' | 'sell';
-    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
-    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-    startAt?: number;
-    endAt?: number;
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        id: string; // Order ID, the ID of an order.
-        symbol: string; // symbol
-        opType: string; // Operation type: DEAL
-        type: string; // order type
-        side: string; // transaction direction, include buy and sell
-        price: string; // order price
-        size: string; // order quantity
-        funds: string; // order funds
-        dealFunds: string; // executed size of funds
-        dealSize: string; // executed quantity
-        fee: string; // fee
-        feeCurrency: string; // charge fee currency
-        stp: string; // self trade prevention, include CN, CO, DC, CB
-        stop: string; // stop type, include entry and loss
-        stopTriggered: boolean; // stop order is triggered or not
-        stopPrice: string; // stop price
-        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
-        postOnly: boolean; // postOnly
-        hidden: boolean; // hidden order
-        iceberg: boolean; // iceberg order
-        visibleSize: string; // displayed quantity for iceberg order
-        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
-        channel: string; // order source
-        clientOid: string; // user-entered order unique mark
-        remark: string; // remark
-        tags: string; // tag order source
-        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
-        cancelExist: boolean; // order cancellation transaction record
-        createdAt: number; // create time
-        tradeType: string; // The type of trading
-      }[];
-    }>
-  > {
+  getOrderList(
+    params?: GetOrderListRequest,
+  ): Promise<APISuccessResponse<OrderListResponse>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
   // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
-  getRecentOrdersList(): Promise<
-    APISuccessResponse<
-      {
-        id: string; // Order ID, unique identifier of an order.
-        symbol: string; // symbol
-        opType: string; // Operation type: DEAL
-        type: string; // order type, e.g. limit, market, stop_limit
-        side: string; // transaction direction, include buy and sell
-        price: number; // order price
-        size: number; // order quantity
-        funds: number; // order funds
-        dealFunds: number; // deal funds
-        dealSize: number; // deal quantity
-        fee: number; // fee
-        feeCurrency: string; // charge fee currency
-        stp: string; // self trade prevention, include CN, CO, DC, CB
-        stop: string; // stop type, include entry and loss
-        stopTriggered: boolean; // stop order is triggered
-        stopPrice: number; // stop price
-        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
-        postOnly: boolean; // postOnly
-        hidden: boolean; // hidden order
-        iceberg: boolean; // iceberg order
-        visibleSize: number; // display quantity for iceberg order
-        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
-        channel: string; // order source
-        clientOid: string; // user-entered order unique mark
-        remark: string; // remark
-        tags: string; // tag order source
-        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
-        cancelExist: boolean; // order cancellation transaction record
-        createdAt: string; // create time
-        tradeType: string; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-      }[]
-    >
-  > {
+  getRecentOrdersList(): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate('api/v1/limit/orders');
   }
 
   // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
-  getOrderDetailsByOrderId(params: { orderId: string }): Promise<
-    APISuccessResponse<
-      {
-        id: string; // Order ID, unique identifier of an order.
-        symbol: string; // symbol
-        opType: string; // Operation type: DEAL
-        type: string; // order type, e.g. limit, market, stop_limit
-        side: string; // transaction direction, include buy and sell
-        price: number; // order price
-        size: number; // order quantity
-        funds: number; // order funds
-        dealFunds: number; // deal funds
-        dealSize: number; // deal quantity
-        fee: number; // fee
-        feeCurrency: string; // charge fee currency
-        stp: string; // self trade prevention, include CN, CO, DC, CB
-        stop: string; // stop type, include entry and loss
-        stopTriggered: boolean; // stop order is triggered
-        stopPrice: number; // stop price
-        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
-        postOnly: boolean; // postOnly
-        hidden: boolean; // hidden order
-        iceberg: boolean; // iceberg order
-        visibleSize: number; // display quantity for iceberg order
-        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
-        channel: string; // order source
-        clientOid: string; // user-entered order unique mark
-        remark: string; // remark
-        tags: string; // tag order source
-        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
-        cancelExist: boolean; // order cancellation transaction record
-        createdAt: string; // create time
-        tradeType: string; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-      }[]
-    >
-  > {
+  getOrderDetailsByOrderId(params: {
+    orderId: string;
+  }): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
   // Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders placed with a unique client-provided identifier.
-  getOrderDetailsByClientOid(params: { clientOid: string }): Promise<
-    APISuccessResponse<
-      {
-        id: string; // Order ID, unique identifier of an order.
-        symbol: string; // symbol
-        opType: string; // Operation type: DEAL
-        type: string; // order type, e.g. limit, market, stop_limit
-        side: string; // transaction direction, include buy and sell
-        price: number; // order price
-        size: number; // order quantity
-        funds: number; // order funds
-        dealFunds: number; // deal funds
-        dealSize: number; // deal quantity
-        fee: number; // fee
-        feeCurrency: string; // charge fee currency
-        stp: string; // self trade prevention, include CN, CO, DC, CB
-        stop: string; // stop type, include entry and loss
-        stopTriggered: boolean; // stop order is triggered
-        stopPrice: number; // stop price
-        timeInForce: string; // time InForce, include GTC, GTT, IOC, FOK
-        postOnly: boolean; // postOnly
-        hidden: boolean; // hidden order
-        iceberg: boolean; // iceberg order
-        visibleSize: number; // display quantity for iceberg order
-        cancelAfter: number; // cancel orders time, requires timeInForce to be GTT
-        channel: string; // order source
-        clientOid: string; // user-entered order unique mark
-        remark: string; // remark
-        tags: string; // tag order source
-        isActive: boolean; // order status, true and false. If true, the order is active, if false, the order is filled or cancelled
-        cancelExist: boolean; // order cancellation transaction record
-        createdAt: string; // create time
-        tradeType: string; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-      }[]
-    >
-  > {
+  getOrderDetailsByClientOid(params: {
+    clientOid: string;
+  }): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
@@ -1572,66 +777,14 @@ export class SpotClient extends BaseRestClient {
    */
 
   // General permission, Retrieves a list of the most recent fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
-  getFilledList(params?: {
-    orderId?: string;
-    symbol?: string;
-    side?: 'buy' | 'sell';
-    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
-    startAt?: number;
-    endAt?: number;
-    tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        symbol: string; // symbol.
-        tradeId: string; // trade id, it is generated by Matching engine.
-        orderId: string; // Order ID, unique identifier of an order.
-        counterOrderId: string; // counter order id.
-        side: 'buy' | 'sell'; // transaction direction, include buy and sell.
-        price: string; // order price
-        size: string; // order quantity
-        funds: string; // order funds
-        type: 'limit' | 'market' | 'limit_stop' | 'market_stop'; // order type, e.g. limit, market, stop_limit.
-        fee: string; // fee
-        feeCurrency: string; // charge fee currency
-        stop: string; // stop type, include entry and loss
-        liquidity: 'taker' | 'maker'; // include taker and maker
-        forceTaker: boolean; // forced to become taker, include true and false
-        createdAt: number; // create time
-        tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-      }[];
-    }>
-  > {
+  getFilledList(
+    params?: GetFilledListRequest,
+  ): Promise<APISuccessResponse<GetFilledListResponse>> {
     return this.getPrivate('api/v1/fills', params);
   }
 
   // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
-  getRecentFillsList(): Promise<
-    APISuccessResponse<
-      {
-        symbol: string; // symbol
-        tradeId: string; // trade id, it is generated by Matching engine.
-        orderId: string; // Order ID, unique identifier of an order.
-        counterOrderId: string; // counter order id.
-        side: 'buy' | 'sell'; // transaction direction, include buy and sell.
-        price: string; // order price
-        size: string; // order quantity
-        funds: string; // order funds
-        type: 'limit' | 'market' | 'stop_limit' | 'market_stop'; // order type, e.g. limit, market, stop_limit.
-        fee: string; // fee
-        feeCurrency: string; // charge fee currency
-        stop: string; // stop type, include entry and loss
-        liquidity: 'taker' | 'maker'; // include taker and maker
-        forceTaker: boolean; // forced to become taker, include true and false
-        createdAt: number; // create time
-        tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // The type of trading: TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-      }[]
-    >
-  > {
+  getRecentFillsList(): Promise<APISuccessResponse<FillItemResponse[]>> {
     return this.getPrivate('api/v1/limit/fills');
   }
 
@@ -1642,26 +795,9 @@ export class SpotClient extends BaseRestClient {
    */
 
   // Spot and margin trading, places a stop order on the platform.
-  placeStopOrder(params: {
-    clientOid: string;
-    side: 'buy' | 'sell';
-    symbol: string;
-    type?: 'limit' | 'market';
-    remark?: string;
-    stop?: 'loss' | 'entry';
-    stopPrice?: string;
-    stp?: 'CN' | 'CO' | 'CB' | 'DC';
-    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-    price?: string;
-    size?: string;
-    timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-    cancelAfter?: number;
-    postOnly?: boolean;
-    hidden?: boolean;
-    iceberg?: boolean;
-    visibleSize?: string;
-    funds?: string;
-  }): Promise<APISuccessResponse<{ orderId: string }>> {
+  placeStopOrder(
+    params: PlaceStopOrderRequest,
+  ): Promise<APISuccessResponse<{ orderId: string }>> {
     return this.postPrivate('api/v1/stop-order', params);
   }
 
@@ -1692,11 +828,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Cancels a batch of stop orders. Requires "Spot Trading" or "Margin Trading" permission.
-  cancelStopOrders(params?: {
-    symbol?: string;
-    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-    orderIds?: string;
-  }): Promise<
+  cancelStopOrders(params?: CancelStopOrdersRequest): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[]; // Unique IDs of the cancelled orders
     }>
@@ -1705,97 +837,16 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Retrieves your current untriggered stop order list, paginated and sorted to show the latest first.
-  getStopOrdersList(params?: {
-    symbol?: string;
-    side?: 'buy' | 'sell';
-    type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
-    tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-    startAt?: number;
-    endAt?: number;
-    currentPage?: number;
-    orderIds?: string;
-    pageSize?: number;
-    stop?: 'stop' | 'oco';
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        id: string; // Order ID, the ID of an order.
-        symbol: string; // Symbol
-        userId: string; // User ID
-        status: 'NEW' | 'TRIGGERED'; // Order status
-        type: 'limit' | 'market'; // Order type
-        side: 'buy' | 'sell'; // Transaction direction
-        price: string; // Order price
-        size: string; // Order quantity
-        funds: string | null; // Order funds
-        stp: string | null; // Self trade prevention
-        timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time InForce
-        cancelAfter: number; // Cancel orders after n seconds, requires timeInForce to be GTT
-        postOnly: boolean; // PostOnly
-        hidden: boolean; // Hidden order
-        iceberg: boolean; // Iceberg order
-        visibleSize: string | null; // Displayed quantity for iceberg order
-        channel: string; // Order source
-        clientOid: string; // User-entered order unique mark
-        remark: string | null; // Remarks
-        tags: string | null; // Tag order source
-        orderTime: number; // Time of place a stop order, accurate to nanoseconds
-        domainId: string; // DomainId, e.g: kucoin
-        tradeSource: 'USER' | 'MARGIN_SYSTEM'; // Trade source
-        tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // The type of trading
-        feeCurrency: string; // The currency of the fee
-        takerFeeRate: string; // Fee Rate of taker
-        makerFeeRate: string; // Fee Rate of maker
-        createdAt: number; // Order creation time
-        stop: 'loss' | 'entry'; // Stop order type
-        stopTriggerTime: number | null; // The trigger time of the stop order
-        stopPrice: string; // Stop price
-      }[];
-    }>
-  > {
+  getStopOrdersList(
+    params?: GetStopOrdersListRequest,
+  ): Promise<APISuccessResponse<StopOrdersListResponse>> {
     return this.getPrivate('api/v1/stop-order', params);
   }
 
   // Retrieves the details of a single stop order by its orderId.
-  getStopOrderDetailsByOrderId(params: { orderId: string }): Promise<
-    APISuccessResponse<{
-      id: string; // Order ID, the ID of an order.
-      symbol: string; // Symbol
-      userId: string; // User ID
-      status: 'NEW' | 'TRIGGERED'; // Order status
-      type: 'limit' | 'market'; // Order type
-      side: 'buy' | 'sell'; // Transaction direction
-      price: string; // Order price
-      size: string; // Order quantity
-      funds: string | null; // Order funds
-      stp: string | null; // Self trade prevention
-      timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time InForce
-      cancelAfter: number; // Cancel orders after n seconds, requires timeInForce to be GTT
-      postOnly: boolean; // PostOnly
-      hidden: boolean; // Hidden order
-      iceberg: boolean; // Iceberg order
-      visibleSize: string | null; // Displayed quantity for iceberg order
-      channel: string; // Order source
-      clientOid: string; // User-entered order unique mark
-      remark: string | null; // Remarks
-      tags: string | null; // Tag order source
-      orderTime: number; // Time of place a stop order, accurate to nanoseconds
-      domainId: string; // DomainId, e.g: kucoin
-      tradeSource: 'USER' | 'MARGIN_SYSTEM'; // Trade source
-      tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // The type of trading
-      feeCurrency: string; // The currency of the fee
-      takerFeeRate: string; // Fee Rate of taker
-      makerFeeRate: string; // Fee Rate of maker
-      createdAt: number; // Order creation time
-      stop: 'loss' | 'entry'; // Stop order type
-      stopTriggerTime: number | null; // The trigger time of the stop order
-      stopPrice: string; // Stop price
-    }>
-  > {
+  getStopOrderDetailsByOrderId(params: {
+    orderId: string;
+  }): Promise<APISuccessResponse<StopOrderItemResponse>> {
     return this.getPrivate(`api/v1/stop-order/${params.orderId}`);
   }
 
@@ -1803,43 +854,7 @@ export class SpotClient extends BaseRestClient {
   getStopOrderDetailsByClientOid(params: {
     clientOid: string;
     symbol?: string;
-  }): Promise<
-    APISuccessResponse<
-      {
-        id: string; // Order ID, the ID of an order.
-        symbol: string; // Symbol
-        userId: string; // User ID
-        status: 'NEW' | 'TRIGGERED'; // Order status
-        type: 'limit' | 'market'; // Order type
-        side: 'buy' | 'sell'; // Transaction direction
-        price: string; // Order price
-        size: string; // Order quantity
-        funds: string | null; // Order funds
-        stp: string | null; // Self trade prevention
-        timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time InForce
-        cancelAfter: number; // Cancel orders after n seconds, requires timeInForce to be GTT
-        postOnly: boolean; // PostOnly
-        hidden: boolean; // Hidden order
-        iceberg: boolean; // Iceberg order
-        visibleSize: string | null; // Displayed quantity for iceberg order
-        channel: string; // Order source
-        clientOid: string; // User-entered order unique mark
-        remark: string | null; // Remarks
-        tags: string | null; // Tag order source
-        orderTime: number; // Time of place a stop order, accurate to nanoseconds
-        domainId: string; // DomainId, e.g: kucoin
-        tradeSource: 'USER' | 'MARGIN_SYSTEM'; // Trade source
-        tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // The type of trading
-        feeCurrency: string; // The currency of the fee
-        takerFeeRate: string; // Fee Rate of taker
-        makerFeeRate: string; // Fee Rate of maker
-        createdAt: number; // Order creation time
-        stop: 'loss' | 'entry'; // Stop order type
-        stopTriggerTime: number | null; // The trigger time of the stop order
-        stopPrice: string; // Stop price
-      }[]
-    >
-  > {
+  }): Promise<APISuccessResponse<StopOrderItemResponse[]>> {
     return this.getPrivate('api/v1/stop-order/queryOrderByClientOid', params);
   }
   /**
