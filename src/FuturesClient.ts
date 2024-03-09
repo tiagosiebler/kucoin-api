@@ -48,7 +48,7 @@ export class FuturesClient extends BaseRestClient {
    * REST - ACCOUNT  - BASIC INFO
    * Get Account Ledgers - Futures
    */
-  getAccountFuturesTransactions(params: {
+  getAccountTransactions(params: {
     startAt?: number;
     endAt?: number;
     type?:
@@ -64,7 +64,7 @@ export class FuturesClient extends BaseRestClient {
   }): Promise<
     APISuccessResponse<{
       hasMore: boolean; // Whether there are more pages
-      dataList: Array<{
+      dataList: {
         time: number; // Event time
         type:
           | 'RealisedPNL'
@@ -79,7 +79,7 @@ export class FuturesClient extends BaseRestClient {
         remark: string; // Ticker symbol of the contract
         offset: number; // Offset
         currency: string; // Currency
-      }>;
+      }[];
     }>
   > {
     return this.getPrivate('api/v1/transaction-history', params);
@@ -91,14 +91,14 @@ export class FuturesClient extends BaseRestClient {
 
   getSubAccountAPIs(params: { apiKey?: string; subName: string }): Promise<
     APISuccessResponse<
-      Array<{
+      {
         apiKey: string; // API-Key
         createdAt: number; // Time of the event
         ipWhitelist: string; // IP whitelist
         permission: string; // Permissions
         remark: string; // Remarks
         subName: string; // Sub-account name
-      }>
+      }[]
     >
   > {
     return this.getPrivate('api/v1/sub/api-key', params);
@@ -161,7 +161,7 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUNDING - FUNDING OVERVIEW
    */
 
-  getFuturesAccountBalance(params?: { currency?: string }): Promise<
+  getAccountBalance(params?: { currency?: string }): Promise<
     APISuccessResponse<{
       accountEquity: number; // Account equity = marginBalance + Unrealised PNL
       unrealisedPNL: number; // Unrealised profit and loss
@@ -176,7 +176,7 @@ export class FuturesClient extends BaseRestClient {
     return this.getPrivate('api/v1/account-overview', params);
   }
 
-  getAllSubAccountFuturesBalances(params?: { currency?: string }): Promise<
+  getAllSubAccountBalances(params?: { currency?: string }): Promise<
     APISuccessResponse<{
       summary: {
         accountEquityTotal: number; // Total Account Equity
@@ -188,7 +188,7 @@ export class FuturesClient extends BaseRestClient {
         availableBalanceTotal: number; // total available balance
         currency: string; // currency
       };
-      accounts: Array<{
+      accounts: {
         accountName: string; // Account name, main account is main
         accountEquity: number; // Account Equity = marginBalance + unrealisedPNL
         unrealisedPNL: number; // unrealisedPNL
@@ -198,7 +198,7 @@ export class FuturesClient extends BaseRestClient {
         frozenFunds: number; // Frozen funds for withdrawal and out-transfer
         availableBalance: number; // Available balance
         currency: string; // currency
-      }>;
+      }[];
     }>
   > {
     return this.getPrivate('api/v1/account-overview-all', params);
@@ -208,7 +208,7 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUNDING - TRANSFER
    */
 
-  transferFromFuturesAccount(params: {
+  transferFromAccount(params: {
     amount: number;
     currency: string;
     recAccountType: 'MAIN' | 'TRADE';
@@ -250,7 +250,7 @@ export class FuturesClient extends BaseRestClient {
     startAt?: number;
     endAt?: number;
     status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-    queryStatus?: Array<'PROCESSING' | 'SUCCESS' | 'FAILURE'>;
+    queryStatus?: 'PROCESSING' | 'SUCCESS' | 'FAILURE'[];
     currency?: string;
     currentPage?: number;
     pageSize?: number;
@@ -260,7 +260,7 @@ export class FuturesClient extends BaseRestClient {
       pageSize: number;
       totalNum: number;
       totalPage: number;
-      items: Array<{
+      items: {
         applyId: string; // Transfer-out request ID
         currency: string; // Currency
         recRemark: string; // Receive account tx remark
@@ -271,7 +271,7 @@ export class FuturesClient extends BaseRestClient {
         offset: number; // Offset
         createdAt: number; // Request application time
         remark: string; // User remark
-      }>;
+      }[];
     }>
   > {
     return this.getPrivate('api/v1/transfer-list', params);
@@ -285,7 +285,7 @@ export class FuturesClient extends BaseRestClient {
 
   getSymbols(): Promise<
     APISuccessResponse<
-      Array<{
+      {
         symbol: string; // Contract status
         rootSymbol: string; // Contract group
         type: string; // Type of the contract
@@ -332,7 +332,7 @@ export class FuturesClient extends BaseRestClient {
         lastTradePrice: number; // last trade price
         nextFundingRateTime: number; // next funding rate time
         maxLeverage: number; // maximum leverage
-        sourceExchanges: Array<string>; // The contract index source exchange
+        sourceExchanges: string[]; // The contract index source exchange
         premiumsSymbol1M: string; // Premium index symbol (1 minute)
         premiumsSymbol8H: string; // Premium index symbol (8 hours)
         fundingBaseSymbol1M: string; // Base currency interest rate symbol (1 minute)
@@ -341,7 +341,7 @@ export class FuturesClient extends BaseRestClient {
         highPrice: number; // 24H High
         priceChgPct: number; // 24H Change%
         priceChg: number; // 24H Change
-      }>
+      }[]
     >
   > {
     return this.get('api/v1/contracts/active');
@@ -395,7 +395,7 @@ export class FuturesClient extends BaseRestClient {
       lastTradePrice: number; // last trade price
       nextFundingRateTime: number; // next funding rate time
       maxLeverage: number; // maximum leverage
-      sourceExchanges: Array<string>; // The contract index source exchange
+      sourceExchanges: string[]; // The contract index source exchange
       premiumsSymbol1M: string; // Premium index symbol (1 minute)
       premiumsSymbol8H: string; // Premium index symbol (8 hours)
       fundingBaseSymbol1M: string; // Base currency interest rate symbol (1 minute)
@@ -431,8 +431,8 @@ export class FuturesClient extends BaseRestClient {
     APISuccessResponse<{
       symbol: string; // Symbol
       sequence: number; // Ticker sequence number
-      asks: Array<[string, number]>; // asks. [Price, quantity]
-      bids: Array<[string, number]>; // bids. [Price, quantity]
+      asks: [string, number][]; // asks. [Price, quantity]
+      bids: [string, number][]; // bids. [Price, quantity]
       ts: number; // timestamp
     }>
   > {
@@ -443,8 +443,8 @@ export class FuturesClient extends BaseRestClient {
     APISuccessResponse<{
       symbol: string; // Symbol
       sequence: number; // Ticker sequence number
-      asks: Array<[string, number]>; // asks. [Price, quantity]
-      bids: Array<[string, number]>; // bids. [Price, quantity]
+      asks: [string, number][]; // asks. [Price, quantity]
+      bids: [string, number][]; // bids. [Price, quantity]
       ts: number; // timestamp
     }>
   > {
@@ -455,8 +455,8 @@ export class FuturesClient extends BaseRestClient {
     APISuccessResponse<{
       symbol: string; // Symbol
       sequence: number; // Ticker sequence number
-      asks: Array<[string, number]>; // asks. [Price, quantity]
-      bids: Array<[string, number]>; // bids. [Price, quantity]
+      asks: [string, number][]; // asks. [Price, quantity]
+      bids: [string, number][]; // bids. [Price, quantity]
       ts: number; // timestamp
     }>
   > {
@@ -485,16 +485,14 @@ export class FuturesClient extends BaseRestClient {
     to?: number;
   }): Promise<
     APISuccessResponse<
-      Array<
-        [
-          number, // Time
-          number, // Entry price
-          number, // Highest price
-          number, // Lowest price
-          number, // Close price
-          number, // Trading volume
-        ]
-      >
+      [
+        number, // Time
+        number, // Entry price
+        number, // Highest price
+        number, // Lowest price
+        number, // Close price
+        number, // Trading volume
+      ][]
     >
   > {
     return this.get('api/v1/kline/query', params);
@@ -510,12 +508,12 @@ export class FuturesClient extends BaseRestClient {
     maxCount?: number;
   }): Promise<
     APISuccessResponse<{
-      dataList: Array<{
+      dataList: {
         symbol: string; // Symbol of the Bitcoin Lending Rate
         granularity: number; // Granularity (millisecond)
         timePoint: number; // Time point (millisecond)
         value: number; // Interest rate value
-      }>;
+      }[];
       hasMore: boolean; // Whether there are more pages
     }>
   > {
@@ -532,17 +530,17 @@ export class FuturesClient extends BaseRestClient {
     maxCount?: number;
   }): Promise<
     APISuccessResponse<{
-      dataList: Array<{
+      dataList: {
         symbol: string; // Symbol of Bitcoin spot
         granularity: number; // Granularity (millisecond)
         timePoint: number; // Time point (millisecond)
         value: number; // Index Value
-        decomposionList: Array<{
+        decomposionList: {
           exchange: string; // Exchange
           price: number; // Last traded price
           weight: number; // Weight
-        }>;
-      }>;
+        }[];
+      }[];
       hasMore: boolean; // Whether there are more pages
     }>
   > {
@@ -571,12 +569,12 @@ export class FuturesClient extends BaseRestClient {
     maxCount?: number;
   }): Promise<
     APISuccessResponse<{
-      dataList: Array<{
+      dataList: {
         symbol: string; // Premium index symbol
         granularity: number; // Granularity (millisecond)
         timePoint: number; // Time point (millisecond)
         value: number; // Premium index
-      }>;
+      }[];
       hasMore: boolean; // Whether there are more pages
     }>
   > {
@@ -652,13 +650,13 @@ export class FuturesClient extends BaseRestClient {
     visibleSize?: number;
   }): Promise<
     APISuccessResponse<
-      Array<{
+      {
         orderId: string; // order id
         clientOid: string; // client order ID
         symbol: string; // symbol
         code: string;
         msg: string;
-      }>
+      }[]
     >
   > {
     return this.postPrivate('api/v1/orders/multi', params);
@@ -691,7 +689,7 @@ export class FuturesClient extends BaseRestClient {
       pageSize: number;
       totalNum: number;
       totalPage: number;
-      items: Array<{
+      items: {
         id: string; // Order ID
         symbol: string; // Symbol of the contract
         type: string; // Order type, market order or limit order
@@ -728,7 +726,7 @@ export class FuturesClient extends BaseRestClient {
         filledSize: number; // Value of the executed orders
         filledValue: string; // Executed order quantity
         reduceOnly: boolean; // A mark to reduce the position size only
-      }>;
+      }[];
     }>
   > {
     return this.getPrivate('api/v1/orders', params);
@@ -748,7 +746,7 @@ export class FuturesClient extends BaseRestClient {
       pageSize: number;
       totalNum: number;
       totalPage: number;
-      items: Array<{
+      items: {
         id: string; // Order ID
         symbol: string; // Symbol of the contract
         type: string; // Order type, market order or limit order
@@ -785,7 +783,7 @@ export class FuturesClient extends BaseRestClient {
         filledSize: number; // Value of the executed orders
         filledValue: string; // Executed order quantity
         reduceOnly: boolean; // A mark to reduce the position size only
-      }>;
+      }[];
     }>
   > {
     return this.getPrivate('api/v1/stopOrders', params);
@@ -793,7 +791,7 @@ export class FuturesClient extends BaseRestClient {
 
   getAccountRecentOrders(params?: { symbol?: string }): Promise<
     APISuccessResponse<
-      Array<{
+      {
         id: string; // Order ID
         symbol: string; // Symbol of the contract
         type: string; // Order type, market order or limit order
@@ -830,7 +828,7 @@ export class FuturesClient extends BaseRestClient {
         filledSize: number; // Value of the executed orders
         filledValue: string; // Executed order quantity
         reduceOnly: boolean; // A mark to reduce the position size only
-      }>
+      }[]
     >
   > {
     return this.getPrivate('api/v1/recentDoneOrders', params);
@@ -949,7 +947,7 @@ export class FuturesClient extends BaseRestClient {
       pageSize: number;
       totalNum: number;
       totalPage: number;
-      items: Array<{
+      items: {
         symbol: string; // Symbol of the contract
         tradeId: string; // Trade ID
         orderId: string; // Order ID
@@ -971,7 +969,7 @@ export class FuturesClient extends BaseRestClient {
         openFeePay: string; // Opening transaction fee
         closeFeePay: string; // Closing transaction fee
         tradeTime: number; // trade time in nanosecond
-      }>;
+      }[];
     }>
   > {
     return this.getPrivate('api/v1/fills', params);
@@ -984,7 +982,7 @@ export class FuturesClient extends BaseRestClient {
    */
   getAccountRecentFills(params?: { symbol?: string }): Promise<
     APISuccessResponse<
-      Array<{
+      {
         symbol: string; // Symbol of the contract
         tradeId: string; // Trade ID
         orderId: string; // Order ID
@@ -1006,7 +1004,7 @@ export class FuturesClient extends BaseRestClient {
         openFeePay: string; // Opening transaction fee
         closeFeePay: string; // Closing transaction fee
         tradeTime: number; // trade time in nanosecond
-      }>
+      }[]
     >
   > {
     return this.getPrivate('api/v1/recentFills', params);
@@ -1212,7 +1210,7 @@ export class FuturesClient extends BaseRestClient {
 
   getRiskLimitLevel(params: { symbol: string }): Promise<
     APISuccessResponse<
-      Array<{
+      {
         symbol: string; // Path parameter. Symbol of the contract.
         level: number; // level
         maxRiskLimit: number; // Upper limit (includes)
@@ -1220,7 +1218,7 @@ export class FuturesClient extends BaseRestClient {
         maxLeverage: number; // Max leverage
         initialMargin: number; // Initial margin rate
         maintainMargin: number; // Maintenance margin rate
-      }>
+      }[]
     >
   > {
     return this.getPrivate(`api/v1/contracts/risk-limit/${params.symbol}`);
@@ -1254,11 +1252,11 @@ export class FuturesClient extends BaseRestClient {
     to: number;
   }): Promise<
     APISuccessResponse<
-      Array<{
+      {
         symbol: string; // Symbol of the contract
         timePoint: number; // Time point (milliseconds)
         fundingRate: number; // Funding rate
-      }>
+      }[]
     >
   > {
     return this.get('api/v1/contract/funding-rates', params);
@@ -1274,7 +1272,7 @@ export class FuturesClient extends BaseRestClient {
     maxCount?: number;
   }): Promise<
     APISuccessResponse<{
-      dataList: Array<{
+      dataList: {
         id: number; // id
         symbol: string; // Symbol of the contract
         timePoint: number; // Time point (milliseconds)
@@ -1284,7 +1282,7 @@ export class FuturesClient extends BaseRestClient {
         positionCost: number; // Position value at settlement period
         funding: number; // Settled funding fees. A positive number means that the user received the funding fee, and vice versa.
         settleCurrency: string; // settlement currency
-      }>;
+      }[];
       hasMore: boolean; // Whether there are more pages
     }>
   > {
