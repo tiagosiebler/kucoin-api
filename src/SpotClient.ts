@@ -1,5 +1,36 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
+import {
+  AccountHFMarginTransactionsRequest,
+  AccountHFTransactionsRequest,
+  AccountTransactionsRequest,
+  CreateSubAccountAPIRequest,
+  CreateSubAccountRequest,
+  DeleteSubAccountAPIRequest,
+  GetBalancesRequest,
+  GetIsolatedMarginAccountBalanceDetailRequest,
+  GetMarginAccountBalanceDetailRequest,
+  UpdateSubAccountAPIRequest,
+} from 'types/request/spot.types.js';
+import {
+  AccountHFMarginTransactionsResponse,
+  AccountHFTransactionsResponse,
+  AccountResponse,
+  AccountSummaryResponse,
+  AccountTransactionsResponse,
+  BalancesResponse,
+  CreateSubAccountAPIResponse,
+  CreateSubAccountResponse,
+  GetMarginAccountBalanceDetailResponse,
+  GetMarginAccountBalancesResponse,
+  GetSubAccountBalanceResponse,
+  GetSubAccountBalancesV2Response,
+  GetSubAccountsV2Response,
+  IsolatedMarginAccountDetailResponse,
+  SubAccountAPIInfo,
+  SubAccountInfo,
+  UpdateSubAccountAPIResponse,
+} from 'types/response/spot.types.js';
 
 import { BaseRestClient } from './lib/BaseRestClient.js';
 import {
@@ -57,20 +88,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getAccountSummary(): Promise<
-    APISuccessResponse<{
-      level: number;
-      subQuantity: number;
-      maxDefaultSubQuantity: number;
-      maxSubQuantity: number;
-      spotSubQuantity: number;
-      marginSubQuantity: number;
-      futuresSubQuantity: number;
-      maxSpotSubQuantity: number;
-      maxMarginSubQuantity: number;
-      maxFuturesSubQuantity: number;
-    }>
-  > {
+  getAccountSummary(): Promise<APISuccessResponse<AccountSummaryResponse>> {
     return this.getPrivate('api/v2/user-info');
   }
 
@@ -79,143 +97,42 @@ export class SpotClient extends BaseRestClient {
    *
    * Get Account List - Spot/Margin/trade_hf
    */
-  getBalances(params?: {
-    currency?: string;
-    type?: 'main' | 'trade' | 'margin' | 'trade_hf';
-  }): Promise<
-    Promise<
-      APISuccessResponse<
-        {
-          id: string; // The ID of the account
-          currency: string; // Currency
-          type: 'main' | 'trade' | 'trade_hf' | 'margin'; // Account type
-          balance: string; // Total funds in the account
-          available: string; // Funds available to withdraw or trade
-          holds: string; // Funds on hold (not available for use)
-        }[]
-      >
-    >
-  > {
+  getBalances(
+    params?: GetBalancesRequest,
+  ): Promise<Promise<APISuccessResponse<BalancesResponse[]>>> {
     return this.getPrivate('api/v1/accounts', params);
   }
 
-  getAccount(params: { accountId: any }): Promise<
-    APISuccessResponse<{
-      currency: string; // The currency of the account
-      balance: string; // Total funds in the account
-      available: string; // Funds available to withdraw or trade
-      holds: string; // Funds on hold (not available for use)
-    }>
-  > {
+  getAccount(params: {
+    accountId: any;
+  }): Promise<APISuccessResponse<AccountResponse>> {
     return this.getPrivate(`api/v1/accounts/${params.accountId}`);
   }
 
   /**
    * Get Account Ledgers - Spot/Margin
    */
-  getAccountTransactions(params: {
-    currency?: string; // Comma-separated list of currencies if more than one
-    direction?: 'in' | 'out';
-    bizType?:
-      | 'DEPOSIT'
-      | 'WITHDRAW'
-      | 'TRANSFER'
-      | 'SUB_TRANSFER'
-      | 'TRADE_EXCHANGE'
-      | 'MARGIN_EXCHANGE'
-      | 'KUCOIN_BONUS';
-    startAt?: number;
-    endAt?: number;
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        id: string; // unique key
-        currency: string; // The currency of an account
-        amount: string; // The total amount of assets (fees included) involved in assets changes
-        fee: string; // Fees generated in transaction, withdrawal, etc.
-        balance: string; // Remaining funds after the transaction.
-        accountType: 'MAIN' | 'TRADE' | 'MARGIN' | 'CONTRACT'; // The account type
-        bizType: string; // Business type leading to the changes in funds
-        direction: 'in' | 'out'; // Side, out or in
-        createdAt: number; // Time of the event
-        context: string; // Business related information
-      }[];
-    }>
-  > {
+  getAccountTransactions(
+    params: AccountTransactionsRequest,
+  ): Promise<APISuccessResponse<AccountTransactionsResponse>> {
     return this.getPrivate('api/v1/accounts/ledgers', params);
   }
 
   /**
    * Get Account Ledgers - trade_hf
    */
-  getAccountHFTransactions(params: {
-    currency?: string; // Comma-separated list of currencies if more than one
-    direction?: 'in' | 'out';
-    bizType?: 'TRANSFER' | 'TRADE_EXCHANGE';
-    lastId?: number;
-    limit?: number;
-    startAt?: number;
-    endAt?: number;
-  }): Promise<
-    APISuccessResponse<
-      {
-        id: string; // Unique key
-        currency: string; // currency
-        amount: string; // Change in funds balance
-        fee: string; // Deposit or withdrawal fee
-        balance: string; // Total balance of funds after change
-        accountType: 'TRADE_HF'; // Master account type TRADE_HF
-        bizType: 'TRANSFER' | 'TRADE_EXCHANGE'; // Transaction type
-        direction: 'out' | 'in'; // Direction of transfer
-        createdAt: string; // Created
-        context: string; // Core transaction parameter
-      }[]
-    >
-  > {
+  getAccountHFTransactions(
+    params: AccountHFTransactionsRequest,
+  ): Promise<APISuccessResponse<AccountHFTransactionsResponse[]>> {
     return this.getPrivate('api/v1/hf/accounts/ledgers', params);
   }
 
   /**
    * Get Account Ledgers - margin_hf
    */
-  getAccountHFMarginTransactions(params: {
-    currency?: string; // Comma-separated list of currencies if more than one
-    direction?: 'in' | 'out';
-    bizType?:
-      | 'TRANSFER'
-      | 'MARGIN_EXCHANGE'
-      | 'ISOLATED_EXCHANGE'
-      | 'LIQUIDATION'
-      | 'ASSERT_RETURN';
-    lastId?: number;
-    limit?: number;
-    startAt?: number;
-    endAt?: number;
-  }): Promise<
-    APISuccessResponse<
-      {
-        id: string; // Unique key
-        currency: string; // currency
-        amount: string; // Change in funds balance
-        fee: string; // Deposit or withdrawal fee
-        balance: string; // Total balance of funds after change
-        accountType: 'MARGIN_V2' | 'ISOLATED_V2'; // Master account type MARGIN_V2, ISOLATED_V2
-        bizType:
-          | 'TRANSFER'
-          | 'MARGIN_EXCHANGE'
-          | 'ISOLATED_EXCHANGE'
-          | 'LIQUIDATION'
-          | 'ASSERT_RETURN'; // Transaction type
-        direction: 'out' | 'in'; // Direction of transfer
-        createdAt: string; // Created
-        context: string; // Core transaction parameter
-      }[]
-    >
-  > {
+  getAccountHFMarginTransactions(
+    params: AccountHFMarginTransactionsRequest,
+  ): Promise<APISuccessResponse<AccountHFMarginTransactionsResponse[]>> {
     return this.getPrivate('api/v3/hf/margin/account/ledgers', params);
   }
 
@@ -225,132 +142,32 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSubAccountsV1(): Promise<
-    APISuccessResponse<
-      {
-        userId: string; // The user ID of your sub-account
-        uid: string; // The UID of your sub-account
-        subName: string; // The username of your sub-account
-        type: number; // The type of your sub-account
-        remarks: string; // Remark
-        access: string; // The permissions of your sub-account
-      }[]
-    >
-  > {
+  getSubAccountsV1(): Promise<APISuccessResponse<SubAccountInfo[]>> {
     return this.getPrivate('api/v1/sub/user');
   }
 
   getSubAccountsV2(params: {
     currentPage?: number;
     pageSize?: number;
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        userId: string; // The user ID of your sub-account
-        uid: number; // Sub-account UID
-        subName: string; // Sub-account name
-        status: number; // Account status
-        type: number; // The type of your sub-account
-        access: string; // Permission
-        createdAt: number; // Time of the event
-        remarks: string | null; // Remarks
-      }[];
-    }>
-  > {
+  }): Promise<APISuccessResponse<GetSubAccountsV2Response>> {
     return this.getPrivate('api/v2/sub/user', params);
   }
 
-  createSubAccount(params: {
-    password: string;
-    remarks?: string;
-    subName: string;
-    access: string;
-  }): Promise<
-    APISuccessResponse<{
-      uid: number; // Sub-account UID
-      subName: string; // Sub-account name
-      remarks: string; // Remarks
-      access: string; // Permission
-    }>
-  > {
+  createSubAccount(
+    params: CreateSubAccountRequest,
+  ): Promise<APISuccessResponse<CreateSubAccountResponse>> {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
 
   getSubAccountBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
-  }): Promise<
-    APISuccessResponse<{
-      subUserId: string; // The user ID of a sub-user.
-      subName: string; // The username of a sub-user.
-      mainAccounts: {
-        currency: string; // Currency
-        balance: string; // Total funds in an account.
-        available: string; // Funds available to withdraw or trade.
-        holds: string; // Funds on hold (not available for use).
-        baseCurrency: string; // Calculated on this currency.
-        baseCurrencyPrice: string; // The base currency price.
-        baseAmount: string; // The base currency amount.
-      }[];
-      tradeAccounts: {
-        currency: string; // Currency
-        balance: string; // Total funds in an account.
-        available: string; // Funds available to withdraw or trade.
-        holds: string; // Funds on hold (not available for use).
-        baseCurrency: string; // Calculated on this currency.
-        baseCurrencyPrice: string; // The base currency price.
-        baseAmount: string; // The base currency amount.
-      }[];
-      marginAccounts: {
-        currency: string; // Currency
-        balance: string; // Total funds in an account.
-        available: string; // Funds available to withdraw or trade.
-        holds: string; // Funds on hold (not available for use).
-        baseCurrency: string; // Calculated on this currency.
-        baseCurrencyPrice: string; // The base currency price.
-        baseAmount: string; // The base currency amount.
-      }[];
-    }>
-  > {
+  }): Promise<APISuccessResponse<GetSubAccountBalanceResponse>> {
     return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
 
   getSubAccountBalancesV1(): Promise<
-    APISuccessResponse<{
-      subUserId: string; // The user ID of a sub-user.
-      subName: string; // The username of a sub-user.
-      mainAccounts: {
-        currency: string; // Currency
-        balance: string; // Total funds in an account.
-        available: string; // Funds available to withdraw or trade.
-        holds: string; // Funds on hold (not available for use).
-        baseCurrency: string; // Calculated on this currency.
-        baseCurrencyPrice: string; // The base currency price.
-        baseAmount: string; // The base currency amount.
-      }[];
-      tradeAccounts: {
-        currency: string; // Currency
-        balance: string; // Total funds in an account.
-        available: string; // Funds available to withdraw or trade.
-        holds: string; // Funds on hold (not available for use).
-        baseCurrency: string; // Calculated on this currency.
-        baseCurrencyPrice: string; // The base currency price.
-        baseAmount: string; // The base currency amount.
-      }[];
-      marginAccounts: {
-        currency: string; // Currency
-        balance: string; // Total funds in an account.
-        available: string; // Funds available to withdraw or trade.
-        holds: string; // Funds on hold (not available for use).
-        baseCurrency: string; // Calculated on this currency.
-        baseCurrencyPrice: string; // The base currency price.
-        baseAmount: string; // The base currency amount.
-      }[];
-    }>
+    APISuccessResponse<GetSubAccountBalanceResponse>
   > {
     return this.getPrivate('api/v1/sub-accounts');
   }
@@ -358,27 +175,7 @@ export class SpotClient extends BaseRestClient {
   getSubAccountBalancesV2(params: {
     currentPage?: number;
     pageSize?: number;
-  }): Promise<
-    APISuccessResponse<{
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        subUserId: string; // The user ID of the sub-user.
-        subName: string; // The username of the sub-user.
-        mainAccounts: {
-          currency: string; // The currency of the account.
-          balance: string; // Total funds in the account.
-          available: string; // Funds available to withdraw or trade.
-          holds: string; // Funds on hold (not available for use).
-          baseCurrency: string; // Calculated on this currency.
-          baseCurrencyPrice: string; // The base currency price.
-          baseAmount: string; // The base currency amount.
-        }[];
-      }[];
-    }>
-  > {
+  }): Promise<APISuccessResponse<GetSubAccountBalancesV2Response>> {
     return this.getPrivate('api/v2/sub-accounts', params);
   }
 
@@ -389,66 +186,26 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSubAccountAPIs(params: { apiKey?: string; subName: string }): Promise<
-    APISuccessResponse<
-      {
-        apiKey: string; // API-Key
-        createdAt: number; // Time of the event
-        ipWhitelist: string; // IP whitelist
-        permission: string; // Permissions
-        remark: string; // Remarks
-        subName: string; // Sub-account name
-      }[]
-    >
-  > {
+  getSubAccountAPIs(params: {
+    apiKey?: string;
+    subName: string;
+  }): Promise<APISuccessResponse<SubAccountAPIInfo[]>> {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 
-  createSubAccountAPI(params: {
-    subName: string;
-    passphrase: string;
-    remark: string;
-    permission?: string;
-    ipWhitelist?: string;
-    expire?: string;
-  }): Promise<
-    APISuccessResponse<{
-      apiKey: string; // API-Key
-      createdAt: number; // Time of the event
-      ipWhitelist: string; // IP whitelist
-      permission: string; // Permissions
-      remark: string; // Remarks
-      subName: string; // Sub-account name
-      apiSecret: string; // API secret
-      passphrase: string; // Password
-    }>
-  > {
+  createSubAccountAPI(
+    params: CreateSubAccountAPIRequest,
+  ): Promise<APISuccessResponse<CreateSubAccountAPIResponse>> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
-  updateSubAccountAPI(params: {
-    subName: string;
-    apiKey: string;
-    passphrase: string;
-    permission?: string;
-    ipWhitelist?: string;
-    expire?: string;
-  }): Promise<
-    APISuccessResponse<{
-      apiKey: string; // API-Key
-      ipWhitelist: string; // IP whitelist
-      permission: string; // Permissions
-      subName: string; // Sub-account name
-    }>
-  > {
+  updateSubAccountAPI(
+    params: UpdateSubAccountAPIRequest,
+  ): Promise<APISuccessResponse<UpdateSubAccountAPIResponse>> {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
-  deleteSubAccountAPI(params: {
-    apiKey: string;
-    passphrase: string;
-    subName: string;
-  }): Promise<
+  deleteSubAccountAPI(params: DeleteSubAccountAPIRequest): Promise<
     APISuccessResponse<{
       subName: string; // Sub-account name
       apiKey: string; // API-Key
@@ -466,98 +223,20 @@ export class SpotClient extends BaseRestClient {
    */
 
   getMarginAccountBalances(): Promise<
-    APISuccessResponse<{
-      debtRatio: string; // Debt ratio
-      accounts: {
-        currency: string; // Currency
-        totalBalance: string; // Total funds in the account
-        availableBalance: string; // Available funds in the account
-        holdBalance: string; // Funds on hold in the account
-        liability: string; // Total liabilities
-        maxBorrowSize: string; // Available size to borrow
-      }[];
-    }>
+    APISuccessResponse<GetMarginAccountBalancesResponse>
   > {
     return this.getPrivate('api/v1/margin/account');
   }
 
-  getMarginAccountBalanceDetail(params?: {
-    quoteCurrency?: string;
-    queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
-  }): Promise<
-    APISuccessResponse<{
-      timestamp: number;
-      currentPage: number;
-      pageSize: number;
-      totalNum: number;
-      totalPage: number;
-      items: {
-        totalLiabilityOfQuoteCurrency: string; // Total Liability in Quote Currency
-        totalAssetOfQuoteCurrency: string; // Total Assets in Quote Currency
-        debtRatio: string; // debt ratio
-        status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW'; // Position status
-        assets: {
-          currency: string; // currency
-          borrowEnabled: boolean; // Support borrow or not
-          repayEnabled: boolean; // Support repay or not
-          transferEnabled: boolean; // Support transfer or not
-          borrowed: string; // Liabilities
-          totalAsset: string; // Total Assets
-          available: string; // Account available assets (total assets - frozen)
-          hold: string; // Account frozen assets
-          maxBorrowSize: string; // The user's remaining maximum loan amount
-        }[];
-      }[];
-    }>
-  > {
+  getMarginAccountBalanceDetail(
+    params?: GetMarginAccountBalanceDetailRequest,
+  ): Promise<APISuccessResponse<GetMarginAccountBalanceDetailResponse>> {
     return this.getPrivate('api/v3/margin/accounts', params);
   }
 
-  getIsolatedMarginAccountBalanceDetail(params?: {
-    symbol?: string;
-    quoteCurrency?: string;
-    queryType?: 'ISOLATED' | 'ISOLATED_V2' | 'ALL';
-  }): Promise<
-    APISuccessResponse<
-      {
-        totalAssetOfQuoteCurrency: string; // Total Assets in Quote Currency
-        totalLiabilityOfQuoteCurrency: string; // Total Liability in Quote Currency
-        timestamp: number; // timestamp
-        assets: {
-          symbol: string; // symbol
-          debtRatio: string; // debt ratio
-          status:
-            | 'EFFECTIVE'
-            | 'BANKRUPTCY'
-            | 'LIQUIDATION'
-            | 'REPAY'
-            | 'BORROW'; // Position status
-          baseAsset: {
-            currency: string; // currency
-            borrowEnabled: boolean; // Support borrow or not
-            repayEnabled: boolean; // Support repay or not
-            transferEnabled: boolean; // Support transfer or not
-            borrowed: string; // Liabilities
-            totalAsset: string; // Total Assets
-            available: string; // Account available assets (total assets - frozen)
-            hold: string; // Account frozen assets
-            maxBorrowSize: string; // The user's remaining maximum loan amount
-          };
-          quoteAsset: {
-            currency: string; // currency
-            borrowEnabled: boolean; // Support borrow or not
-            repayEnabled: boolean; // Support repay or not
-            transferEnabled: boolean; // Support transfer or not
-            borrowed: string; // Liabilities
-            totalAsset: string; // Total Assets
-            available: string; // Account available assets (total assets - frozen)
-            hold: string; // Account frozen assets
-            maxBorrowSize: string; // The user's remaining maximum loan amount
-          };
-        }[];
-      }[]
-    >
-  > {
+  getIsolatedMarginAccountBalanceDetail(
+    params?: GetIsolatedMarginAccountBalanceDetailRequest,
+  ): Promise<APISuccessResponse<IsolatedMarginAccountDetailResponse[]>> {
     return this.getPrivate('api/v3/isolated/accounts', params);
   }
 
