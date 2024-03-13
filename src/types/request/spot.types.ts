@@ -464,3 +464,209 @@ export interface GetStopOrdersListRequest {
   pageSize?: number;
   stop?: 'stop' | 'oco';
 }
+
+/**
+ *
+ * OCO order
+ *
+ */
+
+export interface PlaceOCOOrderRequest {
+  symbol: string;
+  side: 'buy' | 'sell';
+  price: string;
+  size: string;
+  stopPrice: string;
+  limitPrice: string;
+  tradeType?: 'TRADE'; // Currently only supports TRADE
+  clientOid: string;
+  remark?: string;
+}
+
+export interface GetOCOOrdersListRequest {
+  pageSize: string;
+  currentPage: string;
+  symbol?: string;
+  startAt?: number;
+  endAt?: number;
+  orderIds?: string;
+}
+
+/**
+ *
+ ***********
+ * Margin Trading
+ ***********
+ *
+ */
+
+/**
+ *
+ * Margin HF trade
+ *
+ */
+
+export interface PlaceHFMarginOrderRequest {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  type?: 'limit' | 'market';
+  stp?: 'CN' | 'CO' | 'CB' | 'DC';
+  isIsolated?: boolean;
+  autoBorrow?: boolean;
+  autoRepay?: boolean;
+  price?: string;
+  size?: string;
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+  cancelAfter?: number;
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+  funds?: string;
+}
+
+export interface HFMarginOrder {
+  symbol: string;
+  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+}
+
+export interface GetHFMarginFilledListRequest {
+  symbol: string;
+  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  side?: 'buy' | 'sell';
+  type?: 'limit' | 'market';
+  startAt?: number;
+  endAt?: number;
+  lastId?: number;
+  limit?: number;
+}
+
+export interface GetHFMarginTransactionRecordsRequest {
+  orderId?: string;
+  symbol: string;
+  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  side?: 'buy' | 'sell';
+  type?: 'limit' | 'market';
+  startAt?: number;
+  endAt?: number;
+  lastId?: number;
+  limit?: number;
+}
+
+/**
+ *
+ * Orders
+ *
+ */
+
+export interface PlaceMarginOrderRequest {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  type?: 'limit' | 'market';
+  remark?: string;
+  stp?: 'CN' | 'CO' | 'CB' | 'DC';
+  marginModel?: 'cross' | 'isolated';
+  autoBorrow?: boolean;
+  autoRepay?: boolean;
+  price: string;
+  size?: string;
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+  cancelAfter?: number;
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+  funds?: string;
+}
+
+/**
+ *
+ * Margin info
+ *
+ */
+
+export interface MarginRiskLimitRequest {
+  isIsolated: boolean;
+  symbol?: string;
+  currency?: string;
+}
+
+/**
+ *
+ * Isolated Margin
+ *
+ */
+
+/**
+ *
+ * Margin trading(v3)
+ *
+ */
+
+export interface MarginBorrowV3Request {
+  isIsolated?: boolean;
+  symbol?: string;
+  currency: string;
+  size: number;
+  timeInForce: 'IOC' | 'FOK';
+}
+
+export interface MarginRepayV3Request {
+  isIsolated?: boolean;
+  symbol?: string;
+  currency: string;
+  size: number;
+}
+
+export interface MarginHistoryV3Request {
+  currency: string;
+  isIsolated?: boolean;
+  symbol?: string;
+  orderNo?: string;
+  startTime?: number;
+  endTime?: number;
+  currentPage?: number;
+  pageSize?: number;
+}
+
+/**
+ *
+ * Lending market(v3)
+ *
+ */
+
+export interface InitiateLendingSubscriptionV3Request {
+  currency: string;
+  size: string;
+  interestRate: string;
+}
+
+export interface InitiateLendingRedemptionV3Request {
+  currency: string;
+  size: string;
+  purchaseOrderNo: string;
+}
+
+export interface ModifyLendingSubscriptionOrdersV3Request {
+  currency: string;
+  purchaseOrderNo: string;
+  interestRate: string;
+}
+
+export interface GetLendingRedemptionOrdersV3Request {
+  currency: string;
+  redeemOrderNo?: string;
+  status: 'DONE' | 'PENDING';
+  currentPage?: number;
+  pageSize?: number;
+}
+
+export interface GetLendingSubscriptionOrdersV3Request {
+  currency: string;
+  purchaseOrderNo?: string;
+  status: 'DONE' | 'PENDING';
+  currentPage?: number;
+  pageSize?: number;
+}
