@@ -539,3 +539,34 @@ export interface GetFundingHistoryResponse {
   dataList: FundingHistoryItem[];
   hasMore: boolean; // Whether there are more pages
 }
+
+export interface ClosePositionDetail {
+  closeId: string;
+  positionId: string;
+  uid: number;
+  userId: string;
+  symbol: string;
+  settleCurrency: string;
+  leverage: string;
+  type: string;
+  side: string | null;
+  closeSize: number | null;
+  pnl: string;
+  realisedGrossCost: string;
+  withdrawPnl: string;
+  roe: number | null;
+  tradeFee: string;
+  fundingFee: string;
+  openTime: number;
+  closeTime: number;
+  openPrice: number | null;
+  closePrice: number | null;
+}
+
+export interface GetClosePosition {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: ClosePositionDetail[];
+}

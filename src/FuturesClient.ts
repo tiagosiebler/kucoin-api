@@ -11,6 +11,7 @@ import {
   GetAccountOrdersFuturesResponse,
   GetAccountTransactionsFuturesResponse,
   GetAllSubAccountBalancesFuturesResponse,
+  GetClosePosition,
   GetFundingHistoryResponse,
   GetFundingRateFuturesResponse,
   GetFundingRatesFuturesResponse,
@@ -170,6 +171,20 @@ export class FuturesClient extends BaseRestClient {
     params: GetFuturesTransferRecordRequest,
   ): Promise<APISuccessResponse<GetFuturesTransferRecordsResponse>> {
     return this.getPrivate('api/v1/transfer-list', params);
+  }
+
+  /**
+   * REST - FUNDING - TRADE FEE
+   */
+
+  getTradingPairActualFee(params: { symbols: string }): Promise<
+    APISuccessResponse<{
+      symbol: string; // Trading pair
+      takerFeeRate: string; // Taker fee rate
+      makerFeeRate: string; // Maker fee rate
+    }>
+  > {
+    return this.getPrivate('/api/v1/trade-fees', params);
   }
 
   /**
@@ -392,6 +407,16 @@ export class FuturesClient extends BaseRestClient {
     currency?: string;
   }): Promise<APISuccessResponse<PositionDetail[]>> {
     return this.getPrivate('api/v1/positions', params);
+  }
+
+  getAccountHistoryPositions(params?: {
+    symbol?: string;
+    from?: number;
+    to?: number;
+    limit?: number;
+    pageId?: number;
+  }): Promise<APISuccessResponse<GetClosePosition>> {
+    return this.getPrivate('/api/v1/history-positions', params);
   }
 
   setAutoDepositMarginStatus(params: {
