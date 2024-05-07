@@ -730,24 +730,28 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
+  // SPOT and MARGIN
   submitOrder(params: SubmitOrderRequest): Promise<
     APISuccessResponse<{
-      orderId: string;
+      orderId: string; // An order Id is returned once an order is successfully submitd.
     }>
   > {
     return this.postPrivate('api/v1/orders', params);
   }
 
+  // SPOT and MARGIN
   submitOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/orders/test');
   }
 
+  //SPOT
   submitMultipleOrders(
     params: SubmitMultipleOrdersRequest,
   ): Promise<APISuccessResponse<SubmitMultipleOrdersResponse[]>> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
+  // Used for Spot and Margin Trading: Cancels a single order by orderId.
   cancelOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[];
@@ -756,6 +760,7 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
   }
 
+  // Used for Spot and Margin Trading: Cancels a single order by clientOid.
   cancelOrderByClientOid(params: { clientOid: string }): Promise<
     APISuccessResponse<{
       cancelledOrderId: string;
@@ -765,6 +770,7 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
+  // Used for Spot and Margin Trading: Cancels all open orders.
   cancelAllOrders(params?: CancelAllOrdersRequest): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[];
@@ -773,31 +779,26 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate('api/v1/orders', params);
   }
 
-  /**
-   * Retrieves the current list of orders. Supports filtering by status and trade type.
-   */
+  // Retrieves the current list of orders. Supports filtering by status and trade type.
   getOrderList(
     params?: GetOrderListRequest,
   ): Promise<APISuccessResponse<OrderListResponse>> {
     return this.getPrivate('api/v1/orders', params);
   }
-  /**
-   *  Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time
-   */
+
+  // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
   getRecentOrdersList(): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate('api/v1/limit/orders');
   }
-  /**
-   *  Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
-   */
+
+  // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
   getOrderDetailsByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
-  /**
-   *  Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders submitd with a unique client-provided identifier.
-   */
+
+  // Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders submitd with a unique client-provided identifier.
   getOrderDetailsByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<OrderListItem[]>> {
@@ -810,17 +811,14 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  /**
-   *  General permission, Retrieves a list of the most recent fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
-   */
+  // General permission, Retrieves a list of the most recent fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
   getFilledList(
     params?: GetFilledListRequest,
   ): Promise<APISuccessResponse<GetFilledListResponse>> {
     return this.getPrivate('api/v1/fills', params);
   }
-  /**
-   *   General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
-   */
+
+  // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
   getRecentFillsList(): Promise<APISuccessResponse<FillItemResponse[]>> {
     return this.getPrivate('api/v1/limit/fills');
   }
@@ -831,9 +829,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  /**
-   *   Spot and margin trading, Submits a stop order on the platform.
-   */
+  // Spot and margin trading, submits a stop order on the platform.
   submitStopOrder(
     params: SubmitStopOrderRequest,
   ): Promise<APISuccessResponse<{ orderId: string }>> {
@@ -845,6 +841,8 @@ export class SpotClient extends BaseRestClient {
    * This endpoint requires the "Spot Trading" or "Margin Trading" permission on your API key.
    */
 
+  // Cancels a single stop order by orderId. Applicable for both spot and margin trading.
+  // This endpoint requires the "Spot Trading" or "Margin Trading" permission on your API key.
   cancelStopOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[]; // Unique ID of the cancelled order
@@ -912,12 +910,10 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  /**
-   * Submits an OCO (One Cancels the Other) order on the platform.
-   */
+  // submits an OCO (One Cancels the Other) order on the platform.
   submitOCOOrder(params: SubmitOCOOrderRequest): Promise<
     APISuccessResponse<{
-      orderId: string;
+      orderId: string; // An order Id is returned once an order is successfully submitd.
     }>
   > {
     return this.postPrivate('api/v3/oco/order', params);
@@ -1011,7 +1007,7 @@ export class SpotClient extends BaseRestClient {
 
   submitHFMarginOrder(params: SubmitHFMarginOrderRequest): Promise<
     APISuccessResponse<{
-      orderNo: string;
+      orderNo: string; // An order Id is returned once an order is successfully submitd.
     }>
   > {
     return this.postPrivate('api/v3/hf/margin/order', params);

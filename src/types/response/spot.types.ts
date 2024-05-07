@@ -518,7 +518,7 @@ export interface SubmitMultipleHFOrdersSyncResponse {
   canceledSize: string; // Cumulative number of cancellations
   status: string; // Order Status. open: the order is active; done: the order has been completed
   matchTime: number; // matching time
-  success: boolean; // Whether the order was Submitd successfully.
+  success: boolean; // Whether the order was submitted successfully.
 }
 
 export interface SyncCancelHFOrderResponse {
@@ -697,7 +697,7 @@ export interface SubmitMultipleOrdersItemResponse {
   hidden?: boolean; // Hidden or not (not shown in order book)
   iceberg?: boolean; // Whether or not only visible portions of orders are shown in iceberg orders
   visibleSize?: any; // Maximum visible quantity in iceberg orders (optional, can be null)
-  channel: string; // Channel through which the order was Submitd
+  channel: string; // Channel through which the order was submitted
   id: string; // Unique identifier for the order
   status: string; // Order creation results (success, fail)
   failMsg?: any; // Reason of failure (optional, can be null)
@@ -796,7 +796,7 @@ export interface StopOrderItemResponse {
  */
 
 export interface OCOOrderResponse {
-  orderId: string; // An order Id is returned once an order is successfully Submitd.
+  orderId: string; // An order Id is returned once an order is successfully submitted.
 }
 
 export interface CancelOCOOrderResponse {
@@ -943,7 +943,7 @@ export interface HFMarginTransactionRecordResponse {
  */
 
 export interface SubmitMarginOrderResponse {
-  orderId: string; // An order Id is returned once an order is successfully Submitd.
+  orderId: string; // An order Id is returned once an order is successfully submitted.
   borrowSize?: number; // Borrowed amount. The field is returned only after placing the order under the mode of Auto-Borrow.
   loanApplyId?: string; // ID of the borrowing response. The field is returned only after placing the order under the mode of Auto-Borrow.
 }

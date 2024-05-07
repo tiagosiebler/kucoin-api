@@ -21,7 +21,7 @@ async function start() {
      */
 
     // Submit a futures entry order for 1 lot of XBTUSDTM (0.001 bitcoin)
-    const orderRes = await client.submitFuturesOrder({
+    const orderRes = await client.submitNewOrder({
       clientOid: client.generateNewOrderID(),
       side: 'buy',
       type: 'market',
