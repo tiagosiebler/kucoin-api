@@ -471,7 +471,7 @@ export interface GetStopOrdersListRequest {
  *
  */
 
-export interface PlaceOCOOrderRequest {
+export interface SubmitOCOOrderRequest {
   symbol: string;
   side: 'buy' | 'sell';
   price: string;

@@ -46,9 +46,9 @@ import {
   PlaceMarginOrderRequest,
   PlaceMultipleHFOrdersRequest,
   PlaceMultipleOrdersRequest,
-  PlaceOCOOrderRequest,
   PlaceOrderRequest,
   PlaceStopOrderRequest,
+  SubmitOCOOrderRequest,
   TransferBetweenMasterAndSubAccountRequest,
   UpdateSubAccountAPIRequest,
 } from 'types/request/spot.types.js';
@@ -558,7 +558,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  placeHFOrder(params: PlaceHFOrderRequest): Promise<
+  submitHFOrder(params: PlaceHFOrderRequest): Promise<
     APISuccessResponse<{
       orderId: string; // Transfer order ID
     }>
@@ -733,7 +733,7 @@ export class SpotClient extends BaseRestClient {
   /* SPOT and MARGIN */
   submitNewOrder(params: PlaceOrderRequest): Promise<
     APISuccessResponse<{
-      orderId: string; // An order Id is returned once an order is successfully placed.
+      orderId: string; // An order Id is returned once an order is successfully submitted.
     }>
   > {
     return this.postPrivate('api/v1/orders', params);
@@ -798,7 +798,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
-  /* Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders placed with a unique client-provided identifier. */
+  /* Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders submitted with a unique client-provided identifier. */
   getOrderDetailsByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<OrderListItem[]>> {
@@ -901,10 +901,10 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  // Places an OCO (One Cancels the Other) order on the platform.
-  placeOCOOrder(params: PlaceOCOOrderRequest): Promise<
+  // Submits an OCO (One Cancels the Other) order on the platform.
+  submitOCOOrder(params: SubmitOCOOrderRequest): Promise<
     APISuccessResponse<{
-      orderId: string; // An order Id is returned once an order is successfully placed.
+      orderId: string; // An order Id is returned once an order is successfully submitted.
     }>
   > {
     return this.postPrivate('api/v3/oco/order', params);
@@ -984,7 +984,7 @@ export class SpotClient extends BaseRestClient {
 
   placeHFMarginOrder(params: PlaceHFMarginOrderRequest): Promise<
     APISuccessResponse<{
-      orderNo: string; // An order Id is returned once an order is successfully placed.
+      orderNo: string; // An order Id is returned once an order is successfully submitted.
     }>
   > {
     return this.postPrivate('api/v3/hf/margin/order', params);

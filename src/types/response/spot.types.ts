@@ -493,7 +493,7 @@ export interface Kline {
  */
 
 export interface PlaceHFOrderSyncResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+  orderId: string; // An order Id is returned once an order is successfully submitted.
   orderTime: number; // order time
   originSize: string; // original order size
   dealSize: string; // deal size
@@ -510,7 +510,7 @@ export interface PlaceMultipleHFOrdersResponse {
 }
 
 export interface PlaceMultipleHFOrdersSyncResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+  orderId: string; // An order Id is returned once an order is successfully submitted.
   orderTime: number; // order time
   originSize: string; // original order size
   dealSize: string; // deal size
@@ -518,7 +518,7 @@ export interface PlaceMultipleHFOrdersSyncResponse {
   canceledSize: string; // Cumulative number of cancellations
   status: string; // Order Status. open: the order is active; done: the order has been completed
   matchTime: number; // matching time
-  success: boolean; // Whether the order was placed successfully.
+  success: boolean; // Whether the order was submitted successfully.
 }
 
 export interface SyncCancelHFOrderResponse {
@@ -697,7 +697,7 @@ export interface PlaceMultipleOrdersItemResponse {
   hidden?: boolean; // Hidden or not (not shown in order book)
   iceberg?: boolean; // Whether or not only visible portions of orders are shown in iceberg orders
   visibleSize?: any; // Maximum visible quantity in iceberg orders (optional, can be null)
-  channel: string; // Channel through which the order was placed
+  channel: string; // Channel through which the order was submitted
   id: string; // Unique identifier for the order
   status: string; // Order creation results (success, fail)
   failMsg?: any; // Reason of failure (optional, can be null)
@@ -796,7 +796,7 @@ export interface StopOrderItemResponse {
  */
 
 export interface OCOOrderResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+  orderId: string; // An order Id is returned once an order is successfully submitted.
 }
 
 export interface CancelOCOOrderResponse {
@@ -943,7 +943,7 @@ export interface HFMarginTransactionRecordResponse {
  */
 
 export interface PlaceMarginOrderResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+  orderId: string; // An order Id is returned once an order is successfully submitted.
   borrowSize?: number; // Borrowed amount. The field is returned only after placing the order under the mode of Auto-Borrow.
   loanApplyId?: string; // ID of the borrowing response. The field is returned only after placing the order under the mode of Auto-Borrow.
 }
