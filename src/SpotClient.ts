@@ -41,14 +41,14 @@ import {
   MarginRiskLimitRequest,
   ModifyHFOrderRequest,
   ModifyLendingSubscriptionOrdersV3Request,
-  PlaceHFMarginOrderRequest,
-  PlaceHFOrderRequest,
-  PlaceMarginOrderRequest,
-  PlaceMultipleHFOrdersRequest,
-  PlaceMultipleOrdersRequest,
-  PlaceOCOOrderRequest,
-  PlaceOrderRequest,
-  PlaceStopOrderRequest,
+  SubmitHFMarginOrderRequest,
+  SubmitHFOrderRequest,
+  SubmitMarginOrderRequest,
+  SubmitMultipleHFOrdersRequest,
+  SubmitMultipleOrdersRequest,
+  SubmitOCOOrderRequest,
+  SubmitOrderRequest,
+  SubmitStopOrderRequest,
   TransferBetweenMasterAndSubAccountRequest,
   UpdateSubAccountAPIRequest,
 } from 'types/request/spot.types.js';
@@ -103,16 +103,16 @@ import {
   OrderBookLevel,
   OrderListItem,
   OrderListResponse,
-  PlaceHFOrderSyncResponse,
-  PlaceMarginOrderResponse,
-  PlaceMultipleHFOrdersResponse,
-  PlaceMultipleHFOrdersSyncResponse,
-  PlaceMultipleOrdersResponse,
   SingleIsolatedMarginAccountInfoResponse,
   StopOrderItemResponse,
   StopOrdersListResponse,
   SubAccountAPIInfo,
   SubAccountInfo,
+  SubmitHFOrderSyncResponse,
+  SubmitMarginOrderResponse,
+  SubmitMultipleHFOrdersResponse,
+  SubmitMultipleHFOrdersSyncResponse,
+  SubmitMultipleOrdersResponse,
   SymbolInfo,
   SyncCancelHFOrderResponse,
   TickerInfo,
@@ -296,8 +296,8 @@ export class SpotClient extends BaseRestClient {
 
   deleteSubAccountAPI(params: DeleteSubAccountAPIRequest): Promise<
     APISuccessResponse<{
-      subName: string; // Sub-account name
-      apiKey: string; // API-Key
+      subName: string;
+      apiKey: string;
     }>
   > {
     return this.deletePrivate('api/v1/sub/api-key', params);
@@ -418,7 +418,7 @@ export class SpotClient extends BaseRestClient {
 
   flexTransfer(params: FlexTransferRequest): Promise<
     APISuccessResponse<{
-      orderId: string; // Transfer order ID
+      orderId: string;
     }>
   > {
     return this.postPrivate('api/v3/accounts/universal-transfer', params);
@@ -428,7 +428,7 @@ export class SpotClient extends BaseRestClient {
     params: TransferBetweenMasterAndSubAccountRequest,
   ): Promise<
     APISuccessResponse<{
-      orderId: string; // Transfer order ID
+      orderId: string;
     }>
   > {
     return this.postPrivate('api/v2/accounts/sub-transfer', params);
@@ -436,7 +436,7 @@ export class SpotClient extends BaseRestClient {
 
   innerTransfer(params: InnerTransferRequest): Promise<
     APISuccessResponse<{
-      orderId: string; // Transfer order ID
+      orderId: string;
     }>
   > {
     return this.postPrivate('api/v2/accounts/inner-transfer', params);
@@ -450,8 +450,8 @@ export class SpotClient extends BaseRestClient {
 
   getBasicUserFee(params: { currencyType: string }): Promise<
     APISuccessResponse<{
-      takerFeeRate: string; // Taker fee rate
-      makerFeeRate: string; // Maker fee rate
+      takerFeeRate: string;
+      makerFeeRate: string;
     }>
   > {
     return this.getPrivate('api/v1/base-fee', params);
@@ -460,9 +460,9 @@ export class SpotClient extends BaseRestClient {
   getTradingPairActualFee(params: { symbols: string }): Promise<
     APISuccessResponse<
       {
-        symbol: string; // Trading pair
-        takerFeeRate: string; // Taker fee rate
-        makerFeeRate: string; // Maker fee rate
+        symbol: string;
+        takerFeeRate: string;
+        makerFeeRate: string;
       }[]
     >
   > {
@@ -558,39 +558,39 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  placeHFOrder(params: PlaceHFOrderRequest): Promise<
+  submitHFOrder(params: SubmitHFOrderRequest): Promise<
     APISuccessResponse<{
-      orderId: string; // Transfer order ID
+      orderId: string;
     }>
   > {
     return this.postPrivate('api/v1/hf/orders', params);
   }
 
-  placeHFOrderTest(): Promise<any> {
+  submitHFOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/hf/orders/test');
   }
 
-  placeHFOrderSync(
-    params: PlaceHFOrderRequest,
-  ): Promise<APISuccessResponse<PlaceHFOrderSyncResponse>> {
+  submitHFOrderSync(
+    params: SubmitHFOrderRequest,
+  ): Promise<APISuccessResponse<SubmitHFOrderSyncResponse>> {
     return this.postPrivate('api/v1/hf/orders/sync', params);
   }
 
-  placeMultipleHFOrders(
-    params: PlaceMultipleHFOrdersRequest,
-  ): Promise<APISuccessResponse<PlaceMultipleHFOrdersResponse[]>> {
+  submitMultipleHFOrders(
+    params: SubmitMultipleHFOrdersRequest,
+  ): Promise<APISuccessResponse<SubmitMultipleHFOrdersResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
 
-  placeMultipleHFOrdersSync(
-    params: PlaceMultipleHFOrdersRequest,
-  ): Promise<APISuccessResponse<PlaceMultipleHFOrdersSyncResponse[]>> {
+  submitMultipleHFOrdersSync(
+    params: SubmitMultipleHFOrdersRequest,
+  ): Promise<APISuccessResponse<SubmitMultipleHFOrdersSyncResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
 
   modifyHFOrder(params: ModifyHFOrderRequest): Promise<
     APISuccessResponse<{
-      newOrderId: string; // New order ID
+      newOrderId: string;
     }>
   > {
     return this.postPrivate('api/v1/hf/orders/alter', params);
@@ -598,7 +598,7 @@ export class SpotClient extends BaseRestClient {
 
   cancelHFOrder(params: { orderId: string; symbol: string }): Promise<
     APISuccessResponse<{
-      orderId: string; // New order ID
+      orderId: string;
     }>
   > {
     return this.deletePrivate(`api/v1/hf/orders/${params.orderId}`, params);
@@ -619,7 +619,7 @@ export class SpotClient extends BaseRestClient {
     symbol: string;
   }): Promise<
     APISuccessResponse<{
-      clientOid: string; // New order ID
+      clientOid: string;
     }>
   > {
     return this.deletePrivate(
@@ -649,8 +649,8 @@ export class SpotClient extends BaseRestClient {
 
   cancelAllHFOrdersBySymbol(params: { symbol: string }): Promise<
     APISuccessResponse<{
-      orderId: string; // order Id
-      cancelSize: string; // Size of the order to be canceled
+      orderId: string;
+      cancelSize: string;
     }>
   > {
     return this.deletePrivate(`api/v1/hf/orders`, params);
@@ -705,8 +705,8 @@ export class SpotClient extends BaseRestClient {
     symbols?: string;
   }): Promise<
     APISuccessResponse<{
-      currentTime: number; // System current time (in seconds)
-      triggerTime: number; // Trigger cancellation time (in seconds)
+      currentTime: number;
+      triggerTime: number;
     }>
   > {
     return this.postPrivate('api/v1/hf/orders/dead-cancel-all', params);
@@ -730,75 +730,74 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  // SPOT and MARGIN
-  placeOrder(params: PlaceOrderRequest): Promise<
+  submitOrder(params: SubmitOrderRequest): Promise<
     APISuccessResponse<{
-      orderId: string; // An order Id is returned once an order is successfully placed.
+      orderId: string;
     }>
   > {
     return this.postPrivate('api/v1/orders', params);
   }
 
-  // SPOT and MARGIN
-  placeOrderTest(): Promise<any> {
+  submitOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/orders/test');
   }
 
-  //SPOT
-  placeMultipleOrders(
-    params: PlaceMultipleOrdersRequest,
-  ): Promise<APISuccessResponse<PlaceMultipleOrdersResponse[]>> {
+  submitMultipleOrders(
+    params: SubmitMultipleOrdersRequest,
+  ): Promise<APISuccessResponse<SubmitMultipleOrdersResponse[]>> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
-  // Used for Spot and Margin Trading: Cancels a single order by orderId.
   cancelOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
-      cancelledOrderIds: string[]; // Unique ID of the cancelled order
+      cancelledOrderIds: string[];
     }>
   > {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
   }
 
-  // Used for Spot and Margin Trading: Cancels a single order by clientOid.
   cancelOrderByClientOid(params: { clientOid: string }): Promise<
     APISuccessResponse<{
-      cancelledOrderId: string; // Unique ID of the cancelled order
-      clientOid: string; // Unique order id created by users to identify their orders
+      cancelledOrderId: string;
+      clientOid: string;
     }>
   > {
     return this.deletePrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
-  // Used for Spot and Margin Trading: Cancels all open orders.
   cancelAllOrders(params?: CancelAllOrdersRequest): Promise<
     APISuccessResponse<{
-      cancelledOrderIds: string[]; // Unique ID of the cancelled order
+      cancelledOrderIds: string[];
     }>
   > {
     return this.deletePrivate('api/v1/orders', params);
   }
 
-  // Retrieves the current list of orders. Supports filtering by status and trade type.
+  /**
+   * Retrieves the current list of orders. Supports filtering by status and trade type.
+   */
   getOrderList(
     params?: GetOrderListRequest,
   ): Promise<APISuccessResponse<OrderListResponse>> {
     return this.getPrivate('api/v1/orders', params);
   }
-
-  // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
+  /**
+   *  Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time
+   */
   getRecentOrdersList(): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate('api/v1/limit/orders');
   }
-
-  // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
+  /**
+   *  Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
+   */
   getOrderDetailsByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
-
-  // Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders placed with a unique client-provided identifier.
+  /**
+   *  Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders submitd with a unique client-provided identifier.
+   */
   getOrderDetailsByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<OrderListItem[]>> {
@@ -811,14 +810,17 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  // General permission, Retrieves a list of the most recent fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
+  /**
+   *  General permission, Retrieves a list of the most recent fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
+   */
   getFilledList(
     params?: GetFilledListRequest,
   ): Promise<APISuccessResponse<GetFilledListResponse>> {
     return this.getPrivate('api/v1/fills', params);
   }
-
-  // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
+  /**
+   *   General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
+   */
   getRecentFillsList(): Promise<APISuccessResponse<FillItemResponse[]>> {
     return this.getPrivate('api/v1/limit/fills');
   }
@@ -829,15 +831,20 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  // Spot and margin trading, places a stop order on the platform.
-  placeStopOrder(
-    params: PlaceStopOrderRequest,
+  /**
+   *   Spot and margin trading, Submits a stop order on the platform.
+   */
+  submitStopOrder(
+    params: SubmitStopOrderRequest,
   ): Promise<APISuccessResponse<{ orderId: string }>> {
     return this.postPrivate('api/v1/stop-order', params);
   }
+  /**
+   * Cancels a single stop order by orderId. Applicable for both spot and margin trading.
+   *
+   * This endpoint requires the "Spot Trading" or "Margin Trading" permission on your API key.
+   */
 
-  // Cancels a single stop order by orderId. Applicable for both spot and margin trading.
-  // This endpoint requires the "Spot Trading" or "Margin Trading" permission on your API key.
   cancelStopOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[]; // Unique ID of the cancelled order
@@ -845,15 +852,16 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.deletePrivate(`api/v1/stop-order/${params.orderId}`);
   }
-
-  // Cancels a stop order by clientOid. Requires "Spot Trading" or "Margin Trading" permission.
+  /**
+   * Cancels a stop order by clientOid. Requires "Spot Trading" or "Margin Trading" permission.
+   */
   cancelStopOrderByClientOid(params: {
     clientOid: string;
     symbol?: string;
   }): Promise<
     APISuccessResponse<{
-      cancelledOrderId: string; // Unique ID of the cancelled order
-      clientOid: string; // Unique order id created by users to identify their orders
+      cancelledOrderId: string;
+      clientOid: string;
     }>
   > {
     return this.deletePrivate(
@@ -861,8 +869,9 @@ export class SpotClient extends BaseRestClient {
       params,
     );
   }
-
-  // Cancels a batch of stop orders. Requires "Spot Trading" or "Margin Trading" permission.
+  /**
+   *  Cancels a batch of stop orders. Requires "Spot Trading" or "Margin Trading" permission.
+   */
   cancelStopOrders(params?: CancelStopOrdersRequest): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[]; // Unique IDs of the cancelled orders
@@ -870,95 +879,116 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.deletePrivate(`api/v1/stop-order/cancel`, params);
   }
-
-  // Retrieves your current untriggered stop order list, paginated and sorted to show the latest first.
+  /**
+   *  Retrieves your current untriggered stop order list, paginated and sorted to show the latest first.
+   */
   getStopOrdersList(
     params?: GetStopOrdersListRequest,
   ): Promise<APISuccessResponse<StopOrdersListResponse>> {
     return this.getPrivate('api/v1/stop-order', params);
   }
-
-  // Retrieves the details of a single stop order by its orderId.
+  /**
+   * Retrieves the details of a single stop order by its orderId.
+   */
   getStopOrderDetailsByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<StopOrderItemResponse>> {
     return this.getPrivate(`api/v1/stop-order/${params.orderId}`);
   }
 
-  // Retrieves the details of a single stop order by its clientOid.
+  /**
+   * Retrieves the details of a single stop order by its clientOid.
+   */
   getStopOrderDetailsByClientOid(params: {
     clientOid: string;
     symbol?: string;
   }): Promise<APISuccessResponse<StopOrderItemResponse[]>> {
     return this.getPrivate('api/v1/stop-order/queryOrderByClientOid', params);
   }
+
   /**
    *
    * OCO order
    *
    */
 
-  // Places an OCO (One Cancels the Other) order on the platform.
-  placeOCOOrder(params: PlaceOCOOrderRequest): Promise<
+  /**
+   * Submits an OCO (One Cancels the Other) order on the platform.
+   */
+  submitOCOOrder(params: SubmitOCOOrderRequest): Promise<
     APISuccessResponse<{
-      orderId: string; // An order Id is returned once an order is successfully placed.
+      orderId: string;
     }>
   > {
     return this.postPrivate('api/v3/oco/order', params);
   }
 
-  // Cancels a single OCO order by orderId.
+  /**
+   * Cancels a single OCO order by orderId.
+   */
   cancelOCOOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
-      cancelledOrderIds: string[]; // List of few order IDs related to the canceled OCO order
+      cancelledOrderIds: string[];
     }>
   > {
     return this.deletePrivate(`api/v3/oco/order/${params.orderId}`);
   }
 
-  // Cancels a single OCO order by clientOid.
+  /**
+   * Cancels a single OCO order by clientOid.
+   */
   cancelOCOOrderByClientOid(params: { clientOid: string }): Promise<
     APISuccessResponse<{
-      cancelledOrderIds: string[]; // List of two order IDs related to the canceled OCO order
+      cancelledOrderIds: string[];
     }>
   > {
     return this.deletePrivate(`api/v3/oco/client-order/${params.clientOid}`);
   }
 
-  // Batch cancels OCO orders through orderIds.
+  /**
+   * Batch cancels OCO orders through orderIds.
+   */
   cancelMultipleOCOOrders(params?: {
     orderIds?: string;
     symbol?: string;
   }): Promise<
     APISuccessResponse<{
-      cancelledOrderIds: string[]; // List of two order IDs related to the canceled OCO order
+      cancelledOrderIds: string[];
     }>
   > {
     return this.deletePrivate('api/v3/oco/orders', params);
   }
 
-  // Retrieves the details of a single OCO order by its orderId.
+  /**
+   * Retrieves the details of a single OCO order by its orderId.
+   */
   getOCOOrderDetailsByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<OCOOrderListItemResponse>> {
     return this.getPrivate(`api/v3/oco/order/${params.orderId}`);
   }
 
-  // Retrieves the details of a single OCO order by its clientOid.
+  /**
+   * Retrieves the details of a single OCO order by its clientOid.
+   */
   getOCOOrderDetailsByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<OCOOrderListItemResponse>> {
     return this.getPrivate(`api/v3/oco/client-order/${params.clientOid}`);
   }
 
-  // Retrieves the details of a single OCO order by its orderId, including detailed information about the individual orders.
+  /**
+   * Retrieves the details of a single OCO order by its orderId, including detailed information about the individual orders.
+   */
   getOCOOrderDetails(params: {
     orderId: string;
   }): Promise<APISuccessResponse<OCOOrderDetailsResponse>> {
     return this.getPrivate(`api/v3/oco/order/details/${params.orderId}`);
   }
 
-  // Retrieves your current OCO order list, paginated and sorted to show the latest first.
+  /**
+   * Retrieves your current OCO order list, paginated and sorted to show the latest first.
+   */
   getOCOOrdersList(
     params: GetOCOOrdersListRequest,
   ): Promise<APISuccessResponse<OCOOrdersListResponse>> {
@@ -979,21 +1009,21 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  placeHFMarginOrder(params: PlaceHFMarginOrderRequest): Promise<
+  submitHFMarginOrder(params: SubmitHFMarginOrderRequest): Promise<
     APISuccessResponse<{
-      orderNo: string; // An order Id is returned once an order is successfully placed.
+      orderNo: string;
     }>
   > {
     return this.postPrivate('api/v3/hf/margin/order', params);
   }
 
-  placeHFMarginOrderTest(): Promise<any> {
+  submitHFMarginOrderTest(): Promise<any> {
     return this.postPrivate('api/v3/hf/margin/order/test');
   }
 
   cancelHFMarginOrder(params: { orderId: string; symbol: string }): Promise<
     APISuccessResponse<{
-      orderId: string; // Order id of the cancelled order
+      orderId: string;
     }>
   > {
     return this.deletePrivate(
@@ -1007,7 +1037,7 @@ export class SpotClient extends BaseRestClient {
     symbol: string;
   }): Promise<
     APISuccessResponse<{
-      clientOid: string; // Order id of the cancelled order
+      clientOid: string;
     }>
   > {
     return this.deletePrivate(
@@ -1060,13 +1090,13 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  placeMarginOrder(
-    params: PlaceMarginOrderRequest,
-  ): Promise<APISuccessResponse<PlaceMarginOrderResponse>> {
+  SubmitMarginOrder(
+    params: SubmitMarginOrderRequest,
+  ): Promise<APISuccessResponse<SubmitMarginOrderResponse>> {
     return this.postPrivate('api/v1/margin/order', params);
   }
 
-  placeMarginOrderTest(): Promise<any> {
+  submitMarginOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/margin/order/test');
   }
 

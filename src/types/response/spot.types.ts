@@ -492,8 +492,8 @@ export interface Kline {
  *
  */
 
-export interface PlaceHFOrderSyncResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+export interface SubmitHFOrderSyncResponse {
+  orderId: string; // An order Id is returned once an order is successfully Submitd.
   orderTime: number; // order time
   originSize: string; // original order size
   dealSize: string; // deal size
@@ -503,14 +503,14 @@ export interface PlaceHFOrderSyncResponse {
   matchTime: number; // matching time
 }
 
-export interface PlaceMultipleHFOrdersResponse {
+export interface SubmitMultipleHFOrdersResponse {
   orderId: string;
   success?: boolean;
   failMsg?: string; // Reason of failure, optional based on success status
 }
 
-export interface PlaceMultipleHFOrdersSyncResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+export interface SubmitMultipleHFOrdersSyncResponse {
+  orderId: string; // An order Id is returned once an order is successfully Submitd.
   orderTime: number; // order time
   originSize: string; // original order size
   dealSize: string; // deal size
@@ -518,7 +518,7 @@ export interface PlaceMultipleHFOrdersSyncResponse {
   canceledSize: string; // Cumulative number of cancellations
   status: string; // Order Status. open: the order is active; done: the order has been completed
   matchTime: number; // matching time
-  success: boolean; // Whether the order was placed successfully.
+  success: boolean; // Whether the order was Submitd successfully.
 }
 
 export interface SyncCancelHFOrderResponse {
@@ -680,8 +680,8 @@ export interface OrderListItem {
   tradeType: string;
 }
 
-// PlaceMultipleOrdersResponse interface
-export interface PlaceMultipleOrdersItemResponse {
+// SubmitMultipleOrdersResponse interface
+export interface SubmitMultipleOrdersItemResponse {
   symbol: string; // symbol For Example，ETH-BTC
   type?: string; // only limit (default is limit)
   side: string; // buy or sell
@@ -697,15 +697,15 @@ export interface PlaceMultipleOrdersItemResponse {
   hidden?: boolean; // Hidden or not (not shown in order book)
   iceberg?: boolean; // Whether or not only visible portions of orders are shown in iceberg orders
   visibleSize?: any; // Maximum visible quantity in iceberg orders (optional, can be null)
-  channel: string; // Channel through which the order was placed
+  channel: string; // Channel through which the order was Submitd
   id: string; // Unique identifier for the order
   status: string; // Order creation results (success, fail)
   failMsg?: any; // Reason of failure (optional, can be null)
   clientOid: string; // Client Order Id, unique identifier created by the user, the use of UUID is recommended
 }
 
-export interface PlaceMultipleOrdersResponse {
-  items: PlaceMultipleOrdersItemResponse[];
+export interface SubmitMultipleOrdersResponse {
+  items: SubmitMultipleOrdersItemResponse[];
 }
 
 /**
@@ -796,7 +796,7 @@ export interface StopOrderItemResponse {
  */
 
 export interface OCOOrderResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+  orderId: string; // An order Id is returned once an order is successfully Submitd.
 }
 
 export interface CancelOCOOrderResponse {
@@ -807,7 +807,7 @@ export interface OCOOrderDetailsResponse {
   orderId: string; // order id, Unique order id created by users to identify their orders
   symbol: string; // symbol, such as, ETH-BTC
   clientOid: string; // client order id
-  orderTime: number; // Order placement time, milliseconds
+  orderTime: number; // Order Submitment time, milliseconds
   status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
   orders: OCOOrderSubOrderResponse[];
 }
@@ -834,7 +834,7 @@ export interface OCOOrderListItemResponse {
   orderId: string; // order id, Unique order id created by users to identify their orders
   symbol: string; // symbol, such as, ETH-BTC
   clientOid: string; // client order id
-  orderTime: number; // Order placement time, milliseconds
+  orderTime: number; // Order Submitment time, milliseconds
   status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
 }
 
@@ -942,8 +942,8 @@ export interface HFMarginTransactionRecordResponse {
  *
  */
 
-export interface PlaceMarginOrderResponse {
-  orderId: string; // An order Id is returned once an order is successfully placed.
+export interface SubmitMarginOrderResponse {
+  orderId: string; // An order Id is returned once an order is successfully Submitd.
   borrowSize?: number; // Borrowed amount. The field is returned only after placing the order under the mode of Auto-Borrow.
   loanApplyId?: string; // ID of the borrowing response. The field is returned only after placing the order under the mode of Auto-Borrow.
 }

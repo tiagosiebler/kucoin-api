@@ -128,8 +128,8 @@ export class FuturesClient extends BaseRestClient {
 
   deleteSubAccountAPI(params: DeleteSubAccountAPIRequest): Promise<
     APISuccessResponse<{
-      subName: string; // Sub-account name
-      apiKey: string; // API-Key
+      subName: string;
+      apiKey: string;
     }>
   > {
     return this.deletePrivate('api/v1/sub/api-key', params);
@@ -179,9 +179,9 @@ export class FuturesClient extends BaseRestClient {
 
   getTradingPairActualFee(params: { symbols: string }): Promise<
     APISuccessResponse<{
-      symbol: string; // Trading pair
-      takerFeeRate: string; // Taker fee rate
-      makerFeeRate: string; // Maker fee rate
+      symbol: string;
+      takerFeeRate: string;
+      makerFeeRate: string;
     }>
   > {
     return this.getPrivate('/api/v1/trade-fees', params);
@@ -265,7 +265,7 @@ export class FuturesClient extends BaseRestClient {
 
   get24HourTransactionVolume(): Promise<
     APISuccessResponse<{
-      turnoverOf24h: number; // 24-hour platform Futures trading volume. Unit is USD
+      turnoverOf24h: number;
     }>
   > {
     return this.get('api/v1/trade-statistics');
@@ -291,7 +291,7 @@ export class FuturesClient extends BaseRestClient {
     return this.postPrivate('api/v1/orders', params);
   }
 
-  sumbitNewOrderTest(): Promise<any> {
+  submitNewOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/orders/test');
   }
 
@@ -301,7 +301,6 @@ export class FuturesClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
   }
 
-  //check docs, very weird. Maybe ask API guys to check
   cancelOrderByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<{ clientOid: string }>> {

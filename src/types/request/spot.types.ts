@@ -280,7 +280,7 @@ export interface GetKlinesRequest {
  *
  */
 
-export interface PlaceHFOrderRequest {
+export interface SubmitHFOrderRequest {
   clientOid?: string;
   symbol: string;
   type: 'limit' | 'market';
@@ -290,7 +290,7 @@ export interface PlaceHFOrderRequest {
   remark?: string;
 }
 
-export interface PlaceMultipleHFOrdersRequest {
+export interface SubmitMultipleHFOrdersRequest {
   clientOid?: string;
   symbol: string;
   type: 'limit' | 'market';
@@ -349,7 +349,7 @@ export interface GetHFFilledListRequest {
  *
  */
 
-export interface PlaceOrderRequest {
+export interface SubmitOrderRequest {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
@@ -368,7 +368,7 @@ export interface PlaceOrderRequest {
   funds?: string;
 }
 
-export interface PlaceMultipleOrdersRequest {
+export interface SubmitMultipleOrdersRequest {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
@@ -425,7 +425,7 @@ export interface GetFilledListRequest {
  *
  */
 
-export interface PlaceStopOrderRequest {
+export interface SubmitStopOrderRequest {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
@@ -471,7 +471,7 @@ export interface GetStopOrdersListRequest {
  *
  */
 
-export interface PlaceOCOOrderRequest {
+export interface SubmitOCOOrderRequest {
   symbol: string;
   side: 'buy' | 'sell';
   price: string;
@@ -506,7 +506,7 @@ export interface GetOCOOrdersListRequest {
  *
  */
 
-export interface PlaceHFMarginOrderRequest {
+export interface SubmitHFMarginOrderRequest {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
@@ -560,7 +560,7 @@ export interface GetHFMarginTransactionRecordsRequest {
  *
  */
 
-export interface PlaceMarginOrderRequest {
+export interface SubmitMarginOrderRequest {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
