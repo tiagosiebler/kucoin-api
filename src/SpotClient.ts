@@ -1,5 +1,12 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
+
+import { BaseRestClient } from './lib/BaseRestClient.js';
+import {
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+} from './lib/requestUtils.js';
 import {
   AccountHFMarginTransactionsRequest,
   AccountHFTransactionsRequest,
@@ -55,7 +62,8 @@ import {
   SubscribeEarnFixedIncomeRequest,
   TransferBetweenMasterAndSubAccountRequest,
   UpdateSubAccountAPIRequest,
-} from 'types/request/spot.types.js';
+} from './types/request/spot.types.js';
+import { APISuccessResponse } from './types/response/shared.types.js';
 import {
   AccountHFMarginTransactionsResponse,
   AccountHFTransactionsResponse,
@@ -130,15 +138,7 @@ import {
   TradeHistory,
   TransferableResponse,
   UpdateSubAccountAPIResponse,
-} from 'types/response/spot.types.js';
-
-import { BaseRestClient } from './lib/BaseRestClient.js';
-import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
+} from './types/response/spot.types.js';
 
 /**
  *
@@ -212,7 +212,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Account Ledgers - Spot/Margin
    */
-  getAccountTransactions(
+  getTransactions(
     params: AccountTransactionsRequest,
   ): Promise<APISuccessResponse<AccountTransactionsResponse>> {
     return this.getPrivate('api/v1/accounts/ledgers', params);
@@ -221,7 +221,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Account Ledgers - trade_hf
    */
-  getAccountHFTransactions(
+  getHFTransactions(
     params: AccountHFTransactionsRequest,
   ): Promise<APISuccessResponse<AccountHFTransactionsResponse[]>> {
     return this.getPrivate('api/v1/hf/accounts/ledgers', params);
@@ -230,7 +230,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Account Ledgers - margin_hf
    */
-  getAccountHFMarginTransactions(
+  getHFMarginTransactions(
     params: AccountHFMarginTransactionsRequest,
   ): Promise<APISuccessResponse<AccountHFMarginTransactionsResponse[]>> {
     return this.getPrivate('api/v3/hf/margin/account/ledgers', params);
@@ -253,26 +253,26 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v2/sub/user', params);
   }
 
-  createSubAccount(
+  createSub(
     params: CreateSubAccountRequest,
   ): Promise<APISuccessResponse<CreateSubAccountResponse>> {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
 
-  getSubAccountBalance(params: {
+  getSubBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
   }): Promise<APISuccessResponse<GetSubAccountBalanceResponse>> {
     return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
 
-  getSubAccountBalancesV1(): Promise<
+  getSubBalancesV1(): Promise<
     APISuccessResponse<GetSubAccountBalanceResponse>
   > {
     return this.getPrivate('api/v1/sub-accounts');
   }
 
-  getSubAccountBalancesV2(params: {
+  getSubBalancesV2(params: {
     currentPage?: number;
     pageSize?: number;
   }): Promise<APISuccessResponse<GetSubAccountBalancesV2Response>> {
@@ -286,26 +286,26 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getSubAccountAPIs(params: {
+  getSubAPIs(params: {
     apiKey?: string;
     subName: string;
   }): Promise<APISuccessResponse<SubAccountAPIInfo[]>> {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 
-  createSubAccountAPI(
+  createSubAPI(
     params: CreateSubAccountAPIRequest,
   ): Promise<APISuccessResponse<CreateSubAccountAPIResponse>> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
-  updateSubAccountAPI(
+  updateSubAPI(
     params: UpdateSubAccountAPIRequest,
   ): Promise<APISuccessResponse<UpdateSubAccountAPIResponse>> {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
-  deleteSubAccountAPI(params: DeleteSubAccountAPIRequest): Promise<
+  deleteSubAPI(params: DeleteSubAccountAPIRequest): Promise<
     APISuccessResponse<{
       subName: string;
       apiKey: string;
@@ -328,13 +328,13 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/margin/account');
   }
 
-  getMarginAccountBalanceDetail(
+  getMarginBalance(
     params?: GetMarginAccountBalanceDetailRequest,
   ): Promise<APISuccessResponse<GetMarginAccountBalanceDetailResponse>> {
     return this.getPrivate('api/v3/margin/accounts', params);
   }
 
-  getIsolatedMarginAccountBalanceDetail(
+  getIsolatedMarginBalance(
     params?: GetIsolatedMarginAccountBalanceDetailRequest,
   ): Promise<APISuccessResponse<IsolatedMarginAccountDetailResponse[]>> {
     return this.getPrivate('api/v3/isolated/accounts', params);
@@ -366,13 +366,13 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/deposit-addresses', params);
   }
 
-  getDepositList(
+  getDeposits(
     params?: GetDepositListRequest,
   ): Promise<APISuccessResponse<GetDepositListResponse>> {
     return this.getPrivate('api/v1/deposits', params);
   }
 
-  getV1HistoricalDepositsList(
+  getV1HistoricalDeposits(
     params?: GetV1HistoricalDepositsListRequest,
   ): Promise<APISuccessResponse<GetV1HistoricalDepositsListResponse>> {
     return this.getPrivate('api/v1/hist-deposits', params);
@@ -384,13 +384,13 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getWithdrawalsList(
+  getWithdrawals(
     params?: GetWithdrawalsListRequest,
   ): Promise<APISuccessResponse<GetWithdrawalsListResponse>> {
     return this.getPrivate('api/v1/withdrawals', params);
   }
 
-  getV1HistoricalWithdrawalsList(
+  getHistoricalWithdrawalsV1(
     params?: GetV1HistoricalWithdrawalsListRequest,
   ): Promise<APISuccessResponse<GetV1HistoricalWithdrawalsListResponse>> {
     return this.getPrivate('api/v1/hist-withdrawals', params);
@@ -468,7 +468,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/base-fee', params);
   }
 
-  getTradingPairActualFee(params: { symbols: string }): Promise<
+  getTradingPairFee(params: { symbols: string }): Promise<
     APISuccessResponse<
       {
         symbol: string;
@@ -531,13 +531,13 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v1/markets');
   }
 
-  getPartOrderBookLevel20(params: {
+  getOrderBookLevel20(params: {
     symbol: string;
   }): Promise<APISuccessResponse<OrderBookLevel>> {
     return this.get(`api/v1/market/orderbook/level2_20`, params);
   }
 
-  getPartOrderBookLevel100(params: {
+  getOrderBookLevel100(params: {
     symbol: string;
   }): Promise<APISuccessResponse<OrderBookLevel>> {
     return this.get(`api/v1/market/orderbook/level2_100`, params);
@@ -587,13 +587,13 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/hf/orders/sync', params);
   }
 
-  submitMultipleHFOrders(
+  submitHFOrders(
     params: SubmitMultipleHFOrdersRequest,
   ): Promise<APISuccessResponse<SubmitMultipleHFOrdersResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
 
-  submitMultipleHFOrdersSync(
+  submitHFOrdersSync(
     params: SubmitMultipleHFOrdersRequest,
   ): Promise<APISuccessResponse<SubmitMultipleHFOrdersSyncResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
@@ -615,7 +615,7 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
-  syncCancelHFOrder(params: {
+  cancelHFOrderSync(params: {
     orderId: string;
     symbol: string;
   }): Promise<APISuccessResponse<SyncCancelHFOrderResponse>> {
@@ -639,7 +639,7 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
-  syncCancelHFOrderByClientOId(params: {
+  cancelHFOrderSyncByClientOId(params: {
     clientOid: string;
     symbol: string;
   }): Promise<APISuccessResponse<SyncCancelHFOrderResponse>> {
@@ -649,7 +649,7 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
-  cancelSpecifiedNumberHFOrders(
+  cancelHFOrdersNumber(
     params: CancelSpecifiedNumberHFOrdersRequest,
   ): Promise<any> {
     return this.deletePrivate(
@@ -658,7 +658,7 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
-  cancelAllHFOrdersBySymbol(params: { symbol: string }): Promise<
+  cancelHFAllOrdersBySymbol(params: { symbol: string }): Promise<
     APISuccessResponse<{
       orderId: string;
       cancelSize: string;
@@ -667,17 +667,17 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/hf/orders`, params);
   }
 
-  cancelAllHFOrders(): Promise<APISuccessResponse<CancelAllHFOrdersResponse>> {
+  cancelHFAllOrders(): Promise<APISuccessResponse<CancelAllHFOrdersResponse>> {
     return this.deletePrivate(`api/v1/hf/orders/cancelAll`);
   }
 
-  getActiveHFOrders(params: {
+  getHFActiveOrders(params: {
     symbol: string;
   }): Promise<APISuccessResponse<HFOrder[]>> {
     return this.getPrivate(`api/v1/hf/orders/active`, params);
   }
 
-  getActiveHFSymbols(): Promise<
+  getHFActiveSymbols(): Promise<
     APISuccessResponse<{
       symbols: string[];
     }>
@@ -711,7 +711,7 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
-  autoCancelHFOrderSetting(params: {
+  cancelHFOrderAutoSetting(params: {
     timeout: number;
     symbols?: string;
   }): Promise<
@@ -723,13 +723,13 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/hf/orders/dead-cancel-all', params);
   }
 
-  autoCancelHFOrderSettingQuery(): Promise<
+  cancelHFOrderAutoSettingQuery(): Promise<
     APISuccessResponse<AutoCancelHFOrderSettingQueryResponse>
   > {
     return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query');
   }
 
-  getHFFilledList(
+  getHFFilledOrders(
     params: GetHFFilledListRequest,
   ): Promise<APISuccessResponse<GetHFFilledListResponse>> {
     return this.getPrivate('api/v1/hf/fills', params);
@@ -791,14 +791,14 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Retrieves the current list of orders. Supports filtering by status and trade type.
-  getOrderList(
+  getOrders(
     params?: GetOrderListRequest,
   ): Promise<APISuccessResponse<OrderListResponse>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
   // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
-  getRecentOrdersList(): Promise<APISuccessResponse<OrderListItem[]>> {
+  getRecentOrders(): Promise<APISuccessResponse<OrderListItem[]>> {
     return this.getPrivate('api/v1/limit/orders');
   }
 
@@ -822,15 +822,15 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  // General permission, Retrieves a list of the most recent fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
-  getFilledList(
+  // General permission, Retrieves a list of fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
+  getFills(
     params?: GetFilledListRequest,
   ): Promise<APISuccessResponse<GetFilledListResponse>> {
     return this.getPrivate('api/v1/fills', params);
   }
 
   // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
-  getRecentFillsList(): Promise<APISuccessResponse<FillItemResponse[]>> {
+  getRecentFills(): Promise<APISuccessResponse<FillItemResponse[]>> {
     return this.getPrivate('api/v1/limit/fills');
   }
 
@@ -891,7 +891,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *  Retrieves your current untriggered stop order list, paginated and sorted to show the latest first.
    */
-  getStopOrdersList(
+  getStopOrders(
     params?: GetStopOrdersListRequest,
   ): Promise<APISuccessResponse<StopOrdersListResponse>> {
     return this.getPrivate('api/v1/stop-order', params);
@@ -899,7 +899,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Retrieves the details of a single stop order by its orderId.
    */
-  getStopOrderDetailsByOrderId(params: {
+  getStopOrderByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<StopOrderItemResponse>> {
     return this.getPrivate(`api/v1/stop-order/${params.orderId}`);
@@ -908,7 +908,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Retrieves the details of a single stop order by its clientOid.
    */
-  getStopOrderDetailsByClientOid(params: {
+  getStopOrderByClientOid(params: {
     clientOid: string;
     symbol?: string;
   }): Promise<APISuccessResponse<StopOrderItemResponse[]>> {
@@ -969,7 +969,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Retrieves the details of a single OCO order by its orderId.
    */
-  getOCOOrderDetailsByOrderId(params: {
+  getOCOOrderByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<OCOOrderListItemResponse>> {
     return this.getPrivate(`api/v3/oco/order/${params.orderId}`);
@@ -978,7 +978,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Retrieves the details of a single OCO order by its clientOid.
    */
-  getOCOOrderDetailsByClientOid(params: {
+  getOCOOrderByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<OCOOrderListItemResponse>> {
     return this.getPrivate(`api/v3/oco/client-order/${params.clientOid}`);
@@ -996,7 +996,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Retrieves your current OCO order list, paginated and sorted to show the latest first.
    */
-  getOCOOrdersList(
+  getOCOOrders(
     params: GetOCOOrdersListRequest,
   ): Promise<APISuccessResponse<OCOOrdersListResponse>> {
     return this.getPrivate('api/v3/oco/orders', params);
@@ -1053,30 +1053,30 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
-  cancelAllHFMarginOrders(params: HFMarginOrder): Promise<any> {
+  cancelHFAllMarginOrders(params: HFMarginOrder): Promise<any> {
     return this.deletePrivate(`api/v3/hf/margin/orders`, params);
   }
 
-  getActiveHFMarginOrders(
+  getHFActiveMarginOrders(
     params: HFMarginOrder,
   ): Promise<APISuccessResponse<HFMarginOrderItemResponse[]>> {
     return this.getPrivate(`api/v3/hf/margin/orders/active`, params);
   }
 
-  getHFMarginFilledList(
+  getHFMarginFilledOrders(
     params: GetHFMarginFilledListRequest,
   ): Promise<APISuccessResponse<HFMarginFilledListResponse>> {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
   }
 
-  getHFMarginOrderDetailsByOrderId(params: {
+  getHFMarginOrderByOrderId(params: {
     orderId: string;
     symbol: string;
   }): Promise<APISuccessResponse<HFMarginOrderItemResponse>> {
     return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
   }
 
-  getHFMarginOrderDetailsByClientOid(params: {
+  getHFMarginOrderByClientOid(params: {
     clientOid: string;
     symbol: string;
   }): Promise<APISuccessResponse<HFMarginOrderItemResponse>> {
@@ -1085,7 +1085,7 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
-  getHFMarginTransactionRecords(
+  getHFMarginFills(
     params: GetHFMarginTransactionRecordsRequest,
   ): Promise<APISuccessResponse<HFMarginTransactionListResponse>> {
     return this.getPrivate('api/v3/hf/margin/fills', params);
@@ -1097,7 +1097,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  SubmitMarginOrder(
+  submitMarginOrder(
     params: SubmitMarginOrderRequest,
   ): Promise<APISuccessResponse<SubmitMarginOrderResponse>> {
     return this.postPrivate('api/v1/margin/order', params);
@@ -1113,7 +1113,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getMarginLeveragedTokenInfo(params?: {
+  getMarginLeveragedToken(params?: {
     currency?: string;
   }): Promise<APISuccessResponse<MarginLevTokenInfoResponse[]>> {
     return this.get('api/v3/etf/info', params);
@@ -1129,7 +1129,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v1/margin/config');
   }
 
-  getMarginRiskLimitCurrencyConfig(
+  getMarginRiskLimitConfig(
     params: MarginRiskLimitRequest,
   ): Promise<APISuccessResponse<MarginRiskLimitResponse[]>> {
     return this.get('api/v3/margin/currencies', params);
@@ -1147,13 +1147,13 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/isolated/symbols');
   }
 
-  getIsolatedMarginAccountInfo(params?: {
+  getIsolatedMarginAccounts(params?: {
     balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
   }): Promise<APISuccessResponse<IsolatedMarginAccountInfoResponse>> {
     return this.getPrivate('api/v1/isolated/accounts', params);
   }
 
-  getSingleIsolatedMarginAccountInfo(params: {
+  getIsolatedMarginAccount(params: {
     symbol: string;
   }): Promise<APISuccessResponse<SingleIsolatedMarginAccountInfoResponse>> {
     return this.getPrivate(`api/v1/isolated/account/${params.symbol}`);
@@ -1177,13 +1177,13 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/margin/repay', params);
   }
 
-  getMarginBorrowingHistoryV3(
+  getMarginBorrowHistoryV3(
     params: MarginHistoryV3Request,
   ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
     return this.getPrivate('api/v3/margin/borrow', params);
   }
 
-  getMarginRepaymentHistoryV3(
+  getMarginRepayHistoryV3(
     params: MarginHistoryV3Request,
   ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
     return this.getPrivate('api/v3/margin/repay', params);
@@ -1195,13 +1195,13 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getLendingMarketCurrencyInfoV3(params?: {
+  getLendingCurrencyV3(params?: {
     currency?: string;
   }): Promise<APISuccessResponse<GetLendingMarketCurrencyInfoV3Response>> {
     return this.get('api/v3/project/list', params);
   }
 
-  getLendingMarketInterestRatesV3(params: {
+  getLendingInterestRateV3(params: {
     currency: string;
   }): Promise<APISuccessResponse<MarketInterestRateItem[]>> {
     return this.get('api/v3/project/marketInterestRate', params);

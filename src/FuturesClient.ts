@@ -1,5 +1,30 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
+
+import { BaseRestClient } from './lib/BaseRestClient.js';
+import {
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+} from './lib/requestUtils.js';
+import {
+  AccountFillsRequest,
+  CreateSubAccountAPIRequest,
+  DeleteSubAccountAPIRequest,
+  GetAccountOrdersFuturesRequest,
+  GetAccountTransactionsFuturesRequest,
+  GetAccountUntriggeredStopOrdersListFuturesRequest,
+  GetFundingHistoryRequest,
+  GetFundingRatesRequest,
+  GetFuturesTransferRecordRequest,
+  GetInterestIndexPremiumRequest,
+  GetKlinesFuturesRequest,
+  NewFuturesOrderV1,
+  SubmitMultipleOrdersFuturesRequest,
+  TransferFromAccountFuturesRequest,
+  TransferToFuturesAccountFuturesRequest,
+  UpdateSubAccountAPIRequest,
+} from './types/request/futures.types.js';
 import {
   AccountBalance,
   AddMargin,
@@ -31,32 +56,7 @@ import {
   TickerDetail,
   TransferDetail,
   UpdateSubAccountAPIResponse,
-} from 'types/response/futures.types.js';
-
-import { BaseRestClient } from './lib/BaseRestClient.js';
-import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
-import {
-  AccountFillsRequest,
-  CreateSubAccountAPIRequest,
-  DeleteSubAccountAPIRequest,
-  GetAccountOrdersFuturesRequest,
-  GetAccountTransactionsFuturesRequest,
-  GetAccountUntriggeredStopOrdersListFuturesRequest,
-  GetFundingHistoryRequest,
-  GetFundingRatesRequest,
-  GetFuturesTransferRecordRequest,
-  GetInterestIndexPremiumRequest,
-  GetKlinesFuturesRequest,
-  NewFuturesOrderV1,
-  SubmitMultipleOrdersFuturesRequest,
-  TransferFromAccountFuturesRequest,
-  TransferToFuturesAccountFuturesRequest,
-  UpdateSubAccountAPIRequest,
-} from './types/request/futures.types.js';
+} from './types/response/futures.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 
 /**
@@ -97,7 +97,7 @@ export class FuturesClient extends BaseRestClient {
    * REST - ACCOUNT  - BASIC INFO
    * Get Account Ledgers - Futures
    */
-  getAccountTransactions(
+  getTransactions(
     params: GetAccountTransactionsFuturesRequest,
   ): Promise<APISuccessResponse<GetAccountTransactionsFuturesResponse>> {
     return this.getPrivate('api/v1/transaction-history', params);
@@ -107,26 +107,26 @@ export class FuturesClient extends BaseRestClient {
    * REST - ACCOUNT  - SUBACCOUNT API
    */
 
-  getSubAccountAPIs(params: {
+  getSubAPIs(params: {
     apiKey?: string;
     subName: string;
   }): Promise<APISuccessResponse<SubAccountAPIItem[]>> {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 
-  createSubAccountAPI(
+  createSubAPI(
     params: CreateSubAccountAPIRequest,
   ): Promise<APISuccessResponse<CreateSubAccountAPIResponseItem>> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
-  updateSubAccountAPI(
+  updateSubAPI(
     params: UpdateSubAccountAPIRequest,
   ): Promise<APISuccessResponse<UpdateSubAccountAPIResponse>> {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
-  deleteSubAccountAPI(params: DeleteSubAccountAPIRequest): Promise<
+  deleteSubAPI(params: DeleteSubAccountAPIRequest): Promise<
     APISuccessResponse<{
       subName: string;
       apiKey: string;
@@ -139,13 +139,13 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUNDING - FUNDING OVERVIEW
    */
 
-  getAccountBalance(params?: {
+  getBalance(params?: {
     currency?: string;
   }): Promise<APISuccessResponse<AccountBalance>> {
     return this.getPrivate('api/v1/account-overview', params);
   }
 
-  getAllSubAccountBalances(params?: {
+  getSubBalances(params?: {
     currency?: string;
   }): Promise<APISuccessResponse<GetAllSubAccountBalancesFuturesResponse>> {
     return this.getPrivate('api/v1/account-overview-all', params);
@@ -155,19 +155,19 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUNDING - TRANSFER
    */
 
-  transferFromAccount(
+  submitTransferOut(
     params: TransferFromAccountFuturesRequest,
   ): Promise<Promise<APISuccessResponse<TransferDetail>>> {
     return this.postPrivate('api/v3/transfer-out', params);
   }
 
-  transferToFuturesAccount(
+  submitTransferIn(
     params: TransferToFuturesAccountFuturesRequest,
   ): Promise<any> {
     return this.postPrivate('api/v1/transfer-in', params);
   }
 
-  getFuturesTransferOutRequestRecords(
+  getTransfers(
     params: GetFuturesTransferRecordRequest,
   ): Promise<APISuccessResponse<GetFuturesTransferRecordsResponse>> {
     return this.getPrivate('api/v1/transfer-list', params);
@@ -177,7 +177,7 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUNDING - TRADE FEE
    */
 
-  getTradingPairActualFee(params: { symbols: string }): Promise<
+  getTradingPairFee(params: { symbols: string }): Promise<
     APISuccessResponse<{
       symbol: string;
       takerFeeRate: string;
@@ -239,13 +239,13 @@ export class FuturesClient extends BaseRestClient {
     return this.get('api/v1/kline/query', params);
   }
 
-  getInterestRateList(
+  getInterestRates(
     params: GetInterestIndexPremiumRequest,
   ): Promise<APISuccessResponse<GetInterestRateListFuturesResponse>> {
     return this.get('api/v1/interest/query', params);
   }
 
-  getIndexList(
+  getIndex(
     params: GetInterestIndexPremiumRequest,
   ): Promise<APISuccessResponse<GetIndexListFuturesResponse>> {
     return this.get('api/v1/index/query', params);
@@ -295,7 +295,7 @@ export class FuturesClient extends BaseRestClient {
     return this.postPrivate('api/v1/orders/test');
   }
 
-  cancelAccountOrderById(params: {
+  cancelOrderById(params: {
     orderId: string;
   }): Promise<APISuccessResponse<{ cancelledOrderIds: string[] }>> {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
@@ -325,31 +325,31 @@ export class FuturesClient extends BaseRestClient {
     return this.deletePrivate('api/v1/stopOrders', params);
   }
 
-  getAccountOrders(
+  getOrders(
     params?: GetAccountOrdersFuturesRequest,
   ): Promise<APISuccessResponse<GetAccountOrdersFuturesResponse>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
-  getAccountUntriggeredStopOrdersList(
+  getStopOrders(
     params?: GetAccountUntriggeredStopOrdersListFuturesRequest,
   ): Promise<APISuccessResponse<GetAccountOrdersFuturesResponse>> {
     return this.getPrivate('api/v1/stopOrders', params);
   }
 
-  getAccountRecentOrders(params?: {
+  getRecentOrders(params?: {
     symbol?: string;
   }): Promise<APISuccessResponse<OrderDetail[]>> {
     return this.getPrivate('api/v1/recentDoneOrders', params);
   }
 
-  getAccountOrderDetailsByOrderId(params: {
+  getOrderByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<OrderDetail>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
-  getAccountOrderDetailsByClientOrderId(params: {
+  getOrderByClientOrderId(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<OrderDetail>> {
     return this.getPrivate(`api/v1/orders/byClientOid`, params);
@@ -367,7 +367,7 @@ export class FuturesClient extends BaseRestClient {
    * If you need to get your recent trade history with low latency, please query endpoint Get List of Orders Completed in 24h.
    * The requested data is not real-time.
    */
-  getAccountFills(
+  getFills(
     params?: AccountFillsRequest,
   ): Promise<APISuccessResponse<GetAccountFillsFuturesResponse>> {
     return this.getPrivate('api/v1/fills', params);
@@ -378,13 +378,13 @@ export class FuturesClient extends BaseRestClient {
    *
    * If you need to get your recent traded order history with low latency, you may query this endpoint.
    */
-  getAccountRecentFills(params?: {
+  getRecentFills(params?: {
     symbol?: string;
   }): Promise<APISuccessResponse<FillDetail[]>> {
     return this.getPrivate('api/v1/recentFills', params);
   }
 
-  getAccountActiveOrderValueCalculation(params: {
+  getOpenOrderStatistics(params: {
     symbol: string;
   }): Promise<APISuccessResponse<GetAccountActiveOrderResponse>> {
     return this.getPrivate('api/v1/openOrderStatistics', params);
@@ -396,19 +396,19 @@ export class FuturesClient extends BaseRestClient {
    *
    */
 
-  getAccountPosition(params: {
+  getPosition(params: {
     symbol: string;
   }): Promise<APISuccessResponse<PositionDetail>> {
     return this.getPrivate('api/v1/position', params);
   }
 
-  getAccountPositions(params?: {
+  getPositions(params?: {
     currency?: string;
   }): Promise<APISuccessResponse<PositionDetail[]>> {
     return this.getPrivate('api/v1/positions', params);
   }
 
-  getAccountHistoryPositions(params?: {
+  getHistoryPositions(params?: {
     symbol?: string;
     from?: number;
     to?: number;
@@ -418,7 +418,7 @@ export class FuturesClient extends BaseRestClient {
     return this.getPrivate('/api/v1/history-positions', params);
   }
 
-  setAutoDepositMarginStatus(params: {
+  updateAutoDepositStatus(params: {
     symbol: string;
     status: boolean;
   }): Promise<APISuccessResponse<boolean>> {
@@ -434,14 +434,14 @@ export class FuturesClient extends BaseRestClient {
     return this.getPrivate('api/v1/margin/maxWithdrawMargin', params);
   }
 
-  removeMarginManually(params: {
+  withdrawMargin(params: {
     symbol: string;
     withdrawAmount: string;
   }): Promise<APISuccessResponse<{ sybmol: string; withdrawAmount: number }>> {
     return this.postPrivate('api/v1/margin/withdrawMargin', params);
   }
 
-  addMarginManually(params: {
+  depositMargin(params: {
     symbol: string;
     margin: number;
     bizNo: string;
@@ -461,7 +461,10 @@ export class FuturesClient extends BaseRestClient {
     return this.getPrivate(`api/v1/contracts/risk-limit/${params.symbol}`);
   }
 
-  setRiskLimitLevel(params: { symbol: string; level: number }): Promise<any> {
+  updateRiskLimitLevel(params: {
+    symbol: string;
+    level: number;
+  }): Promise<any> {
     return this.postPrivate('api/v1/position/risk-limit-level/change', params);
   }
 
@@ -483,7 +486,7 @@ export class FuturesClient extends BaseRestClient {
     return this.get('api/v1/contract/funding-rates', params);
   }
 
-  getAccountFundingHistory(
+  getFundingHistory(
     params: GetFundingHistoryRequest,
   ): Promise<APISuccessResponse<GetFundingHistoryResponse>> {
     return this.getPrivate('api/v1/funding-history', params);
