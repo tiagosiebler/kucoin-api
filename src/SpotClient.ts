@@ -14,6 +14,8 @@ import {
   FlexTransferRequest,
   GetBalancesRequest,
   GetDepositListRequest,
+  GetEarnFixedIncomeHoldAssetsRequest,
+  GetEarnRedeemPreviewRequest,
   GetFilledListRequest,
   GetHFCompletedOrdersRequest,
   GetHFFilledListRequest,
@@ -34,6 +36,7 @@ import {
   HFMarginOrder,
   InitiateLendingRedemptionV3Request,
   InitiateLendingSubscriptionV3Request,
+  InitiateRedemptionRequest,
   InnerTransferRequest,
   MarginBorrowV3Request,
   MarginHistoryV3Request,
@@ -49,6 +52,7 @@ import {
   SubmitOCOOrderRequest,
   SubmitOrderRequest,
   SubmitStopOrderRequest,
+  SubscribeEarnFixedIncomeRequest,
   TransferBetweenMasterAndSubAccountRequest,
   UpdateSubAccountAPIRequest,
 } from 'types/request/spot.types.js';
@@ -67,13 +71,18 @@ import {
   CurrencyInfo,
   DepositAddress,
   DepositAddressV2,
+  EarnProduct,
   FillItemResponse,
   GetDepositListResponse,
+  GetEarnFixedIncomeHoldAssetsResponse,
+  GetEarnRedeemPreviewResponse,
   GetFilledListResponse,
   GetHFFilledListResponse,
   GetLendingMarketCurrencyInfoV3Response,
   GetMarginAccountBalanceDetailResponse,
   GetMarginAccountBalancesResponse,
+  GetOtcLoanAccountsResponse,
+  GetOtcLoanResponse,
   GetSubAccountBalanceResponse,
   GetSubAccountBalancesV2Response,
   GetSubAccountsV2Response,
@@ -85,6 +94,7 @@ import {
   HFMarginOrderItemResponse,
   HFMarginTransactionListResponse,
   HFOrder,
+  InitiateRedemptionResponse,
   IsolatedMarginAccountDetailResponse,
   IsolatedMarginAccountInfoResponse,
   IsolatedMarginSymbolsConfigResponse,
@@ -113,6 +123,7 @@ import {
   SubmitMultipleHFOrdersResponse,
   SubmitMultipleHFOrdersSyncResponse,
   SubmitMultipleOrdersResponse,
+  SubscribeEarnFixedIncomeResponse,
   SymbolInfo,
   SyncCancelHFOrderResponse,
   TickerInfo,
@@ -392,7 +403,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/withdrawals/quotas', params);
   }
 
-  applyWithdraw(
+  submitWithdraw(
     params: ApplyWithdrawRequest,
   ): Promise<APISuccessResponse<{ withdrawalId: string }>> {
     return this.postPrivate('api/v1/withdrawals', params);
@@ -416,7 +427,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/accounts/transferable', params);
   }
 
-  flexTransfer(params: FlexTransferRequest): Promise<
+  submitFlexTransfer(params: FlexTransferRequest): Promise<
     APISuccessResponse<{
       orderId: string;
     }>
@@ -424,7 +435,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/accounts/universal-transfer', params);
   }
 
-  transferBetweenMasterAndSubAccount(
+  submitTransferMasterSub(
     params: TransferBetweenMasterAndSubAccountRequest,
   ): Promise<
     APISuccessResponse<{
@@ -434,7 +445,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v2/accounts/sub-transfer', params);
   }
 
-  innerTransfer(params: InnerTransferRequest): Promise<
+  submitInnerTransfer(params: InnerTransferRequest): Promise<
     APISuccessResponse<{
       orderId: string;
     }>
@@ -483,18 +494,18 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getCurrencyList(): Promise<APISuccessResponse<CurrencyInfo[]>> {
+  getCurrencies(): Promise<APISuccessResponse<CurrencyInfo[]>> {
     return this.get('api/v3/currencies');
   }
 
-  getCurrencyDetail(params: {
+  getCurrency(params: {
     currency: string;
     chain?: string;
   }): Promise<APISuccessResponse<CurrencyInfo>> {
     return this.get(`api/v3/currencies/${params.currency}`, params);
   }
 
-  getSymbolsList(params?: {
+  getSymbols(params?: {
     market?: string;
   }): Promise<APISuccessResponse<SymbolInfo[]>> {
     return this.get('api/v2/symbols', params);
@@ -506,7 +517,7 @@ export class SpotClient extends BaseRestClient {
     return this.get(`api/v1/market/orderbook/level1`, params);
   }
 
-  getAllTickers(): Promise<APISuccessResponse<AllTickersInfo>> {
+  getTickers(): Promise<APISuccessResponse<AllTickersInfo>> {
     return this.get('api/v1/market/allTickers');
   }
 
@@ -516,7 +527,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v1/market/stats', params);
   }
 
-  getMarketList(): Promise<APISuccessResponse<string[]>> {
+  getMarkets(): Promise<APISuccessResponse<string[]>> {
     return this.get('api/v1/markets');
   }
 
@@ -588,7 +599,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
 
-  modifyHFOrder(params: ModifyHFOrderRequest): Promise<
+  updateHFOrder(params: ModifyHFOrderRequest): Promise<
     APISuccessResponse<{
       newOrderId: string;
     }>
@@ -745,7 +756,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   //SPOT
-  submitMultipleOrders(
+  submitOrders(
     params: SubmitMultipleOrdersRequest,
   ): Promise<APISuccessResponse<SubmitMultipleOrdersResponse[]>> {
     return this.postPrivate('api/v1/orders/multi', params);
@@ -1196,7 +1207,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v3/project/marketInterestRate', params);
   }
 
-  initiateLendingSubscriptionV3(
+  submitLendingSubscriptionV3(
     params: InitiateLendingSubscriptionV3Request,
   ): Promise<
     APISuccessResponse<
@@ -1208,7 +1219,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/purchase', params);
   }
 
-  initiateLendingRedemptionV3(
+  submitLendingRedemptionV3(
     params: InitiateLendingRedemptionV3Request,
   ): Promise<
     APISuccessResponse<
@@ -1220,7 +1231,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/redeem', params);
   }
 
-  modifyLendingSubscriptionOrdersV3(
+  updateLendingSubscriptionOrdersV3(
     params: ModifyLendingSubscriptionOrdersV3Request,
   ): Promise<any> {
     return this.postPrivate('api/v3/lend/purchase/update', params);
@@ -1236,5 +1247,161 @@ export class SpotClient extends BaseRestClient {
     params: GetLendingSubscriptionOrdersV3Request,
   ): Promise<APISuccessResponse<LendingRedemptionResponse>> {
     return this.getPrivate('api/v3/purchase/orders', params);
+  }
+
+  /**
+   *
+   ***********
+   * EARN
+   ***********
+   *
+   */
+
+  /**
+   *
+   * General
+   *
+   */
+
+  /**
+   * Subscribe to Earn Fixed Income Products
+   *
+   * This endpoint allows subscribing to fixed income products.
+   * If the subscription fails, it returns the corresponding error code.
+   */
+  subscribeEarnFixedIncome(
+    params: SubscribeEarnFixedIncomeRequest,
+  ): Promise<APISuccessResponse<SubscribeEarnFixedIncomeResponse>> {
+    return this.postPrivate('api/v1/earn/orders', params);
+  }
+
+  /**
+   * Initiate redemption by holding ID
+   *
+   * This endpoint allows initiating redemption by holding ID. If the current holding is fully redeemed or in the process of being redeemed, it indicates that the holding does not exist.
+   */
+
+  submitRedemption(
+    params: InitiateRedemptionRequest,
+  ): Promise<APISuccessResponse<InitiateRedemptionResponse>> {
+    return this.deletePrivate('api/v1/earn/orders', params);
+  }
+
+  /**
+   * Get Earn Redeem Preview by Holding ID
+   *
+   * This endpoint retrieves redemption preview information by holding ID. If the current holding is fully redeemed or in the process of being redeemed, it indicates that the holding does not exist.
+   */
+  getEarnRedeemPreview(
+    params: GetEarnRedeemPreviewRequest,
+  ): Promise<APISuccessResponse<GetEarnRedeemPreviewResponse>> {
+    return this.getPrivate('api/v1/earn/redeem-preview', params);
+  }
+
+  /**
+   *
+   * KUCOIN EARN
+   *
+   */
+
+  /**
+   * Get Earn Savings Products
+   *
+   * This endpoint retrieves savings products. If no savings products are available, an empty list is returned.
+   */
+  getEarnSavingsProducts(params?: {
+    currency?: string;
+  }): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/saving/products', params);
+  }
+
+  /**
+   * Get Earn Fixed Income Current Holdings
+   *
+   * This endpoint retrieves current holding assets of fixed income products. If no current holding assets are available, an empty list is returned.
+   */
+  getEarnFixedIncomeHoldAssets(
+    params?: GetEarnFixedIncomeHoldAssetsRequest,
+  ): Promise<APISuccessResponse<GetEarnFixedIncomeHoldAssetsResponse>> {
+    return this.getPrivate('api/v1/earn/hold-assets', params);
+  }
+
+  /**
+   * Get Earn Limited-Time Promotion Products
+   *
+   * This endpoint retrieves limited-time promotion products. If no products are available, an empty list is returned.
+   */
+  getEarnPromotionProducts(params?: {
+    currency?: string;
+  }): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/promotion/products', params);
+  }
+
+  /**
+   *
+   * Staking
+   *
+   */
+
+  /**
+   * Get Earn KCS Staking Products
+   *
+   * This endpoint retrieves KCS Staking products. If no KCS Staking products are available, an empty list is returned.
+   *
+   */
+  getEarnKcsStakingProducts(params?: {
+    currency?: string;
+  }): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/kcs-staking/products', params);
+  }
+
+  /**
+   * Get Earn Staking Products
+   *
+   * This endpoint retrieves staking products. If no staking products are available, an empty list is returned.
+   */
+  getEarnStakingProducts(params?: {
+    currency?: string;
+  }): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/staking/products', params);
+  }
+
+  /**
+   * Get Earn ETH Staking Products
+   *
+   * This endpoint retrieves ETH Staking products. If no ETH Staking products are available, an empty list is returned.
+   *
+   */
+  getEarnEthStakingProducts(): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/eth-staking/products');
+  }
+
+  /**
+   *
+   ***********
+   * VIP LENDING
+   ***********
+   *
+   */
+
+  /**
+   * Get information on off-exchange funding and loans
+   *
+   * This endpoint is only for querying accounts that are currently involved in loans.
+   *
+   */
+  getOtcLoan(): Promise<APISuccessResponse<GetOtcLoanResponse>> {
+    return this.getPrivate('api/v1/otc-loan/loan');
+  }
+
+  /**
+   * Get information on accounts involved in off-exchange loans
+   *
+   * This endpoint is only for querying accounts that are currently involved in off-exchange funding and loans.
+   */
+  getOtcLoanAccounts(): Promise<
+    APISuccessResponse<GetOtcLoanAccountsResponse[]>
+  > {
+    return this.getPrivate('api/v1/otc-loan/accounts');
   }
 }

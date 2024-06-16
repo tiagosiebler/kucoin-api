@@ -271,7 +271,8 @@ export interface GetKlinesRequest {
     | '8hour'
     | '12hour'
     | '1day'
-    | '1week';
+    | '1week'
+    | '1month';
 }
 
 /**
@@ -611,6 +612,7 @@ export interface MarginBorrowV3Request {
   currency: string;
   size: number;
   timeInForce: 'IOC' | 'FOK';
+  isHf: boolean;
 }
 
 export interface MarginRepayV3Request {
@@ -618,6 +620,7 @@ export interface MarginRepayV3Request {
   symbol?: string;
   currency: string;
   size: number;
+  isHf: boolean;
 }
 
 export interface MarginHistoryV3Request {
@@ -670,3 +673,43 @@ export interface GetLendingSubscriptionOrdersV3Request {
   currentPage?: number;
   pageSize?: number;
 }
+
+/**
+ *
+ * EARN
+ *
+ */
+
+export interface SubscribeEarnFixedIncomeRequest {
+  productId: string;
+  amount: string;
+  accountType: 'MAIN' | 'TRADE';
+}
+
+export interface InitiateRedemptionRequest {
+  orderId: string;
+  amount: string;
+  fromAccountType?: 'MAIN' | 'TRADE';
+  confirmPunishRedeem?: '1';
+}
+
+export interface GetEarnRedeemPreviewRequest {
+  orderId: string;
+  fromAccountType?: 'MAIN' | 'TRADE';
+}
+
+export interface GetEarnFixedIncomeHoldAssetsRequest {
+  currentPage?: number;
+  pageSize?: number;
+  productId?: string;
+  productCategory?: string;
+  currency?: string;
+}
+
+/**
+ *
+ ***********
+ * VIP LENDING
+ ***********
+ *
+ */
