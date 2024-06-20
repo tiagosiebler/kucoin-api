@@ -9,21 +9,20 @@ import {
 } from './lib/requestUtils.js';
 import {
   AccountFillsRequest,
-  CreateSubAccountAPIRequest,
-  DeleteSubAccountAPIRequest,
-  GetAccountOrdersFuturesRequest,
-  GetAccountTransactionsFuturesRequest,
-  GetAccountUntriggeredStopOrdersListFuturesRequest,
+  CreateSubAPIRequest,
+  DeleteSubAPIRequest,
   GetFundingHistoryRequest,
   GetFundingRatesRequest,
-  GetFuturesTransferRecordRequest,
-  GetInterestIndexPremiumRequest,
-  GetKlinesFuturesRequest,
-  NewFuturesOrderV1,
-  SubmitMultipleOrdersFuturesRequest,
-  TransferFromAccountFuturesRequest,
-  TransferToFuturesAccountFuturesRequest,
-  UpdateSubAccountAPIRequest,
+  GetInterestRatesRequest,
+  GetKlinesRequest,
+  GetOrdersRequest,
+  GetStopOrdersRequest,
+  GetSubAPIsRequest,
+  GetTransactionsRequest,
+  GetTransfersRequest,
+  Order,
+  SubmitTransfer,
+  UpdateSubAPIRequest,
 } from './types/request/futures.types.js';
 import {
   AccountBalance,
@@ -97,8 +96,9 @@ export class FuturesClient extends BaseRestClient {
    * REST - ACCOUNT  - BASIC INFO
    * Get Account Ledgers - Futures
    */
+
   getTransactions(
-    params: GetAccountTransactionsFuturesRequest,
+    params: GetTransactionsRequest,
   ): Promise<APISuccessResponse<GetAccountTransactionsFuturesResponse>> {
     return this.getPrivate('api/v1/transaction-history', params);
   }
@@ -107,26 +107,25 @@ export class FuturesClient extends BaseRestClient {
    * REST - ACCOUNT  - SUBACCOUNT API
    */
 
-  getSubAPIs(params: {
-    apiKey?: string;
-    subName: string;
-  }): Promise<APISuccessResponse<SubAccountAPIItem[]>> {
+  getSubAPIs(
+    params: GetSubAPIsRequest,
+  ): Promise<APISuccessResponse<SubAccountAPIItem[]>> {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 
   createSubAPI(
-    params: CreateSubAccountAPIRequest,
+    params: CreateSubAPIRequest,
   ): Promise<APISuccessResponse<CreateSubAccountAPIResponseItem>> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
   updateSubAPI(
-    params: UpdateSubAccountAPIRequest,
+    params: UpdateSubAPIRequest,
   ): Promise<APISuccessResponse<UpdateSubAccountAPIResponse>> {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
-  deleteSubAPI(params: DeleteSubAccountAPIRequest): Promise<
+  deleteSubAPI(params: DeleteSubAPIRequest): Promise<
     APISuccessResponse<{
       subName: string;
       apiKey: string;
@@ -156,19 +155,17 @@ export class FuturesClient extends BaseRestClient {
    */
 
   submitTransferOut(
-    params: TransferFromAccountFuturesRequest,
+    params: SubmitTransfer,
   ): Promise<Promise<APISuccessResponse<TransferDetail>>> {
     return this.postPrivate('api/v3/transfer-out', params);
   }
 
-  submitTransferIn(
-    params: TransferToFuturesAccountFuturesRequest,
-  ): Promise<any> {
+  submitTransferIn(params: SubmitTransfer): Promise<any> {
     return this.postPrivate('api/v1/transfer-in', params);
   }
 
   getTransfers(
-    params: GetFuturesTransferRecordRequest,
+    params: GetTransfersRequest,
   ): Promise<APISuccessResponse<GetFuturesTransferRecordsResponse>> {
     return this.getPrivate('api/v1/transfer-list', params);
   }
@@ -233,20 +230,18 @@ export class FuturesClient extends BaseRestClient {
     return this.get('api/v1/trade/history', params);
   }
 
-  getKlines(
-    params: GetKlinesFuturesRequest,
-  ): Promise<APISuccessResponse<Klines[]>> {
+  getKlines(params: GetKlinesRequest): Promise<APISuccessResponse<Klines[]>> {
     return this.get('api/v1/kline/query', params);
   }
 
   getInterestRates(
-    params: GetInterestIndexPremiumRequest,
+    params: GetInterestRatesRequest,
   ): Promise<APISuccessResponse<GetInterestRateListFuturesResponse>> {
     return this.get('api/v1/interest/query', params);
   }
 
   getIndex(
-    params: GetInterestIndexPremiumRequest,
+    params: GetInterestRatesRequest,
   ): Promise<APISuccessResponse<GetIndexListFuturesResponse>> {
     return this.get('api/v1/index/query', params);
   }
@@ -258,7 +253,7 @@ export class FuturesClient extends BaseRestClient {
   }
 
   getPremiumIndex(
-    params: GetInterestIndexPremiumRequest,
+    params: GetInterestRatesRequest,
   ): Promise<APISuccessResponse<GetPremiumIndexFuturesResponse>> {
     return this.get('api/v1/premium/query', params);
   }
@@ -286,7 +281,7 @@ export class FuturesClient extends BaseRestClient {
    */
 
   submitNewOrder(
-    params: NewFuturesOrderV1,
+    params: Order,
   ): Promise<APISuccessResponse<{ orderId: string }>> {
     return this.postPrivate('api/v1/orders', params);
   }
@@ -308,7 +303,7 @@ export class FuturesClient extends BaseRestClient {
   }
 
   submitMultipleOrders(
-    params: SubmitMultipleOrdersFuturesRequest,
+    params: Order,
   ): Promise<APISuccessResponse<SubmitMultipleOrdersFuturesResponse[]>> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
@@ -326,13 +321,13 @@ export class FuturesClient extends BaseRestClient {
   }
 
   getOrders(
-    params?: GetAccountOrdersFuturesRequest,
+    params?: GetOrdersRequest,
   ): Promise<APISuccessResponse<GetAccountOrdersFuturesResponse>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
   getStopOrders(
-    params?: GetAccountUntriggeredStopOrdersListFuturesRequest,
+    params?: GetStopOrdersRequest,
   ): Promise<APISuccessResponse<GetAccountOrdersFuturesResponse>> {
     return this.getPrivate('api/v1/stopOrders', params);
   }

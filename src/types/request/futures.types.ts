@@ -3,7 +3,7 @@
  * Get Account Ledgers - Futures
  */
 
-export interface GetAccountTransactionsFuturesRequest {
+export interface GetTransactionsRequest {
   startAt?: number;
   endAt?: number;
   type?:
@@ -22,12 +22,12 @@ export interface GetAccountTransactionsFuturesRequest {
  * REST - ACCOUNT  - SUBACCOUNT API
  */
 
-export interface GetSubAccountAPIsRequest {
+export interface GetSubAPIsRequest {
   apiKey?: string;
   subName: string;
 }
 
-export interface CreateSubAccountAPIRequest {
+export interface CreateSubAPIRequest {
   subName: string;
   passphrase: string;
   remark: string;
@@ -36,7 +36,7 @@ export interface CreateSubAccountAPIRequest {
   expire?: string;
 }
 
-export interface UpdateSubAccountAPIRequest {
+export interface UpdateSubAPIRequest {
   subName: string;
   apiKey: string;
   passphrase: string;
@@ -45,7 +45,7 @@ export interface UpdateSubAccountAPIRequest {
   expire?: string;
 }
 
-export interface DeleteSubAccountAPIRequest {
+export interface DeleteSubAPIRequest {
   apiKey: string;
   passphrase: string;
   subName: string;
@@ -59,19 +59,13 @@ export interface DeleteSubAccountAPIRequest {
  * REST - FUNDING - TRANSFER
  */
 
-export interface TransferFromAccountFuturesRequest {
+export interface SubmitTransfer {
   amount: number;
   currency: string;
   recAccountType: 'MAIN' | 'TRADE';
 }
 
-export interface TransferToFuturesAccountFuturesRequest {
-  amount: number;
-  currency: string;
-  payAccountType: 'MAIN' | 'TRADE';
-}
-
-export interface GetFuturesTransferRecordRequest {
+export interface GetTransfersRequest {
   startAt?: number;
   endAt?: number;
   status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
@@ -87,14 +81,14 @@ export interface GetFuturesTransferRecordRequest {
  *
  */
 
-export interface GetKlinesFuturesRequest {
+export interface GetKlinesRequest {
   symbol: string;
   granularity: number;
   from?: number;
   to?: number;
 }
 
-export interface GetInterestIndexPremiumRequest {
+export interface GetInterestRatesRequest {
   symbol: string;
   startAt?: number;
   endAt?: number;
@@ -118,7 +112,7 @@ export interface GetInterestIndexPremiumRequest {
  *
  */
 
-export interface NewFuturesOrderV1 {
+export interface Order {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
@@ -141,30 +135,7 @@ export interface NewFuturesOrderV1 {
   visibleSize?: number;
 }
 
-export interface SubmitMultipleOrdersFuturesRequest {
-  clientOid: string;
-  side: 'buy' | 'sell';
-  symbol: string;
-  leverage: string;
-  type?: 'limit' | 'market';
-  remark?: string;
-  stop?: 'down' | 'up';
-  stopPriceType?: 'TP' | 'IP' | 'MP';
-  stopPrice?: string;
-  reduceOnly?: boolean;
-  closeOrder?: boolean;
-  forceHold?: boolean;
-  stp?: 'CN' | 'CO' | 'CB';
-  price?: string;
-  size?: number;
-  timeInForce?: 'GTC' | 'IOC';
-  postOnly?: boolean;
-  hidden?: boolean;
-  iceberg?: boolean;
-  visibleSize?: number;
-}
-
-export interface GetAccountOrdersFuturesRequest {
+export interface GetOrdersRequest {
   status?: 'active' | 'done';
   symbol?: string;
   side?: 'buy' | 'sell';
@@ -175,7 +146,7 @@ export interface GetAccountOrdersFuturesRequest {
   pageSize?: number;
 }
 
-export interface GetAccountUntriggeredStopOrdersListFuturesRequest {
+export interface GetStopOrdersRequest {
   symbol?: string;
   side?: 'buy' | 'sell';
   type?: 'limit' | 'market';
