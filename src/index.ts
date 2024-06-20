@@ -13,3 +13,4 @@ export * from './types/response/spot-earn.js';
 export * from './types/response/spot-funding.js';
 export * from './types/response/spot-margin-trading.js';
 export * from './types/response/spot-trading.js';
+export * from './types/response/spot-vip.js';
