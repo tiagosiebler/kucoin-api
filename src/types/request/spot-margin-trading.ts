@@ -139,6 +139,16 @@ export interface MarginHistoryV3Request {
   pageSize?: number;
 }
 
+export interface MarginInterestRecordsRequest {
+  isIsolated?: boolean;
+  symbol?: string;
+  currency?: string;
+  startTime?: number;
+  endTime?: number;
+  currentPage?: number;
+  pageSize?: number;
+}
+
 /**
  *
  * Lending market(v3)

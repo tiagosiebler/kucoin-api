@@ -44,6 +44,7 @@ import {
   InitiateLendingSubscriptionV3Request,
   MarginBorrowV3Request,
   MarginHistoryV3Request,
+  MarginInterestRecordsRequest,
   MarginRepayV3Request,
   MarginRiskLimitRequest,
   ModifyLendingSubscriptionOrdersV3Request,
@@ -108,6 +109,7 @@ import {
 } from './types/response/spot-funding.js';
 import {
   GetLendingMarketCurrencyInfoV3Response,
+  GetMarginInterestRecordsResponse,
   HFMarginFilledListResponse,
   HFMarginOrderItemResponse,
   HFMarginTransactionListResponse,
@@ -1105,6 +1107,12 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v3/hf/margin/fills', params);
   }
 
+  getHFMarginOpenSymbols(params: {
+    tradeType: string;
+  }): Promise<APISuccessResponse<{ symbolSize: number; symbols: string[] }>> {
+    return this.getPrivate('api/v3/hf/margin/order/active/symbols', params);
+  }
+
   /**
    *
    * Orders
@@ -1201,6 +1209,26 @@ export class SpotClient extends BaseRestClient {
     params: MarginHistoryV3Request,
   ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
     return this.getPrivate('api/v3/margin/repay', params);
+  }
+
+  getMarginInterestRecordsV3(
+    params?: MarginInterestRecordsRequest,
+  ): Promise<APISuccessResponse<GetMarginInterestRecordsResponse>> {
+    return this.getPrivate('api/v3/margin/interest', params);
+  }
+
+  getMarginActivePairsV3(params?: {
+    symbol?: string;
+  }): Promise<APISuccessResponse<{ timestamp: number; items: any[] }>> {
+    return this.getPrivate('api/v3/margin/symbols', params);
+  }
+
+  updateMarginLeverageV3(params: {
+    symbol?: string;
+    leverage: string;
+    isIsolated?: boolean;
+  }): Promise<APISuccessResponse<any>> {
+    return this.postPrivate('api/v3/position/update-user-leverage', params);
   }
 
   /**

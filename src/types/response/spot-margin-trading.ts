@@ -227,6 +227,21 @@ export interface MarginHistoryRecord {
   createdTime: number; // Time of borrowing
 }
 
+export interface MarginInterestRecord {
+  createdAt: number;
+  currency: string;
+  interestAmount: string;
+  dayRatio: string;
+}
+
+export interface GetMarginInterestRecordsResponse {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: MarginInterestRecord[];
+}
+
 /**
  *
  * Lending market(v3)
