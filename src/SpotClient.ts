@@ -1446,4 +1446,18 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.getPrivate('api/v1/otc-loan/accounts');
   }
+
+  /**
+   *
+   * WebSockets
+   *
+   */
+
+  getPublicWSConnectionToken() {
+    return this.post('api/v1/bullet-public');
+  }
+
+  getPrivateWSConnectionToken() {
+    return this.postPrivate('api/v1/bullet-private');
+  }
 }
