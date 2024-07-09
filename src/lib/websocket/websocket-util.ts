@@ -12,6 +12,28 @@ export const WS_KEY_MAP = {
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
 
 /**
+ * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
+ *
+ * - Topic: the topic this event is for
+ * - Payload: the parameters to include, optional. E.g. auth requires key + sign. Some topics allow configurable parameters.
+ */
+export interface WsTopicRequest<
+  TWSTopic extends string = string,
+  TWSPayload = any,
+> {
+  topic: TWSTopic;
+  payload?: TWSPayload;
+}
+
+/**
+ * Conveniently allow users to request a topic either as string topics or objects (containing string topic + params)
+ */
+export type WsTopicRequestOrStringTopic<
+  TWSTopic extends string,
+  TWSPayload = any,
+> = WsTopicRequest<TWSTopic, TWSPayload> | string;
+
+/**
  * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
  * Examples:
  *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>

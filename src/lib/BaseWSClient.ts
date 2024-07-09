@@ -5,14 +5,20 @@ import {
   WebsocketClientOptions,
   WSClientConfigurableOptions,
 } from '../types/websockets/client.js';
+import { WsOperation } from '../types/websockets/requests.js';
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './websocket/logger.js';
 import {
   isMessageEvent,
   MessageEventLike,
+  WsTopicRequest,
+  WsTopicRequestOrStringTopic,
 } from './websocket/websocket-util.js';
 import { WsStore } from './websocket/WsStore.js';
-import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './websocket/WsStore.types.js';
 
 interface WSClientEventMap<WsKey extends string> {
   /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
@@ -29,6 +35,7 @@ interface WSClientEventMap<WsKey extends string> {
   update: (response: any & { wsKey: WsKey }) => void;
   /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
   exception: (response: any & { wsKey: WsKey }) => void;
+  error: (response: any & { wsKey: WsKey }) => void;
   /** Confirmation that a connection successfully authenticated */
   authenticated: (event: { wsKey: WsKey; event: any }) => void;
 }
@@ -39,13 +46,7 @@ export interface EmittableEvent<TEvent = any> {
 }
 
 // Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
-export interface BaseWebsocketClient<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TWSMarket extends string,
-  TWSKey extends string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TWSTopic = any,
-> {
+export interface BaseWebsocketClient<TWSKey extends string> {
   on<U extends keyof WSClientEventMap<TWSKey>>(
     event: U,
     listener: WSClientEventMap<TWSKey>[U],
@@ -57,19 +58,45 @@ export interface BaseWebsocketClient<
   ): boolean;
 }
 
+/**
+ * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
+ *
+ * This method normalises topics into objects (object has topic name + optional params).
+ */
+function getNormalisedTopicRequests(
+  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+): WsTopicRequest<string>[] {
+  const normalisedTopicRequests: WsTopicRequest<string>[] = [];
+
+  for (const wsTopicRequest of wsTopicRequests) {
+    // passed as string, convert to object
+    if (typeof wsTopicRequest === 'string') {
+      const topicRequest: WsTopicRequest<string> = {
+        topic: wsTopicRequest,
+        payload: undefined,
+      };
+      normalisedTopicRequests.push(topicRequest);
+      continue;
+    }
+
+    // already a normalised object, thanks to user
+    normalisedTopicRequests.push(wsTopicRequest);
+  }
+  return normalisedTopicRequests;
+}
+
+type WSTopic = string;
+
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export abstract class BaseWebsocketClient<
-  TWSMarket extends string,
   TWSKey extends string,
-  /**
-   * The "topic" being subscribed to, not the event sent to subscribe to one or more topics
-   */
-  TWSTopic extends string | object,
 > extends EventEmitter {
-  private wsStore: WsStore<TWSKey, TWSTopic>;
+  private wsStore: WsStore<TWSKey, WsTopicRequest<WSTopic>>;
 
   protected logger: typeof DefaultLogger;
   protected options: WebsocketClientOptions;
+
+  private wsApiRequestId: number = 0;
 
   constructor(
     options?: WSClientConfigurableOptions,
@@ -85,61 +112,87 @@ export abstract class BaseWebsocketClient<
       pingInterval: 10000,
       reconnectTimeout: 500,
       recvWindow: 0,
+      // Automatically auth after opening a connection?
+      authPrivateConnectionsOnConnect: true,
+      // Automatically include auth/sign with every WS request
+      authPrivateRequests: true,
+      // Automatically re-auth WS API, if we were auth'd before and get reconnected
+      reauthWSAPIOnReconnect: true,
       ...options,
     };
   }
 
-  protected abstract getWsKeyForMarket(
-    market: TWSMarket,
-    isPrivate?: boolean,
-  ): TWSKey;
+  // protected abstract getWsKeyForMarket(
+  //   market: TWSMarket,
+  //   isPrivate?: boolean,
+  // ): TWSKey;
 
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+  protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
+
+  protected abstract isWsPong(data: any): boolean;
   protected abstract isWsPong(data: any): boolean;
 
   protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
 
-  protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
+  protected abstract isPrivateTopicRequest(
+    request: WsTopicRequest<WSTopic>,
+    wsKey: TWSKey,
+  ): boolean;
 
-  protected abstract isPrivateChannel(subscribeEvent: TWSTopic): boolean;
+  /**
+   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
+   */
+  protected abstract getWsOperationEventsForTopics(
+    topics: WsTopicRequest<WSTopic>[],
+    wsKey: TWSKey,
+    operation: WsOperation,
+  ): Promise<string[]>;
+
+  // protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
+
+  protected abstract isPrivateChannel(subscribeEvent: WSTopic): boolean;
 
   protected abstract getPrivateWSKeys(): TWSKey[];
   protected abstract getWsUrl(wsKey: TWSKey): string;
+
   protected abstract getMaxTopicsPerSubscribeEvent(
     wsKey: TWSKey,
   ): number | null;
 
   /**
-   * Returns a list of string events that can be individually sent upstream to complete subscribing to these topics
-   */
-  protected abstract getWsSubscribeEventsForTopics(
-    topics: TWSTopic[],
-    wsKey: TWSKey,
-  ): string[];
-
-  /**
-   * Returns a list of string events that can be individually sent upstream to complete unsubscribing to these topics
-   */
-  protected abstract getWsUnsubscribeEventsForTopics(
-    topics: TWSTopic[],
-    wsKey: TWSKey,
-  ): string[];
-
-  /**
    * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
    */
   protected abstract resolveEmittableEvents(
+    wsKey: TWSKey,
     event: MessageEventLike,
   ): EmittableEvent[];
 
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
-  abstract connectAll(): Promise<WebSocket | undefined>[];
+  protected abstract connectAll(): Promise<WSConnectedResult | undefined>[];
 
   protected isPrivateWsKey(wsKey: TWSKey): boolean {
     return this.getPrivateWSKeys().includes(wsKey);
   }
+
+  /** Returns auto-incrementing request ID, used to track promise references for async requests */
+  protected getNewRequestId(): string {
+    return `${++this.wsApiRequestId}`;
+  }
+
+  protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: WSTopic,
+    params?: any,
+  ): Promise<unknown>;
+
+  protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: WSTopic,
+    params: any,
+  ): Promise<unknown>;
 
   /**
    * Subscribe to one or more topics on a WS connection (identified by WS Key).
@@ -149,12 +202,17 @@ export abstract class BaseWebsocketClient<
    * - Authentication is automatically handled
    * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
    *
-   * @param wsTopics array of topics to subscribe to
+   * @param wsTopicRequests array of topics to subscribe to
    * @param wsKey ws key referring to the ws connection these topics should be subscribed on
    */
-  public subscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey) {
+  public subscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<WSTopic>[],
+    wsKey: TWSKey,
+  ) {
+    const normalisedTopicRequests = getNormalisedTopicRequests(wsTopicRequests);
+
     // Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-    for (const topic of wsTopics) {
+    for (const topic of normalisedTopicRequests) {
       this.wsStore.addTopic(wsKey, topic);
     }
 
@@ -163,16 +221,28 @@ export abstract class BaseWebsocketClient<
       WsConnectionStateEnum.CONNECTED,
     );
 
+    const isConnectionInProgress =
+      this.wsStore.isConnectionAttemptInProgress(wsKey);
+
     // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-    if (
-      !isConnected &&
-      !this.wsStore.isConnectionState(
-        wsKey,
-        WsConnectionStateEnum.CONNECTING,
-      ) &&
-      !this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING)
-    ) {
+    if (!isConnected && !isConnectionInProgress) {
       return this.connect(wsKey);
+    }
+
+    // Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
+    if (!isConnected) {
+      /**
+       * Are we in the process of connection? Nothing to send yet.
+       */
+      this.logger.trace(
+        `WS not connected - requests queued for retry once connected.`,
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+          wsTopicRequests,
+        },
+      );
+      return;
     }
 
     // We're connected. Check if auth is needed and if already authenticated
@@ -181,18 +251,24 @@ export abstract class BaseWebsocketClient<
     if (isPrivateConnection && !isAuthenticated) {
       /**
        * If not authenticated yet and auth is required, don't request topics yet.
-       * Topics will automatically subscribe post-auth success.
+       *
+       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
        */
       return false;
     }
 
     // Finally, request subscription to topics if the connection is healthy and ready
-    this.requestSubscribeTopics(wsKey, wsTopics);
+    this.requestSubscribeTopics(wsKey, normalisedTopicRequests);
   }
 
-  public unsubscribeTopicsForWsKey(wsTopics: TWSTopic[], wsKey: TWSKey) {
+  protected unsubscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+  ) {
+    const normalisedTopicRequests = getNormalisedTopicRequests(wsTopicRequests);
+
     // Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-    for (const topic of wsTopics) {
+    for (const topic of normalisedTopicRequests) {
       this.wsStore.addTopic(wsKey, topic);
     }
 
@@ -201,7 +277,8 @@ export abstract class BaseWebsocketClient<
       WsConnectionStateEnum.CONNECTED,
     );
 
-    // If not connected, don't need to do anything
+    // If not connected, don't need to do anything.
+    // Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
     if (!isConnected) {
       return;
     }
@@ -218,84 +295,38 @@ export abstract class BaseWebsocketClient<
     }
 
     // Finally, request subscription to topics if the connection is healthy and ready
-    this.requestUnsubscribeTopics(wsKey, wsTopics);
+    this.requestUnsubscribeTopics(wsKey, normalisedTopicRequests);
   }
 
   /**
-   * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
-   * @param wsTopics topic or list of topics
-   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   * Splits topic requests into two groups, public & private topic requests
    */
-  public subscribe(
-    wsTopics: TWSTopic[] | TWSTopic,
-    market: TWSMarket,
-    isPrivate?: boolean,
-  ) {
-    const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
+  private sortTopicRequestsIntoPublicPrivate(
+    wsTopicRequests: WsTopicRequest<string>[],
+    wsKey: TWSKey,
+  ): {
+    publicReqs: WsTopicRequest<string>[];
+    privateReqs: WsTopicRequest<string>[];
+  } {
+    const publicTopicRequests: WsTopicRequest<string>[] = [];
+    const privateTopicRequests: WsTopicRequest<string>[] = [];
 
-    topics.forEach((topic) => {
-      const isPrivateTopic = isPrivate || this.isPrivateChannel(topic);
-      const wsKey = this.getWsKeyForMarket(market, isPrivateTopic);
-
-      // Persist this topic to the expected topics list
-      this.wsStore.addTopic(wsKey, topic);
-
-      // if connected, send subscription request
-      if (
-        this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTED)
-      ) {
-        // if not authenticated, dont sub to private topics yet.
-        // This'll happen automatically once authenticated
-        if (isPrivateTopic && !this.wsStore.get(wsKey)?.isAuthenticated) {
-          return;
-        }
-
-        return this.requestSubscribeTopics(wsKey, topics);
+    for (const topic of wsTopicRequests) {
+      if (this.isPrivateTopicRequest(topic, wsKey)) {
+        privateTopicRequests.push(topic);
+      } else {
+        publicTopicRequests.push(topic);
       }
+    }
 
-      // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-      if (
-        !this.wsStore.isConnectionState(
-          wsKey,
-          WsConnectionStateEnum.CONNECTING,
-        ) &&
-        !this.wsStore.isConnectionState(
-          wsKey,
-          WsConnectionStateEnum.RECONNECTING,
-        )
-      ) {
-        return this.connect(wsKey);
-      }
-    });
-  }
-
-  /**
-   * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
-   * @param wsTopics topic or list of topics
-   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
-   */
-  public unsubscribe(
-    wsTopics: TWSTopic[] | TWSTopic,
-    market: TWSMarket,
-    isPrivateTopic?: boolean,
-  ) {
-    const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
-    topics.forEach((topic) => {
-      const wsKey = this.getWsKeyForMarket(market, isPrivateTopic);
-
-      this.wsStore.deleteTopic(wsKey, topic);
-
-      // unsubscribe request only necessary if active connection exists
-      if (
-        this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTED)
-      ) {
-        this.requestUnsubscribeTopics(wsKey, [topic]);
-      }
-    });
+    return {
+      publicReqs: publicTopicRequests,
+      privateReqs: privateTopicRequests,
+    };
   }
 
   /** Get the WsStore that tracks websockets & topics */
-  public getWsStore(): WsStore<TWSKey, TWSTopic> {
+  public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>> {
     return this.wsStore;
   }
 
@@ -327,19 +358,19 @@ export abstract class BaseWebsocketClient<
   /**
    * Request connection to a specific websocket, instead of waiting for automatic connection.
    */
-  protected async connect(wsKey: TWSKey): Promise<WebSocket | undefined> {
+  protected async connect(
+    wsKey: TWSKey,
+  ): Promise<WSConnectedResult | undefined> {
     try {
       if (this.wsStore.isWsOpen(wsKey)) {
         this.logger.error(
           'Refused to connect to ws with existing active connection',
           { ...WS_LOGGER_CATEGORY, wsKey },
         );
-        return this.wsStore.getWs(wsKey);
+        return { wsKey };
       }
 
-      if (
-        this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING)
-      ) {
+      if (this.wsStore.isConnectionAttemptInProgress(wsKey)) {
         this.logger.error(
           'Refused to connect to ws, connection attempt already active',
           { ...WS_LOGGER_CATEGORY, wsKey },
@@ -357,11 +388,30 @@ export abstract class BaseWebsocketClient<
       const url = this.getWsUrl(wsKey); // + authParams;
       const ws = this.connectToWsUrl(url, wsKey);
 
-      return this.wsStore.setWs(wsKey, ws);
+      this.wsStore.setWs(wsKey, ws);
+
+      return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
     } catch (err) {
       this.parseWsError('Connection failed', err, wsKey);
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
     }
+  }
+
+  private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket {
+    this.logger.trace(`Opening WS connection to URL: ${url}`, {
+      ...WS_LOGGER_CATEGORY,
+      wsKey,
+    });
+
+    const ws = new WebSocket(url, undefined);
+
+    ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
+    ws.onmessage = (event: any) => this.onWsMessage(event, wsKey);
+    ws.onerror = (event: any) =>
+      this.parseWsError('websocket error', event, wsKey);
+    ws.onclose = (event: any) => this.onWsClose(event, wsKey);
+
+    return ws;
   }
 
   private parseWsError(context: string, error: any, wsKey: TWSKey) {
@@ -414,10 +464,7 @@ export abstract class BaseWebsocketClient<
 
   private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number) {
     this.clearTimers(wsKey);
-    if (
-      this.wsStore.getConnectionState(wsKey) !==
-      WsConnectionStateEnum.CONNECTING
-    ) {
+    if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
       this.setWsState(wsKey, WsConnectionStateEnum.RECONNECTING);
     }
 
@@ -453,8 +500,10 @@ export abstract class BaseWebsocketClient<
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
+
+      this.clearPongTimer(wsKey);
+
       this.getWs(wsKey)?.terminate();
-      delete this.wsStore.get(wsKey, true).activePongTimer;
     }, this.options.pongTimeout);
   }
 
@@ -482,6 +531,9 @@ export abstract class BaseWebsocketClient<
     if (wsState?.activePongTimer) {
       clearTimeout(wsState.activePongTimer);
       wsState.activePongTimer = undefined;
+      // this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
+    } else {
+      // this.logger.trace(`No active pong timer for "${wsKey}"`);
     }
   }
 
@@ -490,22 +542,29 @@ export abstract class BaseWebsocketClient<
    *
    * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
    */
-  private requestSubscribeTopics(wsKey: TWSKey, topics: TWSTopic[]) {
+  private async requestSubscribeTopics(
+    wsKey: TWSKey,
+    topics: WsTopicRequest<string>[],
+  ) {
     if (!topics.length) {
       return;
     }
 
-    const subscribeWsMessages = this.getWsSubscribeEventsForTopics(
+    // Automatically splits requests into smaller batches, if needed
+    const subscribeWsMessages = await this.getWsOperationEventsForTopics(
       topics,
       wsKey,
+      'subscribe',
     );
 
     this.logger.trace(
-      `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
+      `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
     );
 
+    // console.log(`batches: `, JSON.stringify(subscribeWsMessages, null, 2));
+
     for (const wsMessage of subscribeWsMessages) {
-      this.logger.trace(`Sending batch via message: "${wsMessage}"`);
+      // this.logger.trace(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, wsMessage);
     }
 
@@ -519,18 +578,22 @@ export abstract class BaseWebsocketClient<
    *
    * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
    */
-  private requestUnsubscribeTopics(wsKey: TWSKey, topics: TWSTopic[]) {
-    if (!topics.length) {
+  private async requestUnsubscribeTopics(
+    wsKey: TWSKey,
+    wsTopicRequests: WsTopicRequest<string>[],
+  ) {
+    if (!wsTopicRequests.length) {
       return;
     }
 
-    const subscribeWsMessages = this.getWsUnsubscribeEventsForTopics(
-      topics,
+    const subscribeWsMessages = await this.getWsOperationEventsForTopics(
+      wsTopicRequests,
       wsKey,
+      'unsubscribe',
     );
 
     this.logger.trace(
-      `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(topics)}"`,
+      `Unsubscribing to ${wsTopicRequests.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(wsTopicRequests)}"`,
     );
 
     for (const wsMessage of subscribeWsMessages) {
@@ -539,7 +602,7 @@ export abstract class BaseWebsocketClient<
     }
 
     this.logger.trace(
-      `Finished subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
+      `Finished unsubscribing to ${wsTopicRequests.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
   }
 
@@ -573,23 +636,6 @@ export abstract class BaseWebsocketClient<
         exception: e,
       });
     }
-  }
-
-  private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket {
-    this.logger.trace(`Opening WS connection to URL: ${url}`, {
-      ...WS_LOGGER_CATEGORY,
-      wsKey,
-    });
-
-    const ws = new WebSocket(url, undefined);
-
-    ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
-    ws.onmessage = (event: any) => this.onWsMessage(event, wsKey);
-    ws.onerror = (event: any) =>
-      this.parseWsError('websocket error', event, wsKey);
-    ws.onclose = (event: any) => this.onWsClose(event, wsKey);
-
-    return ws;
   }
 
   private async onWsOpen(event: any, wsKey: TWSKey) {
@@ -748,5 +794,69 @@ export abstract class BaseWebsocketClient<
 
   private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum) {
     this.wsStore.setConnectionState(wsKey, state);
+  }
+
+  /**
+   * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+  public subscribe(
+    wsTopics: TWSTopic[] | TWSTopic,
+    market: TWSMarket,
+    isPrivate?: boolean,
+  ) {
+    const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
+
+    topics.forEach((topic) => {
+      const isPrivateTopic = isPrivate || this.isPrivateChannel(topic);
+      const wsKey = this.getWsKeyForMarket(market, isPrivateTopic);
+
+      // Persist this topic to the expected topics list
+      this.wsStore.addTopic(wsKey, topic);
+
+      // if connected, send subscription request
+      if (
+        this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTED)
+      ) {
+        // if not authenticated, dont sub to private topics yet.
+        // This'll happen automatically once authenticated
+        if (isPrivateTopic && !this.wsStore.get(wsKey)?.isAuthenticated) {
+          return;
+        }
+
+        return this.requestSubscribeTopics(wsKey, topics);
+      }
+
+      // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+      if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
+        return this.connect(wsKey);
+      }
+    });
+  }
+
+  /**
+   * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
+   * @param wsTopics topic or list of topics
+   * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
+   */
+  public unsubscribe(
+    wsTopics: TWSTopic[] | TWSTopic,
+    market: TWSMarket,
+    isPrivateTopic?: boolean,
+  ) {
+    const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
+    topics.forEach((topic) => {
+      const wsKey = this.getWsKeyForMarket(market, isPrivateTopic);
+
+      this.wsStore.deleteTopic(wsKey, topic);
+
+      // unsubscribe request only necessary if active connection exists
+      if (
+        this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTED)
+      ) {
+        this.requestUnsubscribeTopics(wsKey, [topic]);
+      }
+    });
   }
 }
