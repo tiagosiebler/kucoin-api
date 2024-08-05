@@ -1141,6 +1141,12 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v3/etf/info', params);
   }
 
+  getMarginMarkPrices(): Promise<
+    APISuccessResponse<MarginMarkPriceResponse[]>
+  > {
+    return this.get('api/v3/mark-price/all-symbols');
+  }
+
   getMarginMarkPrice(params: {
     symbol: string;
   }): Promise<APISuccessResponse<MarginMarkPriceResponse>> {
