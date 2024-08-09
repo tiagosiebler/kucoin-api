@@ -41,7 +41,12 @@ interface WSClientEventMap<WsKey extends string> {
 }
 
 export interface EmittableEvent<TEvent = any> {
-  eventType: 'response' | 'update' | 'exception' | 'authenticated';
+  eventType:
+    | 'response'
+    | 'update'
+    | 'exception'
+    | 'authenticated'
+    | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
   event: TEvent;
 }
 
@@ -112,10 +117,11 @@ export abstract class BaseWebsocketClient<
       pingInterval: 10000,
       reconnectTimeout: 500,
       recvWindow: 0,
+      requireConnectionReadyConfirmation: true,
       // Automatically auth after opening a connection?
-      authPrivateConnectionsOnConnect: true,
+      authPrivateConnectionsOnConnect: false,
       // Automatically include auth/sign with every WS request
-      authPrivateRequests: true,
+      authPrivateRequests: false,
       // Automatically re-auth WS API, if we were auth'd before and get reconnected
       reauthWSAPIOnReconnect: true,
       ...options,
@@ -151,10 +157,10 @@ export abstract class BaseWebsocketClient<
 
   // protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
 
-  protected abstract isPrivateChannel(subscribeEvent: WSTopic): boolean;
+  // protected abstract isPrivateChannel(subscribeEvent: WSTopic): boolean;
 
   protected abstract getPrivateWSKeys(): TWSKey[];
-  protected abstract getWsUrl(wsKey: TWSKey): string;
+  protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
 
   protected abstract getMaxTopicsPerSubscribeEvent(
     wsKey: TWSKey,
@@ -171,7 +177,7 @@ export abstract class BaseWebsocketClient<
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
-  protected abstract connectAll(): Promise<WSConnectedResult | undefined>[];
+  protected abstract connectAll(): Promise<(WSConnectedResult | undefined)[]>;
 
   protected isPrivateWsKey(wsKey: TWSKey): boolean {
     return this.getPrivateWSKeys().includes(wsKey);
@@ -358,9 +364,7 @@ export abstract class BaseWebsocketClient<
   /**
    * Request connection to a specific websocket, instead of waiting for automatic connection.
    */
-  protected async connect(
-    wsKey: TWSKey,
-  ): Promise<WSConnectedResult | undefined> {
+  public async connect(wsKey: TWSKey): Promise<WSConnectedResult | undefined> {
     try {
       if (this.wsStore.isWsOpen(wsKey)) {
         this.logger.error(
@@ -385,7 +389,11 @@ export abstract class BaseWebsocketClient<
         this.setWsState(wsKey, WsConnectionStateEnum.CONNECTING);
       }
 
-      const url = this.getWsUrl(wsKey); // + authParams;
+      if (!this.wsStore.getConnectionInProgressPromise(wsKey)) {
+        this.wsStore.createConnectionInProgressPromise(wsKey, false);
+      }
+
+      const url = await this.getWsUrl(wsKey);
       const ws = this.connectToWsUrl(url, wsKey);
 
       this.wsStore.setWs(wsKey, ws);
@@ -415,10 +423,14 @@ export abstract class BaseWebsocketClient<
   }
 
   private parseWsError(context: string, error: any, wsKey: TWSKey) {
+    if (this.wsStore.isConnectionAttemptInProgress(wsKey)) {
+      this.setWsState(wsKey, WsConnectionStateEnum.ERROR_RECONNECTING);
+    }
     if (!error.message) {
       this.logger.error(`${context} due to unexpected error: `, error);
       this.emit('response', { ...error, wsKey });
       this.emit('exception', { ...error, wsKey });
+
       return;
     }
 
@@ -431,6 +443,21 @@ export abstract class BaseWebsocketClient<
         break;
 
       default:
+        if (error?.code === 'ENOTFOUND') {
+          this.logger.error(
+            `${context} due to lookup exception: "${
+              error?.msg || error?.message || error
+            }"`,
+            {
+              ...WS_LOGGER_CATEGORY,
+              wsKey,
+              error,
+              connectionState: this.wsStore.getConnectionState(wsKey),
+            },
+          );
+          break;
+        }
+
         this.logger.error(
           `${context} due to unexpected response error: "${
             error?.msg || error?.message || error
@@ -440,7 +467,7 @@ export abstract class BaseWebsocketClient<
         break;
     }
 
-    this.emit('response', { ...error, wsKey });
+    // this.emit('response', { ...error, wsKey });
     this.emit('exception', { ...error, wsKey });
   }
 
@@ -464,9 +491,9 @@ export abstract class BaseWebsocketClient<
 
   private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number) {
     this.clearTimers(wsKey);
-    if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
-      this.setWsState(wsKey, WsConnectionStateEnum.RECONNECTING);
-    }
+    // if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
+    //   this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
+    // }
 
     this.wsStore.get(wsKey, true).activeReconnectTimer = setTimeout(() => {
       this.logger.info('Reconnecting to websocket', {
@@ -639,10 +666,16 @@ export abstract class BaseWebsocketClient<
   }
 
   private async onWsOpen(event: any, wsKey: TWSKey) {
-    const didReconnectSuccessfully = this.wsStore.isConnectionState(
-      wsKey,
-      WsConnectionStateEnum.RECONNECTING,
-    );
+    const didReconnectSuccessfully =
+      this.wsStore.isConnectionState(
+        wsKey,
+        WsConnectionStateEnum.RECONNECTING,
+      ) ||
+      this.wsStore.isConnectionState(
+        wsKey,
+        WsConnectionStateEnum.ERROR_RECONNECTING,
+      );
+
     if (
       this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING)
     ) {
@@ -651,12 +684,18 @@ export abstract class BaseWebsocketClient<
         wsKey,
       });
       this.emit('open', { wsKey, event });
-    } else if (didReconnectSuccessfully) {
+    } else {
       this.logger.info('Websocket reconnected', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
+        didReconnectSuccessfully,
       });
-      this.emit('reconnected', { wsKey, event });
+      this.emit('reconnected', {
+        wsKey,
+        event,
+        didReconnectSuccessfully,
+      } as any);
+      // TODO does this work??, does it even need the if??
     }
 
     this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);
@@ -667,10 +706,24 @@ export abstract class BaseWebsocketClient<
       this.options.pingInterval,
     );
 
+    if (!this.options.requireConnectionReadyConfirmation) {
+      await this.onWsReadyForEvents(wsKey);
+    }
+  }
+
+  /**
+   * Called automatically once a connection is ready.
+   * - Some exchanges are ready immediately after the connections open.
+   * - Some exchanges send an event to confirm the connection is ready for us.
+   *
+   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
+   */
+  private async onWsReadyForEvents(wsKey: TWSKey) {
     // Resolve & cleanup deferred "connection attempt in progress" promise
     try {
       const connectionInProgressPromise =
         this.wsStore.getConnectionInProgressPromise(wsKey);
+
       if (connectionInProgressPromise?.resolve) {
         connectionInProgressPromise.resolve({
           wsKey,
@@ -705,56 +758,6 @@ export abstract class BaseWebsocketClient<
     // Request sub to private topics, if auth on connect isn't needed
     if (!this.options.authPrivateConnectionsOnConnect) {
       this.requestSubscribeTopics(wsKey, privateReqs);
-    }
-
-    const wsStoredState = this.wsStore.get(wsKey, true);
-
-    const { didAuthWSAPI, WSAPIAuthChannel } = wsStoredState;
-
-    // If enabled, automatically reauth WS API if reconnected
-    if (
-      didReconnectSuccessfully &&
-      this.options.reauthWSAPIOnReconnect &&
-      didAuthWSAPI &&
-      WSAPIAuthChannel
-    ) {
-      this.logger.info(
-        `WS API was authenticated before reconnect - re-authenticating WS API...`,
-      );
-
-      let attempt = 0;
-      const maxReAuthAttempts = 5;
-
-      while (attempt <= maxReAuthAttempts) {
-        attempt++;
-        try {
-          this.logger.trace(
-            `try reauthenticate (attempt ${attempt}/${maxReAuthAttempts})`,
-          );
-          const loginResult = await this.sendWSAPIRequest(
-            wsKey,
-            WSAPIAuthChannel,
-          );
-          this.logger.trace('reauthenticated!', loginResult);
-          break;
-        } catch (e) {
-          const giveUp = attempt >= maxReAuthAttempts;
-
-          const suffix = giveUp
-            ? 'Max tries reached. Giving up!'
-            : 'Trying again...';
-
-          this.logger.error(
-            `Exception trying to reauthenticate WS API on reconnect... ${suffix}`,
-          );
-
-          this.emit('exception', {
-            wsKey,
-            type: 'wsapi.auth',
-            reason: `automatic WS API reauth failed after ${attempt} attempts`,
-          });
-        }
-      }
     }
   }
 
@@ -840,6 +843,19 @@ export abstract class BaseWebsocketClient<
               wsKey,
               data,
             });
+            continue;
+          }
+
+          if (emittable.eventType === 'connectionReady') {
+            this.logger.trace(
+              `Successfully connected - connection ready for events`,
+              {
+                ...WS_LOGGER_CATEGORY,
+                wsKey,
+              },
+            );
+            this.emit('response', { ...emittable.event, wsKey });
+            this.onWsReadyForEvents(wsKey);
             continue;
           }
 

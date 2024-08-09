@@ -5,16 +5,10 @@ export type WsOperation =
   | 'access'
   | 'request';
 
-export interface WsSpotOperation<TWSTopic extends string = string> {
-  op: WsOperation;
-  args: TWSTopic[];
+export interface WsRequestOperation<TWSTopic extends string> {
+  id: number;
+  type: WsOperation;
+  topic: TWSTopic;
+  privateChannel: boolean;
+  response: boolean;
 }
-
-export interface WsFuturesOperation<TWSTopic extends string> {
-  action: WsOperation;
-  args: TWSTopic[];
-}
-
-export type WsRequestOperation<TWSTopic extends string> =
-  | WsSpotOperation<TWSTopic>
-  | WsFuturesOperation<TWSTopic>;

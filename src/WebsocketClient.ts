@@ -1,21 +1,29 @@
-import WebSocket from 'isomorphic-ws';
-
+import { FuturesClient } from './FuturesClient.js';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
-import { signMessage } from './lib/webCryptoAPI.js';
 import {
   MessageEventLike,
-  WS_BASE_URL_MAP,
   WS_KEY_MAP,
   WsKey,
+  WsTopicRequest,
 } from './lib/websocket/websocket-util.js';
-import { WsMarket } from './types/websockets/client.js';
+import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
+import { SpotClient } from './SpotClient.js';
+import { APISuccessResponse } from './types/response/shared.types.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 import {
-  WsFuturesOperation,
   WsOperation,
   WsRequestOperation,
-  WsSpotOperation,
 } from './types/websockets/requests.js';
+import {
+  WsAPITopicRequestParamMap,
+  WsAPITopicResponseMap,
+  WsAPIWsKeyTopicMap,
+} from './types/websockets/wsAPI.js';
+
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * max);
+}
 
 export const WS_LOGGER_CATEGORY = { category: 'kucoin-ws' };
 
@@ -35,59 +43,156 @@ export const PUBLIC_WS_KEYS: WsKey[] = [
  * WS topics are always a string for this exchange. Some exchanges use complex objects.
  */
 type WsTopic = string;
+export type WsMarket = 'spot' | 'futures';
 
-export class WebsocketClient extends BaseWebsocketClient<
-  WsMarket,
-  WsKey,
-  WsTopic
-> {
+export class WebsocketClient extends BaseWebsocketClient<WsKey> {
+  private RESTClientCache: Record<
+    'spot' | 'futures',
+    SpotClient | FuturesClient | undefined
+  > = {
+    spot: undefined,
+    futures: undefined,
+  };
+
+  private getRESTClient(wsKey: WsKey): SpotClient | FuturesClient {
+    if (wsKey === 'spotPublicV1' || wsKey === 'spotPrivateV1') {
+      const clientType = 'spot';
+      if (this.RESTClientCache[clientType]) {
+        return this.RESTClientCache[clientType];
+      }
+
+      this.RESTClientCache[clientType] = new SpotClient({
+        apiKey: this.options.apiKey,
+        apiSecret: this.options.apiSecret,
+        apiPassphrase: this.options.apiPassphrase,
+      });
+      return this.RESTClientCache[clientType];
+    }
+
+    if (wsKey === 'futuresPublicV1' || wsKey === 'futuresPrivateV1') {
+      const clientType = 'futures';
+      if (this.RESTClientCache[clientType]) {
+        return this.RESTClientCache[clientType];
+      }
+
+      this.RESTClientCache[clientType] = new FuturesClient({
+        apiKey: this.options.apiKey,
+        apiSecret: this.options.apiSecret,
+        apiPassphrase: this.options.apiPassphrase,
+      });
+      return this.RESTClientCache[clientType];
+    }
+
+    throw new Error(`Unhandled WsKey: "${wsKey}"`);
+  }
+
+  private async getWSConnectionInfo(
+    wsKey: WsKey,
+  ): Promise<APISuccessResponse<WsConnectionInfo>> {
+    const restClient = this.getRESTClient(wsKey);
+
+    if (wsKey === 'spotPrivateV1' || wsKey === 'futuresPrivateV1') {
+      return restClient.getPrivateWSConnectionToken();
+    }
+
+    return restClient.getPublicWSConnectionToken();
+  }
+
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
-  public connectAll(): Promise<WebSocket | undefined>[] {
-    return [
+  public connectAll(): Promise<(WSConnectedResult | undefined)[]> {
+    return Promise.all([
       this.connect(WS_KEY_MAP.spotPublicV1),
       this.connect(WS_KEY_MAP.spotPrivateV1),
       this.connect(WS_KEY_MAP.futuresPublicV1),
       this.connect(WS_KEY_MAP.futuresPrivateV1),
-    ];
+    ]);
   }
 
   /**
-   * Request subscription to one or more topics.
+   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
+   * Objects should be formatted as {topic: string, params: object}.
    *
    * - Subscriptions are automatically routed to the correct websocket connection.
    * - Authentication/connection is automatic.
    * - Resubscribe after network issues is automatic.
    *
-   * Call `unsubscribeTopics(topics)` to remove topics
+   * Call `unsubscribe(topics)` to remove topics
    */
-  public subscribeTopics(topics: WsTopic[]) {
-    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
+  public subscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+  ) {
+    if (!Array.isArray(requests)) {
+      this.subscribeTopicsForWsKey([requests], wsKey);
+      return;
+    }
 
-    for (const untypedWsKey in topicsByWsKey) {
-      const typedWsKey = untypedWsKey as WsKey;
-      const topics = topicsByWsKey[typedWsKey];
-
-      this.subscribeTopicsForWsKey(topics, typedWsKey);
+    if (requests.length) {
+      this.subscribeTopicsForWsKey(requests, wsKey);
     }
   }
 
   /**
-   * Unsubscribe from one or more topics.
+   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
    *
    * - Requests are automatically routed to the correct websocket connection.
    * - These topics will be removed from the topic cache, so they won't be subscribed to again.
    */
-  public unsubscribeTopics(topics: WsTopic[]) {
-    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
-
-    for (const untypedWsKey in topicsByWsKey) {
-      const typedWsKey = untypedWsKey as WsKey;
-      const topics = topicsByWsKey[typedWsKey];
-
-      this.subscribeTopicsForWsKey(topics, typedWsKey);
+  public unsubscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+  ) {
+    if (!Array.isArray(requests)) {
+      this.unsubscribeTopicsForWsKey([requests], wsKey);
+      return;
     }
+
+    if (requests.length) {
+      this.unsubscribeTopicsForWsKey(requests, wsKey);
+    }
+  }
+
+  /**
+   * Not supported by Kucoin, do not use
+   */
+
+  // This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
+  async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+    TWSAPIResponse extends
+      | WsAPITopicResponseMap[TWSChannel]
+      | object = WsAPITopicResponseMap[TWSChannel],
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    ...params: TWSParams extends undefined ? [] : [TWSParams]
+  ): Promise<TWSAPIResponse>;
+
+  async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    params?: TWSParams,
+  ): Promise<undefined> {
+    this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`, {
+      channel,
+      params,
+    });
+
+    return;
   }
 
   /**
@@ -96,56 +201,100 @@ export class WebsocketClient extends BaseWebsocketClient<
    *
    */
 
+  /**
+   * Whatever url this method returns, it's connected to as-is!
+   *
+   * If a token or anything else is needed in the URL, this is a good place to add it.
+   */
+  protected async getWsUrl(wsKey: WsKey): Promise<string> {
+    if (this.options.wsUrl) {
+      return this.options.wsUrl;
+    }
+
+    const connectionInfo = await this.getWSConnectionInfo(wsKey);
+    const server = connectionInfo.data.instanceServers[0];
+    if (!server) {
+      console.error(
+        `No servers returned by connection info response?`,
+        JSON.stringify(
+          {
+            wsKey,
+            connectionInfo,
+          },
+          null,
+          2,
+        ),
+      );
+      throw new Error(`No servers returned by connection info response?`);
+    }
+    const connectionUrl = `${server.endpoint}?token=${connectionInfo.data.token}`;
+    return connectionUrl;
+  }
+
   protected sendPingEvent(wsKey: WsKey) {
-    switch (wsKey) {
-      case WS_KEY_MAP.spotPublicV1:
-      case WS_KEY_MAP.spotPrivateV1: {
-        return this.tryWsSend(wsKey, 'ping');
+    return this.tryWsSend(wsKey, `{ "id": "${Date.now()}", "type": "ping" }`);
+  }
+
+  protected sendPongEvent(wsKey: WsKey) {
+    try {
+      this.logger.trace(`Sending upstream ws PONG: `, {
+        ...WS_LOGGER_CATEGORY,
+        wsMessage: 'PONG',
+        wsKey,
+      });
+      if (!wsKey) {
+        throw new Error('Cannot send PONG, no wsKey provided');
       }
-      case WS_KEY_MAP.futuresPublicV1:
-      case WS_KEY_MAP.futuresPrivateV1: {
-        return this.tryWsSend(wsKey, '{"action":"ping"}');
+
+      const wsState = this.getWsStore().get(wsKey);
+      if (!wsState || !wsState?.ws) {
+        throw new Error(`Cannot send pong, ${wsKey} socket not connected yet`);
       }
-      default: {
-        throw neverGuard(wsKey, `Unhandled ping format: "${wsKey}"`);
-      }
+
+      // Send a protocol layer pong
+      wsState.ws.pong();
+    } catch (e) {
+      this.logger.error(`Failed to send WS PONG`, {
+        ...WS_LOGGER_CATEGORY,
+        wsMessage: 'PONG',
+        wsKey,
+        exception: e,
+      });
     }
   }
 
-  protected isWsPong(msg: any): boolean {
-    console.log(`isWsPing??`, msg?.data, msg?.event?.data);
-    // spot
-    if (msg?.data === 'pong') {
+  // Not really used for kucoin - they don't send pings
+  protected isWsPing(msg: any): boolean {
+    if (msg?.data === 'ping') {
       return true;
     }
+    return false;
+  }
 
-    // futures
-    // if (typeof event?.data === 'string') {
-    //   return true;
-    // }
-    if (
-      typeof msg?.event?.data === 'string' &&
-      msg.event.data.startsWith('pong')
-    ) {
+  protected isWsPong(msg: any): boolean {
+    if (msg?.data?.includes('pong')) {
       return true;
     }
 
     // this.logger.info(`Not a pong: `, msg);
-
     return false;
   }
 
-  protected resolveEmittableEvents(event: MessageEventLike): EmittableEvent[] {
+  protected resolveEmittableEvents(
+    wsKey: WsKey,
+    event: MessageEventLike,
+  ): EmittableEvent[] {
     const results: EmittableEvent[] = [];
 
     try {
       const parsed = JSON.parse(event.data);
 
-      const responseEvents = ['subscribe', 'unsubscribe'];
+      const responseEvents = ['subscribe', 'unsubscribe', 'ack'];
       const authenticatedEvents = ['login', 'access'];
+      const connectionReadyEvents = ['welcome'];
 
-      const eventAction = parsed.event || parsed.action;
-      if (typeof eventAction === 'string') {
+      const eventType = parsed.event || parsed.type;
+      if (typeof eventType === 'string') {
         if (parsed.success === false) {
           results.push({
             eventType: 'exception',
@@ -154,8 +303,18 @@ export class WebsocketClient extends BaseWebsocketClient<
           return results;
         }
 
+        if (connectionReadyEvents.includes(eventType)) {
+          return [
+            {
+              eventType: 'connectionReady',
+              event: parsed,
+            },
+          ];
+        }
+
         // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
-        if (responseEvents.includes(eventAction)) {
+        if (responseEvents.includes(eventType)) {
+          console.log(`isResponse because: `, eventType);
           results.push({
             eventType: 'response',
             event: parsed,
@@ -164,7 +323,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         }
 
         // Request/reply pattern for authentication success
-        if (authenticatedEvents.includes(eventAction)) {
+        if (authenticatedEvents.includes(eventType)) {
           results.push({
             eventType: 'authenticated',
             event: parsed,
@@ -172,11 +331,27 @@ export class WebsocketClient extends BaseWebsocketClient<
           return results;
         }
 
+        if (eventType === 'message') {
+          return [{ eventType: 'update', event: parsed }];
+        }
+
         this.logger.error(
-          `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
+          `!! Unhandled string event type "${eventType}". Defaulting to "update" channel...`,
           parsed,
         );
+
+        results.push({
+          eventType: 'update',
+          event: parsed,
+        });
+
+        return results;
       }
+
+      this.logger.error(
+        `!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
+        parsed,
+      );
 
       results.push({
         eventType: 'update',
@@ -204,32 +379,11 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Determines if a topic is for a private channel, using a hardcoded list of strings
    */
-  protected isPrivateChannel(topic: WsTopic): boolean {
-    const splitTopic = topic.toLowerCase().split('/');
-    if (!splitTopic.length) {
-      return false;
-    }
-
-    const topicName = splitTopic[1];
-
-    if (!topicName) {
-      // console.error(`No topic name? "${topicName}" from topic "${topic}"?`);
-      return false;
-    }
-
-    if (
-      /** Spot */
-      topicName.startsWith('user') ||
-      /** Futures */
-      topicName.startsWith('asset') ||
-      topicName.startsWith('position') ||
-      topicName.startsWith('order') ||
-      topicName.startsWith('position')
-    ) {
-      return true;
-    }
-
-    return false;
+  protected isPrivateTopicRequest(
+    request: WsTopicRequest<string>,
+    wsKey: WsKey,
+  ): boolean {
+    return PRIVATE_WS_KEYS.includes(wsKey);
   }
 
   protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey {
@@ -258,45 +412,8 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
   }
 
-  protected getWsKeyForTopic(topic: WsTopic): WsKey {
-    const market = this.getMarketForTopic(topic);
-    const isPrivateTopic = this.isPrivateChannel(topic);
-
-    return this.getWsKeyForMarket(market, isPrivateTopic);
-  }
-
   protected getPrivateWSKeys(): WsKey[] {
     return PRIVATE_WS_KEYS;
-  }
-
-  protected getWsUrl(wsKey: WsKey): string {
-    if (this.options.wsUrl) {
-      return this.options.wsUrl;
-    }
-
-    const networkKey = 'livenet';
-
-    switch (wsKey) {
-      case WS_KEY_MAP.spotPublicV1: {
-        return WS_BASE_URL_MAP.spotPublicV1.all[networkKey];
-      }
-      case WS_KEY_MAP.spotPrivateV1: {
-        return WS_BASE_URL_MAP.spotPrivateV1.all[networkKey];
-      }
-      case WS_KEY_MAP.futuresPublicV1: {
-        return WS_BASE_URL_MAP.futuresPublicV1.all[networkKey];
-      }
-      case WS_KEY_MAP.futuresPrivateV1: {
-        return WS_BASE_URL_MAP.futuresPrivateV1.all[networkKey];
-      }
-      default: {
-        this.logger.error('getWsUrl(): Unhandled wsKey: ', {
-          ...WS_LOGGER_CATEGORY,
-          wsKey,
-        });
-        throw neverGuard(wsKey, `getWsUrl(): Unhandled wsKey`);
-      }
-    }
   }
 
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
@@ -307,10 +424,14 @@ export class WebsocketClient extends BaseWebsocketClient<
       case 'spotPrivateV1':
       case 'spotPublicV1': {
         // Return a number if there's a limit on the number of sub topics per rq
-        return null;
+        // Always 1 at a time for this exchange
+        return 1;
       }
       default: {
-        throw neverGuard(wsKey, `getWsKeyForTopic(): Unhandled wsKey`);
+        throw neverGuard(
+          wsKey,
+          `getMaxTopicsPerSubscribeEvent(): Unhandled wsKey`,
+        );
       }
     }
   }
@@ -318,204 +439,35 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
    */
-  protected getWsSubscribeEventsForTopics(
-    topics: WsTopic[],
+  protected async getWsOperationEventsForTopics(
+    topicRequests: WsTopicRequest<string>[],
     wsKey: WsKey,
-  ): string[] {
-    if (!topics.length) {
-      return [];
-    }
-
-    const market = this.getWsMarketForWsKey(wsKey);
-
-    const subscribeEvents: string[] = [];
-
-    const maxTopicsPerEvent = this.getMaxTopicsPerSubscribeEvent(wsKey);
-    if (
-      maxTopicsPerEvent &&
-      maxTopicsPerEvent !== null &&
-      topics.length > maxTopicsPerEvent
-    ) {
-      for (let i = 0; i < topics.length; i += maxTopicsPerEvent) {
-        const batch = topics.slice(i, i + maxTopicsPerEvent);
-        const subscribeEvent = this.getWsRequestEvent(
-          market,
-          'subscribe',
-          batch,
-        );
-        subscribeEvents.push(JSON.stringify(subscribeEvent));
-      }
-
-      return subscribeEvents;
-    }
-
-    const subscribeEvent = this.getWsRequestEvent(market, 'subscribe', topics);
-    return [JSON.stringify(subscribeEvent)];
-  }
-
-  /**
-   * Map one or more topics into fully prepared "unsubscribe request" events (already stringified and ready to send)
-   */
-  protected getWsUnsubscribeEventsForTopics(
-    topics: WsTopic[],
-    wsKey: WsKey,
-  ): string[] {
-    if (!topics.length) {
-      return [];
-    }
-
-    const market = this.getWsMarketForWsKey(wsKey);
-
-    const subscribeEvents: string[] = [];
-
-    const maxTopicsPerEvent = this.getMaxTopicsPerSubscribeEvent(wsKey);
-    if (
-      maxTopicsPerEvent &&
-      maxTopicsPerEvent !== null &&
-      topics.length > maxTopicsPerEvent
-    ) {
-      for (let i = 0; i < topics.length; i += maxTopicsPerEvent) {
-        const batch = topics.slice(i, i + maxTopicsPerEvent);
-        const subscribeEvent = this.getWsRequestEvent(
-          market,
-          'unsubscribe',
-          batch,
-        );
-        subscribeEvents.push(JSON.stringify(subscribeEvent));
-      }
-
-      return subscribeEvents;
-    }
-
-    const subscribeEvent = this.getWsRequestEvent(market, 'subscribe', topics);
-    return [JSON.stringify(subscribeEvent)];
-  }
-
-  /**
-   * @returns a correctly structured events for performing an operation over WS. This can vary per exchange spec.
-   */
-  private getWsRequestEvent(
-    market: WsMarket,
     operation: WsOperation,
-    args: WsTopic[],
-  ): WsRequestOperation<WsTopic> {
-    switch (market) {
-      case 'spot': {
-        const wsRequestEvent: WsSpotOperation<WsTopic> = {
-          op: operation,
-          args: args,
-        };
-
-        return wsRequestEvent;
-      }
-      case 'futures': {
-        const wsRequestEvent: WsFuturesOperation<WsTopic> = {
-          action: operation,
-          args: args,
-        };
-        return wsRequestEvent;
-      }
-      default: {
-        throw neverGuard(market, `Unhandled market "${market}"`);
-      }
+  ): Promise<string[]> {
+    if (!topicRequests.length) {
+      return [];
     }
+
+    // Operations structured in a way that this exchange understands
+    const operationEvents = topicRequests.map((topicRequest) => {
+      const wsRequestEvent: WsRequestOperation<WsTopic> = {
+        id: getRandomInt(999999999999),
+        type: operation,
+        topic: topicRequest.topic,
+        privateChannel: false,
+        response: true,
+        ...topicRequest.payload,
+      };
+
+      return wsRequestEvent;
+    });
+
+    // Events that are ready to send (usually stringified JSON)
+    return operationEvents.map((event) => JSON.stringify(event));
   }
 
+  // Not used for kucoin - auth is part of the WS URL
   protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
-    const market = this.getWsMarketForWsKey(wsKey);
-    if (
-      !this.options.apiKey ||
-      !this.options.apiSecret ||
-      !this.options.apiMemo
-    ) {
-      throw new Error(
-        `Cannot auth - missing api key, secret or memo in config`,
-      );
-    }
-
-    const signTimestamp = Date.now() + this.options.recvWindow;
-
-    const signMessageInput =
-      signTimestamp + '#' + this.options.apiMemo + '#' + 'bitmart.WebSocket';
-
-    let signature: string;
-    if (typeof this.options.customSignMessageFn === 'function') {
-      signature = await this.options.customSignMessageFn(
-        signMessageInput,
-        this.options.apiSecret,
-      );
-    } else {
-      signature = await signMessage(
-        signMessageInput,
-        this.options.apiSecret,
-        'hex',
-      );
-    }
-
-    const authArgs = [this.options.apiKey, `${signTimestamp}`, signature];
-    if (market === 'futures') {
-      authArgs.push('web');
-    }
-
-    switch (market) {
-      case 'spot': {
-        const wsRequestEvent: WsSpotOperation<string> = {
-          op: 'login',
-          args: authArgs,
-        };
-
-        return wsRequestEvent;
-      }
-      case 'futures': {
-        const wsRequestEvent: WsFuturesOperation<string> = {
-          action: 'access',
-          args: authArgs,
-        };
-        return wsRequestEvent;
-      }
-      default: {
-        throw neverGuard(market, `Unhandled market "${market}"`);
-      }
-    }
-  }
-
-  /**
-   * This exchange API is split into "markets" that behave differently (different base URLs).
-   * The market can easily be resolved using the topic name.
-   */
-  private getMarketForTopic(topic: string): WsMarket {
-    if (topic.startsWith('futures')) {
-      return 'futures';
-    }
-    if (topic.startsWith('spot')) {
-      return 'spot';
-    }
-
-    throw new Error(`Could not resolve "market" for topic: "${topic}"`);
-  }
-
-  /**
-   * Used to split sub/unsub logic by websocket connection
-   */
-  private arrangeTopicsIntoWsKeyGroups(
-    topics: WsTopic[],
-  ): Record<WsKey, WsTopic[]> {
-    const topicsByWsKey: Record<WsKey, WsTopic[]> = {
-      futuresPrivateV1: [],
-      futuresPublicV1: [],
-      spotPrivateV1: [],
-      spotPublicV1: [],
-    };
-
-    for (const topic in topics) {
-      const wsKeyForTopic = this.getWsKeyForTopic(topic);
-
-      const wsKeyTopicList = topicsByWsKey[wsKeyForTopic];
-      if (!wsKeyTopicList.includes(topic)) {
-        wsKeyTopicList.push(topic);
-      }
-    }
-
-    return topicsByWsKey;
+    return { wsKey };
   }
 }

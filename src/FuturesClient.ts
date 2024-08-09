@@ -57,6 +57,7 @@ import {
   UpdateSubAccountAPIResponse,
 } from './types/response/futures.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
  *
@@ -485,5 +486,19 @@ export class FuturesClient extends BaseRestClient {
     params: GetFundingHistoryRequest,
   ): Promise<APISuccessResponse<GetFundingHistoryResponse>> {
     return this.getPrivate('api/v1/funding-history', params);
+  }
+
+  /**
+   *
+   * WebSockets
+   *
+   */
+
+  getPublicWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
+    return this.post('api/v1/bullet-public');
+  }
+
+  getPrivateWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
+    return this.postPrivate('api/v1/bullet-private');
   }
 }

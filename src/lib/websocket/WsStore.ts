@@ -301,6 +301,7 @@ export class WsStore<
   }
 
   setConnectionState(key: WsKey, state: WsConnectionStateEnum) {
+    // console.log(new Date(), `setConnectionState(${key}, ${state})`);
     this.get(key, true).connectionState = state;
   }
 

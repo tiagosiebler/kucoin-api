@@ -70,6 +70,12 @@ export function serializeParams<T extends Record<string, any> | undefined = {}>(
   return queryString ? prefixWith + queryString : queryString;
 }
 
+export const APIIDMain = 'NODESDK';
+export const APIIDMainSign = 'd28f5b4a-179d-4fcb-9c00-c8319c0bb82c';
+
+export const APIIDFutures = 'NODESDKFUTURES';
+export const APIIDFuturesSign = '7f7fb0d6-e600-4ef4-8fe3-41e6aea9af84';
+
 export function getRestBaseUrl(
   useTestnet: boolean,
   restInverseOptions: RestClientOptions,
@@ -89,18 +95,4 @@ export function getRestBaseUrl(
   }
 
   return exchangeBaseUrls.livenet;
-}
-
-export const APIIDMain = 'NODESDK';
-export const APIIDMainSign = 'd28f5b4a-179d-4fcb-9c00-c8319c0bb82c';
-
-export const APIIDFutures = 'NODESDKFUTURES';
-export const APIIDFuturesSign = '7f7fb0d6-e600-4ef4-8fe3-41e6aea9af84';
-
-export function isWsPong(msg: any): boolean {
-  // kucoin
-  if (msg?.data === 'pong') {
-    return true;
-  }
-  return false;
 }

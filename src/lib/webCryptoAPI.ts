@@ -1,4 +1,4 @@
-import { neverGuard } from './misc-util';
+import { neverGuard } from './misc-util.js';
 
 function bufferToB64(buffer: ArrayBuffer): string {
   let binary = '';
@@ -10,20 +10,54 @@ function bufferToB64(buffer: ArrayBuffer): string {
   return globalThis.btoa(binary);
 }
 
+export type SignEncodeMethod = 'hex' | 'base64';
+export type SignAlgorithm = 'SHA-256' | 'SHA-512';
+
+/**
+ * Similar to node crypto's `createHash()` function
+ */
+export async function hashMessage(
+  message: string,
+  method: SignEncodeMethod,
+  algorithm: SignAlgorithm,
+): Promise<string> {
+  const encoder = new TextEncoder();
+
+  const buffer = await globalThis.crypto.subtle.digest(
+    algorithm,
+    encoder.encode(message),
+  );
+
+  switch (method) {
+    case 'hex': {
+      return Array.from(new Uint8Array(buffer))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('');
+    }
+    case 'base64': {
+      return bufferToB64(buffer);
+    }
+    default: {
+      throw neverGuard(method, `Unhandled sign method: "${method}"`);
+    }
+  }
+}
+
 /**
  * Sign a message, with a secret, using the Web Crypto API
  */
 export async function signMessage(
   message: string,
   secret: string,
-  method: 'hex' | 'base64',
+  method: SignEncodeMethod,
+  algorithm: SignAlgorithm,
 ): Promise<string> {
   const encoder = new TextEncoder();
 
   const key = await globalThis.crypto.subtle.importKey(
     'raw',
     encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
+    { name: 'HMAC', hash: algorithm },
     false,
     ['sign'],
   );

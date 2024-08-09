@@ -157,6 +157,7 @@ import {
   GetOtcLoanAccountsResponse,
   GetOtcLoanResponse,
 } from './types/response/spot-vip.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
  *
@@ -1453,11 +1454,11 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getPublicWSConnectionToken() {
+  getPublicWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
     return this.post('api/v1/bullet-public');
   }
 
-  getPrivateWSConnectionToken() {
+  getPrivateWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
     return this.postPrivate('api/v1/bullet-private');
   }
 }

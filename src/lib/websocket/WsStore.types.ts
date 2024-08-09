@@ -6,6 +6,7 @@ export enum WsConnectionStateEnum {
   CONNECTED = 2,
   CLOSING = 3,
   RECONNECTING = 4,
+  ERROR_RECONNECTING = 5,
   // ERROR = 5,
 }
 
@@ -43,6 +44,8 @@ export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
    * A "Set" and a deep-object-match are used to ensure we only subscribe to a topic once (tracking a list of unique topics we're expected to be connected to)
    */
   subscribedTopics: Set<TWSTopicSubscribeEvent>;
+  /** Whether this connection is ready for events (welcome message received after connection) */
+  isReadyForEvents?: boolean;
   /** Whether this connection has completed authentication (only applies to private connections) */
   isAuthenticated?: boolean;
   /** Whether this connection has completed authentication before for the Websocket API, so it knows to automatically reauth if reconnected */

@@ -33,47 +33,6 @@ export type WsTopicRequestOrStringTopic<
   TWSPayload = any,
 > = WsTopicRequest<TWSTopic, TWSPayload> | string;
 
-/**
- * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
- * Examples:
- *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>
- *  - One livenet, sometimes two, one testnet: NetworkMap<'livenet' | 'testnet', 'livenet2'>
- *  - Only one livenet, no other networks: NetworkMap<'livenet'>
- */
-type NetworkMap<
-  TRequiredKeys extends string,
-  TOptionalKeys extends string | undefined = undefined,
-> = Record<TRequiredKeys, string> &
-  (TOptionalKeys extends string
-    ? Record<TOptionalKeys, string | undefined>
-    : Record<TRequiredKeys, string>);
-
-export const WS_BASE_URL_MAP: Record<
-  WsKey,
-  Record<'all', NetworkMap<'livenet'>>
-> = {
-  spotPublicV1: {
-    all: {
-      livenet: 'wss://ws-api-spot.kucoin.com/',
-    },
-  },
-  spotPrivateV1: {
-    all: {
-      livenet: 'wss://ws-manager-compress.bitmart.com/user?protocol=1.1',
-    },
-  },
-  futuresPublicV1: {
-    all: {
-      livenet: 'wss://openapi-ws.bitmart.com/api?protocol=1.1',
-    },
-  },
-  futuresPrivateV1: {
-    all: {
-      livenet: 'wss://openapi-ws.bitmart.com/user?protocol=1.1',
-    },
-  },
-};
-
 export const WS_ERROR_ENUM = {
   INVALID_ACCESS_KEY: 'todo:',
 };

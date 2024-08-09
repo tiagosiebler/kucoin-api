@@ -1,7 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 
 import { neverGuard } from './misc-util.js';
-import { signMessage } from './node-support.js';
 import {
   APIIDFutures,
   APIIDFuturesSign,
@@ -13,6 +12,7 @@ import {
   RestClientType,
   serializeParams,
 } from './requestUtils.js';
+import { signMessage } from './webCryptoAPI.js';
 
 const MISSING_API_KEYS_ERROR =
   'API Key, Secret & API Passphrase are ALL required to use the authenticated REST client';
@@ -290,7 +290,12 @@ export abstract class BaseRestClient {
 
       const paramsStr = `${timestamp}${method}/${endpoint}${signRequestParams}`;
 
-      res.sign = await signMessage(paramsStr, this.apiSecret, 'base64');
+      res.sign = await signMessage(
+        paramsStr,
+        this.apiSecret,
+        'base64',
+        'SHA-256',
+      );
 
       res.queryParamsWithSign = signRequestParams;
       return res;
@@ -394,11 +399,13 @@ export abstract class BaseRestClient {
       partnerSignParam,
       partnerSign,
       'base64',
+      'SHA-256',
     );
     const signedPassphrase = await signMessage(
       this.apiPassphrase!,
       this.apiSecret,
       'base64',
+      'SHA-256',
     );
 
     if (method === 'GET') {

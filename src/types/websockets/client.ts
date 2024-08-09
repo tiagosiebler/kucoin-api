@@ -18,8 +18,8 @@ export interface WSClientConfigurableOptions {
   /** Your API secret */
   apiSecret?: string;
 
-  /** Your API memo (can be anything) that you included when creating this API key */
-  apiMemo?: string;
+  /** Your API passphrase (can be anything) that you included when creating this API key */
+  apiPassphrase?: string;
 
   /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
   recvWindow?: number;
@@ -59,6 +59,10 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
   pongTimeout: number;
   reconnectTimeout: number;
   recvWindow: number;
+  /**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+  requireConnectionReadyConfirmation: boolean;
   authPrivateConnectionsOnConnect: boolean;
   authPrivateRequests: boolean;
   reauthWSAPIOnReconnect: boolean;
