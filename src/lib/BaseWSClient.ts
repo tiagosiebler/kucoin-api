@@ -230,6 +230,13 @@ export abstract class BaseWebsocketClient<
     const isConnectionInProgress =
       this.wsStore.isConnectionAttemptInProgress(wsKey);
 
+    // console.log(`subscribeTopicsForWsKey: `, {
+    //   wsKey,
+    //   normalisedTopicRequests: normalisedTopicRequests,
+    //   isConnected,
+    //   isConnectionInProgress,
+    // });
+
     // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
     if (!isConnected && !isConnectionInProgress) {
       return this.connect(wsKey);
@@ -260,6 +267,9 @@ export abstract class BaseWebsocketClient<
        *
        * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
        */
+      this.logger.trace(
+        `WS connected but not authenticated yet - awaiting auth before subscribing`,
+      );
       return false;
     }
 
@@ -393,10 +403,15 @@ export abstract class BaseWebsocketClient<
         this.wsStore.createConnectionInProgressPromise(wsKey, false);
       }
 
-      const url = await this.getWsUrl(wsKey);
-      const ws = this.connectToWsUrl(url, wsKey);
+      try {
+        const url = await this.getWsUrl(wsKey);
+        const ws = this.connectToWsUrl(url, wsKey);
 
-      this.wsStore.setWs(wsKey, ws);
+        this.wsStore.setWs(wsKey, ws);
+      } catch (e) {
+        this.logger.error(`Exception fetching WS URL`, e);
+        throw e;
+      }
 
       return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
     } catch (err) {
@@ -480,8 +495,6 @@ export abstract class BaseWebsocketClient<
       });
 
       const request = await this.getWsAuthRequestEvent(wsKey);
-
-      // console.log('ws auth req', request);
 
       return this.tryWsSend(wsKey, JSON.stringify(request));
     } catch (e) {
@@ -752,6 +765,8 @@ export abstract class BaseWebsocketClient<
       wsKey,
     );
 
+    // console.log(`private public reqs`, { privateReqs, publicReqs, wsKey });
+
     // Request sub to public topics, if any
     this.requestSubscribeTopics(wsKey, publicReqs);
 
@@ -854,6 +869,16 @@ export abstract class BaseWebsocketClient<
                 wsKey,
               },
             );
+
+            const wsState = this.wsStore.get(wsKey);
+            if (
+              this.isPrivateWsKey(wsKey) &&
+              wsState &&
+              !this.options.authPrivateConnectionsOnConnect
+            ) {
+              wsState.isAuthenticated = true;
+            }
+
             this.emit('response', { ...emittable.event, wsKey });
             this.onWsReadyForEvents(wsKey);
             continue;

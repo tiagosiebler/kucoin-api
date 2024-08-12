@@ -357,13 +357,7 @@ export class WsStore<
   }
 
   addTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs) {
-    // if (typeof topic === 'string') {
-    //   return this.addTopic(key, {
-    //     instType: 'sp',
-    //     channel: topic,
-    //     instId: 'default',
-    //   };
-    // }
+    // console.log(`wsStore.addTopic(${key}, ${topic})`);
     // Check for duplicate topic. If already tracked, don't store this one
     const existingTopic = this.getMatchingTopic(key, topic);
     if (existingTopic) {

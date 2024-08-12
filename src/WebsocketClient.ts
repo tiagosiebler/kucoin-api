@@ -212,9 +212,14 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
 
     const connectionInfo = await this.getWSConnectionInfo(wsKey);
+    this.logger.trace(`getWSConnectionInfo`, {
+      wsKey,
+      ...connectionInfo,
+    });
+
     const server = connectionInfo.data.instanceServers[0];
     if (!server) {
-      console.error(
+      this.logger.error(
         `No servers returned by connection info response?`,
         JSON.stringify(
           {
@@ -227,6 +232,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       );
       throw new Error(`No servers returned by connection info response?`);
     }
+
     const connectionUrl = `${server.endpoint}?token=${connectionInfo.data.token}`;
     return connectionUrl;
   }
@@ -449,11 +455,13 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
     // Operations structured in a way that this exchange understands
     const operationEvents = topicRequests.map((topicRequest) => {
+      const isPrivateWsTopic = this.isPrivateTopicRequest(topicRequest, wsKey);
+
       const wsRequestEvent: WsRequestOperation<WsTopic> = {
         id: getRandomInt(999999999999),
         type: operation,
         topic: topicRequest.topic,
-        privateChannel: false,
+        privateChannel: isPrivateWsTopic,
         response: true,
         ...topicRequest.payload,
       };

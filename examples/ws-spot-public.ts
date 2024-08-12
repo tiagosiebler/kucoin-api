@@ -8,23 +8,25 @@ import {
 // import { WsTopicRequest } from '../src/lib/websocket/websocket-util';
 
 async function start() {
-  const logger: typeof DefaultLogger = {
-    ...DefaultLogger,
-    trace: (...params) => {
-      if (
-        [
-          'Sending ping',
-          'Sending upstream ws message: ',
-          'Received pong',
-        ].includes(params[0])
-      ) {
-        return;
-      }
-      console.log('trace', params);
-    },
-  };
+  // Optional: fully customise the logging experience by injecting a custom logger
+  // const logger: typeof DefaultLogger = {
+  //   ...DefaultLogger,
+  //   trace: (...params) => {
+  //     if (
+  //       [
+  //         'Sending ping',
+  //         'Sending upstream ws message: ',
+  //         'Received pong',
+  //       ].includes(params[0])
+  //     ) {
+  //       return;
+  //     }
+  //     console.log('trace', params);
+  //   },
+  // };
 
-  const client = new WebsocketClient({}, logger);
+  // const client = new WebsocketClient({}, logger);
+  const client = new WebsocketClient();
 
   client.on('open', (data) => {
     console.log('open: ', data?.wsKey);
