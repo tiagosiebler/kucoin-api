@@ -117,6 +117,7 @@ export abstract class BaseWebsocketClient<
       pingInterval: 10000,
       reconnectTimeout: 500,
       recvWindow: 0,
+      // Requires a confirmation "response" from the ws connection before assuming it is ready
       requireConnectionReadyConfirmation: true,
       // Automatically auth after opening a connection?
       authPrivateConnectionsOnConnect: false,
