@@ -77,8 +77,8 @@ async function start() {
 
   try {
     // Optional: await a connection to be ready before subscribing (this is not necessary)
-    await client.connect('futuresPrivateV1');
-    console.log('connected');
+    // await client.connect('futuresPrivateV1');
+    // console.log('connected');
 
     /**
      * For more detailed usage info, refer to the ws-spot-public.ts example.
