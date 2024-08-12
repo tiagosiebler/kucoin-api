@@ -314,7 +314,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
         // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
         if (responseEvents.includes(eventType)) {
-          console.log(`isResponse because: `, eventType);
           results.push({
             eventType: 'response',
             event: parsed,

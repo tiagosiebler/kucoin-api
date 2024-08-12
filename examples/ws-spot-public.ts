@@ -2,6 +2,7 @@
 import {
   DefaultLogger,
   WebsocketClient,
+  WsTopicRequest,
   // WsSpotOperation,
 } from '../src/index.js';
 // import { WsTopicRequest } from '../src/lib/websocket/websocket-util';
@@ -31,7 +32,7 @@ async function start() {
 
   // Data received
   client.on('update', (data) => {
-    // console.info('data received: ', JSON.stringify(data));
+    console.info('data received: ', JSON.stringify(data));
   });
 
   // Something happened, attempting to reconenct
@@ -66,104 +67,80 @@ async function start() {
   });
 
   try {
+    // Optional: await a connection to be ready before subscribing (this is not necessary)
+    // await client.connect('spotPublicV1');
+
     /**
      * Use the client subscribe(topic, market) pattern to subscribe to any websocket topic.
      *
-     * You can subscribe to topics one at a time:
+     * You can subscribe to topics one at a time or many one one request. Topics can be sent as simple strings:
+     *
      */
-    // Topics can be sent as simple strings
-    // client.subscribe('/market/ticker:BTC-USDT,ETH-USDT', 'spotPublicV1');
-    // client.subscribe('/market/snapshot:KCS-BTC', 'spotPublicV1');
+    client.subscribe('/market/ticker:BTC-USDT,ETH-USDT', 'spotPublicV1');
+    client.subscribe('/market/snapshot:KCS-BTC', 'spotPublicV1');
 
-    // Margin also goes to the "spotPublicV1" key
-    client.subscribe('/indicator/index:USDT-BTC,ETH-USDT', 'spotPublicV1');
+    /**
+     * Or, as an array of simple strings
+     *
+     */
+    client.subscribe(
+      ['/market/ticker:BTC-USDT,ETH-USDT', '/market/snapshot:KCS-BTC'],
+      'spotPublicV1',
+    );
 
-    // Or, as an array of simple strings
-    // client.subscribe(
-    //   ['/market/ticker:BTC-USDT,ETH-USDT', '/market/snapshot:KCS-BTC'],
-    //   'spotPublicV1',
-    // );
+    /**
+     * Or send a more structured object with parameters
+     *
+     */
+    const subRequest: WsTopicRequest<string> = {
+      topic: '/market/ticker:BTC-USDT',
+      /** Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
+       *    For more info on parameters, see: https://www.kucoin.com/docs/websocket/basic-info/subscribe/introduction
+       */
+      payload: {
+        id: 123456,
+        response: false,
+      },
+    };
+    client.subscribe(subRequest, 'spotPublicV1');
 
-    // Or send a more structured object with parameters
-    // const subRequest: WsTopicRequest<string> = {
-    //   topic: '/market/ticker:BTC-USDT',
-    //   // Anything in the payload will be merged into the subscribe request.
-    //   // For more info on parameters, see: https://www.kucoin.com/docs/websocket/basic-info/subscribe/introduction
-    //   payload: {
-    //     id: 123456,
-    //     response: false,
-    //   },
-    // };
-
-    // client.subscribe(subRequest, 'spotPublicV1');
-    // Or, as an array of structured objects with parameters
+    /**
+     * Or, send an array of structured objects with parameters, if you wanted to send multiple in one request
+     *
+     */
     // client.subscribe([subRequest1, subRequest2, etc], 'spotPublicV1');
 
     /**
-     * The above examples are all for public spot websockets, via the "spotPublicV1" key.
-     *
-     * For futurt
+     * Other spot websocket topics:
      */
+    client.subscribe(
+      [
+        '/market/ticker:BTC-USDT,ETH-USDT',
+        '/market/ticker:all',
+        '/market/snapshot:KCS-BTC',
+        '/market/snapshot:BTC',
+        '/spotMarket/level1:BTC-USDT,ETH-USDT',
+        '/market/level2:BTC-USDT,ETH-USDT',
+        '/spotMarket/level2Depth5:BTC-USDT,ETH-USDT',
+        '/spotMarket/level2Depth50:BTC-USDT,ETH-USDT',
+        '/market/candles:BTC-USDT_1hour',
+        '/market/match:BTC-USDT,ETH-USDT',
+      ],
+      'spotPublicV1',
+    );
 
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
     /**
-     * make a list of some topics shown in the docs
-     *
-     * maybe make the subscribe call use spot or futures, instead of ws key (since we can determine auth needs automagically)
-     *
-     *
+     * Other margin websocket topics, which also use the "spotPublicV1" WsKey:
      */
-    // KLine/Candles Channel
-    // client.subscribe('spot/kline1m:BTC_USDT', 'spot');
-    // Depth-All Channel
-    // client.subscribe('spot/depth5:BTC_USDT', 'spot');
-    // Depth-Increase Channel
-    // client.subscribe('spot/depth/increase100:BTC_USDT', 'spot');
-    // Trade Channel
-    // client.subscribe('spot/trade:BTC_USDT', 'spot');
-    /**
-     * Or have multiple topics in one array, in a single request:
-     */
-    // client.subscribe(
-    //   [
-    //     'spot/ticker:BTC_USDT',
-    //     'spot/ticker:ETH_USDT',
-    //     'spot/ticker:XRP_USDT',
-    //     'spot/ticker:BMX_USDT',
-    //     'spot/ticker:SOL_USDT',
-    //   ],
-    //   'spot',
-    // );
+    client.subscribe(
+      [
+        '/indicator/index:USDT-BTC,ETH-USDT',
+        '/indicator/markPrice:USDT-BTC,ETH-USDT',
+      ],
+      'spotPublicV1',
+    );
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error(`Subscribe exception: `, e);
   }
 }
 
