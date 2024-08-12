@@ -504,9 +504,6 @@ export abstract class BaseWebsocketClient<
 
   private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number) {
     this.clearTimers(wsKey);
-    // if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
-    //   this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
-    // }
 
     this.wsStore.get(wsKey, true).activeReconnectTimer = setTimeout(() => {
       this.logger.info('Reconnecting to websocket', {
@@ -600,8 +597,6 @@ export abstract class BaseWebsocketClient<
     this.logger.trace(
       `Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
     );
-
-    // console.log(`batches: `, JSON.stringify(subscribeWsMessages, null, 2));
 
     for (const wsMessage of subscribeWsMessages) {
       // this.logger.trace(`Sending batch via message: "${wsMessage}"`);
@@ -708,7 +703,6 @@ export abstract class BaseWebsocketClient<
         event,
         didReconnectSuccessfully,
       } as any);
-      // TODO does this work??, does it even need the if??
     }
 
     this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);
@@ -732,8 +726,8 @@ export abstract class BaseWebsocketClient<
    * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
    */
   private async onWsReadyForEvents(wsKey: TWSKey) {
-    // Resolve & cleanup deferred "connection attempt in progress" promise
     try {
+      // Resolve & cleanup deferred "connection attempt in progress" promise
       const connectionInProgressPromise =
         this.wsStore.getConnectionInProgressPromise(wsKey);
 
@@ -764,8 +758,6 @@ export abstract class BaseWebsocketClient<
       [...this.wsStore.getTopics(wsKey)],
       wsKey,
     );
-
-    // console.log(`private public reqs`, { privateReqs, publicReqs, wsKey });
 
     // Request sub to public topics, if any
     this.requestSubscribeTopics(wsKey, publicReqs);
@@ -991,68 +983,4 @@ export abstract class BaseWebsocketClient<
       );
     }
   }
-
-  // /**
-  //  * Subscribe to topics & track/persist them. They will be automatically resubscribed to if the connection drops/reconnects.
-  //  * @param wsTopics topic or list of topics
-  //  * @param isPrivate optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
-  //  */
-  // public subscribe(
-  //   wsTopics: TWSTopic[] | TWSTopic,
-  //   market: TWSMarket,
-  //   isPrivate?: boolean,
-  // ) {
-  //   const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
-
-  //   topics.forEach((topic) => {
-  //     const isPrivateTopic = isPrivate || this.isPrivateChannel(topic);
-  //     const wsKey = this.getWsKeyForMarket(market, isPrivateTopic);
-
-  //     // Persist this topic to the expected topics list
-  //     this.wsStore.addTopic(wsKey, topic);
-
-  //     // if connected, send subscription request
-  //     if (
-  //       this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTED)
-  //     ) {
-  //       // if not authenticated, dont sub to private topics yet.
-  //       // This'll happen automatically once authenticated
-  //       if (isPrivateTopic && !this.wsStore.get(wsKey)?.isAuthenticated) {
-  //         return;
-  //       }
-
-  //       return this.requestSubscribeTopics(wsKey, topics);
-  //     }
-
-  //     // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-  //     if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
-  //       return this.connect(wsKey);
-  //     }
-  //   });
-  // }
-
-  // /**
-  //  * Unsubscribe from topics & remove them from memory. They won't be re-subscribed to if the connection reconnects.
-  //  * @param wsTopics topic or list of topics
-  //  * @param isPrivateTopic optional - the library will try to detect private topics, you can use this to mark a topic as private (if the topic isn't recognised yet)
-  //  */
-  // public unsubscribe(
-  //   wsTopics: TWSTopic[] | TWSTopic,
-  //   market: TWSMarket,
-  //   isPrivateTopic?: boolean,
-  // ) {
-  //   const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
-  //   topics.forEach((topic) => {
-  //     const wsKey = this.getWsKeyForMarket(market, isPrivateTopic);
-
-  //     this.wsStore.deleteTopic(wsKey, topic);
-
-  //     // unsubscribe request only necessary if active connection exists
-  //     if (
-  //       this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTED)
-  //     ) {
-  //       this.requestUnsubscribeTopics(wsKey, [topic]);
-  //     }
-  //   });
-  // }
 }
