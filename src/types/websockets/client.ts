@@ -1,15 +1,3 @@
-/**
- * Event args for subscribing/unsubscribing
- */
-
-// export type WsTopicSubscribePrivateArgsV2 =
-//   | WsTopicSubscribePrivateInstIdArgsV2
-//   | WsTopicSubscribePrivateCoinArgsV2;
-
-// export type WsTopicSubscribeEventArgsV2 =
-//   | WsTopicSubscribePublicArgsV2
-//   | WsTopicSubscribePrivateArgsV2;
-
 /** General configuration for the WebsocketClient */
 export interface WSClientConfigurableOptions {
   /** Your API key */
@@ -32,8 +20,6 @@ export interface WSClientConfigurableOptions {
 
   /** Delay in milliseconds before respawning the connection */
   reconnectTimeout?: number;
-
-  requestOptions?: {};
 
   wsUrl?: string;
 

@@ -37,10 +37,6 @@ export const WS_ERROR_ENUM = {
   INVALID_ACCESS_KEY: 'todo:',
 };
 
-export function neverGuard(x: never, msg: string): Error {
-  return new Error(`Unhandled value exception "${x}", ${msg}`);
-}
-
 export interface MessageEventLike {
   target: WebSocket;
   type: 'message';
