@@ -129,11 +129,6 @@ export abstract class BaseWebsocketClient<
     };
   }
 
-  // protected abstract getWsKeyForMarket(
-  //   market: TWSMarket,
-  //   isPrivate?: boolean,
-  // ): TWSKey;
-
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
   protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
 
@@ -155,10 +150,6 @@ export abstract class BaseWebsocketClient<
     wsKey: TWSKey,
     operation: WsOperation,
   ): Promise<string[]>;
-
-  // protected abstract getWsMarketForWsKey(key: TWSKey): TWSMarket;
-
-  // protected abstract isPrivateChannel(subscribeEvent: WSTopic): boolean;
 
   protected abstract getPrivateWSKeys(): TWSKey[];
   protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
@@ -230,13 +221,6 @@ export abstract class BaseWebsocketClient<
 
     const isConnectionInProgress =
       this.wsStore.isConnectionAttemptInProgress(wsKey);
-
-    // console.log(`subscribeTopicsForWsKey: `, {
-    //   wsKey,
-    //   normalisedTopicRequests: normalisedTopicRequests,
-    //   isConnected,
-    //   isConnectionInProgress,
-    // });
 
     // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
     if (!isConnected && !isConnectionInProgress) {
@@ -483,7 +467,6 @@ export abstract class BaseWebsocketClient<
         break;
     }
 
-    // this.emit('response', { ...error, wsKey });
     this.emit('exception', { ...error, wsKey });
   }
 
