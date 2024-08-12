@@ -16,4 +16,7 @@ export * from './types/response/spot-funding.js';
 export * from './types/response/spot-margin-trading.js';
 export * from './types/response/spot-trading.js';
 export * from './types/response/spot-vip.js';
+export * from './types/websockets/client.js';
+export * from './types/websockets/events.js';
+export * from './types/websockets/requests.js';
 export * from './WebsocketClient.js';

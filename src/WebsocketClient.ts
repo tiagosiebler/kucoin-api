@@ -11,6 +11,7 @@ import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
 import { SpotClient } from './SpotClient.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import { WsConnectionInfo } from './types/response/ws.js';
+import { WsMarket } from './types/websockets/client.js';
 import {
   WsOperation,
   WsRequestOperation,
@@ -43,11 +44,10 @@ export const PUBLIC_WS_KEYS: WsKey[] = [
  * WS topics are always a string for this exchange. Some exchanges use complex objects.
  */
 type WsTopic = string;
-export type WsMarket = 'spot' | 'futures';
 
 export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   private RESTClientCache: Record<
-    'spot' | 'futures',
+    WsMarket,
     SpotClient | FuturesClient | undefined
   > = {
     spot: undefined,
