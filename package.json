@@ -3,8 +3,8 @@
   "version": "0.0.1-beta.0",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
-    "clean": "rm -rf dist/*",
-    "build": "rm -fr dist/* && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && bash ./postBuild.sh",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && bash ./postBuild.sh",
     "test": "jest --passWithNoTests"
   },
   "main": "dist/cjs/index.js",
