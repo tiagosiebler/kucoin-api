@@ -157,6 +157,7 @@ import {
   GetOtcLoanAccountsResponse,
   GetOtcLoanResponse,
 } from './types/response/spot-vip.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
  *
@@ -1475,5 +1476,19 @@ export class SpotClient extends BaseRestClient {
     offset: string;
   }): Promise<APISuccessResponse<any>> {
     return this.getPrivate('api/v2/affiliate/inviter/statistics', params);
+  }
+  
+  /**
+   *
+   * WebSockets
+   *
+   */
+
+  getPublicWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
+    return this.post('api/v1/bullet-public');
+  }
+
+  getPrivateWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
+    return this.postPrivate('api/v1/bullet-private');
   }
 }
