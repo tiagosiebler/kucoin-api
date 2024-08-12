@@ -1142,6 +1142,12 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v3/etf/info', params);
   }
 
+  getMarginMarkPrices(): Promise<
+    APISuccessResponse<MarginMarkPriceResponse[]>
+  > {
+    return this.get('api/v3/mark-price/all-symbols');
+  }
+
   getMarginMarkPrice(params: {
     symbol: string;
   }): Promise<APISuccessResponse<MarginMarkPriceResponse>> {
@@ -1448,6 +1454,30 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/otc-loan/accounts');
   }
 
+  /**
+   *
+   ***********
+   * AFFILIATE
+   ***********
+   *
+   */
+
+  /**
+   * Get Affiliate User Rebate Information
+   *
+   * This endpoint allows getting affiliate user rebate information.
+   *
+   * @param params - The parameters for the request
+   * @returns A promise that resolves to the affiliate user rebate information
+   */
+  getAffiliateUserRebateInfo(params: {
+    date: string;
+    maxCount?: number;
+    offset: string;
+  }): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v2/affiliate/inviter/statistics', params);
+  }
+  
   /**
    *
    * WebSockets
