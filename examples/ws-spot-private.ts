@@ -2,21 +2,22 @@
 import { DefaultLogger, WebsocketClient } from '../src/index.js';
 
 async function start() {
-  const logger: typeof DefaultLogger = {
-    ...DefaultLogger,
-    trace: (...params) => {
-      if (
-        [
-          'Sending ping',
-          // 'Sending upstream ws message: ',
-          'Received pong',
-        ].includes(params[0])
-      ) {
-        return;
-      }
-      console.log('trace', JSON.stringify(params, null, 2));
-    },
-  };
+  // Optional: inject a custom logger to override internal logging behaviour
+  // const logger: typeof DefaultLogger = {
+  //   ...DefaultLogger,
+  //   trace: (...params) => {
+  //     if (
+  //       [
+  //         'Sending ping',
+  //         // 'Sending upstream ws message: ',
+  //         'Received pong',
+  //       ].includes(params[0])
+  //     ) {
+  //       return;
+  //     }
+  //     console.log('trace', JSON.stringify(params, null, 2));
+  //   },
+  // };
 
   const account = {
     key: process.env.API_KEY || 'keyHere',
@@ -31,7 +32,7 @@ async function start() {
       apiSecret: account.secret,
       apiPassphrase: account.passphrase,
     },
-    logger,
+    // logger,
   );
 
   client.on('open', (data) => {
