@@ -23,8 +23,13 @@ This document provides comprehensive examples for using the KuCoin Futures API w
 - [Installation:](#installation)
 - [Usage](#usage)
 - [REST API](#rest-api)
-  - [Account examples](#account-examples)
+  - [Account and balance](#account-examples)
   - [Subaccount API management](#subaccount-api-management)
+  - [Market Data](#market-data)
+    - [Symbol and exchange info](#symbol-and-exchange-info)
+    - [Order Book data](#order-book-data)
+    - [Funding Fees](#funding-fees)
+    - [Kline/Candles](#klinecandles)
   - [Transfer funds in and out of Futures Account](#transfer-funds-in-and-out-of-futures-account)
   - [Trade Execution](#trade)
     - [General info](#general-info)
@@ -37,17 +42,12 @@ This document provides comprehensive examples for using the KuCoin Futures API w
     - [Stop loss](#stop-loss)
     - [Place multiple orders](#place-multiple-orders)
     - [Cancel order](#cancel-order)
-    - [Cancel all orders(open, stop, limit...) for specific symbol](#cancel-all-ordersopen-stop-limit-for-specific-symbol)
-  - [Trade/Order/Positions Management](#order-management)
+    - [Cancel all orders for specific symbol](#cancel-all-orders-for-specific-symbol)
+  - [Trade/Order/Positions Management](#tradeorderpositions-management)
     - [Fetching orders](#fetching-orders)
     - [Fills](#fills)
     - [Positions](#positions)
-  - [Market Data](#market-data)
-    - [Symbol and exchange info](#symbol-and-exchange-info)
-    - [Order Book data](#order-book-data)
-    - [Order Book data](#order-book-data)
-    - [Funding Fees](#funding-fees)
-    - [Kline/Candles](#klinecandles)
+ 
 - [WebSocket](#websocket)
 - [Community group](#community-group)
 
@@ -139,7 +139,85 @@ futuresClient.deleteSubAPI({
 });
 ```
 
----
+### Market Data
+
+#### Symbol and exchange info
+
+```js
+// Get All Contract List
+futuresClient.getSymbols();
+
+// Get Order Info of the Contract
+futuresClient.getSymbol({ symbol: 'XBTUSDTM' });
+
+// Get Ticker
+futuresClient.getTicker({ symbol: 'XBTUSDTM' });
+```
+
+#### Order Book data
+
+```js
+// Get Full Order Book - Level 2
+futuresClient.getFullOrderBookLevel2({ symbol: 'XBTUSDTM' });
+
+// Get Level2 depth20
+futuresClient.getPartOrderBookLevel2Depth20({ symbol: 'XBTUSDTM' });
+
+// Get Level2 depth100
+futuresClient.getPartOrderBookLevel2Depth100({ symbol: 'XBTUSDTM' });
+```
+
+#### Order Book data
+
+```js
+// Get Public Trades
+futuresClient.getMarketTrades({ symbol: 'XBTUSDTM' });
+
+// Get Interest Rate List
+futuresClient.getInterestRates({ symbol: '.XBTINT' });
+
+// Get Index List
+futuresClient.getIndex({ symbol: '.KXBT' });
+
+// Get Current Mark Price
+futuresClient.getMarkPrice({ symbol: 'XBTUSDM' });
+
+// Get Premium Index
+futuresClient.getPremiumIndex({ symbol: '.XBTUSDMPI' });
+
+// Get 24hour futures transaction volume
+futuresClient.get24HourTransactionVolume();
+```
+
+#### Funding Fees
+
+```js
+// Get Current Funding Rate
+futuresClient.getFundingRate({ symbol: 'XBTUSDM' });
+
+// Get Public Funding History
+futuresClient.getFundingRates({
+  symbol: 'XBTUSDTM',
+  from: '1700310700000',
+  to: '1702310700000',
+});
+
+// Get Private Funding History
+futuresClient.getFundingHistory({ symbol: 'ETHUSDTM' });
+```
+
+#### Kline/Candles
+
+```js
+futuresClient.getKlines({
+  symbol: 'XBTUSDTM',
+  granularity: 60,
+  from: new Date().getTime() - 24 * 60 * 60 * 1000, // 24 hours ago
+  to: new Date().getTime(),
+});
+```
+
+
 
 ### Transfer funds in and out of Futures Account
 
@@ -391,7 +469,7 @@ futuresClient.cancelOrderById({ orderId: 'orderId' });
 futuresClient.cancelOrderByClientOid({ clientOid: 'clientOid' });
 ```
 
-#### Cancel All Orders(open, stop, limit, ) for specific symbol
+#### Cancel all orders for specific symbol
 
 ```js
 futuresClient.cancelAllOrders({ symbol: 'XBTUSDTM' });
@@ -456,83 +534,7 @@ futuresClient.getHistoryPositions({ symbol: 'ETHUSDTM' });
 
 ---
 
-### Market Data
 
-#### Symbol and exchange info
-
-```js
-// Get All Contract List
-futuresClient.getSymbols();
-
-// Get Order Info of the Contract
-futuresClient.getSymbol({ symbol: 'XBTUSDTM' });
-
-// Get Ticker
-futuresClient.getTicker({ symbol: 'XBTUSDTM' });
-```
-
-#### Order Book data
-
-```js
-// Get Full Order Book - Level 2
-futuresClient.getFullOrderBookLevel2({ symbol: 'XBTUSDTM' });
-
-// Get Level2 depth20
-futuresClient.getPartOrderBookLevel2Depth20({ symbol: 'XBTUSDTM' });
-
-// Get Level2 depth100
-futuresClient.getPartOrderBookLevel2Depth100({ symbol: 'XBTUSDTM' });
-```
-
-#### Order Book data
-
-```js
-// Get Public Trades
-futuresClient.getMarketTrades({ symbol: 'XBTUSDTM' });
-
-// Get Interest Rate List
-futuresClient.getInterestRates({ symbol: '.XBTINT' });
-
-// Get Index List
-futuresClient.getIndex({ symbol: '.KXBT' });
-
-// Get Current Mark Price
-futuresClient.getMarkPrice({ symbol: 'XBTUSDM' });
-
-// Get Premium Index
-futuresClient.getPremiumIndex({ symbol: '.XBTUSDMPI' });
-
-// Get 24hour futures transaction volume
-futuresClient.get24HourTransactionVolume();
-```
-
-#### Funding Fees
-
-```js
-// Get Current Funding Rate
-futuresClient.getFundingRate({ symbol: 'XBTUSDM' });
-
-// Get Public Funding History
-futuresClient.getFundingRates({
-  symbol: 'XBTUSDTM',
-  from: '1700310700000',
-  to: '1702310700000',
-});
-
-// Get Private Funding History
-futuresClient.getFundingHistory({ symbol: 'ETHUSDTM' });
-```
-
-#### Kline/Candles
-
-```js
-futuresClient.getKlines({
-  symbol: 'XBTUSDTM',
-  granularity: 60,
-  from: new Date().getTime() - 24 * 60 * 60 * 1000, // 24 hours ago
-  to: new Date().getTime(),
-});
-```
 
 ## Websocket
 
@@ -545,4 +547,4 @@ For Websocket examples, please refer to these links:
 
 ## Community group
 
-If you need help, something is wrong/missing or you have suggestions, please join our [Node.js Traders](https://t.me/nodetraders) community group on telegram and let us know!
+If you need help, something is wrong/missing or you have suggestions, please join our [Node.js Traders](https://t.me/nodetraders) community group on Telegram and let us know!
