@@ -307,7 +307,7 @@ export class FuturesClient extends BaseRestClient {
   }
 
   submitMultipleOrders(
-    params: Order,
+    params: Order[],
   ): Promise<APISuccessResponse<SubmitMultipleOrdersFuturesResponse[]>> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
