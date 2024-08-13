@@ -63,7 +63,7 @@ jobs:
           s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
           ' "$FILE_NAME"
         env:
-          TEMPLATE_URL: https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Star-History.md
+          TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Star-History.md
           TEMPLATE_TAG: star_history
 
       - name: Check for changes and commit / open PR
