@@ -1,12 +1,24 @@
-# KuCoin Futures examples
 
-# Node.js & JavaScript SDK for Kucoin Futures REST APIs & WebSockets
+
+# **KuCoin Futures API Examples** - Node.js & JavaScript SDK for Kucoin Futures REST APIs & WebSockets
+
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/kucoin-api">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </picture>
+  </a>
+</p>
 
 This document provides comprehensive examples for using the KuCoin Futures API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their applications.
 
-[KuCoin Documentation](https://docs.kucoin.com/futures/#introduction)
+[KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official Kucoin API docs
 
-[Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api)
+[Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
+
+**Table of contents:**
 
 - [Installation:](#installation)
 - [Usage](#usage)
