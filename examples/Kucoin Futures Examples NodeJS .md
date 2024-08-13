@@ -1,7 +1,4 @@
-
-
-# **KuCoin Futures API Examples** - Node.js & JavaScript SDK for Kucoin Futures REST APIs & WebSockets
-
+# **KuCoin Futures API Examples** - Node.js, JavaScript & Typescript SDK for Kucoin REST APIs & WebSockets
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
@@ -12,7 +9,7 @@
   </a>
 </p>
 
-This document provides comprehensive examples for using the KuCoin Futures API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their applications.
+This document provides comprehensive examples for using the KuCoin Futures API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their NodeJS, Javascript and Typscript applications.
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
@@ -25,6 +22,7 @@ If you are here, it means you will be great addition to our [Node.js Traders](ht
 - [Installation](#installation)
 - [Usage](#usage)
 - [REST API](#rest-api)
+
   - [Account and balance](#account-examples)
   - [Subaccount API management](#subaccount-api-management)
   - [Market Data](#market-data)
@@ -49,7 +47,7 @@ If you are here, it means you will be great addition to our [Node.js Traders](ht
     - [Fetching orders](#fetching-orders)
     - [Fills](#fills)
     - [Positions](#positions)
- 
+
 - [WebSocket](#websocket)
 - [Community group](#community-group)
 
@@ -218,8 +216,6 @@ futuresClient.getKlines({
   to: new Date().getTime(),
 });
 ```
-
-
 
 ### Transfer funds in and out of Futures Account
 
@@ -535,8 +531,6 @@ futuresClient.getHistoryPositions({ symbol: 'ETHUSDTM' });
 ```
 
 ---
-
-
 
 ## Websocket
 
