@@ -27,34 +27,35 @@ import {
 import {
   AccountBalance,
   AddMargin,
-  CreateSubAccountAPIResponseItem,
   FillDetail,
   FullOrderBookDetail,
-  GetAccountActiveOrderResponse,
-  GetAccountFillsFuturesResponse,
-  GetAccountOrdersFuturesResponse,
-  GetAccountTransactionsFuturesResponse,
-  GetAllSubAccountBalancesFuturesResponse,
-  GetClosePosition,
-  GetFundingHistoryResponse,
-  GetFundingRateFuturesResponse,
-  GetFundingRatesFuturesResponse,
-  GetFuturesTransferRecordsResponse,
-  GetIndexListFuturesResponse,
-  GetInterestRateListFuturesResponse,
-  GetMarkPriceFuturesResponse,
-  GetPremiumIndexFuturesResponse,
+  FundingHistoryItem,
+  FuturesActiveOrder,
+  FuturesClosedPositions,
+  FuturesFills,
+  FuturesFundingRate,
+  FuturesFundingRates,
+  FuturesMarkPrice,
+  FuturesOrders,
+  FuturesTransferRecords,
+  IndexListItem,
+  InterestRateItem,
   Klines,
   MarketTradeDetail,
   OrderDetail,
   PositionDetail,
+  PremiumIndexItem,
   RiskLimit,
   SubAccountAPIItem,
   SubmitMultipleOrdersFuturesResponse,
   SymbolDetail,
   TickerDetail,
   TransferDetail,
-  UpdateSubAccountAPIResponse,
+  UpdateSubAccountAPI,
+  AccountSummary,
+  AccountTransactions,
+  CreateSubAccountAPI,
+  SubAccountBalance,
 } from './types/response/futures.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import { WsConnectionInfo } from './types/response/ws.js';
@@ -100,7 +101,7 @@ export class FuturesClient extends BaseRestClient {
 
   getTransactions(
     params: GetTransactionsRequest,
-  ): Promise<APISuccessResponse<GetAccountTransactionsFuturesResponse>> {
+  ): Promise<APISuccessResponse<AccountTransactions>> {
     return this.getPrivate('api/v1/transaction-history', params);
   }
 
@@ -116,13 +117,13 @@ export class FuturesClient extends BaseRestClient {
 
   createSubAPI(
     params: CreateSubAPIRequest,
-  ): Promise<APISuccessResponse<CreateSubAccountAPIResponseItem>> {
+  ): Promise<APISuccessResponse<CreateSubAccountAPI>> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
   updateSubAPI(
     params: UpdateSubAPIRequest,
-  ): Promise<APISuccessResponse<UpdateSubAccountAPIResponse>> {
+  ): Promise<APISuccessResponse<UpdateSubAccountAPI>> {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
@@ -145,9 +146,12 @@ export class FuturesClient extends BaseRestClient {
     return this.getPrivate('api/v1/account-overview', params);
   }
 
-  getSubBalances(params?: {
-    currency?: string;
-  }): Promise<APISuccessResponse<GetAllSubAccountBalancesFuturesResponse>> {
+  getSubBalances(params?: { currency?: string }): Promise<
+    APISuccessResponse<{
+      summary: AccountSummary;
+      accounts: SubAccountBalance[];
+    }>
+  > {
     return this.getPrivate('api/v1/account-overview-all', params);
   }
 
@@ -167,7 +171,7 @@ export class FuturesClient extends BaseRestClient {
 
   getTransfers(
     params: GetTransfersRequest,
-  ): Promise<APISuccessResponse<GetFuturesTransferRecordsResponse>> {
+  ): Promise<APISuccessResponse<FuturesTransferRecords>> {
     return this.getPrivate('api/v1/transfer-list', params);
   }
 
@@ -235,27 +239,36 @@ export class FuturesClient extends BaseRestClient {
     return this.get('api/v1/kline/query', params);
   }
 
-  getInterestRates(
-    params: GetInterestRatesRequest,
-  ): Promise<APISuccessResponse<GetInterestRateListFuturesResponse>> {
+  getInterestRates(params: GetInterestRatesRequest): Promise<
+    APISuccessResponse<{
+      dataList: InterestRateItem[];
+      hasMore: boolean; // Whether there are more pages
+    }>
+  > {
     return this.get('api/v1/interest/query', params);
   }
 
-  getIndex(
-    params: GetInterestRatesRequest,
-  ): Promise<APISuccessResponse<GetIndexListFuturesResponse>> {
+  getIndex(params: GetInterestRatesRequest): Promise<
+    APISuccessResponse<{
+      dataList: IndexListItem[];
+      hasMore: boolean; // Whether there are more pages
+    }>
+  > {
     return this.get('api/v1/index/query', params);
   }
 
   getMarkPrice(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<GetMarkPriceFuturesResponse>> {
+  }): Promise<APISuccessResponse<FuturesMarkPrice>> {
     return this.get(`api/v1/mark-price/${params.symbol}/current`);
   }
 
-  getPremiumIndex(
-    params: GetInterestRatesRequest,
-  ): Promise<APISuccessResponse<GetPremiumIndexFuturesResponse>> {
+  getPremiumIndex(params: GetInterestRatesRequest): Promise<
+    APISuccessResponse<{
+      dataList: PremiumIndexItem[];
+      hasMore: boolean; // Whether there are more pages
+    }>
+  > {
     return this.get('api/v1/premium/query', params);
   }
 
@@ -313,13 +326,13 @@ export class FuturesClient extends BaseRestClient {
 
   getOrders(
     params?: GetOrdersRequest,
-  ): Promise<APISuccessResponse<GetAccountOrdersFuturesResponse>> {
+  ): Promise<APISuccessResponse<FuturesOrders>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
   getStopOrders(
     params?: GetStopOrdersRequest,
-  ): Promise<APISuccessResponse<GetAccountOrdersFuturesResponse>> {
+  ): Promise<APISuccessResponse<FuturesOrders>> {
     return this.getPrivate('api/v1/stopOrders', params);
   }
 
@@ -355,7 +368,7 @@ export class FuturesClient extends BaseRestClient {
    */
   getFills(
     params?: AccountFillsRequest,
-  ): Promise<APISuccessResponse<GetAccountFillsFuturesResponse>> {
+  ): Promise<APISuccessResponse<FuturesFills>> {
     return this.getPrivate('api/v1/fills', params);
   }
 
@@ -372,7 +385,7 @@ export class FuturesClient extends BaseRestClient {
 
   getOpenOrderStatistics(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<GetAccountActiveOrderResponse>> {
+  }): Promise<APISuccessResponse<FuturesActiveOrder>> {
     return this.getPrivate('api/v1/openOrderStatistics', params);
   }
 
@@ -400,7 +413,7 @@ export class FuturesClient extends BaseRestClient {
     to?: number;
     limit?: number;
     pageId?: number;
-  }): Promise<APISuccessResponse<GetClosePosition>> {
+  }): Promise<APISuccessResponse<FuturesClosedPositions>> {
     return this.getPrivate('/api/v1/history-positions', params);
   }
 
@@ -462,19 +475,22 @@ export class FuturesClient extends BaseRestClient {
 
   getFundingRate(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<GetFundingRateFuturesResponse>> {
+  }): Promise<APISuccessResponse<FuturesFundingRate>> {
     return this.get(`api/v1/funding-rate/${params.symbol}/current`);
   }
 
   getFundingRates(
     params: GetFundingRatesRequest,
-  ): Promise<APISuccessResponse<GetFundingRatesFuturesResponse[]>> {
+  ): Promise<APISuccessResponse<FuturesFundingRates[]>> {
     return this.get('api/v1/contract/funding-rates', params);
   }
 
-  getFundingHistory(
-    params: GetFundingHistoryRequest,
-  ): Promise<APISuccessResponse<GetFundingHistoryResponse>> {
+  getFundingHistory(params: GetFundingHistoryRequest): Promise<
+    APISuccessResponse<{
+      dataList: FundingHistoryItem[];
+      hasMore: boolean; // Whether there are more pages
+    }>
+  > {
     return this.getPrivate('api/v1/funding-history', params);
   }
 
