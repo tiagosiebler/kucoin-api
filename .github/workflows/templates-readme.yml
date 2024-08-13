@@ -47,7 +47,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout -b ${{ env.BRANCH_NAME }}
           git add $FILE_NAME
-          git commit -m 'Update $FILE_NAME'
+          git commit -m 'Update ${{ env.FILE_NAME }} '
           git push origin ${{ env.BRANCH_NAME }}
            gh pr create -B master -H ${{ env.BRANCH_NAME }} --title 'Merge ${{ env.BRANCH_NAME }} into master' --body 'Update ${{ env.FILE_NAME }} from template'
         env:
