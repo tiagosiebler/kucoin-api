@@ -55,7 +55,8 @@ import {
   AccountSummary,
   AccountTransactions,
   CreateSubAccountAPI,
-  SubAccountBalance,
+
+  SubBalance,
 } from './types/response/futures.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import { WsConnectionInfo } from './types/response/ws.js';
@@ -149,7 +150,7 @@ export class FuturesClient extends BaseRestClient {
   getSubBalances(params?: { currency?: string }): Promise<
     APISuccessResponse<{
       summary: AccountSummary;
-      accounts: SubAccountBalance[];
+      accounts: SubBalance[];
     }>
   > {
     return this.getPrivate('api/v1/account-overview-all', params);

@@ -75,7 +75,7 @@ export interface AccountSummary {
   currency: string; // currency
 }
 
-export interface SubAccountBalance extends AccountBalance {
+export interface SubBalance extends AccountBalance {
   accountName: string; // Account name, main account is main
 }
 

@@ -1,4 +1,4 @@
-export interface AccountSummary {
+export interface SpotAccountSummary {
   level: number;
   subQuantity: number;
   maxDefaultSubQuantity: number;
@@ -27,7 +27,7 @@ export interface Account {
   holds: string;
 }
 
-export interface AccountTransactions {
+export interface SpotAccountTransactions {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -119,7 +119,7 @@ export interface CreateSubAccount {
   access: string;
 }
 
-export interface SubAccountBalance {
+export interface SubAccountBalances {
   subUserId: string;
   subName: string;
   mainAccounts: SubAccountBalance[];
@@ -155,7 +155,7 @@ export interface SubAccountAPIInfo {
   subName: string;
 }
 
-export interface CreateSubAccountAPI extends SubAccountAPIInfo {
+export interface CreateSubAPI extends SubAccountAPIInfo {
   apiSecret: string;
   passphrase: string;
 }

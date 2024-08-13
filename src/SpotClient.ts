@@ -75,12 +75,12 @@ import {
   Account,
   AccountHFMarginTransactions,
   AccountHFTransactions,
-  AccountSummary,
-  AccountTransactions,
   Balances,
   CreateSubAccount,
-  CreateSubAccountAPI,
+  CreateSubAPI,
   DeleteSubAccountAPI,
+  SpotAccountSummary,
+  SpotAccountTransactions,
   SubAccountAPIInfo,
   SubAccountBalance,
   SubAccountBalancesV2,
@@ -196,7 +196,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getAccountSummary(): Promise<APISuccessResponse<AccountSummary>> {
+  getAccountSummary(): Promise<APISuccessResponse<SpotAccountSummary>> {
     return this.getPrivate('api/v2/user-info');
   }
 
@@ -222,7 +222,7 @@ export class SpotClient extends BaseRestClient {
    */
   getTransactions(
     params: GetSpotTransactionsRequest,
-  ): Promise<APISuccessResponse<AccountTransactions>> {
+  ): Promise<APISuccessResponse<SpotAccountTransactions>> {
     return this.getPrivate('api/v1/accounts/ledgers', params);
   }
 
@@ -301,7 +301,7 @@ export class SpotClient extends BaseRestClient {
 
   createSubAPI(
     params: CreateSubAccountAPIRequest,
-  ): Promise<APISuccessResponse<CreateSubAccountAPI>> {
+  ): Promise<APISuccessResponse<CreateSubAPI>> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 

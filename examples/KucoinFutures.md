@@ -9,16 +9,7 @@
   - [Usage](#usage)
   - [REST API](#rest-api)
     - [User](#user)
-      - [Get Account Overview](#get-account-overview)
-      - [Get Transaction History](#get-transaction-history)
-      - [Get Sub-Account Futures API List](#get-sub-account-futures-api-list)
-      - [Create Futures APIs for Sub-Account](#create-futures-apis-for-sub-account)
-      - [Modify Sub-Account Futures APIs](#modify-sub-account-futures-apis)
-      - [Delete Sub-Account Futures APIs](#delete-sub-account-futures-apis)
     - [Transfer](#transfer)
-      - [Transfer to Main or TRADE Account](#transfer-to-main-or-trade-account)
-      - [Transfer to Futures Account](#transfer-to-futures-account)
-      - [Get Transfer-Out Request Records](#get-transfer-out-request-records)
     - [Trade](#trade)
       - [Orders](#orders)
         - [Place Order Test](#place-order-test)
@@ -107,7 +98,7 @@ futuresClient.getSubAPIs({
   subName: 'my_sub_name',
 });
 
-//Create Futures APIs for Sub-Account
+// Create Futures APIs for Sub-Account
 
 futuresClient.createSubAPI({
   subName: 'my_sub_name',
@@ -137,7 +128,7 @@ futuresClient.deleteSubAPI({
 ### Transfer funds in and out of Futures Account
 
 ```js
-// transfer to Main or TRADE Account
+// Transfer out of the Futures to main acc
 
 futuresClient.submitTransferOut({
   amount: 0.01,
@@ -171,63 +162,157 @@ futuresClient.futureTransfers({
 
 #### Orders
 
+
+
+Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols. Each contract is equal to Multiplier x Size.
+
+For example click on this endpoint and get a symbol info for XRPUSDTM:  https://api-futures.kucoin.com/api/v1/contracts/XRPUSDTM  
+
+In the object, find the "multiplier" value. 
+
 ```js
-// Place an Order
-// symbol, price, size, leverage = 1,  clientOid = uuidV4(), optional
+const symbolInfo = await client.getSymbol({ symbol: 'XRPUSDTM' });
+const multiplier = symbolInfo.data.multiplier;
+```
 
-// Buy Limit Order
-futuresClient.futuresBuy(
-  {
-    symbol: 'ETHUSDTM',
-    price: 10000,
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-  },
-  console.log,
-);
+E.g. if multiplier is 10(what you can see from the endpoint), that means each SIZE is 10 XRP. So if XRP is currently at $0.5, then each 1 contract (size 10) is going to cost $5.00 size = (Funds x leverage) / (price x multiplier)
+```js
+const XRPPriceExample = 0.5;
+const leverage = 5;
+const fundsToTradeUSDT = 100;
 
-// Buy Market Order
-futuresClient.futuresBuy(
-  {
-    symbol: 'ETHUSDTM',
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-  },
-  console.log,
-);
+const costOfContract = XRPPriceExample * multiplier;
 
-// Buy Stop Order
-futuresClient.futuresBuy(
-  {
-    symbol: 'ETHUSDTM',
-    price: 10000,
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-    optional: {
-      stop: 'up',
-      stopPriceType: 'TP',
-      stopPrice: '10000',
-      // ...
-    },
-  },
-  console.log,
-);
+const size = (fundsToTradeUSDT * leverage) / costOfContract;
+console.log(`Size: ${size}`);
+```
 
-// Sell Order
-// futuresClient.futuresBuy -> futuresClient.futuresSell
-futuresClient.futuresSell(
-  {
-    symbol: 'ETHUSDTM',
-    price: 20000,
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-  },
-  console.log,
-);
+
+
+/**
+ * The trade amount indicates the amount of contract to buy or sell, and contract uses the base currency or lot as the trading unit.
+ * The trade amount must be no less than 1 lot for the contract and no larger than the maxOrderQty.
+ * It should be a multiple number of the lot, or the system will report an error when you place the order.
+ * E.g. 1 lot of XBTUSDTM is 0.001 Bitcoin, while 1 lot of XBTUSDM is 1 USD.
+ * or check the XRPUSDTM example above.
+ *
+ * Here are function examples using the Futures Create Order endpoint:
+ */
+
+// A MARKET SHORT of 2 contracts of XBT using leverage of 5:
+const marketShort = client.submitOrder({
+  clientOid: '123456789',
+  leverage: '5',
+  side: 'sell',
+  size: 2,
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'market',
+});
+
+// A MARKET LONG of 2 contracts of XBT using leverage of 5:
+const marketLong = client.submitOrder({
+  clientOid: '123456789',
+  leverage: '5',
+  side: 'buy',
+  size: 2,
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'market',
+});
+
+// A LIMIT SHORT of 2 contracts of XBT using leverage of 5:
+const limitShort = client.submitOrder({
+  clientOid: '123456789',
+  leverage: '5',
+  price: '70300.31',
+  side: 'sell',
+  size: 2,
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'limit',
+});
+
+// A LIMIT LONG of 2 contracts of XBT using leverage of 5:
+const limitLong = client.submitOrder({
+  clientOid: '123456789',
+  leverage: '5',
+  price: '40300.31',
+  side: 'buy',
+  size: 2,
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'limit',
+});
+
+// On any "close position" action, if you specify a SIZE=0 or leave off the SIZE parameter,
+// then it will close the whole position, regardless of the size.
+// If you specify a SIZE, it will close only the number of contracts you specify.
+
+// If closeOrder is set to TRUE,
+// the system will close the position and the position size will become 0.
+// Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
+
+// A MARKET CLOSE POSITION example:
+const marketClose = client.submitOrder({
+  clientOid: '123456789',
+  closeOrder: true,
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'market',
+  side: 'sell',
+  size: 0,
+});
+
+// A LIMIT CLOSE of a LONG example:
+const limitCloseLong = client.submitOrder({
+  clientOid: '123456789',
+  leverage: '5',
+  price: '70300.31',
+  closeOrder: true,
+  side: 'sell',
+  size: 2,
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'limit',
+});
+
+// A LIMIT CLOSE of a SHORT example:
+const limitCloseShort = client.submitOrder({
+  clientOid: '123456789',
+  leverage: '5',
+  price: '40300.31',
+  closeOrder: true,
+  side: 'buy',
+  size: 2,
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'limit',
+});
+
+// A STOP LOSS example for a LONG position:
+const stopLossLong = client.submitOrder({
+  clientOid: '123456789',
+  closeOrder: true,
+  stop: 'down',
+  stopPrice: '40200.31',
+  stopPriceType: 'TP',
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'market',
+});
+
+// A STOP LOSS example for a SHORT position:
+const stopLossShort = client.submitOrder({
+  clientOid: '123456789',
+  closeOrder: true,
+  stop: 'up',
+  stopPrice: '40200.31',
+  stopPriceType: 'TP',
+  symbol: 'XBTUSDTM',
+  timeInForce: 'GTC',
+  type: 'market',
+});
 
 // Cancel an Order
 futuresClient.futuresCancel('orderId', console.log);
