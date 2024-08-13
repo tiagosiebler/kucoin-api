@@ -222,7 +222,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/accounts', params);
   }
 
-  getAccount(params: {
+  getAccountDetail(params: {
     accountId: any;
   }): Promise<APISuccessResponse<AccountResponse>> {
     return this.getPrivate(`api/v1/accounts/${params.accountId}`);
@@ -272,26 +272,26 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v2/sub/user', params);
   }
 
-  createSub(
+  createSubAccount(
     params: CreateSubAccountRequest,
   ): Promise<APISuccessResponse<CreateSubAccountResponse>> {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
 
-  getSubBalance(params: {
+  getSubAccountBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
   }): Promise<APISuccessResponse<GetSubAccountBalanceResponse>> {
     return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
 
-  getSubBalancesV1(): Promise<
+  getSubAccountBalancesV1(): Promise<
     APISuccessResponse<GetSubAccountBalanceResponse>
   > {
     return this.getPrivate('api/v1/sub-accounts');
   }
 
-  getSubBalancesV2(params: {
+  getSubAccountBalancesV2(params: {
     currentPage?: number;
     pageSize?: number;
   }): Promise<APISuccessResponse<GetSubAccountBalancesV2Response>> {
@@ -376,7 +376,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v2/deposit-addresses', params);
   }
 
-  getDepositAddress(params: {
+  getDepositAddressV1(params: {
     currency: string;
     chain?: string;
   }): Promise<APISuccessResponse<DepositAddress>> {
@@ -389,7 +389,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/deposits', params);
   }
 
-  getV1HistoricalDeposits(
+  getHistoricalDepositsV1(
     params?: GetDepositsRequest,
   ): Promise<APISuccessResponse<GetV1HistoricalDepositsResponse>> {
     return this.getPrivate('api/v1/hist-deposits', params);
