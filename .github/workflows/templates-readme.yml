@@ -6,10 +6,12 @@ on:
 permissions:
   contents: write # Grant write permissions to the contents
 
+env:
+  FILENAME: README.md
+
 jobs:
   update-readme:
     runs-on: ubuntu-latest
-    env: FILENAME:"README.md"
 
     steps:
       - name: Checkout repository
