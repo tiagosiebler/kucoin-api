@@ -39,7 +39,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
 
 <!-- template_related_projects -->
 
-bleh
+klasnmflkasjnfalksdnf
 
 <!-- template_related_projects_end -->
 
@@ -240,7 +240,21 @@ const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
 
 <!-- template_contributions -->
 
-im old replace me pls
+Have my projects helped you? Share the love, there are many ways you can show your thanks:
+
+- Star & share my projects.
+- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
+- Have an interesting project? Get in touch & invite me to it.
+- Or buy me all the coffee:
+  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+
+<!---
+old ones:
+  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
+  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
+  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
+  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
+-->
 
 <!-- template_contributions_end -->
 
@@ -249,7 +263,5 @@ im old replace me pls
 Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
 
 <!-- template_star_history -->
-
-i has need replace pls
 
 <!-- template_star_history_end -->
