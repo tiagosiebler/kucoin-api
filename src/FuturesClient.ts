@@ -281,7 +281,7 @@ export class FuturesClient extends BaseRestClient {
    *
    */
 
-  submitNewOrder(
+  submitOrder(
     params: Order,
   ): Promise<APISuccessResponse<{ orderId: string }>> {
     return this.postPrivate('api/v1/orders', params);

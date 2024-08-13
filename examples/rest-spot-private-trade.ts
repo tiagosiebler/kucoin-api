@@ -14,7 +14,7 @@ async function start() {
   });
 
   try {
-    const spotBuyResult = await client.submitNewOrder({
+    const spotBuyResult = await client.submitOrder({
       clientOid: client.generateNewOrderID(),
       side: 'buy',
       type: 'market',
@@ -23,7 +23,7 @@ async function start() {
     });
     console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
 
-    const spotSellResult = await client.submitNewOrder({
+    const spotSellResult = await client.submitOrder({
       clientOid: client.generateNewOrderID(),
       side: 'sell',
       type: 'market',
