@@ -22,20 +22,32 @@ async function start() {
      * Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols.
      * Each contract is Multiplier x Size
      * For example:  https://api-futures.kucoin.com/api/v1/contracts/XRPUSDTM  - see the "multiplier" value.
-     *
+     * */
+
+    const symbolInfo = await client.getSymbol({ symbol: 'XRPUSDTM' });
+    const multiplier = symbolInfo.data.multiplier;
+
+    /**
      * That means each SIZE is 10 XRP. So if XRP is currently at $0.5,
      * then each 1 contract (size 10) is going to cost $5.00
      * size = (Funds x leverage) / (price x multiplier)
-     * Also, "size" must be an integer number. You can't place an order for fractional contracts
-     *
-     * To calculate the size to include the Taker fees: newsize = size - (size * fee * leverage)
      */
+
+    const XRPPriceExample = 0.5;
+    const leverage = 5;
+    const fundsToTradeUSDT = 100;
+
+    const costOfContract = XRPPriceExample * multiplier;
+
+    const size = (fundsToTradeUSDT * leverage) / costOfContract;
+    console.log(`Size: ${size}`);
+
     /**
      * The trade amount indicates the amount of contract to buy or sell, and contract uses the base currency or lot as the trading unit.
      * The trade amount must be no less than 1 lot for the contract and no larger than the maxOrderQty.
      * It should be a multiple number of the lot, or the system will report an error when you place the order.
      * E.g. 1 lot of XBTUSDTM is 0.001 Bitcoin, while 1 lot of XBTUSDM is 1 USD.
-     *
+     * or check the XRPUSDTM example above.
      *
      * Here are function examples using the Futures Create Order endpoint:
      */
