@@ -1,0 +1,56 @@
+name: Update README.md templates
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write # Grant write permissions to the contents
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    env: FILENAME:"README.md"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get the current date and time
+        id: datetime
+        run: echo "BRANCH_NAME=$(date +'actions_%Y_%m_%d_%H%M%S')" >> $GITHUB_ENV
+
+      - name: Fetch and update contributions template
+        env:
+          TEMPLATE_URL:"https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Contributions-%26-Thanks.md"
+          TEMPLATE_TAG:"contributions"
+
+        run: |
+          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
+
+          perl -0777 -i -pe '
+          my $tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"' -->");
+          my $end_tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"'\_end -->");
+          my $replacement = "'"$TEMPLATE_VALUE"'";
+
+          s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
+          ' "$FILENAME"
+
+      - name: Check for changes and commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout -b ${{ env.BRANCH_NAME }}
+          git add $FILENAME
+          git commit -m 'Update $FILENAME'
+          git push origin ${{ env.BRANCH_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: create pull request
+        run: gh pr create -B master -H ${{ env.BRANCH_NAME }} --title 'Merge ${{ env.BRANCH_NAME }} into master' --body 'Update $FILENAME from template'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
