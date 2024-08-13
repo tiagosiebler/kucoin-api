@@ -22,7 +22,7 @@ If you are here, it means you will be great addition to our [Node.js Traders](ht
 
 **Table of contents:**
 
-- [Installation:](#installation)
+- [Installation](#installation)
 - [Usage](#usage)
 - [REST API](#rest-api)
   - [Account and balance](#account-examples)
