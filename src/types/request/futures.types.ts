@@ -114,7 +114,7 @@ export interface GetInterestRatesRequest {
 
 export interface Order {
   clientOid: string;
-  side: 'buy' | 'sell';
+  side?: 'buy' | 'sell';
   symbol: string;
   leverage?: string;
   type?: 'market' | 'limit';
@@ -128,7 +128,7 @@ export interface Order {
   forceHold?: boolean;
   stp?: 'CN' | 'CO' | 'CB';
   price?: string;
-  size: number;
+  size?: number;
   timeInForce?: 'GTC' | 'IOC';
   hidden?: boolean;
   iceberg?: boolean;
