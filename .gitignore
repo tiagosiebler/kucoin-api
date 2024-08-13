@@ -3,3 +3,8 @@ examples/spot-private-test.ts
 node_modules
 
 rest-spot-private-ts-test.ts
+
+localtest.sh
+testfile.ts
+
+
