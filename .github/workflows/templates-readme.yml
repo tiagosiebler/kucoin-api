@@ -22,10 +22,6 @@ jobs:
         run: echo "BRANCH_NAME=$(date +'actions_%Y_%m_%d_%H%M%S')" >> $GITHUB_ENV
 
       - name: Fetch and update contributions template
-        env:
-          TEMPLATE_URL:"https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Contributions-%26-Thanks.md"
-          TEMPLATE_TAG:"contributions"
-
         run: |
           TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
 
@@ -36,6 +32,9 @@ jobs:
 
           s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
           ' "$FILENAME"
+        env:
+          TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Contributions-%26-Thanks.md
+          TEMPLATE_TAG: contributions
 
       - name: Check for changes and commit
         run: |
