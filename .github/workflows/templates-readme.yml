@@ -37,6 +37,7 @@ jobs:
           TEMPLATE_TAG: contributions
 
       - name: Check for changes and commit
+        id: commitIfChanged
         run: |
           if git diff --quiet; then
             echo "No changes to commit"
@@ -52,6 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: create pull request
+        if: steps.build.commitIfChanged == 'success'
         run: gh pr create -B master -H ${{ env.BRANCH_NAME }} --title 'Merge ${{ env.BRANCH_NAME }} into master' --body 'Update $FILENAME from template'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
