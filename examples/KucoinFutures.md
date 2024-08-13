@@ -58,14 +58,14 @@ yarn add kucoin-api
 ## Usage
 
 ```js
-/** Import/Require SDK */
+// require
+const { FuturesClient } = require('kucoin-api');
 
-// require method
-const KuCoinFutures = require('kucoin-api');
-
-// import method
+// import
 import { FuturesClient } from 'kucoin-api';
 
+
+// initialise Futures Client
 const futuresClient = new FuturesClient({
   // insert your api key, secret and passphrase - use env vars, if not just fill the string values
   apiKey: process.env.KUCOIN_API_KEY || 'insert-your-api-key',
