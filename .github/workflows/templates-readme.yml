@@ -7,7 +7,7 @@ permissions:
   contents: write # Grant write permissions to the contents
 
 env:
-  FILENAME: README.md
+  FILE_NAME: README.md
 
 jobs:
   update-readme:
@@ -19,7 +19,7 @@ jobs:
 
       - name: Get the current date and time
         id: datetime
-        run: echo "BRANCH_NAME=$(date +'actions_%Y_%m_%d_%H%M%S')" >> $GITHUB_ENV
+        run: echo "BRANCH_NAME=$(date +'actions_templates_%Y_%m_%d_%H%M%S')" >> $GITHUB_ENV
 
       - name: Fetch and update contributions template
         run: |
@@ -31,12 +31,12 @@ jobs:
           my $replacement = "'"$TEMPLATE_VALUE"'";
 
           s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
-          ' "$FILENAME"
+          ' "$FILE_NAME"
         env:
           TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Contributions-%26-Thanks.md
           TEMPLATE_TAG: contributions
 
-      - name: Check for changes and commit
+      - name: Check for changes and commit / open PR
         id: commitIfChanged
         run: |
           if git diff --quiet; then
@@ -46,14 +46,9 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout -b ${{ env.BRANCH_NAME }}
-          git add $FILENAME
-          git commit -m 'Update $FILENAME'
+          git add $FILE_NAME
+          git commit -m 'Update $FILE_NAME'
           git push origin ${{ env.BRANCH_NAME }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: create pull request
-        if: steps.build.commitIfChanged == 'success'
-        run: gh pr create -B master -H ${{ env.BRANCH_NAME }} --title 'Merge ${{ env.BRANCH_NAME }} into master' --body 'Update $FILENAME from template'
+           gh pr create -B master -H ${{ env.BRANCH_NAME }} --title 'Merge ${{ env.BRANCH_NAME }} into master' --body 'Update ${{ env.FILE_NAME }} from template'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
