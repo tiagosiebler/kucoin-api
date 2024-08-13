@@ -187,7 +187,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    *
-   * Futures Market Data
+   * REST - FUTURES TRADING - Market Data
    *
    */
 
@@ -269,21 +269,11 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * Account
-   ***********
+   * REST - FUTURES TRADING - Orders
    *
    */
 
-  /**
-   *
-   * Orders
-   *
-   */
-
-  submitOrder(
-    params: Order,
-  ): Promise<APISuccessResponse<{ orderId: string }>> {
+  submitOrder(params: Order): Promise<APISuccessResponse<{ orderId: string }>> {
     return this.postPrivate('api/v1/orders', params);
   }
 
@@ -353,7 +343,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    *
-   * Futures Fills
+   * REST - FUTURES TRADING - Fills
    *
    */
 
@@ -388,7 +378,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    *
-   * Futures Positions
+   * REST - FUTURES TRADING - Positions
    *
    */
 
@@ -447,7 +437,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    *
-   * Futures risk limit
+   * REST - FUTURES TRADING - Risk limit
    *
    */
 
@@ -466,7 +456,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    *
-   * Futures funding fees
+   * REST - FUTURES TRADING - Funding fees
    *
    */
 

@@ -195,15 +195,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * Account
-   ***********
-   *
-   */
-
-  /**
-   *
-   * Basic Info
+   * REST - ACCOUNT - Basic Info
    *
    */
 
@@ -257,7 +249,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Sub-Account
+   * REST - ACCOUNT - Sub-Account
    *
    */
 
@@ -300,7 +292,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Sub-Account API
+   * REST - ACCOUNT - Sub-Account API
    *
    *
    */
@@ -335,9 +327,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * Funding
-   ***********
+   * REST - FUNDING - Funding overview
    *
    */
 
@@ -359,7 +349,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Deposit
+   * REST - FUNDING -Deposit
    *
    */
 
@@ -397,7 +387,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Withdrawals
+   * REST - FUNDING -Withdrawals
    *
    */
 
@@ -434,7 +424,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Transfer
+   * REST - FUNDING - Transfer
    *
    */
 
@@ -470,7 +460,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Trade Fee
+   * REST - FUNDING - Trade Fee
    *
    */
 
@@ -497,15 +487,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * Spot Trading
-   ***********
-   *
-   */
-
-  /**
-   *
-   * Market data
+   * REST - SPOT TRADING -Market data
    *
    */
 
@@ -582,7 +564,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Spot HF trade
+   * REST - SPOT TRADING - Spot HF trade
    *
    */
 
@@ -754,7 +736,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Orders
+   * REST - SPOT TRADING - Orders
    *
    */
 
@@ -835,7 +817,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Fills
+   * REST - SPOT TRADING -Fills
    *
    */
 
@@ -853,7 +835,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Stop order
+   * REST - SPOT TRADING - Stop order
    *
    */
 
@@ -934,7 +916,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * OCO order
+   * REST - SPOT TRADING - OCO order
    *
    */
 
@@ -1021,15 +1003,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * Margin Trading
-   ***********
-   *
-   */
-
-  /**
-   *
-   * Margin HF trade
+   * REST - MARGIN TRADING -Margin HF trade
    *
    */
 
@@ -1116,7 +1090,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Orders
+   * REST - MARGIN TRADING - Orders
    *
    */
 
@@ -1132,7 +1106,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Margin info
+   * REST - MARGIN TRADING - Margin info
    *
    */
 
@@ -1166,7 +1140,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Isolated Margin
+   * REST - MARGIN TRADING - Isolated Margin
    *
    */
 
@@ -1190,7 +1164,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Margin trading(v3)
+   * REST - MARGIN TRADING - Margin trading(v3)
    *
    */
 
@@ -1240,7 +1214,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Lending market(v3)
+   * REST - MARGIN TRADING - Lending market(v3)
    *
    */
 
@@ -1300,15 +1274,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * EARN
-   ***********
-   *
-   */
-
-  /**
-   *
-   * General
+   * REST - EARN -General
    *
    */
 
@@ -1349,7 +1315,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * KUCOIN EARN
+   * REST - EARN -KUCOIN EARN
    *
    */
 
@@ -1388,7 +1354,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Staking
+   * REST - EARN - Staking
    *
    */
 
@@ -1427,10 +1393,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * VIP LENDING
-   ***********
-   *
+   * REST - VIP LENDING
    */
 
   /**
@@ -1456,9 +1419,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   ***********
-   * AFFILIATE
-   ***********
+   * REST - AFFILIATE
    *
    */
 
@@ -1477,7 +1438,7 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<any>> {
     return this.getPrivate('api/v2/affiliate/inviter/statistics', params);
   }
-  
+
   /**
    *
    * WebSockets
