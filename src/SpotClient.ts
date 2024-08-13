@@ -1477,7 +1477,20 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<any>> {
     return this.getPrivate('api/v2/affiliate/inviter/statistics', params);
   }
-  
+
+  /**
+   * Get download link for broker rebate orders
+   *
+   * trade type 1 = spot, trade type 2 = futures
+   */
+  getBrokerRebateOrderDownloadLink(params: {
+    begin: string;
+    end: string;
+    tradeType: 1 | 2;
+  }): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v1/broker/api/rebase/download', params);
+  }
+
   /**
    *
    * WebSockets

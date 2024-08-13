@@ -2,3 +2,4 @@ examples/futures-private-test.ts
 examples/spot-private-test.ts
 node_modules
 
+rest-spot-private-ts-test.ts
