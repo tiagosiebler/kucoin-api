@@ -15,7 +15,7 @@ interface AccountTransactionItem {
   currency: string; // Currency
 }
 
-export interface GetAccountTransactionsFuturesResponse {
+export interface AccountTransactions {
   hasMore: boolean; // Whether there are more pages
   dataList: AccountTransactionItem[];
 }
@@ -37,12 +37,12 @@ export interface GetSubAccountAPIsResponse {
   data: SubAccountAPIItem[];
 }
 
-export interface CreateSubAccountAPIResponseItem extends SubAccountAPIItem {
+export interface CreateSubAccountAPI extends SubAccountAPIItem {
   apiSecret: string; // API secret
   passphrase: string; // Password
 }
 
-export interface UpdateSubAccountAPIResponse {
+export interface UpdateSubAccountAPI {
   apiKey: string; // API-Key
   ipWhitelist: string; // IP whitelist
   permission: string; // Permissions
@@ -64,7 +64,7 @@ export interface AccountBalance {
   currency: string; // currency code
 }
 
-interface AccountSummary {
+export interface AccountSummary {
   accountEquityTotal: number; // Total Account Equity
   unrealisedPNLTotal: number; // Total unrealisedPNL
   marginBalanceTotal: number; // Total Margin Balance
@@ -75,13 +75,8 @@ interface AccountSummary {
   currency: string; // currency
 }
 
-interface SubAccountBalance extends AccountBalance {
+export interface SubAccountBalance extends AccountBalance {
   accountName: string; // Account name, main account is main
-}
-
-export interface GetAllSubAccountBalancesFuturesResponse {
-  summary: AccountSummary;
-  accounts: SubAccountBalance[];
 }
 
 /**
@@ -121,7 +116,7 @@ interface TransferOutRequestRecord {
   remark: string; // User remark
 }
 
-export interface GetFuturesTransferRecordsResponse {
+export interface FuturesTransferRecords {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -235,19 +230,14 @@ export type Klines = [
   number, // Trading volume
 ];
 
-interface InterestRateItem {
+export interface InterestRateItem {
   symbol: string; // Symbol of the Bitcoin Lending Rate
   granularity: number; // Granularity (millisecond)
   timePoint: number; // Time point (millisecond)
   value: number; // Interest rate value
 }
 
-export interface GetInterestRateListFuturesResponse {
-  dataList: InterestRateItem[];
-  hasMore: boolean; // Whether there are more pages
-}
-
-interface IndexListItem {
+export interface IndexListItem {
   symbol: string; // Symbol of Bitcoin spot
   granularity: number; // Granularity (millisecond)
   timePoint: number; // Time point (millisecond)
@@ -259,12 +249,7 @@ interface IndexListItem {
   }[];
 }
 
-export interface GetIndexListFuturesResponse {
-  dataList: IndexListItem[];
-  hasMore: boolean; // Whether there are more pages
-}
-
-export interface GetMarkPriceFuturesResponse {
+export interface FuturesMarkPrice {
   symbol: string; // Symbol
   granularity: number; // Granularity (millisecond)
   timePoint: number; // Time point (millisecond)
@@ -272,16 +257,11 @@ export interface GetMarkPriceFuturesResponse {
   indexPrice: number; // Index price
 }
 
-interface PremiumIndexItem {
+export interface PremiumIndexItem {
   symbol: string; // Premium index symbol
   granularity: number; // Granularity (millisecond)
   timePoint: number; // Time point (millisecond)
   value: number; // Premium index
-}
-
-export interface GetPremiumIndexFuturesResponse {
-  dataList: PremiumIndexItem[];
-  hasMore: boolean; // Whether there are more pages
 }
 
 /**
@@ -345,7 +325,7 @@ export interface SubmitMultipleOrdersFuturesResponse {
   msg: string;
 }
 
-export interface GetAccountOrdersFuturesResponse {
+export interface FuturesOrders {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -383,7 +363,7 @@ export interface FillDetail {
   tradeTime: number; // trade time in nanosecond
 }
 
-export interface GetAccountFillsFuturesResponse {
+export interface FuturesFills {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -391,7 +371,7 @@ export interface GetAccountFillsFuturesResponse {
   items: FillDetail[];
 }
 
-export interface GetAccountActiveOrderResponse {
+export interface FuturesActiveOrder {
   openOrderBuySize: number; // Total number of the unexecuted buy orders
   openOrderSellSize: number; // Total number of the unexecuted sell orders
   openOrderBuyCost: string; // Value of all the unexecuted buy orders
@@ -509,7 +489,7 @@ export interface RiskLimit {
  *
  */
 
-export interface GetFundingRateFuturesResponse {
+export interface FuturesFundingRate {
   symbol: string; // Funding Rate Symbol
   granularity: number; // Granularity (milliseconds)
   timePoint: number; // Time point (milliseconds)
@@ -517,13 +497,13 @@ export interface GetFundingRateFuturesResponse {
   predictedValue: number; // Predicted funding rate
 }
 
-export interface GetFundingRatesFuturesResponse {
+export interface FuturesFundingRates {
   symbol: string; // Symbol of the contract
   timePoint: number; // Time point (milliseconds)
   fundingRate: number; // Funding rate
 }
 
-interface FundingHistoryItem {
+export interface FundingHistoryItem {
   id: number; // id
   symbol: string; // Symbol of the contract
   timePoint: number; // Time point (milliseconds)
@@ -533,11 +513,6 @@ interface FundingHistoryItem {
   positionCost: number; // Position value at settlement period
   funding: number; // Settled funding fees. A positive number means that the user received the funding fee, and vice versa.
   settleCurrency: string; // settlement currency
-}
-
-export interface GetFundingHistoryResponse {
-  dataList: FundingHistoryItem[];
-  hasMore: boolean; // Whether there are more pages
 }
 
 export interface ClosePositionDetail {
@@ -563,7 +538,7 @@ export interface ClosePositionDetail {
   closePrice: number | null;
 }
 
-export interface GetClosePosition {
+export interface FuturesClosedPositions {
   currentPage: number;
   pageSize: number;
   totalNum: number;

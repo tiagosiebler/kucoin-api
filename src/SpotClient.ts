@@ -153,10 +153,7 @@ import {
   TickerInfo,
   TradeHistory,
 } from './types/response/spot-trading.js';
-import {
-  OtcLoan,
-  OtcLoanAccounts,
-} from './types/response/spot-vip.js';
+import { OtcLoan, OtcLoanAccounts } from './types/response/spot-vip.js';
 import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
