@@ -28,7 +28,7 @@ async function start() {
     const multiplier = symbolInfo.data.multiplier;
 
     /**
-     * That means each SIZE is 10 XRP. So if XRP is currently at $0.5,
+     * E.g. if multiplier is 10(what you can see from the endpoint), that means each SIZE is 10 XRP. So if XRP is currently at $0.5,
      * then each 1 contract (size 10) is going to cost $5.00
      * size = (Funds x leverage) / (price x multiplier)
      */

@@ -43,12 +43,8 @@ export interface IsolatedMarginAssetDetail {
   quoteAsset: MarginAssetDetail;
 }
 
-export interface GetMarginBalancesResponse {
-  debtRatio: string;
-  accounts: MarginAccountBalance[];
-}
 
-export interface GetMarginBalanceResponse {
+export interface MarginBalance {
   timestamp: number;
   currentPage: number;
   pageSize: number;
@@ -57,7 +53,7 @@ export interface GetMarginBalanceResponse {
   items: MarginAccountDetail[];
 }
 
-export interface GetIsolatedMarginBalanceResponse {
+export interface IsolatedMarginBalance {
   totalAssetOfQuoteCurrency: string;
   totalLiabilityOfQuoteCurrency: string;
   timestamp: number;
@@ -104,7 +100,7 @@ export interface HistoricalDepositItem {
   status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
 }
 
-export interface GetDepositsResponse {
+export interface Deposits {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -112,7 +108,7 @@ export interface GetDepositsResponse {
   items: DepositItem[];
 }
 
-export interface GetV1HistoricalDepositsResponse {
+export interface V1HistoricalDeposits {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -152,7 +148,7 @@ interface HistoricalWithdrawalItem {
   status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
 }
 
-export interface GetWithdrawalsResponse {
+export interface Withdrawals {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -160,7 +156,7 @@ export interface GetWithdrawalsResponse {
   items: WithdrawalItem[];
 }
 
-export interface GetV1HistoricalWithdrawalsResponse {
+export interface V1HistoricalWithdrawals {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -168,7 +164,7 @@ export interface GetV1HistoricalWithdrawalsResponse {
   items: HistoricalWithdrawalItem[];
 }
 
-export interface GetWithdrawalQuotasResponse {
+export interface WithdrawalQuotas{
   limitBTCAmount: string;
   quotaCurrency: string;
   chain: string;
@@ -192,7 +188,7 @@ export interface GetWithdrawalQuotasResponse {
  *
  */
 
-export interface TransferableResponse {
+export interface TransferableFunds {
   currency: string; // Currency
   balance: string; // Total funds in an account.
   available: string; // Funds available to withdraw or trade.

@@ -12,7 +12,7 @@
  *
  */
 
-export interface HFMarginOrderItemResponse {
+export interface HFMarginOrderItem {
   id: string;
   symbol: string;
   opType: 'DEAL';
@@ -44,17 +44,17 @@ export interface HFMarginOrderItemResponse {
   tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
 }
 
-export interface HFMarginItem extends HFMarginOrderItemResponse {
+export interface HFMarginItem extends HFMarginOrderItem {
   inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
   active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
 }
 
-export interface HFMarginTransactionListResponse {
+export interface HFMarginTransactionList {
   lastId: number;
   items: HFMarginTransactionRecordResponse[];
 }
 
-export interface HFMarginFilledListResponse {
+export interface HFMarginFilledList {
   lastId: number;
   items: HFMarginItem[];
 }
@@ -98,7 +98,7 @@ export interface SubmitMarginOrderResponse {
  *
  */
 
-export interface MarginLevTokenInfoResponse {
+export interface MarginLevTokenInfo {
   currency: string; // currency
   netAsset: number; // Net worth
   targetLeverage: string; // Target leverage
@@ -107,20 +107,20 @@ export interface MarginLevTokenInfoResponse {
   basket: string; // basket information
 }
 
-export interface MarginMarkPriceResponse {
+export interface MarginMarkPrice {
   symbol: string; // symbol
   timePoint: number; // Time (millisecond)
   value: number; // Mark price
 }
 
-export interface MarginConfigInfoResponse {
+export interface MarginConfigInfo {
   currencyList: string[]; // Available currencies for margin trade
   warningDebtRatio: string; // The warning debt ratio of the forced liquidation
   liqDebtRatio: string; // The debt ratio of the forced liquidation
   maxLeverage: number; // Max leverage available
 }
 
-export interface MarginRiskLimitResponse {
+export interface MarginRiskLimit {
   timestamp: number;
   currency?: string;
   symbol?: string;
@@ -159,7 +159,7 @@ export interface MarginRiskLimitResponse {
  *
  */
 
-export interface IsolatedMarginSymbolsConfigResponse {
+export interface IsolatedMarginSymbolsConfig {
   symbol: string; // The trading pair code
   symbolName: string; // Trading pair name
   baseCurrency: string; // Base currency type
@@ -174,13 +174,13 @@ export interface IsolatedMarginSymbolsConfigResponse {
   quoteTransferInEnable: boolean; // quote coin type transfer switch
 }
 
-export interface IsolatedMarginAccountInfoResponse {
+export interface IsolatedMarginAccountInfo {
   totalConversionBalance: string; // The total balance of the isolated margin account (in the specified coin)
   liabilityConversionBalance: string; // Total liabilities of the isolated margin account (in the specified coin)
   assets: AssetInfo[];
 }
 
-export interface SingleIsolatedMarginAccountInfoResponse {
+export interface SingleIsolatedMarginAccountInfo {
   symbol: string; // Trading pair
   status: string; // The position status
   debtRatio: string; // Debt ratio
@@ -212,7 +212,7 @@ export interface AssetDetail {
  *
  */
 
-export interface MarginOrderResponse {
+export interface MarginOrderV3 {
   orderNo: string; // Borrow order number
   actualSize: number; // Actual borrowed amount
 }
@@ -234,7 +234,7 @@ export interface MarginInterestRecord {
   dayRatio: string;
 }
 
-export interface GetMarginInterestRecordsResponse {
+export interface MarginInterestRecords {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -262,7 +262,7 @@ interface LendingMarketItem {
   autoPurchaseEnable: boolean; // Auto-Subscribe enabled?: true: enable, false: disable
 }
 
-export interface GetLendingMarketCurrencyInfoV3Response {
+export interface LendingCurrencyV3 {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -270,13 +270,11 @@ export interface GetLendingMarketCurrencyInfoV3Response {
   items: LendingMarketItem[];
 }
 
-export interface MarketInterestRateItem {
-  time: string; // Time: YYYYMMDDHH00
-  marketInterestRate: string; // Market interest rate
-}
-
 export interface GetLendingMarketInterestRatesV3Response {
-  data: MarketInterestRateItem[];
+  data: {
+    time: string; // Time: YYYYMMDDHH00
+    marketInterestRate: string; // Market interest rate
+  }[];
 }
 
 export interface LendingOrderItem {
@@ -293,7 +291,7 @@ export interface LendingOrderItem {
   status: 'DONE' | 'PENDING'; // Status: DONE-completed; PENDING-settling
 }
 
-export interface LendingRedemptionResponse {
+export interface LendingRedemption {
   currentPage: number;
   pageSize: number;
   totalNum: number;

@@ -72,24 +72,25 @@ import {
 } from './types/request/spot-trading.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import {
-  AccountHFMarginTransactionsResponse,
-  AccountHFTransactionsResponse,
-  AccountResponse,
-  AccountSummaryResponse,
-  AccountTransactionsResponse,
-  BalancesResponse,
-  CreateSubAccountAPIResponse,
-  CreateSubAccountResponse,
-  GetSubAccountBalanceResponse,
-  GetSubAccountBalancesV2Response,
-  GetSubAccountsV2Response,
+  Account,
+  AccountHFMarginTransactions,
+  AccountHFTransactions,
+  AccountSummary,
+  AccountTransactions,
+  Balances,
+  CreateSubAccount,
+  CreateSubAccountAPI,
+  DeleteSubAccountAPI,
   SubAccountAPIInfo,
+  SubAccountBalance,
+  SubAccountBalancesV2,
   SubAccountInfo,
-  UpdateSubAPIResponse,
+  SubAccountsV2,
+  UpdateSubAPI,
 } from './types/response/spot-account.js';
 import {
+  EarnFixedIncomeHoldAssets,
   EarnProduct,
-  GetEarnFixedIncomeHoldAssetsResponse,
   GetEarnRedeemPreviewResponse,
   InitiateRedemptionResponse,
   SubscribeEarnFixedIncomeResponse,
@@ -97,33 +98,32 @@ import {
 import {
   DepositAddress,
   DepositAddressV2,
-  GetDepositsResponse,
-  GetIsolatedMarginBalanceResponse,
-  GetMarginBalanceResponse,
-  GetMarginBalancesResponse,
-  GetV1HistoricalDepositsResponse,
-  GetV1HistoricalWithdrawalsResponse,
-  GetWithdrawalQuotasResponse,
-  GetWithdrawalsResponse,
-  TransferableResponse,
+  Deposits,
+  IsolatedMarginBalance,
+  MarginAccountBalance,
+  MarginBalance,
+  TransferableFunds,
+  V1HistoricalDeposits,
+  V1HistoricalWithdrawals,
+  WithdrawalQuotas,
+  Withdrawals,
 } from './types/response/spot-funding.js';
 import {
-  GetLendingMarketCurrencyInfoV3Response,
-  GetMarginInterestRecordsResponse,
-  HFMarginFilledListResponse,
-  HFMarginOrderItemResponse,
-  HFMarginTransactionListResponse,
-  IsolatedMarginAccountInfoResponse,
-  IsolatedMarginSymbolsConfigResponse,
-  LendingRedemptionResponse,
-  MarginConfigInfoResponse,
+  HFMarginFilledList,
+  HFMarginOrderItem,
+  HFMarginTransactionList,
+  IsolatedMarginAccountInfo,
+  IsolatedMarginSymbolsConfig,
+  LendingCurrencyV3,
+  LendingRedemption,
+  MarginConfigInfo,
   MarginHistoryRecord,
-  MarginLevTokenInfoResponse,
-  MarginMarkPriceResponse,
-  MarginOrderResponse,
-  MarginRiskLimitResponse,
-  MarketInterestRateItem,
-  SingleIsolatedMarginAccountInfoResponse,
+  MarginInterestRecords,
+  MarginLevTokenInfo,
+  MarginMarkPrice,
+  MarginOrderV3,
+  MarginRiskLimit,
+  SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
 } from './types/response/spot-margin-trading.js';
 import {
@@ -131,20 +131,20 @@ import {
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
   CurrencyInfo,
-  FillItemResponse,
-  GetFilledListResponse,
-  GetHFFilledListResponse,
+  FillItem,
+  Fills,
+  HFFilledList,
   HFOrder,
   Kline,
   MultipleOrdersResponse,
-  OCOOrderDetailsResponse,
-  OCOOrderListItemResponse,
-  OCOOrdersResponse,
+  OCOOrderDetails,
+  OCOOrderListItem,
+  OCOOrders,
   OrderBookLevel,
+  OrderList,
   OrderListItem,
-  OrderListResponse,
-  StopOrderItemResponse,
-  StopOrdersResponse,
+  StopOrderItem,
+  StopOrders,
   SubmitHFOrderSyncResponse,
   SubmitMultipleHFOrdersResponse,
   SubmitMultipleHFOrdersSyncResponse,
@@ -154,8 +154,8 @@ import {
   TradeHistory,
 } from './types/response/spot-trading.js';
 import {
-  GetOtcLoanAccountsResponse,
-  GetOtcLoanResponse,
+  OtcLoan,
+  OtcLoanAccounts,
 } from './types/response/spot-vip.js';
 import { WsConnectionInfo } from './types/response/ws.js';
 
@@ -199,7 +199,7 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getAccountSummary(): Promise<APISuccessResponse<AccountSummaryResponse>> {
+  getAccountSummary(): Promise<APISuccessResponse<AccountSummary>> {
     return this.getPrivate('api/v2/user-info');
   }
 
@@ -210,13 +210,13 @@ export class SpotClient extends BaseRestClient {
    */
   getBalances(
     params?: GetBalancesRequest,
-  ): Promise<Promise<APISuccessResponse<BalancesResponse[]>>> {
+  ): Promise<Promise<APISuccessResponse<Balances[]>>> {
     return this.getPrivate('api/v1/accounts', params);
   }
 
   getAccountDetail(params: {
     accountId: any;
-  }): Promise<APISuccessResponse<AccountResponse>> {
+  }): Promise<APISuccessResponse<Account>> {
     return this.getPrivate(`api/v1/accounts/${params.accountId}`);
   }
 
@@ -225,7 +225,7 @@ export class SpotClient extends BaseRestClient {
    */
   getTransactions(
     params: GetSpotTransactionsRequest,
-  ): Promise<APISuccessResponse<AccountTransactionsResponse>> {
+  ): Promise<APISuccessResponse<AccountTransactions>> {
     return this.getPrivate('api/v1/accounts/ledgers', params);
   }
 
@@ -234,7 +234,7 @@ export class SpotClient extends BaseRestClient {
    */
   getHFTransactions(
     params: AccountHFTransactionsRequest,
-  ): Promise<APISuccessResponse<AccountHFTransactionsResponse[]>> {
+  ): Promise<APISuccessResponse<AccountHFTransactions[]>> {
     return this.getPrivate('api/v1/hf/accounts/ledgers', params);
   }
 
@@ -243,7 +243,7 @@ export class SpotClient extends BaseRestClient {
    */
   getHFMarginTransactions(
     params: AccountHFMarginTransactionsRequest,
-  ): Promise<APISuccessResponse<AccountHFMarginTransactionsResponse[]>> {
+  ): Promise<APISuccessResponse<AccountHFMarginTransactions[]>> {
     return this.getPrivate('api/v3/hf/margin/account/ledgers', params);
   }
 
@@ -260,33 +260,31 @@ export class SpotClient extends BaseRestClient {
   getSubAccountsV2(params: {
     currentPage?: number;
     pageSize?: number;
-  }): Promise<APISuccessResponse<GetSubAccountsV2Response>> {
+  }): Promise<APISuccessResponse<SubAccountsV2>> {
     return this.getPrivate('api/v2/sub/user', params);
   }
 
   createSubAccount(
     params: CreateSubAccountRequest,
-  ): Promise<APISuccessResponse<CreateSubAccountResponse>> {
+  ): Promise<APISuccessResponse<CreateSubAccount>> {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
 
   getSubAccountBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
-  }): Promise<APISuccessResponse<GetSubAccountBalanceResponse>> {
+  }): Promise<APISuccessResponse<SubAccountBalance>> {
     return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
 
-  getSubAccountBalancesV1(): Promise<
-    APISuccessResponse<GetSubAccountBalanceResponse>
-  > {
+  getSubAccountBalancesV1(): Promise<APISuccessResponse<SubAccountBalance>> {
     return this.getPrivate('api/v1/sub-accounts');
   }
 
   getSubAccountBalancesV2(params: {
     currentPage?: number;
     pageSize?: number;
-  }): Promise<APISuccessResponse<GetSubAccountBalancesV2Response>> {
+  }): Promise<APISuccessResponse<SubAccountBalancesV2>> {
     return this.getPrivate('api/v2/sub-accounts', params);
   }
 
@@ -306,22 +304,19 @@ export class SpotClient extends BaseRestClient {
 
   createSubAPI(
     params: CreateSubAccountAPIRequest,
-  ): Promise<APISuccessResponse<CreateSubAccountAPIResponse>> {
+  ): Promise<APISuccessResponse<CreateSubAccountAPI>> {
     return this.postPrivate('api/v1/sub/api-key', params);
   }
 
   updateSubAPI(
     params: UpdateSubAccountAPIRequest,
-  ): Promise<APISuccessResponse<UpdateSubAPIResponse>> {
+  ): Promise<APISuccessResponse<UpdateSubAPI>> {
     return this.postPrivate('api/v1/sub/api-key/update', params);
   }
 
-  deleteSubAPI(params: DeleteSubAccountAPIRequest): Promise<
-    APISuccessResponse<{
-      subName: string;
-      apiKey: string;
-    }>
-  > {
+  deleteSubAPI(
+    params: DeleteSubAccountAPIRequest,
+  ): Promise<APISuccessResponse<DeleteSubAccountAPI>> {
     return this.deletePrivate('api/v1/sub/api-key', params);
   }
 
@@ -331,19 +326,24 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  getMarginBalances(): Promise<APISuccessResponse<GetMarginBalancesResponse>> {
+  getMarginBalances(): Promise<
+    APISuccessResponse<{
+      debtRatio: string;
+      accounts: MarginAccountBalance[];
+    }>
+  > {
     return this.getPrivate('api/v1/margin/account');
   }
 
   getMarginBalance(
     params?: GetMarginBalanceRequest,
-  ): Promise<APISuccessResponse<GetMarginBalanceResponse>> {
+  ): Promise<APISuccessResponse<MarginBalance>> {
     return this.getPrivate('api/v3/margin/accounts', params);
   }
 
   getIsolatedMarginBalance(
     params?: GetIsolatedMarginBalanceRequest,
-  ): Promise<APISuccessResponse<GetIsolatedMarginBalanceResponse[]>> {
+  ): Promise<APISuccessResponse<IsolatedMarginBalance[]>> {
     return this.getPrivate('api/v3/isolated/accounts', params);
   }
 
@@ -375,13 +375,13 @@ export class SpotClient extends BaseRestClient {
 
   getDeposits(
     params?: GetDepositsRequest,
-  ): Promise<APISuccessResponse<GetDepositsResponse>> {
+  ): Promise<APISuccessResponse<Deposits>> {
     return this.getPrivate('api/v1/deposits', params);
   }
 
   getHistoricalDepositsV1(
     params?: GetDepositsRequest,
-  ): Promise<APISuccessResponse<GetV1HistoricalDepositsResponse>> {
+  ): Promise<APISuccessResponse<V1HistoricalDeposits>> {
     return this.getPrivate('api/v1/hist-deposits', params);
   }
 
@@ -393,20 +393,20 @@ export class SpotClient extends BaseRestClient {
 
   getWithdrawals(
     params?: GetWithdrawalsRequest,
-  ): Promise<APISuccessResponse<GetWithdrawalsResponse>> {
+  ): Promise<APISuccessResponse<Withdrawals>> {
     return this.getPrivate('api/v1/withdrawals', params);
   }
 
   getHistoricalWithdrawalsV1(
     params?: GetWithdrawalsRequest,
-  ): Promise<APISuccessResponse<GetV1HistoricalWithdrawalsResponse>> {
+  ): Promise<APISuccessResponse<V1HistoricalWithdrawals>> {
     return this.getPrivate('api/v1/hist-withdrawals', params);
   }
 
   getWithdrawalQuotas(params: {
     currency: string;
     chain?: string;
-  }): Promise<APISuccessResponse<GetWithdrawalQuotasResponse>> {
+  }): Promise<APISuccessResponse<WithdrawalQuotas>> {
     return this.getPrivate('api/v1/withdrawals/quotas', params);
   }
 
@@ -430,7 +430,7 @@ export class SpotClient extends BaseRestClient {
 
   getTransferable(
     params: GetTransferableRequest,
-  ): Promise<APISuccessResponse<TransferableResponse>> {
+  ): Promise<APISuccessResponse<TransferableFunds>> {
     return this.getPrivate('api/v1/accounts/transferable', params);
   }
 
@@ -730,7 +730,7 @@ export class SpotClient extends BaseRestClient {
 
   getHFFilledOrders(
     params: GetHFFilledListRequest,
-  ): Promise<APISuccessResponse<GetHFFilledListResponse>> {
+  ): Promise<APISuccessResponse<HFFilledList>> {
     return this.getPrivate('api/v1/hf/fills', params);
   }
 
@@ -792,7 +792,7 @@ export class SpotClient extends BaseRestClient {
   // Retrieves the current list of orders. Supports filtering by status and trade type.
   getOrders(
     params?: GetOrderListRequest,
-  ): Promise<APISuccessResponse<OrderListResponse>> {
+  ): Promise<APISuccessResponse<OrderList>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
@@ -822,14 +822,12 @@ export class SpotClient extends BaseRestClient {
    */
 
   // General permission, Retrieves a list of fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
-  getFills(
-    params?: GetFillsRequest,
-  ): Promise<APISuccessResponse<GetFilledListResponse>> {
+  getFills(params?: GetFillsRequest): Promise<APISuccessResponse<Fills>> {
     return this.getPrivate('api/v1/fills', params);
   }
 
   // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
-  getRecentFills(): Promise<APISuccessResponse<FillItemResponse[]>> {
+  getRecentFills(): Promise<APISuccessResponse<FillItem[]>> {
     return this.getPrivate('api/v1/limit/fills');
   }
 
@@ -892,7 +890,7 @@ export class SpotClient extends BaseRestClient {
    */
   getStopOrders(
     params?: GetStopOrdersListRequest,
-  ): Promise<APISuccessResponse<StopOrdersResponse>> {
+  ): Promise<APISuccessResponse<StopOrders>> {
     return this.getPrivate('api/v1/stop-order', params);
   }
   /**
@@ -900,7 +898,7 @@ export class SpotClient extends BaseRestClient {
    */
   getStopOrderByOrderId(params: {
     orderId: string;
-  }): Promise<APISuccessResponse<StopOrderItemResponse>> {
+  }): Promise<APISuccessResponse<StopOrderItem>> {
     return this.getPrivate(`api/v1/stop-order/${params.orderId}`);
   }
 
@@ -910,7 +908,7 @@ export class SpotClient extends BaseRestClient {
   getStopOrderByClientOid(params: {
     clientOid: string;
     symbol?: string;
-  }): Promise<APISuccessResponse<StopOrderItemResponse[]>> {
+  }): Promise<APISuccessResponse<StopOrderItem[]>> {
     return this.getPrivate('api/v1/stop-order/queryOrderByClientOid', params);
   }
 
@@ -970,7 +968,7 @@ export class SpotClient extends BaseRestClient {
    */
   getOCOOrderByOrderId(params: {
     orderId: string;
-  }): Promise<APISuccessResponse<OCOOrderListItemResponse>> {
+  }): Promise<APISuccessResponse<OCOOrderListItem>> {
     return this.getPrivate(`api/v3/oco/order/${params.orderId}`);
   }
 
@@ -979,7 +977,7 @@ export class SpotClient extends BaseRestClient {
    */
   getOCOOrderByClientOid(params: {
     clientOid: string;
-  }): Promise<APISuccessResponse<OCOOrderListItemResponse>> {
+  }): Promise<APISuccessResponse<OCOOrderListItem>> {
     return this.getPrivate(`api/v3/oco/client-order/${params.clientOid}`);
   }
 
@@ -988,7 +986,7 @@ export class SpotClient extends BaseRestClient {
    */
   getOCOOrderDetails(params: {
     orderId: string;
-  }): Promise<APISuccessResponse<OCOOrderDetailsResponse>> {
+  }): Promise<APISuccessResponse<OCOOrderDetails>> {
     return this.getPrivate(`api/v3/oco/order/details/${params.orderId}`);
   }
 
@@ -997,7 +995,7 @@ export class SpotClient extends BaseRestClient {
    */
   getOCOOrders(
     params: GetOCOOrdersRequest,
-  ): Promise<APISuccessResponse<OCOOrdersResponse>> {
+  ): Promise<APISuccessResponse<OCOOrders>> {
     return this.getPrivate('api/v3/oco/orders', params);
   }
 
@@ -1050,27 +1048,27 @@ export class SpotClient extends BaseRestClient {
 
   getHFActiveMarginOrders(
     params: HFMarginOrder,
-  ): Promise<APISuccessResponse<HFMarginOrderItemResponse[]>> {
+  ): Promise<APISuccessResponse<HFMarginOrderItem[]>> {
     return this.getPrivate(`api/v3/hf/margin/orders/active`, params);
   }
 
   getHFMarginFilledOrders(
     params: GetHFMarginFilledRequest,
-  ): Promise<APISuccessResponse<HFMarginFilledListResponse>> {
+  ): Promise<APISuccessResponse<HFMarginFilledList>> {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
   }
 
   getHFMarginOrderByOrderId(params: {
     orderId: string;
     symbol: string;
-  }): Promise<APISuccessResponse<HFMarginOrderItemResponse>> {
+  }): Promise<APISuccessResponse<HFMarginOrderItem>> {
     return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
   }
 
   getHFMarginOrderByClientOid(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<APISuccessResponse<HFMarginOrderItemResponse>> {
+  }): Promise<APISuccessResponse<HFMarginOrderItem>> {
     return this.getPrivate(
       `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
     );
@@ -1078,7 +1076,7 @@ export class SpotClient extends BaseRestClient {
 
   getHFMarginFills(
     params: getHFMarginFillsRequest,
-  ): Promise<APISuccessResponse<HFMarginTransactionListResponse>> {
+  ): Promise<APISuccessResponse<HFMarginTransactionList>> {
     return this.getPrivate('api/v3/hf/margin/fills', params);
   }
 
@@ -1112,29 +1110,27 @@ export class SpotClient extends BaseRestClient {
 
   getMarginLeveragedToken(params?: {
     currency?: string;
-  }): Promise<APISuccessResponse<MarginLevTokenInfoResponse[]>> {
+  }): Promise<APISuccessResponse<MarginLevTokenInfo[]>> {
     return this.get('api/v3/etf/info', params);
   }
 
-  getMarginMarkPrices(): Promise<
-    APISuccessResponse<MarginMarkPriceResponse[]>
-  > {
+  getMarginMarkPrices(): Promise<APISuccessResponse<MarginMarkPrice[]>> {
     return this.get('api/v3/mark-price/all-symbols');
   }
 
   getMarginMarkPrice(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<MarginMarkPriceResponse>> {
+  }): Promise<APISuccessResponse<MarginMarkPrice>> {
     return this.get(`api/v1/mark-price/${params.symbol}/current`);
   }
 
-  getMarginConfigInfo(): Promise<APISuccessResponse<MarginConfigInfoResponse>> {
+  getMarginConfigInfo(): Promise<APISuccessResponse<MarginConfigInfo>> {
     return this.get('api/v1/margin/config');
   }
 
   getMarginRiskLimitConfig(
     params: MarginRiskLimitRequest,
-  ): Promise<APISuccessResponse<MarginRiskLimitResponse[]>> {
+  ): Promise<APISuccessResponse<MarginRiskLimit[]>> {
     return this.get('api/v3/margin/currencies', params);
   }
 
@@ -1145,20 +1141,20 @@ export class SpotClient extends BaseRestClient {
    */
 
   getIsolatedMarginSymbolsConfig(): Promise<
-    APISuccessResponse<IsolatedMarginSymbolsConfigResponse[]>
+    APISuccessResponse<IsolatedMarginSymbolsConfig[]>
   > {
     return this.getPrivate('api/v1/isolated/symbols');
   }
 
   getIsolatedMarginAccounts(params?: {
     balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
-  }): Promise<APISuccessResponse<IsolatedMarginAccountInfoResponse>> {
+  }): Promise<APISuccessResponse<IsolatedMarginAccountInfo>> {
     return this.getPrivate('api/v1/isolated/accounts', params);
   }
 
   getIsolatedMarginAccount(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<SingleIsolatedMarginAccountInfoResponse>> {
+  }): Promise<APISuccessResponse<SingleIsolatedMarginAccountInfo>> {
     return this.getPrivate(`api/v1/isolated/account/${params.symbol}`);
   }
 
@@ -1170,13 +1166,13 @@ export class SpotClient extends BaseRestClient {
 
   marginBorrowV3(
     params: MarginBorrowV3Request,
-  ): Promise<APISuccessResponse<MarginOrderResponse>> {
+  ): Promise<APISuccessResponse<MarginOrderV3>> {
     return this.postPrivate('api/v3/margin/borrow', params);
   }
 
   marginRepayV3(
     params: MarginRepayV3Request,
-  ): Promise<APISuccessResponse<MarginOrderResponse>> {
+  ): Promise<APISuccessResponse<MarginOrderV3>> {
     return this.postPrivate('api/v3/margin/repay', params);
   }
 
@@ -1194,7 +1190,7 @@ export class SpotClient extends BaseRestClient {
 
   getMarginInterestRecordsV3(
     params?: MarginInterestRecordsRequest,
-  ): Promise<APISuccessResponse<GetMarginInterestRecordsResponse>> {
+  ): Promise<APISuccessResponse<MarginInterestRecords>> {
     return this.getPrivate('api/v3/margin/interest', params);
   }
 
@@ -1220,13 +1216,18 @@ export class SpotClient extends BaseRestClient {
 
   getLendingCurrencyV3(params?: {
     currency?: string;
-  }): Promise<APISuccessResponse<GetLendingMarketCurrencyInfoV3Response>> {
+  }): Promise<APISuccessResponse<LendingCurrencyV3>> {
     return this.get('api/v3/project/list', params);
   }
 
-  getLendingInterestRateV3(params: {
-    currency: string;
-  }): Promise<APISuccessResponse<MarketInterestRateItem[]>> {
+  getLendingInterestRateV3(params: { currency: string }): Promise<
+    APISuccessResponse<
+      {
+        time: string; // Time: YYYYMMDDHH00
+        marketInterestRate: string; // Market interest rate
+      }[]
+    >
+  > {
     return this.get('api/v3/project/marketInterestRate', params);
   }
 
@@ -1262,13 +1263,13 @@ export class SpotClient extends BaseRestClient {
 
   getLendingRedemptionOrdersV3(
     params: GetLendingRedemptionOrdersV3Request,
-  ): Promise<APISuccessResponse<LendingRedemptionResponse>> {
+  ): Promise<APISuccessResponse<LendingRedemption>> {
     return this.getPrivate('api/v3/redeem/orders', params);
   }
 
   getLendingSubscriptionOrdersV3(
     params: GetLendingSubscriptionOrdersV3Request,
-  ): Promise<APISuccessResponse<LendingRedemptionResponse>> {
+  ): Promise<APISuccessResponse<LendingRedemption>> {
     return this.getPrivate('api/v3/purchase/orders', params);
   }
 
@@ -1337,7 +1338,7 @@ export class SpotClient extends BaseRestClient {
    */
   getEarnFixedIncomeHoldAssets(
     params?: GetEarnFixedIncomeHoldAssetsRequest,
-  ): Promise<APISuccessResponse<GetEarnFixedIncomeHoldAssetsResponse>> {
+  ): Promise<APISuccessResponse<EarnFixedIncomeHoldAssets>> {
     return this.getPrivate('api/v1/earn/hold-assets', params);
   }
 
@@ -1402,7 +1403,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint is only for querying accounts that are currently involved in loans.
    *
    */
-  getOtcLoan(): Promise<APISuccessResponse<GetOtcLoanResponse>> {
+  getOtcLoan(): Promise<APISuccessResponse<OtcLoan>> {
     return this.getPrivate('api/v1/otc-loan/loan');
   }
 
@@ -1411,9 +1412,7 @@ export class SpotClient extends BaseRestClient {
    *
    * This endpoint is only for querying accounts that are currently involved in off-exchange funding and loans.
    */
-  getOtcLoanAccounts(): Promise<
-    APISuccessResponse<GetOtcLoanAccountsResponse[]>
-  > {
+  getOtcLoanAccounts(): Promise<APISuccessResponse<OtcLoanAccounts[]>> {
     return this.getPrivate('api/v1/otc-loan/accounts');
   }
 
