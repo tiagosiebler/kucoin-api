@@ -6,7 +6,7 @@
  *
  */
 
-export interface GetOtcLoanResponse {
+export interface OtcLoan {
   parentUid: string;
   orders: {
     orderId: string;
@@ -30,7 +30,7 @@ export interface GetOtcLoanResponse {
   }[];
 }
 
-export interface GetOtcLoanAccountsResponse {
+export interface OtcLoanAccounts {
   uid: string;
   marginCcy: string;
   marginQty: string;

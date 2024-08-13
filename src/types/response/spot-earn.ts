@@ -26,7 +26,7 @@ export interface GetEarnRedeemPreviewResponse {
   redeemAll: boolean;
 }
 
-export interface GetEarnFixedIncomeHoldAssetsResponse {
+export interface EarnFixedIncomeHoldAssets {
   totalNum: number;
   items: {
     orderId: string;

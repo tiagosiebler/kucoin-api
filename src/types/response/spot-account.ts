@@ -1,4 +1,4 @@
-export interface AccountSummaryResponse {
+export interface AccountSummary {
   level: number;
   subQuantity: number;
   maxDefaultSubQuantity: number;
@@ -11,7 +11,7 @@ export interface AccountSummaryResponse {
   maxFuturesSubQuantity: number;
 }
 
-export interface BalancesResponse {
+export interface Balances {
   id: string;
   currency: string;
   type: 'main' | 'trade' | 'trade_hf' | 'margin';
@@ -20,14 +20,14 @@ export interface BalancesResponse {
   holds: string;
 }
 
-export interface AccountResponse {
+export interface Account {
   currency: string;
   balance: string;
   available: string;
   holds: string;
 }
 
-export interface AccountTransactionsResponse {
+export interface AccountTransactions {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -46,7 +46,7 @@ export interface AccountTransactionsResponse {
   }[];
 }
 
-export interface AccountHFTransactionsResponse {
+export interface AccountHFTransactions {
   id: string;
   currency: string;
   amount: string;
@@ -59,7 +59,7 @@ export interface AccountHFTransactionsResponse {
   context: string;
 }
 
-export interface AccountHFMarginTransactionsResponse {
+export interface AccountHFMarginTransactions {
   id: string;
   currency: string;
   amount: string;
@@ -104,7 +104,7 @@ export interface SubAccountBalance {
   baseAmount: string;
 }
 
-export interface GetSubAccountsV2Response {
+export interface SubAccountsV2 {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -112,14 +112,14 @@ export interface GetSubAccountsV2Response {
   items: SubAccountInfo[];
 }
 
-export interface CreateSubAccountResponse {
+export interface CreateSubAccount {
   uid: number;
   subName: string;
   remarks: string;
   access: string;
 }
 
-export interface GetSubAccountBalanceResponse {
+export interface SubAccountBalance {
   subUserId: string;
   subName: string;
   mainAccounts: SubAccountBalance[];
@@ -127,7 +127,7 @@ export interface GetSubAccountBalanceResponse {
   marginAccounts: SubAccountBalance[];
 }
 
-export interface GetSubAccountBalancesV2Response {
+export interface SubAccountBalancesV2 {
   currentPage: number;
   pageSize: number;
   totalNum: number;
@@ -155,19 +155,19 @@ export interface SubAccountAPIInfo {
   subName: string;
 }
 
-export interface CreateSubAccountAPIResponse extends SubAccountAPIInfo {
+export interface CreateSubAccountAPI extends SubAccountAPIInfo {
   apiSecret: string;
   passphrase: string;
 }
 
-export interface UpdateSubAPIResponse {
+export interface UpdateSubAPI {
   apiKey: string;
   ipWhitelist: string;
   permission: string;
   subName: string;
 }
 
-export interface DeleteSubAccountAPIResponse {
+export interface DeleteSubAccountAPI {
   subName: string;
   apiKey: string;
 }
