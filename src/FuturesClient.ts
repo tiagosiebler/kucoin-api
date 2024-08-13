@@ -55,7 +55,6 @@ import {
   AccountSummary,
   AccountTransactions,
   CreateSubAccountAPI,
-
   SubBalance,
 } from './types/response/futures.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
@@ -313,13 +312,13 @@ export class FuturesClient extends BaseRestClient {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
-  cancelMultipleOrders(params?: {
+  cancelAllOrders(params?: {
     symbol?: string;
   }): Promise<APISuccessResponse<{ cancelledOrderIds: string[] }>> {
     return this.deletePrivate('api/v1/orders', params);
   }
 
-  cancelMultipleStopOrders(params?: {
+  cancelAllStopOrders(params?: {
     symbol?: string;
   }): Promise<APISuccessResponse<{ cancelledOrderIds: string[] }>> {
     return this.deletePrivate('api/v1/stopOrders', params);

@@ -162,13 +162,11 @@ futuresClient.futureTransfers({
 
 #### Orders
 
-
-
 Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols. Each contract is equal to Multiplier x Size.
 
-For example click on this endpoint and get a symbol info for XRPUSDTM:  https://api-futures.kucoin.com/api/v1/contracts/XRPUSDTM  
+For example click on this endpoint and get a symbol info for XRPUSDTM: https://api-futures.kucoin.com/api/v1/contracts/XRPUSDTM
 
-In the object, find the "multiplier" value. 
+In the object, find the "multiplier" value.
 
 ```js
 const symbolInfo = await client.getSymbol({ symbol: 'XRPUSDTM' });
@@ -176,6 +174,7 @@ const multiplier = symbolInfo.data.multiplier;
 ```
 
 E.g. if multiplier is 10(what you can see from the endpoint), that means each SIZE is 10 XRP. So if XRP is currently at $0.5, then each 1 contract (size 10) is going to cost $5.00 size = (Funds x leverage) / (price x multiplier)
+
 ```js
 const XRPPriceExample = 0.5;
 const leverage = 5;
@@ -187,20 +186,18 @@ const size = (fundsToTradeUSDT * leverage) / costOfContract;
 console.log(`Size: ${size}`);
 ```
 
+The trade amount indicates the amount of contract to buy or sell, and contract uses the base currency or lot as the trading unit.
+The trade amount must be no less than 1 lot for the contract and no larger than the maxOrderQty.
+It should be a multiple number of the lot, or the system will report an error when you place the order.
+E.g. 1 lot of XBTUSDTM is 0.001 Bitcoin, while 1 lot of XBTUSDM is 1 USD.
+or check the XRPUSDTM example above.
+Here are function examples using the Futures Create Order endpoint:
 
+#### Market Short
 
-/**
- * The trade amount indicates the amount of contract to buy or sell, and contract uses the base currency or lot as the trading unit.
- * The trade amount must be no less than 1 lot for the contract and no larger than the maxOrderQty.
- * It should be a multiple number of the lot, or the system will report an error when you place the order.
- * E.g. 1 lot of XBTUSDTM is 0.001 Bitcoin, while 1 lot of XBTUSDM is 1 USD.
- * or check the XRPUSDTM example above.
- *
- * Here are function examples using the Futures Create Order endpoint:
- */
-
+```js
 // A MARKET SHORT of 2 contracts of XBT using leverage of 5:
-const marketShort = client.submitOrder({
+const marketShort = futureTransfers.submitOrder({
   clientOid: '123456789',
   leverage: '5',
   side: 'sell',
@@ -209,9 +206,13 @@ const marketShort = client.submitOrder({
   timeInForce: 'GTC',
   type: 'market',
 });
+```
 
+#### Market Long
+
+```js
 // A MARKET LONG of 2 contracts of XBT using leverage of 5:
-const marketLong = client.submitOrder({
+const marketLong = futureTransfers.submitOrder({
   clientOid: '123456789',
   leverage: '5',
   side: 'buy',
@@ -220,9 +221,13 @@ const marketLong = client.submitOrder({
   timeInForce: 'GTC',
   type: 'market',
 });
+```
 
+#### Limit Short
+
+```js
 // A LIMIT SHORT of 2 contracts of XBT using leverage of 5:
-const limitShort = client.submitOrder({
+const limitShort = futureTransfers.submitOrder({
   clientOid: '123456789',
   leverage: '5',
   price: '70300.31',
@@ -232,9 +237,13 @@ const limitShort = client.submitOrder({
   timeInForce: 'GTC',
   type: 'limit',
 });
+```
 
+#### Limit Long
+
+```js
 // A LIMIT LONG of 2 contracts of XBT using leverage of 5:
-const limitLong = client.submitOrder({
+const limitLong = futureTransfers.submitOrder({
   clientOid: '123456789',
   leverage: '5',
   price: '40300.31',
@@ -244,17 +253,21 @@ const limitLong = client.submitOrder({
   timeInForce: 'GTC',
   type: 'limit',
 });
+```
 
-// On any "close position" action, if you specify a SIZE=0 or leave off the SIZE parameter,
-// then it will close the whole position, regardless of the size.
-// If you specify a SIZE, it will close only the number of contracts you specify.
+On any "close position" action, if you specify a SIZE=0 or leave off the SIZE parameter,
+then it will close the whole position, regardless of the size.
+If you specify a SIZE, it will close only the number of contracts you specify.
 
-// If closeOrder is set to TRUE,
-// the system will close the position and the position size will become 0.
-// Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
+If closeOrder is set to TRUE,
+the system will close the position and the position size will become 0.
+Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
 
+#### Market close
+
+```js
 // A MARKET CLOSE POSITION example:
-const marketClose = client.submitOrder({
+const marketClose = futureTransfers.submitOrder({
   clientOid: '123456789',
   closeOrder: true,
   symbol: 'XBTUSDTM',
@@ -263,9 +276,13 @@ const marketClose = client.submitOrder({
   side: 'sell',
   size: 0,
 });
+```
 
+#### Limit close
+
+```js
 // A LIMIT CLOSE of a LONG example:
-const limitCloseLong = client.submitOrder({
+const limitCloseLong = futureTransfers.submitOrder({
   clientOid: '123456789',
   leverage: '5',
   price: '70300.31',
@@ -276,9 +293,13 @@ const limitCloseLong = client.submitOrder({
   timeInForce: 'GTC',
   type: 'limit',
 });
+```
 
+#### Limit close
+
+```js
 // A LIMIT CLOSE of a SHORT example:
-const limitCloseShort = client.submitOrder({
+const limitCloseShort = futureTransfers.submitOrder({
   clientOid: '123456789',
   leverage: '5',
   price: '40300.31',
@@ -289,9 +310,13 @@ const limitCloseShort = client.submitOrder({
   timeInForce: 'GTC',
   type: 'limit',
 });
+```
 
+#### Stop loss for long
+
+```js
 // A STOP LOSS example for a LONG position:
-const stopLossLong = client.submitOrder({
+const stopLossLong = futureTransfers.submitOrder({
   clientOid: '123456789',
   closeOrder: true,
   stop: 'down',
@@ -301,9 +326,13 @@ const stopLossLong = client.submitOrder({
   timeInForce: 'GTC',
   type: 'market',
 });
+```
 
+#### Stop loss for short
+
+```js
 // A STOP LOSS example for a SHORT position:
-const stopLossShort = client.submitOrder({
+const stopLossShort = futureTransfers.submitOrder({
   clientOid: '123456789',
   closeOrder: true,
   stop: 'up',
@@ -313,42 +342,42 @@ const stopLossShort = client.submitOrder({
   timeInForce: 'GTC',
   type: 'market',
 });
+```
 
-// Cancel an Order
-futuresClient.futuresCancel('orderId', console.log);
+#### Cancel Order
 
-// Cancel All Order for Symbol
-// limit order
-futuresClient.futuresCancelAllOpenOrders('ETHUSDTM', console.log);
-// stop order
-futuresClient.futuresCancelAllStopOrders('ETHUSDTM', console.log);
-// or cancelAll limit/stop order for symbol
-futuresClient.futuresCancelAll('ETHUSDTM', console.log);
+```js
+futuresClient.cancelOrderById({ orderId: 'orderId' });
+futuresClient.cancelOrderByClientOid({ clientOid: 'clientOid' });
+```
 
-// Cancel Order by clientOid
-futuresClient.futuresCancelOrderByClientOid(
-  {
-    symbol: '[symbol]',
-    clientOid: '[clientOid]',
-  },
-  console.log,
-);
+#### Cancel All Orders(open, stop, limit, ) for specific symbol
 
-// Get Order List
-futuresClient.futuresOpenOrders({ status: 'active' }, console.log);
+```js
+futuresClient.cancelAllOrders({ symbol: 'XBTUSDTM' });
 
-// Get Untriggered Stop Order List
-futuresClient.futuresStopOrders({ type: 'limit' }, console.log);
+futuresClient.cancelAllStopOrders({ symbol: 'XBTUSDTM' });
+```
+
+#### Fetching orders
+
+```js
+// Get open orders
+futuresClient.getOrders({ status: 'active' });
+
+// Get closed orders
+futuresClient.getOrders({ status: 'done' });
+
+// Get Untriggered Stop Orders
+futuresClient.getStopOrders({ type: 'limit' });
 
 // Get List of Orders Completed in 24h
-futuresClient.futuresRecentDoneOrders('ETHUSDTM', console.log);
-// Or Search All
-futuresClient.futuresRecentDoneOrders('', console.log);
+futuresClient.getRecentOrders();
 
-// Get Details of a Single Order
-futuresClient.futuresOrderDetail({ clientOid: 'clientOid' }, console.log);
+// Get Details of a Single Order by ClientOrderId
+futuresClient.getOrderByClientOrderId({ clientOid: 'clientOid' });
 // Or By OrderId
-futuresClient.futuresOrderDetail('orderId', console.log);
+futuresClient.getOrderByOrderId({ orderId: 'orderId' });
 ```
 
 ##### Place Order Test
