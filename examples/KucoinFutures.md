@@ -2,38 +2,42 @@
 
 # Node.js & JavaScript SDK for Kucoin Futures REST APIs & WebSockets
 
+This document provides comprehensive examples for using the KuCoin Futures API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their applications.
+
 [KuCoin Documentation](https://docs.kucoin.com/futures/#introduction)
 
-- [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api)
-  - [Installation:](#installation)
-  - [Usage](#usage)
-  - [REST API](#rest-api)
-    - [User](#user)
-    - [Transfer](#transfer)
-    - [Trade](#trade)
-      - [Orders](#orders)
-        - [Place Order Test](#place-order-test)
-        - [Place Multiple Orders](#place-multiple-orders)
-      - [Fills](#fills)
-      - [Positions](#positions)
-      - [Risk Limit Level](#risk-limit-level)
-      - [Funding Fees](#funding-fees)
-    - [Market Data](#market-data)
-      - [Get Open Contract List](#get-open-contract-list)
-      - [Get Order Info of the Contract](#get-order-info-of-the-contract)
-      - [Get Ticker](#get-ticker)
-      - [Get Full Order Book - Level 2](#get-full-order-book---level-2)
-      - [Get Part Order Book - Level 2](#get-part-order-book---level-2)
-      - [Transaction History](#transaction-history)
-      - [Index](#index)
-      - [Server Time](#server-time)
-      - [Server Status](#server-status)
-      - [Get K Line Data of Contract](#get-k-line-data-of-contract)
-      - [Get 24hour futures transaction volume](#get-24hour-futures-transaction-volume)
-  - [WebSocket](#websocket)
-    - [Public Channels](#public-channels)
-    - [Private Channels](#private-channels)
-  - [License](#license)
+[Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api)
+
+- [Installation:](#installation)
+- [Usage](#usage)
+- [REST API](#rest-api)
+  - [Account examples](#account-examples)
+  - [Subaccount API management](#subaccount-api-management)
+  - [Transfer funds in and out of Futures Account](#transfer-funds-in-and-out-of-futures-account)
+  - [Trade Execution](#trade)
+    - [General info](#general-info)
+    - [Market short](#market-short)
+    - [Market long](#market-long)
+    - [Limit short](#limit-short)
+    - [Limit long](#limit-long)
+    - [Market close](#market-close)
+    - [Limit close](#limit-close)
+    - [Stop loss](#stop-loss)
+    - [Place multiple orders](#place-multiple-orders)
+    - [Cancel order](#cancel-order)
+    - [Cancel all orders(open, stop, limit...) for specific symbol](#cancel-all-ordersopen-stop-limit-for-specific-symbol)
+  - [Trade/Order/Positions Management](#order-management)
+    - [Fetching orders](#fetching-orders)
+    - [Fills](#fills)
+    - [Positions](#positions)
+  - [Market Data](#market-data)
+    - [Symbol and exchange info](#symbol-and-exchange-info)
+    - [Order Book data](#order-book-data)
+    - [Order Book data](#order-book-data)
+    - [Funding Fees](#funding-fees)
+    - [Kline/Candles](#klinecandles)
+- [WebSocket](#websocket)
+- [Community group](#community-group)
 
 ## Installation:
 
@@ -160,7 +164,7 @@ futuresClient.futureTransfers({
 
 ### Trade
 
-#### Orders
+#### General info
 
 Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols. Each contract is equal to Multiplier x Size.
 
@@ -169,11 +173,14 @@ For example click on this endpoint and get a symbol info for XRPUSDTM: https://a
 In the object, find the "multiplier" value.
 
 ```js
+// In your code, you can fetch it like this
 const symbolInfo = await client.getSymbol({ symbol: 'XRPUSDTM' });
 const multiplier = symbolInfo.data.multiplier;
 ```
 
-E.g. if multiplier is 10(what you can see from the endpoint), that means each SIZE is 10 XRP. So if XRP is currently at $0.5, then each 1 contract (size 10) is going to cost $5.00 size = (Funds x leverage) / (price x multiplier)
+E.g. if multiplier is 10(what you can see from the endpoint), that means each SIZE is 10 XRP. So if XRP is currently at $0.5, then each 1 contract (size 10) is going to cost $5.00
+
+size = (Funds x leverage) / (price x multiplier)
 
 ```js
 const XRPPriceExample = 0.5;
@@ -293,11 +300,7 @@ const limitCloseLong = futureTransfers.submitOrder({
   timeInForce: 'GTC',
   type: 'limit',
 });
-```
 
-#### Limit close
-
-```js
 // A LIMIT CLOSE of a SHORT example:
 const limitCloseShort = futureTransfers.submitOrder({
   clientOid: '123456789',
@@ -312,7 +315,7 @@ const limitCloseShort = futureTransfers.submitOrder({
 });
 ```
 
-#### Stop loss for long
+#### Stop loss
 
 ```js
 // A STOP LOSS example for a LONG position:
@@ -326,11 +329,7 @@ const stopLossLong = futureTransfers.submitOrder({
   timeInForce: 'GTC',
   type: 'market',
 });
-```
 
-#### Stop loss for short
-
-```js
 // A STOP LOSS example for a SHORT position:
 const stopLossShort = futureTransfers.submitOrder({
   clientOid: '123456789',
@@ -342,6 +341,35 @@ const stopLossShort = futureTransfers.submitOrder({
   timeInForce: 'GTC',
   type: 'market',
 });
+```
+
+##### Place Multiple Orders
+
+```js
+//request
+
+const orders = [
+  {
+    clientOid: '5c52e11203aa677f33e491',
+    side: 'buy',
+    symbol: 'ETHUSDTM',
+    type: 'limit',
+    price: '2150',
+    leverage: '1',
+    size: 2,
+  },
+  {
+    clientOid: 'je12019ka012ja013099',
+    side: 'buy',
+    symbol: 'XBTUSDTM',
+    type: 'limit',
+    price: '32150',
+    leverage: '1',
+    size: 2,
+  },
+];
+
+futuresClient.submitMultipleOrders(orders);
 ```
 
 #### Cancel Order
@@ -358,6 +386,8 @@ futuresClient.cancelAllOrders({ symbol: 'XBTUSDTM' });
 
 futuresClient.cancelAllStopOrders({ symbol: 'XBTUSDTM' });
 ```
+
+### Trade/Order/Positions Management
 
 #### Fetching orders
 
@@ -380,368 +410,127 @@ futuresClient.getOrderByClientOrderId({ clientOid: 'clientOid' });
 futuresClient.getOrderByOrderId({ orderId: 'orderId' });
 ```
 
-##### Place Order Test
-
-> Place Order Test, After placing an order, the order will not enter the matching system, and the order cannot be queried.
-
-```js
-// Place Order Test
-// symbol, price, size, leverage = 1,  clientOid = uuidV4(), optional
-
-// Buy Limit Order
-futuresClient.futuresBuyTest(
-  {
-    symbol: 'ETHUSDTM',
-    price: 10000,
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-  },
-  console.log,
-);
-
-// Buy Market Order
-futuresClient.futuresBuyTest(
-  {
-    symbol: 'ETHUSDTM',
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-  },
-  console.log,
-);
-
-// Buy Stop Order
-futuresClient.futuresBuyTest(
-  {
-    symbol: 'ETHUSDTM',
-    price: 10000,
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-    optional: {
-      stop: 'up',
-      stopPriceType: 'TP',
-      stopPrice: '10000',
-      // ...
-    },
-  },
-  console.log,
-);
-
-// Sell Order
-// futuresClient.futuresBuyTest -> futuresClient.futuresSellTest
-futuresClient.futuresSellTest(
-  {
-    symbol: 'ETHUSDTM',
-    price: 20000,
-    leverage: 5,
-    size: 1,
-    // clientOid: uuidV4(),
-  },
-  console.log,
-);
-```
-
-##### Place Multiple Orders
-
-```js
-//request
-[
-  {
-	  "clientOid":"5c52e11203aa677f33e491",
-	  "side":"buy",
-	  "symbol":"ETHUSDTM",
-	  "type":"limit",
-	  "price":"2150",
-	  "size":"2"
-  },
-  {
-	  "clientOid":"5c52e11203aa677f33e492",
-	  "side":"buy",
-	  "symbol":"XBTUSDTM",
-	  "type":"limit",
-	  "price":"32150",
-	  "size":"2"
-  }
-]
-
-//Response
-[
-  {
-	  "orderId":"80465574458560512",
-	  "clientOid":"5c52e11203aa677f33e491",
-	  "symbol":"ETHUSDTM",
-	  "code":"200000",
-	  "msg":"success"
-  },
-  {
-	  "orderId":"80465575289094144",
-	  "clientOid":"5c52e11203aa677f33e492",
-	  "symbol":"ETHUSDTM",
-	  "code":"200000",
-	  "msg":"success"
-  }
-]
-
-futuresClient.futuresOrderMulti([...], console.log);
-```
-
 #### Fills
 
 ```js
-// Get Fills
-futuresClient.futuresFills({ pageSize: 100 }, console.log);
+// Get Specific Fills
+futuresClient.getFills({ type: 'market' });
+// or search for all
+futuresClient.getFills({});
 
-// Recent Fills
-futuresClient.futuresRecentFills('ETHUSDTM', console.log);
+// Recent Fills from last 24 hours
+futuresClient.futuresRecentFills({ symbol: 'ETHUSDTM' });
 // Or Search All
-futuresClient.futuresRecentFills('', console.log);
+futuresClient.futuresRecentFills({});
 
 // Active Order Value Calculation
-futuresClient.futuresMarginOpenOrders('ETHUSDTM', console.log);
+futuresClient.getOpenOrderStatistics({ symbol: 'ETHUSDTM' });
 ```
 
 #### Positions
 
 ```js
 // Get Position Details
-futuresClient.futuresPositionDetail('ETHUSDTM', console.log);
+futuresClient.getPosition({ symbol: 'ETHUSDTM' });
 
 // Get Position List
-futuresClient.futuresPositions('USDT', console.log);
+futuresClient.getPositions({ currency: 'USDT' });
 // Or Search All
-futuresClient.futuresPositions('', console.log);
+futuresClient.getPositions();
 
-// Enable of Auto-Deposit Margin
-futuresClient.futuresPositionAutoDeposit(
-  { symbol: 'ETHUSDTM', status: true },
-  console.log,
-);
-// Disable of Auto-Deposit Margin
-futuresClient.futuresPositionAutoDeposit(
-  { symbol: 'ETHUSDTM', status: false },
-  console.log,
-);
-
-// Add Margin Manually
-// bizNo default uuidV4()
-futuresClient.futuresPositionMargin(
-  {
-    symbol: 'ETHUSDTM',
-    margin: 0.01,
-    // bizNo: uuidV4(),
-  },
-  console.log,
-);
-```
-
-#### Risk Limit Level
-
-```js
-// Obtain Futures Risk Limit Level
-futuresClient.futuresRiskLimit('ETHUSDTM', console.log);
-
-// Adjust Risk Limit Level
-futuresClient.futuresChangeRiskLimit(
-  { symbol: 'ETHUSDTM', level: 2 },
-  console.log,
-);
-```
-
-#### Funding Fees
-
-```js
-// Get Current Funding Rate
-futuresClient.futuresFundingRate('XBTUSDM', console.log);
-
-// Get Public Funding History
-futuresClient.futuresFundingRates(
-  {
-    symbol: 'XBTUSDTM',
-    from: '1700310700000',
-    to: '1702310700000',
-  },
-  console.log,
-);
-
-// Get Private Funding History
-futuresClient.futuresFundingHistory({ symbol: 'ETHUSDTM' }, console.log);
+// Get History Positions
+futuresClient.getHistoryPositions({ symbol: 'ETHUSDTM' });
 ```
 
 ---
 
 ### Market Data
 
-#### Get Open Contract List
+#### Symbol and exchange info
 
 ```js
-futuresClient.futuresContractsActive(console.log);
+// Get All Contract List
+futuresClient.getSymbols();
+
+// Get Order Info of the Contract
+futuresClient.getSymbol({ symbol: 'XBTUSDTM' });
+
+// Get Ticker
+futuresClient.getTicker({ symbol: 'XBTUSDTM' });
 ```
 
-#### Get Order Info of the Contract
+#### Order Book data
 
 ```js
-futuresClient.futuresContractDetail('XBTUSDTM', console.log);
-```
+// Get Full Order Book - Level 2
+futuresClient.getFullOrderBookLevel2({ symbol: 'XBTUSDTM' });
 
-#### Get Ticker
-
-```js
-futuresClient.futuresTicker('XBTUSDTM', console.log);
-```
-
-#### Get Full Order Book - Level 2
-
-```js
-futuresClient.futuresLevel2('XBTUSDTM', console.log);
-```
-
-#### Get Part Order Book - Level 2
-
-```js
 // Get Level2 depth20
-futuresClient.futuresLevel2Depth20('XBTUSDTM', console.log);
+futuresClient.getPartOrderBookLevel2Depth20({ symbol: 'XBTUSDTM' });
 
 // Get Level2 depth100
-futuresClient.futuresLevel2Depth100('XBTUSDTM', console.log);
+futuresClient.getPartOrderBookLevel2Depth100({ symbol: 'XBTUSDTM' });
 ```
 
-#### Transaction History
+#### Order Book data
 
 ```js
-futuresClient.futuresTradeHistory('XBTUSDTM', console.log);
-```
+// Get Public Trades
+futuresClient.getMarketTrades({ symbol: 'XBTUSDTM' });
 
-#### Index
-
-```js
 // Get Interest Rate List
-futuresClient.futuresInterests({ symbol: '.XBTINT' }, console.log);
+futuresClient.getInterestRates({ symbol: '.XBTINT' });
 
 // Get Index List
-futuresClient.futuresIndexList({ symbol: '.KXBT' }, console.log);
+futuresClient.getIndex({ symbol: '.KXBT' });
 
 // Get Current Mark Price
-futuresClient.futuresMarkPrice('XBTUSDM', console.log);
+futuresClient.getMarkPrice({ symbol: 'XBTUSDM' });
 
 // Get Premium Index
-futuresClient.futuresPremiums({ symbol: '.XBTUSDMPI' }, console.log);
+futuresClient.getPremiumIndex({ symbol: '.XBTUSDMPI' });
+
+// Get 24hour futures transaction volume
+futuresClient.get24HourTransactionVolume();
 ```
 
-#### Server Time
+#### Funding Fees
 
 ```js
-futuresClient.futuresTimestamp(console.log);
+// Get Current Funding Rate
+futuresClient.getFundingRate({ symbol: 'XBTUSDM' });
+
+// Get Public Funding History
+futuresClient.getFundingRates({
+  symbol: 'XBTUSDTM',
+  from: '1700310700000',
+  to: '1702310700000',
+});
+
+// Get Private Funding History
+futuresClient.getFundingHistory({ symbol: 'ETHUSDTM' });
 ```
 
-#### Server Status
+#### Kline/Candles
 
 ```js
-futuresClient.futuresStatus(console.log);
+futuresClient.getKlines({
+  symbol: 'XBTUSDTM',
+  granularity: 60,
+  from: new Date().getTime() - 24 * 60 * 60 * 1000, // 24 hours ago
+  to: new Date().getTime(),
+});
 ```
 
-#### Get K Line Data of Contract
+## Websocket
 
-```js
-futuresClient.futuresKline(
-  {
-    symbol: 'XBTUSDTM',
-    granularity: 480,
-    from: new Date().getTime() - 24 * 60 * 60 * 1000,
-    to: new Date().getTime(),
-  },
-  console.log,
-);
-```
+For Websocket examples, please refer to these links:
 
-#### Get 24hour futures transaction volume
+- [Spot Public Websocket](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/ws-spot-public.ts)
+- [Spot Private Websocket](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/ws-spot-private.ts)
+- [Futures Public Websocket](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/ws-futures-public.ts)
+- [Futures Private Websocket](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/ws-futures-private.ts)
 
-```js
-// need auth
-futuresClient.futuresTradeStatistics(console.log);
-```
+## Community group
 
----
-
-## WebSocket
-
-- Socket implements 59s heartbeat, disconnection retry mechanism
-- When calling the provided websocket.x method, the system will create a corresponding socket connection channel based on public or private, and only one connection will be created for each type
-- Parameters pass symbols, support passing arrays, and push symbol messages in the arrays
-- When the parameter is an array, the length of the array will be automatically cut according to the length of 90
-
-> All methods that pass symbols support array format
-> The first parameter is symbol and the second parameter is callback. When the parameter does not exist, the first parameter is callback
-
-### Public Channels
-
-```js
-//
-// Get Real-Time Symbol Ticker v2
-futuresClient.websocket.tickerV2(['ETHUSDTM', 'XBTUSDTM'], console.log);
-// Or
-futuresClient.websocket.tickerV2('ETHUSDTM', console.log);
-
-// Get Real-Time Symbol Ticker
-futuresClient.websocket.ticker(['ETHUSDTM', 'XBTUSDTM']);
-
-// Level 2 Market Data
-futuresClient.websocket.level2(['ETHUSDTM', 'XBTUSDTM']);
-
-// Execution data
-futuresClient.websocket.execution(['ETHUSDTM', 'XBTUSDTM']);
-
-// Message channel for the 5 best ask/bid full data of Level 2
-futuresClient.websocket.level2Depth5(['ETHUSDTM', 'XBTUSDTM']);
-
-// Message channel for the 50 best ask/bid full data of Level 2
-futuresClient.websocket.level2Depth50(['ETHUSDTM', 'XBTUSDTM']);
-
-// Contract Market Data
-// subject --> "mark.index.price" return Mark Price & Index Price
-// subject --> "funding.rate" return Funding Rate
-futuresClient.websocket.instrument(['ETHUSDTM', 'XBTUSDTM']);
-
-// Funding Fee Settlement
-// subject -->  "funding.begin" return Start Funding Fee Settlement
-// subject -->  "funding.end" return End Funding Fee Settlement
-futuresClient.websocket.announcement(console.log);
-
-// Transaction Statistics Timer Event
-futuresClient.websocket.snapshot(['ETHUSDTM', 'XBTUSDTM']);
-```
-
-### Private Channels
-
-```js
-// Trade Orders - According To The Market
-futuresClient.websocket.tradeOrders(['ETHUSDTM', 'XBTUSDTM'], console.log);
-// Or
-futuresClient.websocket.tradeOrders(console.log);
-
-// Stop Order Lifecycle Event
-futuresClient.websocket.advancedOrders(console.log);
-
-// Account Balance Events
-// subject --> "orderMargin.change" return Order Margin Event
-// subject --> "availableBalance.change" return Available Balance Event
-// subject --> "withdrawHold.change" return Withdrawal Amount & Transfer-Out Amount Event
-futuresClient.websocket.wallet(console.log);
-
-// Position Change Events
-// subject --> "position.change" return Position Changes Caused Operations
-// Position Changes Caused Operations
-// -- “marginChange”: margin change;
-// -- “positionChange”: position change;
-// -- “liquidation”: liquidation;
-// -- “autoAppendMarginStatusChange”: auto-deposit-status change;
-// -- “adl”: adl;
-// Position Changes Caused by Mark Price
-// subject --> "position.settlement" return Funding Settlement
-futuresClient.websocket.position(['ETHUSDTM', 'XBTUSDTM']);
-```
-
-## License
-
-[MIT](LICENSE)
+If you need help, something is wrong/missing or you have suggestions, please join our [Node.js Traders](https://t.me/nodetraders) community group on telegram and let us know!
