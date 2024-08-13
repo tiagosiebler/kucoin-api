@@ -64,7 +64,6 @@ const { FuturesClient } = require('kucoin-api');
 // import
 import { FuturesClient } from 'kucoin-api';
 
-
 // initialise Futures Client
 const futuresClient = new FuturesClient({
   // insert your api key, secret and passphrase - use env vars, if not just fill the string values
@@ -77,7 +76,7 @@ const futuresClient = new FuturesClient({
 
 ## REST API
 
-### User
+### Account examples
 
 #### Get Account Overview
 
@@ -99,95 +98,71 @@ futuresClient.getTransactions({
 });
 ```
 
-#### Get Sub-Account Futures API List
+### Subaccount API management
 
 ```js
+// Get all subaccount APIs
+
 futuresClient.getSubAPIs({
-  subName: 'my_name',
+  subName: 'my_sub_name',
 });
-```
 
-//
-//
-// DONE UP TO HERE
-//
-//
+//Create Futures APIs for Sub-Account
 
-#### Create Futures APIs for Sub-Account
+futuresClient.createSubAPI({
+  subName: 'my_sub_name',
+  passphrase: 'my_passphrase',
+  remark: 'my_remark',
+});
 
-```js
-futuresClient.futuresCreateSubApi(
-  {
-    subName: '[subName]',
-    passphrase: '[passphrase]',
-    remark: '[remark]',
-  },
-  console.log,
-);
-```
+// Modify Sub-Account Futures APIs
 
-#### Modify Sub-Account Futures APIs
+futuresClient.updateSubAPI({
+  subName: 'my_sub_name',
+  passphrase: 'my_passphrase',
+  apiKey: 'my_api_key',
+});
 
-```js
-futuresClient.futuresUpdateSubApi(
-  {
-    subName: '[subName]',
-    passphrase: '[passphrase]',
-    apiKey: '[apiKey]',
-  },
-  console.log,
-);
-```
+// Delete Sub-Account Futures APIs
 
-#### Delete Sub-Account Futures APIs
-
-```js
-futuresClient.futureDeleteSubApi(
-  {
-    subName: '[subName]',
-    passphrase: '[passphrase]',
-    apiKey: '[apiKey]',
-  },
-  console.log,
-);
+futuresClient.deleteSubAPI({
+  subName: 'my_sub_name',
+  passphrase: 'my_passphrase',
+  apiKey: 'my_api_key',
+});
 ```
 
 ---
 
-### Transfer
-
-#### Transfer to Main or TRADE Account
+### Transfer funds in and out of Futures Account
 
 ```js
-futuresClient.futureTransferOut(
-  { amount: 0.01, currency: 'USDT', recAccountType: 'MAIN' },
-  console.log,
-);
-```
+// transfer to Main or TRADE Account
 
-#### Transfer to Futures Account
+futuresClient.submitTransferOut({
+  amount: 0.01,
+  currency: 'USDT',
+  recAccountType: 'MAIN',
+});
 
-```js
-futuresClient.futureTransferIn(
-  { amount: 0.01, currency: 'USDT', payAccountType: 'MAIN' },
-  console.log,
-);
-```
+// Transfer to Futures Account
 
-#### Get Transfer-Out Request Records
+futuresClient.submitTransferIn({
+  amount: 0.01,
+  currency: 'USDT',
+  payAccountType: 'MAIN',
+});
 
-```js
-futuresClient.futureTransfers(
-  {
-    startAt: new Date().getTime() - 7 * 24 * 60 * 60 * 1000,
-    endAt: new Date().getTime(),
-    status: 'SUCCESS',
-    currentPage: 1,
-    pageSize: 100,
-    currency: 'USDT',
-  },
-  console.log,
-);
+// Get All Transfers
+
+futuresClient.futureTransfers({
+  status: 'SUCCESS', // optional, 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  currency: 'USDT', // optional
+  startAt: 1723550000, // optional
+  endAt: 1723557472, // optional
+  currentPage: 1, // optional
+  pageSize: 100, // optional
+});
 ```
 
 ---
