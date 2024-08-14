@@ -55,8 +55,7 @@ Check out my related JavaScript/TypeScript/Node.js projects:
   - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
 - Check out my examples:
   - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-
-<!-- template_related_projects_end -->
+  <!-- template_related_projects_end -->
 
 ## Documentation
 
@@ -85,42 +84,41 @@ Create API credentials
 
 ### REST API
 
-To use any of Gate.io's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `RestClient`:
+To use any of Gate.io's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `SpotClient` (for spot and margin APIs) or 'FuturesClient' (for futures APIs):
 
 ```javascript
-const { RestClient } = require('kucoin-api');
+const { SpotClient, FuturesClient } = require('kucoin-api');
 
-const API_KEY = 'xxx';
-const PRIVATE_KEY = 'yyy';
-
-const client = new RestClient({
-  apiKey: API_KEY,
-  apiSecret: PRIVATE_KEY,
+const client = new SpotClient({
+  apiKey: 'apiKeyHere',
+  apiSecret: 'apiSecretHere',
+  apiPassphrase: 'apiPassPhraseHere',
 });
 
-client
-  .getSpotTicker()
-  .then((result) => {
-    console.log('all spot tickers result: ', result);
-  })
-  .catch((err) => {
-    console.error('spot ticker error: ', err);
+try {
+  const spotBuyResult = await client.submitOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'buy',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
   });
+  console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
 
-client
-  .getSpotOrders({
-    currency_pair: 'BTC_USDT', // Specify the currency pair
-    status: 'open', // Specify the status of the orders to fetch
-  })
-  .then((result) => {
-    console.log('getSpotOrders result: ', result);
-  })
-  .catch((err) => {
-    console.error('getSpotOrders error: ', err);
+  const spotSellResult = await client.submitOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'sell',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
   });
+  console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
+} catch (e) {
+  console.error(`Req error: `, e);
+}
 ```
 
-See [RestClient](./src/RestClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
+See [SpotClient](./src/SpotClient.ts) and [FuturesClient](./src/FuturesClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
 
 ## WebSockets
 
@@ -133,122 +131,115 @@ Data events are emitted from the WebsocketClient via the `update` event, see exa
 ```javascript
 const { WebsocketClient } = require('kucoin-api');
 
-const API_KEY = 'xxx';
-const PRIVATE_KEY = 'yyy';
+const client = new WebsocketClient();
 
-const wsConfig = {
-  apiKey: API_KEY,
-  apiSecret: PRIVATE_KEY,
-
-  /*
-    The following parameters are optional:
-  */
-
-  // Livenet is used by default, use this to enable testnet:
-  // useTestnet: true
-
-  // how long to wait (in ms) before deciding the connection should be terminated & reconnected
-  // pongTimeout: 1000,
-
-  // how often to check (in ms) that WS connection is still alive
-  // pingInterval: 10000,
-
-  // how long to wait before attempting to reconnect (in ms) after connection is closed
-  // reconnectTimeout: 500,
-
-  // config options sent to RestClient (used for time sync). See RestClient docs.
-  // restOptions: { },
-
-  // config for axios used for HTTP requests. E.g for proxy support
-  // requestOptions: { }
-};
-
-const ws = new WebsocketClient(wsConfig);
-
-/**
- * Subscribing to data:
- **/
-
-const userOrders = {
-  topic: 'spot.orders',
-  payload: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
-};
-
-const userTrades = {
-  topic: 'spot.usertrades',
-  payload: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
-};
-
-const userPriceOrders = {
-  topic: 'spot.priceorders',
-  payload: ['!all'],
-};
-
-// subscribe to multiple topics at once
-ws.subscribe([userOrders, userTrades, userPriceOrders], 'spotV4');
-
-// and/or subscribe to individual topics on demand
-ws.subscribe(
-  {
-    topic: 'spot.priceorders',
-    payload: ['!all'],
-  },
-  'spotV4',
-);
-
-// Some topics don't need params, for those you can just subscribe with a string (or use a topic + payload object as above)
-ws.subscribe('spot.balances', 'spotV4');
-
-/**
- * Handling events:
- **/
-
-// Listen to events coming from websockets. This is the primary data source
-ws.on('update', (data) => {
-  console.log('data', data);
+client.on('open', (data) => {
+  console.log('open: ', data?.wsKey);
 });
 
-// Optional: Listen to websocket connection open event (automatic after subscribing to one or more topics)
-ws.on('open', ({ wsKey, event }) => {
-  console.log('connection open for websocket with ID: ' + wsKey);
+// Data received
+client.on('update', (data) => {
+  console.info('data received: ', JSON.stringify(data));
 });
 
-// Optional: Listen to responses to websocket queries (e.g. the reply after subscribing to a topic)
-ws.on('response', (response) => {
-  console.log('response', response);
+// Something happened, attempting to reconenct
+client.on('reconnect', (data) => {
+  console.log('reconnect: ', data);
 });
 
-// Optional: Listen to connection close event. Unexpected connection closes are automatically reconnected.
-ws.on('close', () => {
-  console.log('connection closed');
+// Reconnect successful
+client.on('reconnected', (data) => {
+  console.log('reconnected: ', data);
 });
 
-// Optional: listen to internal exceptions. Useful for debugging if something weird happens
-ws.on('exception', (data) => {
-  console.error('exception: ', data);
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+client.on('close', (data) => {
+  console.error('close: ', data);
 });
 
-// Optional: Listen to raw error events.
-ws.on('error', (err) => {
-  console.error('ERR', err);
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+client.on('response', (data) => {
+  console.info('response: ', data);
+  // throw new Error('res?');
 });
+
+client.on('exception', (data) => {
+  console.error('exception: ', {
+    msg: data.msg,
+    errno: data.errno,
+    code: data.code,
+    syscall: data.syscall,
+    hostname: data.hostname,
+  });
+});
+
+try {
+  // Optional: await a connection to be ready before subscribing (this is not necessary)
+  // await client.connect('futuresPublicV1');
+
+  /**
+   * Examples for public futures websocket topics (that don't require authentication).
+   *
+   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
+   */
+  client.subscribe(
+    [
+      '/contractMarket/tickerV2:XBTUSDM',
+      '/contractMarket/ticker:XBTUSDM',
+      '/contractMarket/level2:XBTUSDM',
+      '/contractMarket/execution:XBTUSDM',
+      '/contractMarket/level2Depth5:XBTUSDM',
+      '/contractMarket/level2Depth50:XBTUSDM',
+      '/contractMarket/limitCandle:XBTUSDTM_1hour',
+      '/contract/instrument:XBTUSDM',
+      '/contract/announcement',
+      '/contractMarket/snapshot:XBTUSDM',
+    ],
+    'futuresPublicV1',
+  );
+} catch (e) {
+  console.error(`Subscribe exception: `, e);
+}
 ```
 
-See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail.
+See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
 
 ---
 
 ## Customise Logging
 
-Pass a custom logger which supports the log methods `silly`, `debug`, `notice`, `info`, `warning` and `error`, or override methods from the default logger as desired.
+Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
 
 ```javascript
 const { WebsocketClient, DefaultLogger } = require('kucoin-api');
 
-// Disable all logging on the silly level
-DefaultLogger.silly = () => {};
+// E.g. customise logging for only the trace level:
+const logger = {
+  // Inherit existing logger methods, using an object spread
+  ...DefaultLogger,
+  // Define a custom trace function to override only that function
+  trace: (...params) => {
+    if (
+      [
+        'Sending ping',
+        // 'Sending upstream ws message: ',
+        'Received pong',
+      ].includes(params[0])
+    ) {
+      return;
+    }
+    console.log('trace', JSON.stringify(params, null, 2));
+  },
+};
 
-const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
+const ws = new WebsocketClient(
+  {
+    apiKey: 'apiKeyHere',
+    apiSecret: 'apiSecretHere',
+    apiPassphrase: 'apiPassPhraseHere',
+  },
+  logger,
+);
 ```
 
 ---
@@ -270,7 +261,6 @@ old ones:
   - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
   - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
 -->
-
 <!-- template_contributions_end -->
 
 ### Contributions & Pull Requests
