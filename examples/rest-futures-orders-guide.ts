@@ -21,8 +21,8 @@ async function start() {
      * =======
 
     /**
-     * Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols.
-     * Each contract is Multiplier x Size
+     * Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols. 
+     * Each contract equals to  Multiplier x Size
      * For example:  https://api-futures.kucoin.com/api/v1/contracts/XRPUSDTM  - see the "multiplier" value.
      * */
 

@@ -293,11 +293,12 @@ const size = (fundsToTradeUSDT * leverage) / costOfContract;
 console.log(`Size: ${size}`);
 ```
 
-The trade amount indicates the amount of contract to buy or sell, and contract uses the base currency or lot as the trading unit.
+The trade amount indicates the amount of contract to buy or sell, and contract uses the base currency(USD contracts e.g. XBTUSDM) or lot( USDT contracts e.g. XBTUSDTM) as the trading unit.
 The trade amount must be no less than 1 lot for the contract and no larger than the maxOrderQty.
 It should be a multiple number of the lot, or the system will report an error when you place the order.
 E.g. 1 lot of XBTUSDTM is 0.001 Bitcoin, while 1 lot of XBTUSDM is 1 USD.
-or check the XRPUSDTM example above.
+You can get info about any contract on the link: https://api-futures.kucoin.com/api/v1/contracts/****\_\_**** - just replace the empty space with the symbol of the contract.
+
 Here are function examples using the Futures Create Order endpoint:
 
 #### Market Short
