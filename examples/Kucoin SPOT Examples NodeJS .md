@@ -30,7 +30,7 @@ Do you need help with Futures? Check out [Futures Quickstart guide](https://gith
   - [Account and balance](#account-examples)
 
     - [Account overview](#account-overview)
-    - [Account transaction history](#account-transaction-history)
+    - [Transactions](#transactions)
     - [Deposit and Withdrawal](#deposit-and-withdrawal)
 
   - [Subaccount](#subaccount)
@@ -39,7 +39,6 @@ Do you need help with Futures? Check out [Futures Quickstart guide](https://gith
   - [Market Data](#market-data)
     - [Symbol and exchange info](#symbol-and-exchange-info)
     - [Order Book data](#order-book-data)
-    - [Public Trades and Index data](#public-trades-and-index-data)
     - [Kline/Candles](#klinecandles)
   - [Trade Execution](#trade)
     - [General info](#general-info)
@@ -48,12 +47,13 @@ Do you need help with Futures? Check out [Futures Quickstart guide](https://gith
     - [Limit short](#limit-short)
     - [Limit long](#limit-long)
     - [Place multiple orders](#place-multiple-orders)
+  - [Trade/Order/Positions Management](#tradeorderpositions-management)
     - [Cancel order](#cancel-order)
     - [Cancel all orders for specific symbol](#cancel-all-orders-for-specific-symbol)
-  - [Trade/Order/Positions Management](#tradeorderpositions-management)
     - [Fetching orders](#fetching-orders)
     - [Fills](#fills)
-    - [Positions](#positions)
+  - [Spot HF trade](#spot-hf-trade)
+  - [Margin trade](#margin-trade--margin-hf-trade)
 
 - [WebSocket](#websocket)
 - [Community group](#community-group)
@@ -116,7 +116,7 @@ spotClient.getMarginBalance();
 spotClient.getIsolatedMarginBalance();
 ```
 
-#### Transaction History
+#### Transactions
 
 ```js
 // Example call to get account ledgers with specified parameters
@@ -385,43 +385,26 @@ const limitLong = spotClient.submitOrder({
 //request
 
 const multipleOrders = [
-    {
-      clientOid: '3d07008668054da6b3cb12e432c2b13a',
-      side: 'buy',
-      type: 'limit',
-      price: '0.01',
-      size: '0.01',
-    },
-    {
-      clientOid: '37245dbe6e134b5c97732bfb36cd4a9d',
-      side: 'buy',
-      type: 'limit',
-      price: '0.01',
-      size: '0.01',
-    },
-  ],
+  {
+    clientOid: '3d07008668054da6b3cb12e432c2b13a',
+    side: 'buy',
+    type: 'limit',
+    price: '0.01',
+    size: '0.01',
+  },
+  {
+    clientOid: '37245dbe6e134b5c97732bfb36cd4a9d',
+    side: 'buy',
+    type: 'limit',
+    price: '0.01',
+    size: '0.01',
+  },
+];
 
 spotClient.submitMultipleOrders({
   symbol: 'KCS-USDT',
   orderList: multipleOrders,
 });
-```
-
-#### Cancel Order
-
-```js
-spotClient.cancelOrderById({ orderId: 'orderId' });
-spotClient.cancelOrderByClientOid({ clientOid: 'clientOid' });
-```
-
-#### Cancel all orders for specific symbol
-
-```js
-//cancel all orders for symbol
-spotClient.cancelAllOrders({ symbol: 'XBTUSDTM' });
-
-// cancel all orders for all symbols
-spotClient.cancelAllOrders();
 ```
 
 ### Trade/Order/Positions Management
@@ -442,6 +425,23 @@ spotClient.getRecentOrders();
 spotClient.getOrderByClientOid({ clientOid: 'clientOid' });
 // Or By OrderId
 spotClient.getOrderByOrderId({ orderId: 'orderId' });
+```
+
+#### Cancel Order
+
+```js
+spotClient.cancelOrderById({ orderId: 'orderId' });
+spotClient.cancelOrderByClientOid({ clientOid: 'clientOid' });
+```
+
+#### Cancel all orders for specific symbol
+
+```js
+//cancel all orders for symbol
+spotClient.cancelAllOrders({ symbol: 'XBTUSDTM' });
+
+// cancel all orders for all symbols
+spotClient.cancelAllOrders();
 ```
 
 #### Fills
