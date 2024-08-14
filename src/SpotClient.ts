@@ -583,15 +583,15 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/hf/orders/sync', params);
   }
 
-  submitHFOrders(
-    params: SubmitMultipleHFOrdersRequest,
-  ): Promise<APISuccessResponse<SubmitMultipleHFOrdersResponse[]>> {
+  submitHFMultipleOrders(params: {
+    orderList: SubmitMultipleHFOrdersRequest[];
+  }): Promise<APISuccessResponse<SubmitMultipleHFOrdersResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
 
-  submitHFOrdersSync(
-    params: SubmitMultipleHFOrdersRequest,
-  ): Promise<APISuccessResponse<SubmitMultipleHFOrdersSyncResponse[]>> {
+  submitHFMultipleOrdersSync(params: {
+    orderList: SubmitMultipleHFOrdersRequest[];
+  }): Promise<APISuccessResponse<SubmitMultipleHFOrdersSyncResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
 
