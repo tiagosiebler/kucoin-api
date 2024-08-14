@@ -9,7 +9,7 @@
   </a>
 </p>
 
-This document provides comprehensive examples for using the KuCoin SPOT API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their NodeJS, Javascript and Typscript applications.
+This document provides comprehensive examples for using the KuCoin SPOT API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Spot API into their NodeJS, Javascript and Typscript applications.
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
