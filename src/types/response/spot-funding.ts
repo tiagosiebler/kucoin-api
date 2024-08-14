@@ -43,7 +43,6 @@ export interface IsolatedMarginAssetDetail {
   quoteAsset: MarginAssetDetail;
 }
 
-
 export interface MarginBalance {
   timestamp: number;
   currentPage: number;
@@ -164,7 +163,7 @@ export interface V1HistoricalWithdrawals {
   items: HistoricalWithdrawalItem[];
 }
 
-export interface WithdrawalQuotas{
+export interface WithdrawalQuotas {
   limitBTCAmount: string;
   quotaCurrency: string;
   chain: string;

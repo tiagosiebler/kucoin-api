@@ -26,7 +26,10 @@ import {
 } from './types/request/futures.types.js';
 import {
   AccountBalance,
+  AccountSummary,
+  AccountTransactions,
   AddMargin,
+  CreateSubAccountAPI,
   FillDetail,
   FullOrderBookDetail,
   FundingHistoryItem,
@@ -47,15 +50,12 @@ import {
   PremiumIndexItem,
   RiskLimit,
   SubAccountAPIItem,
+  SubBalance,
   SubmitMultipleOrdersFuturesResponse,
   SymbolDetail,
   TickerDetail,
   TransferDetail,
   UpdateSubAccountAPI,
-  AccountSummary,
-  AccountTransactions,
-  CreateSubAccountAPI,
-  SubBalance,
 } from './types/response/futures.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import { WsConnectionInfo } from './types/response/ws.js';
