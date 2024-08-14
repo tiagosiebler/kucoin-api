@@ -38,7 +38,6 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
 
 <!-- template_related_projects -->
-
 ## Related projects
 
 Check out my related JavaScript/TypeScript/Node.js projects:
@@ -55,7 +54,6 @@ Check out my related JavaScript/TypeScript/Node.js projects:
   - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
 - Check out my examples:
   - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-
 <!-- template_related_projects_end -->
 
 ## Documentation
@@ -254,7 +252,6 @@ const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
 ---
 
 <!-- template_contributions -->
-
 Have my projects helped you? Share the love, there are many ways you can show your thanks:
 
 - Star & share my projects.
@@ -263,6 +260,7 @@ Have my projects helped you? Share the love, there are many ways you can show yo
 - Or buy me all the coffee:
   - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
 
+
 <!---
 old ones:
   - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
@@ -270,7 +268,6 @@ old ones:
   - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
   - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
 -->
-
 <!-- template_contributions_end -->
 
 ### Contributions & Pull Requests
@@ -278,9 +275,7 @@ old ones:
 Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
 
 <!-- template_star_history -->
-
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
-
 <!-- template_star_history_end -->
