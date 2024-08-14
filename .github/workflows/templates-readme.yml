@@ -21,50 +21,93 @@ jobs:
         id: datetime
         run: echo "BRANCH_NAME=$(date +'actions_templates_%Y_%m_%d_%H%M%S')" >> $GITHUB_ENV
 
-      - name: Fetch and update RELATED PROJECTS template
+      # - name: Create update-template.sh script
+      #   run: |
+      #     echo '#!/bin/bash' > update-template.sh
+      #     echo 'TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)' >> update-template.sh
+      #     echo 'perl -0777 -i -pe "' >> update-template.sh
+      #     echo 'my \$tag = quotemeta('\'"<!-- template_\${TEMPLATE_TAG} -->"\');' >> update-template.sh
+      #     echo 'my \$end_tag = quotemeta('\'"<!-- template_\${TEMPLATE_TAG}_end -->"\');' >> update-template.sh
+      #     echo 'my \$replacement = '\'"${TEMPLATE_VALUE}"\';' >> update-template.sh
+      #     echo 's/(\$tag)(.*?)(\n?\$end_tag)/\$1\n\$replacement\n\$3/s;' >> update-template.sh
+      #     echo '" "$FILE_NAME"' >> update-template.sh
+      #     chmod +x update-template.sh
+
+      - name: Create update-template.sh script
         run: |
-          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
+          echo '#!/bin/bash \
+          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL) \
+          perl -0777 -i -pe " \
+          my \$tag = quotemeta('\'"<!-- template_\${TEMPLATE_TAG} -->"\'); \
+          my \$end_tag = quotemeta('\'"<!-- template_\${TEMPLATE_TAG}_end -->"\'); \
+          my \$replacement = '\'"${TEMPLATE_VALUE}"\'; \
+          s/(\$tag)(.*?)(\n?\$end_tag)/\$1\n\$replacement\n\$3/s; \
+          " "$FILE_NAME"' > update-template.sh
+          chmod +x update-template.sh
+          cat update-template.sh
 
-          perl -0777 -i -pe '
-          my $tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"' -->");
-          my $end_tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"'\_end -->");
-          my $replacement = "'"$TEMPLATE_VALUE"'";
-
-          s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
-          ' "$FILE_NAME"
+      - name: Fetch and update RELATED PROJECTS template
+        run: ./update-template.sh
         env:
           TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Related-projects.md
           TEMPLATE_TAG: related_projects
 
       - name: Fetch and update CONTRIBUTIONS template
-        run: |
-          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
-
-          perl -0777 -i -pe '
-          my $tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"' -->");
-          my $end_tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"'\_end -->");
-          my $replacement = "'"$TEMPLATE_VALUE"'";
-
-          s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
-          ' "$FILE_NAME"
+        run: ./update-template.sh
         env:
           TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Contributions-%26-Thanks.md
           TEMPLATE_TAG: contributions
 
       - name: Fetch and update STAR HISTORY template
-        run: |
-          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
-
-          perl -0777 -i -pe '
-          my $tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"' -->");
-          my $end_tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"'\_end -->");
-          my $replacement = "'"$TEMPLATE_VALUE"'";
-
-          s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
-          ' "$FILE_NAME"
+        run: ./update-template.sh
         env:
           TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Star-History.md
           TEMPLATE_TAG: star_history
+
+      # - name: Fetch and update RELATED PROJECTS template
+      #   run: |
+      #     TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
+
+      #     perl -0777 -i -pe '
+      #     my $tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"' -->");
+      #     my $end_tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"'\_end -->");
+      #     my $replacement = "'"$TEMPLATE_VALUE"'";
+
+      #     s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
+      #     ' "$FILE_NAME"
+      #   env:
+      #     TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Related-projects.md
+      #     TEMPLATE_TAG: related_projects
+
+      # - name: Fetch and update CONTRIBUTIONS template
+      #   run: |
+      #     TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
+
+      #     perl -0777 -i -pe '
+      #     my $tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"' -->");
+      #     my $end_tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"'\_end -->");
+      #     my $replacement = "'"$TEMPLATE_VALUE"'";
+
+      #     s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
+      #     ' "$FILE_NAME"
+      #   env:
+      #     TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Contributions-%26-Thanks.md
+      #     TEMPLATE_TAG: contributions
+
+      # - name: Fetch and update STAR HISTORY template
+      #   run: |
+      #     TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
+
+      #     perl -0777 -i -pe '
+      #     my $tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"' -->");
+      #     my $end_tag = quotemeta("<!-- template\_'"$TEMPLATE_TAG"'\_end -->");
+      #     my $replacement = "'"$TEMPLATE_VALUE"'";
+
+      #     s/($tag)(.*?)(\n?$end_tag)/$1\n$replacement\n$3/s;
+      #     ' "$FILE_NAME"
+      #   env:
+      #     TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Star-History.md
+      #     TEMPLATE_TAG: star_history
 
       - name: Check for changes and commit / open PR
         id: commitIfChanged
