@@ -1,4 +1,4 @@
-# **KuCoin Futures API Examples** - Node.js, JavaScript & Typescript SDK for Kucoin REST APIs & WebSockets
+# **KuCoin FUTURES API Examples** - Node.js, JavaScript & Typescript SDK for Kucoin REST APIs & WebSockets
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
@@ -9,13 +9,17 @@
   </a>
 </p>
 
-This document provides comprehensive examples for using the KuCoin Futures API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their NodeJS, Javascript and Typscript applications.
+This document provides comprehensive examples for using the KuCoin FUTURES API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their NodeJS, Javascript and Typscript applications.
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
 [KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official Kucoin API docs
 
 [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
+
+[Full FUTURES client](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts) - find all available methods in this file - in this example file are mentioned just most important methods
+
+Do you need help with Spot? Check out [Spot Quickstart guide](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/Kucoin%20SPOT%20Examples%20NodeJS.md)
 
 **Table of contents:**
 
@@ -28,6 +32,7 @@ If you are here, it means you will be great addition to our [Node.js Traders](ht
   - [Market Data](#market-data)
     - [Symbol and exchange info](#symbol-and-exchange-info)
     - [Order Book data](#order-book-data)
+    - [Public Trades and Index data](#public-trades-and-index-data)
     - [Funding Fees](#funding-fees)
     - [Kline/Candles](#klinecandles)
   - [Transfer funds in and out of Futures Account](#transfer-funds-in-and-out-of-futures-account)
@@ -167,7 +172,7 @@ futuresClient.getPartOrderBookLevel2Depth20({ symbol: 'XBTUSDTM' });
 futuresClient.getPartOrderBookLevel2Depth100({ symbol: 'XBTUSDTM' });
 ```
 
-#### Order Book data
+#### Public Trades and Index data
 
 ```js
 // Get Public Trades

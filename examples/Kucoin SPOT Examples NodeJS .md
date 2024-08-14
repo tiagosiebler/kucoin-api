@@ -1,4 +1,4 @@
-# **KuCoin Futures API Examples** - Node.js, JavaScript & Typescript SDK for Kucoin REST APIs & WebSockets
+# **KuCoin SPOT API Examples** - Node.js, JavaScript & Typescript SDK for Kucoin REST APIs & WebSockets
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
@@ -9,13 +9,17 @@
   </a>
 </p>
 
-This document provides comprehensive examples for using the KuCoin Futures API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their NodeJS, Javascript and Typscript applications.
+This document provides comprehensive examples for using the KuCoin SPOT API with Node.js and JavaScript. It covers various functionalities including account management, fund transfers, trade execution, order management, and market data retrieval. The examples are designed to help developers quickly integrate KuCoin Futures API into their NodeJS, Javascript and Typscript applications.
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
 [KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official Kucoin API docs
 
 [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
+
+[Full SPOT client](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) - find all available methods in this file - in this example file are mentioned just most important methods
+
+Do you need help with Futures? Check out [Futures Quickstart guide](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/Kucoin%20FUTURES%20Examples%20NodeJS.md)
 
 **Table of contents:**
 
@@ -24,22 +28,25 @@ If you are here, it means you will be great addition to our [Node.js Traders](ht
 - [REST API](#rest-api)
 
   - [Account and balance](#account-examples)
-  - [Subaccount API management](#subaccount-api-management)
+
+    - [Account overview](#account-overview)
+    - [Account transaction history](#account-transaction-history)
+    - [Deposit and Withdrawal](#deposit-and-withdrawal)
+
+  - [Subaccount](#subaccount)
+    - [Subaccount management](#subaccount-management)
+    - [Subaccount API management](#subaccount-api-management)
   - [Market Data](#market-data)
     - [Symbol and exchange info](#symbol-and-exchange-info)
     - [Order Book data](#order-book-data)
-    - [Funding Fees](#funding-fees)
+    - [Public Trades and Index data](#public-trades-and-index-data)
     - [Kline/Candles](#klinecandles)
-  - [Transfer funds in and out of Futures Account](#transfer-funds-in-and-out-of-futures-account)
   - [Trade Execution](#trade)
     - [General info](#general-info)
     - [Market short](#market-short)
     - [Market long](#market-long)
     - [Limit short](#limit-short)
     - [Limit long](#limit-long)
-    - [Market close](#market-close)
-    - [Limit close](#limit-close)
-    - [Stop loss](#stop-loss)
     - [Place multiple orders](#place-multiple-orders)
     - [Cancel order](#cancel-order)
     - [Cancel all orders for specific symbol](#cancel-all-orders-for-specific-symbol)
@@ -66,13 +73,13 @@ yarn add kucoin-api
 
 ```js
 // require
-const { FuturesClient } = require('kucoin-api');
+const { SpotClient } = require('kucoin-api');
 
 // import
-import { FuturesClient } from 'kucoin-api';
+import { SpotClient } from 'kucoin-api';
 
-// initialise Futures Client
-const futuresClient = new FuturesClient({
+// initialise Spot Client
+const spotClient = new SpotClient({
   // insert your api key, secret and passphrase - use env vars, if not just fill the string values
   apiKey: process.env.KUCOIN_API_KEY || 'insert-your-api-key',
   apiSecret: process.env.KUCOIN_API_SECRET || 'insert-your-api-secret',
@@ -85,38 +92,152 @@ const futuresClient = new FuturesClient({
 
 ### Account examples
 
-#### Get Account Overview
+#### Account Overview
 
 ```js
-// Get Account Balance - XBT or USDT, default XBT
-futuresClient.getBalance({ currency: 'XBT' });
+// Get Account Summary
+spotClient.getAccountSummary();
 
-// Get All Subaccount Accounts Balance
-futuresClient.getSubBalances({ currency: 'XBT' });
+// Get all Account Balances
+spotClient.getBalances();
+
+// Get specific Account or Currency Balance
+spotClient.getBalance({
+  currency: 'USDT',
+  type: 'main', // 'trade' | 'margin' | 'trade_hf'
+});
+
+// Example call to get account details by ID
+spotClient.getAccountDetails({ accountId: '5bd6e9286d99522a52e458de' });
+
+// Margin endpoints for balances
+spotClient.getMarginBalances();
+spotClient.getMarginBalance();
+spotClient.getIsolatedMarginBalance();
 ```
 
-#### Get Transaction History
+#### Transaction History
 
 ```js
-futuresClient.getTransactions({
-  type: 'RealisedPNL', // 'RealisedPNL' | 'Deposit' | 'Withdrawal' | 'Transferin' | 'TransferOut'
-  maxCount: 10,
-  currency: 'USDT',
+// Example call to get account ledgers with specified parameters
+spotClient.getTransactions({ currency: 'BTC', startAt: 1601395200000 });
+
+// Example call to get high-frequency account ledgers with specified parameters
+spotClient.getHFTransactions({
+  bizType: 'TRADE_EXCHANGE',
+  currency: 'YOP,DAI',
+  startAt: 1601395200000,
+});
+
+// Example call to get high-frequency margin account ledgers with specified parameters
+spotClient.getHFMarginTransactions({
+  bizType: 'MARGIN_EXCHANGE',
+  currency: 'YOP,DAI',
+  startAt: 1601395200000,
 });
 ```
 
-### Subaccount API management
+#### Deposit and Withdrawal
+
+```js
+// Example call to create a deposit address
+spotClient.createDepositAddress({
+  currency: 'BTC',
+  // Optional parameter
+  chain: 'BTC',
+});
+
+// Example call to get deposit addresses with specified parameters
+spotClient.getDepositAddressesV2({
+  currency: 'BTC',
+});
+
+// Example call to get deposits
+spotClient.getDeposits();
+
+// Example call to get withdrawals with specified parameters
+spotClient.getWithdrawals({
+  currency: 'BTC', // Optional parameter
+});
+
+// Example call to submit a withdrawal
+spotClient.submitWithdraw({
+  currency: 'BTC',
+  address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+  amount: 0.01,
+  // Optional parameters
+  memo: 'exampleMemo',
+  chain: 'BTC',
+});
+
+// Example call to cancel a withdrawal by ID
+spotClient.cancelWithdrawal({
+  withdrawalId: '5bffb63303aa675e8bbe18f9',
+});
+```
+
+### Subaccount
+
+#### Subaccount Management
+
+```js
+// Get all subaccounts
+spotClient.getSubAccountsV2({});
+
+// Example call to create a sub-account
+spotClient.createSubAccount({
+  // Fill in the required parameters for creating a sub-account
+  subName: 'exampleSubAccount',
+  password: 'examplePassword',
+  access: 'trade',
+});
+
+// Example call to get sub-account balance with specified parameters
+spotClient.getSubAccountBalance({
+  subUserId: '5caefba7d9575a0688f83c45',
+  includeBaseAmount: false,
+});
+
+// Example call to get sub-account balances
+spotClient.getSubAccountBalancesV2();
+
+// Example call to get transferable funds
+spotClient.getTransferable({
+  currency: 'BTC',
+  type: 'MAIN',
+});
+
+// Example call to submit a transfer from master to sub-account
+spotClient.submitTransferMasterSub({
+  clientOid: client.generateNewOrderID(), // or use your custom UUID
+  amount: 0.01,
+  currency: 'USDT',
+  direction: 'OUT', // 'IN' for transfer to master, 'OUT' for transfer to sub
+  subUserId: 'enter_sub_user_id_here',
+});
+
+// Example call to submit an inner transfer within same account
+spotClient.submitInnerTransfer({
+  clientOid: client.generateNewOrderID(), // or use your custom UUID
+  amount: 0.01,
+  currency: 'USDT',
+  from: 'main', // Source account type
+  to: 'trade', // Destination account type
+});
+```
+
+#### Subaccount API management
 
 ```js
 // Get all subaccount APIs
 
-futuresClient.getSubAPIs({
+spotClient.getSubAPIs({
   subName: 'my_sub_name',
 });
 
 // Create Futures APIs for Sub-Account
 
-futuresClient.createSubAPI({
+spotClient.createSubAPI({
   subName: 'my_sub_name',
   passphrase: 'my_passphrase',
   remark: 'my_remark',
@@ -124,7 +245,7 @@ futuresClient.createSubAPI({
 
 // Modify Sub-Account Futures APIs
 
-futuresClient.updateSubAPI({
+spotClient.updateSubAPI({
   subName: 'my_sub_name',
   passphrase: 'my_passphrase',
   apiKey: 'my_api_key',
@@ -132,7 +253,7 @@ futuresClient.updateSubAPI({
 
 // Delete Sub-Account Futures APIs
 
-futuresClient.deleteSubAPI({
+spotClient.deleteSubAPI({
   subName: 'my_sub_name',
   passphrase: 'my_passphrase',
   apiKey: 'my_api_key',
@@ -144,107 +265,53 @@ futuresClient.deleteSubAPI({
 #### Symbol and exchange info
 
 ```js
-// Get All Contract List
-futuresClient.getSymbols();
+// Get All Currencies List
+spotClient.getCurrencies();
 
-// Get Order Info of the Contract
-futuresClient.getSymbol({ symbol: 'XBTUSDTM' });
-
-// Get Ticker
-futuresClient.getTicker({ symbol: 'XBTUSDTM' });
-```
-
-#### Order Book data
-
-```js
-// Get Full Order Book - Level 2
-futuresClient.getFullOrderBookLevel2({ symbol: 'XBTUSDTM' });
-
-// Get Level2 depth20
-futuresClient.getPartOrderBookLevel2Depth20({ symbol: 'XBTUSDTM' });
-
-// Get Level2 depth100
-futuresClient.getPartOrderBookLevel2Depth100({ symbol: 'XBTUSDTM' });
-```
-
-#### Order Book data
-
-```js
-// Get Public Trades
-futuresClient.getMarketTrades({ symbol: 'XBTUSDTM' });
-
-// Get Interest Rate List
-futuresClient.getInterestRates({ symbol: '.XBTINT' });
-
-// Get Index List
-futuresClient.getIndex({ symbol: '.KXBT' });
-
-// Get Current Mark Price
-futuresClient.getMarkPrice({ symbol: 'XBTUSDM' });
-
-// Get Premium Index
-futuresClient.getPremiumIndex({ symbol: '.XBTUSDMPI' });
-
-// Get 24hour futures transaction volume
-futuresClient.get24HourTransactionVolume();
-```
-
-#### Funding Fees
-
-```js
-// Get Current Funding Rate
-futuresClient.getFundingRate({ symbol: 'XBTUSDM' });
-
-// Get Public Funding History
-futuresClient.getFundingRates({
-  symbol: 'XBTUSDTM',
-  from: '1700310700000',
-  to: '1702310700000',
+// Get info for a specific currency
+spotClient.getCurrency({
+  currency: 'BTC',
 });
 
-// Get Private Funding History
-futuresClient.getFundingHistory({ symbol: 'ETHUSDTM' });
+// Get all Symbols
+spotClient.getSymbols();
+
+// Example call to get ticker information for a specific symbol
+spotClient.getTicker({
+  symbol: 'BTC-USDT',
+});
+
+// All tickers
+spotClient.getTickers();
+
+// Get 24h stats for a specific symbol
+spotClient.get24hrStats({
+  symbol: 'BTC-USDT',
+});
+```
+
+#### Order Book data
+
+```js
+// get partial orderbook
+spotClient.getOrderBookLevel20({ symbol: 'BTC-USDT' });
+
+// get partial orderbook
+spotClient.getOrderBookLevel100({ symbol: 'BTC-USDT' });
+
+// get full orderbook
+spotClient.getFullOrderBook({ symbol: 'BTC-USDT' });
 ```
 
 #### Kline/Candles
 
 ```js
-futuresClient.getKlines({
-  symbol: 'XBTUSDTM',
-  granularity: 60,
-  from: new Date().getTime() - 24 * 60 * 60 * 1000, // 24 hours ago
-  to: new Date().getTime(),
-});
-```
-
-### Transfer funds in and out of Futures Account
-
-```js
-// Transfer out of the Futures to main acc
-
-futuresClient.submitTransferOut({
-  amount: 0.01,
-  currency: 'USDT',
-  recAccountType: 'MAIN',
-});
-
-// Transfer to Futures Account
-
-futuresClient.submitTransferIn({
-  amount: 0.01,
-  currency: 'USDT',
-  payAccountType: 'MAIN',
-});
-
-// Get All Transfers
-
-futuresClient.futureTransfers({
-  status: 'SUCCESS', // optional, 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  currency: 'USDT', // optional
-  startAt: 1723550000, // optional
-  endAt: 1723557472, // optional
-  currentPage: 1, // optional
-  pageSize: 100, // optional
+// Example call to get Klines (candlestick data) with specified parameters
+spotClient.getKlines({
+  type: '1min',
+  symbol: 'BTC-USDT',
+  startAt: 1566703297,
+  endAt: 1566789757,
 });
 ```
 
@@ -254,180 +321,61 @@ futuresClient.futureTransfers({
 
 #### General info
 
-Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols. Each contract is equal to Multiplier x Size.
-
-For example click on this endpoint and get a symbol info for XRPUSDTM: https://api-futures.kucoin.com/api/v1/contracts/XRPUSDTM
-
-In the object, find the "multiplier" value.
-
-```js
-// In your code, you can fetch it like this
-const symbolInfo = await client.getSymbol({ symbol: 'XRPUSDTM' });
-const multiplier = symbolInfo.data.multiplier;
-```
-
-E.g. if multiplier is 10(what you can see from the endpoint), that means each SIZE is 10 XRP. So if XRP is currently at $0.5, then each 1 contract (size 10) is going to cost $5.00
-
-size = (Funds x leverage) / (price x multiplier)
-
-```js
-const XRPPriceExample = 0.5;
-const leverage = 5;
-const fundsToTradeUSDT = 100;
-
-const costOfContract = XRPPriceExample * multiplier;
-
-const size = (fundsToTradeUSDT * leverage) / costOfContract;
-console.log(`Size: ${size}`);
-```
-
-The trade amount indicates the amount of contract to buy or sell, and contract uses the base currency or lot as the trading unit.
-The trade amount must be no less than 1 lot for the contract and no larger than the maxOrderQty.
-It should be a multiple number of the lot, or the system will report an error when you place the order.
-E.g. 1 lot of XBTUSDTM is 0.001 Bitcoin, while 1 lot of XBTUSDM is 1 USD.
-or check the XRPUSDTM example above.
-Here are function examples using the Futures Create Order endpoint:
+Please, read official [Kucoin API docs](https://www.kucoin.com/docs/rest/spot-trading/orders/place-order) to understand how to place orders, cancel orders, etc. and what is needed for each endpoint. These are just low-end examples to understand how to use it with SDK.
 
 #### Market Short
 
 ```js
-// A MARKET SHORT of 2 contracts of XBT using leverage of 5:
-const marketShort = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  leverage: '5',
+// Market short order
+const marketShort = spotClient.submitOrder({
+  clientOid: client.generateNewOrderID(), // or use your custom UUID
   side: 'sell',
-  size: 2,
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
+  symbol: 'ETH-BTC',
   type: 'market',
+  size: '0.5', // Specify the quantity to sell
 });
 ```
 
 #### Market Long
 
 ```js
-// A MARKET LONG of 2 contracts of XBT using leverage of 5:
-const marketLong = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  leverage: '5',
+// Market long order
+const marketLong = spotClient.submitOrder({
+  clientOid: client.generateNewOrderID(), // or use your custom UUID
   side: 'buy',
-  size: 2,
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
+  symbol: 'ETH-BTC',
   type: 'market',
+  size: '0.5', // Specify the quantity to buy
 });
 ```
 
 #### Limit Short
 
 ```js
-// A LIMIT SHORT of 2 contracts of XBT using leverage of 5:
-const limitShort = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  leverage: '5',
-  price: '70300.31',
+// Limit short order
+const limitShort = spotClient.submitOrder({
+  clientOid: client.generateNewOrderID(), // or use your custom UUID
   side: 'sell',
-  size: 2,
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
+  symbol: 'ETH-BTC',
   type: 'limit',
+  price: '0.03', // Specify the price to sell
+  size: '0.5', // Specify the quantity to sell
+  timeInForce: 'GTC', // Good Till Canceled
 });
 ```
 
 #### Limit Long
 
 ```js
-// A LIMIT LONG of 2 contracts of XBT using leverage of 5:
-const limitLong = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  leverage: '5',
-  price: '40300.31',
+// Limit long order
+const limitLong = spotClient.submitOrder({
+  clientOid: client.generateNewOrderID(), // or use your custom UUID
   side: 'buy',
-  size: 2,
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
+  symbol: 'ETH-BTC',
   type: 'limit',
-});
-```
-
-On any "close position" action, if you specify a SIZE=0 or leave off the SIZE parameter,
-then it will close the whole position, regardless of the size.
-If you specify a SIZE, it will close only the number of contracts you specify.
-
-If closeOrder is set to TRUE,
-the system will close the position and the position size will become 0.
-Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
-
-#### Market close
-
-```js
-// A MARKET CLOSE POSITION example:
-const marketClose = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  closeOrder: true,
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
-  type: 'market',
-  side: 'sell',
-  size: 0,
-});
-```
-
-#### Limit close
-
-```js
-// A LIMIT CLOSE of a LONG example:
-const limitCloseLong = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  leverage: '5',
-  price: '70300.31',
-  closeOrder: true,
-  side: 'sell',
-  size: 2,
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
-  type: 'limit',
-});
-
-// A LIMIT CLOSE of a SHORT example:
-const limitCloseShort = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  leverage: '5',
-  price: '40300.31',
-  closeOrder: true,
-  side: 'buy',
-  size: 2,
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
-  type: 'limit',
-});
-```
-
-#### Stop loss
-
-```js
-// A STOP LOSS example for a LONG position:
-const stopLossLong = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  closeOrder: true,
-  stop: 'down',
-  stopPrice: '40200.31',
-  stopPriceType: 'TP',
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
-  type: 'market',
-});
-
-// A STOP LOSS example for a SHORT position:
-const stopLossShort = futureTransfers.submitOrder({
-  clientOid: '123456789',
-  closeOrder: true,
-  stop: 'up',
-  stopPrice: '40200.31',
-  stopPriceType: 'TP',
-  symbol: 'XBTUSDTM',
-  timeInForce: 'GTC',
-  type: 'market',
+  price: '0.03', // Specify the price to buy
+  size: '0.5', // Specify the quantity to buy
+  timeInForce: 'GTC', // Good Till Canceled
 });
 ```
 
@@ -436,43 +384,44 @@ const stopLossShort = futureTransfers.submitOrder({
 ```js
 //request
 
-const orders = [
-  {
-    clientOid: '5c52e11203aa677f33e491',
-    side: 'buy',
-    symbol: 'ETHUSDTM',
-    type: 'limit',
-    price: '2150',
-    leverage: '1',
-    size: 2,
-  },
-  {
-    clientOid: 'je12019ka012ja013099',
-    side: 'buy',
-    symbol: 'XBTUSDTM',
-    type: 'limit',
-    price: '32150',
-    leverage: '1',
-    size: 2,
-  },
-];
+const multipleOrders = [
+    {
+      clientOid: '3d07008668054da6b3cb12e432c2b13a',
+      side: 'buy',
+      type: 'limit',
+      price: '0.01',
+      size: '0.01',
+    },
+    {
+      clientOid: '37245dbe6e134b5c97732bfb36cd4a9d',
+      side: 'buy',
+      type: 'limit',
+      price: '0.01',
+      size: '0.01',
+    },
+  ],
 
-futuresClient.submitMultipleOrders(orders);
+spotClient.submitMultipleOrders({
+  symbol: 'KCS-USDT',
+  orderList: multipleOrders,
+});
 ```
 
 #### Cancel Order
 
 ```js
-futuresClient.cancelOrderById({ orderId: 'orderId' });
-futuresClient.cancelOrderByClientOid({ clientOid: 'clientOid' });
+spotClient.cancelOrderById({ orderId: 'orderId' });
+spotClient.cancelOrderByClientOid({ clientOid: 'clientOid' });
 ```
 
 #### Cancel all orders for specific symbol
 
 ```js
-futuresClient.cancelAllOrders({ symbol: 'XBTUSDTM' });
+//cancel all orders for symbol
+spotClient.cancelAllOrders({ symbol: 'XBTUSDTM' });
 
-futuresClient.cancelAllStopOrders({ symbol: 'XBTUSDTM' });
+// cancel all orders for all symbols
+spotClient.cancelAllOrders();
 ```
 
 ### Trade/Order/Positions Management
@@ -481,54 +430,39 @@ futuresClient.cancelAllStopOrders({ symbol: 'XBTUSDTM' });
 
 ```js
 // Get open orders
-futuresClient.getOrders({ status: 'active' });
+spotClient.getOrders({ status: 'active' });
 
 // Get closed orders
-futuresClient.getOrders({ status: 'done' });
-
-// Get Untriggered Stop Orders
-futuresClient.getStopOrders({ type: 'limit' });
+spotClient.getOrders({ status: 'done' });
 
 // Get List of Orders Completed in 24h
-futuresClient.getRecentOrders();
+spotClient.getRecentOrders();
 
 // Get Details of a Single Order by ClientOrderId
-futuresClient.getOrderByClientOrderId({ clientOid: 'clientOid' });
+spotClient.getOrderByClientOid({ clientOid: 'clientOid' });
 // Or By OrderId
-futuresClient.getOrderByOrderId({ orderId: 'orderId' });
+spotClient.getOrderByOrderId({ orderId: 'orderId' });
 ```
 
 #### Fills
 
 ```js
 // Get Specific Fills
-futuresClient.getFills({ type: 'market' });
+spotClient.getFills({ type: 'market' });
 // or search for all
-futuresClient.getFills({});
+spotClient.getFills();
 
 // Recent Fills from last 24 hours
-futuresClient.futuresRecentFills({ symbol: 'ETHUSDTM' });
-// Or Search All
-futuresClient.futuresRecentFills({});
-
-// Active Order Value Calculation
-futuresClient.getOpenOrderStatistics({ symbol: 'ETHUSDTM' });
+spotClient.getRecentFills();
 ```
 
-#### Positions
+### Spot HF trade
 
-```js
-// Get Position Details
-futuresClient.getPosition({ symbol: 'ETHUSDTM' });
+All of the examples are 99% same as regular spot, but you can follow the [official HF Trade API documentation](https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order) and list of functions in [SpotClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) to find what you need!
 
-// Get Position List
-futuresClient.getPositions({ currency: 'USDT' });
-// Or Search All
-futuresClient.getPositions();
+### Margin trade & Margin HF trade
 
-// Get History Positions
-futuresClient.getHistoryPositions({ symbol: 'ETHUSDTM' });
-```
+All of the examples are 99% same as regular spot, but you can follow the [official Margin Trade API documentation](https://www.kucoin.com/docs/rest/margin-trading/market-data) and list of functions in [SpotClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) to find what you need!
 
 ---
 

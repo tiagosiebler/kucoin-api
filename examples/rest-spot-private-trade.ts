@@ -30,6 +30,7 @@ async function start() {
       symbol: 'BTC-USDT',
       size: '0.00001',
     });
+
     console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
   } catch (e) {
     console.error(`Req error: `, e);

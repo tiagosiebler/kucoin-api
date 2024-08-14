@@ -130,7 +130,6 @@ export interface SubmitOrderRequest {
 export interface SubmitMultipleOrdersRequest {
   clientOid: string;
   side: 'buy' | 'sell';
-  symbol: string;
   type?: 'limit';
   remark?: string;
   stop?: 'loss' | 'entry';

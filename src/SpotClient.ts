@@ -254,7 +254,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/sub/user');
   }
 
-  getSubAccountsV2(params: {
+  getSubAccountsV2(params?: {
     currentPage?: number;
     pageSize?: number;
   }): Promise<APISuccessResponse<SubAccountsV2>> {
@@ -278,7 +278,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/sub-accounts');
   }
 
-  getSubAccountBalancesV2(params: {
+  getSubAccountBalancesV2(params?: {
     currentPage?: number;
     pageSize?: number;
   }): Promise<APISuccessResponse<SubAccountBalancesV2>> {
@@ -752,9 +752,10 @@ export class SpotClient extends BaseRestClient {
   }
 
   //SPOT
-  submitOrders(
-    params: SubmitMultipleOrdersRequest,
-  ): Promise<APISuccessResponse<MultipleOrdersResponse[]>> {
+  submitMultipleOrders(params: {
+    symbol: string;
+    orderList: SubmitMultipleOrdersRequest[];
+  }): Promise<APISuccessResponse<MultipleOrdersResponse[]>> {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
@@ -799,14 +800,14 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
-  getOrderDetailsByOrderId(params: {
+  getOrderByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<OrderListItem>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
   // Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders submitd with a unique client-provided identifier.
-  getOrderDetailsByClientOid(params: {
+  getOrderByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<OrderListItem>> {
     return this.getPrivate(`api/v1/order/client-order/${params.clientOid}`);
