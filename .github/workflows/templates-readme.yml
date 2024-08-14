@@ -35,14 +35,21 @@ jobs:
 
       - name: Create update-template.sh script
         run: |
-          echo '#!/bin/bash \
-          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL) \
-          perl -0777 -i -pe " \
-          my \$tag = quotemeta('\'"<!-- template_\${TEMPLATE_TAG} -->"\'); \
-          my \$end_tag = quotemeta('\'"<!-- template_\${TEMPLATE_TAG}_end -->"\'); \
-          my \$replacement = '\'"${TEMPLATE_VALUE}"\'; \
-          s/(\$tag)(.*?)(\n?\$end_tag)/\$1\n\$replacement\n\$3/s; \
-          " "$FILE_NAME"' > update-template.sh
+          cat << 'EOF' > update-template.sh
+          #!/bin/bash
+
+          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
+
+          perl -0777 -i -pe "
+          my \$tag = quotemeta('<!-- template_${TEMPLATE_TAG} -->');
+          my \$end_tag = quotemeta('<!-- template_${TEMPLATE_TAG}_end -->');
+          my \$replacement = '${TEMPLATE_VALUE}';
+
+          # Match the tag, then any amount of whitespace (including newlines), then the replacement, then any amount of whitespace, then the end tag.
+          s/(\$tag)(\s*)(.*?)(\s*)(\$end_tag)/\$1\n\$replacement\n\$5/s;
+          " "$FILE_NAME"
+
+          EOF
           chmod +x update-template.sh
           cat update-template.sh
 
