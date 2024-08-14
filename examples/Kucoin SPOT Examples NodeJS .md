@@ -13,7 +13,7 @@ This document provides comprehensive examples for using the KuCoin SPOT API with
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
-- [KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official Kucoin API docs
+- [KuCoin Documentation](https://www.kucoin.com/docs/beginners/introduction) - official Kucoin API docs
 
 - [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
 
@@ -235,7 +235,7 @@ spotClient.getSubAPIs({
   subName: 'my_sub_name',
 });
 
-// Create Futures APIs for Sub-Account
+// Create APIs for Sub-Account
 
 spotClient.createSubAPI({
   subName: 'my_sub_name',
@@ -243,7 +243,7 @@ spotClient.createSubAPI({
   remark: 'my_remark',
 });
 
-// Modify Sub-Account Futures APIs
+// Modify Sub-Account APIs
 
 spotClient.updateSubAPI({
   subName: 'my_sub_name',
@@ -251,7 +251,7 @@ spotClient.updateSubAPI({
   apiKey: 'my_api_key',
 });
 
-// Delete Sub-Account Futures APIs
+// Delete Sub-Account APIs
 
 spotClient.deleteSubAPI({
   subName: 'my_sub_name',
