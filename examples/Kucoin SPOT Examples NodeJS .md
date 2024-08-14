@@ -71,6 +71,12 @@ yarn add kucoin-api
 
 ## Usage
 
+#### Create API credentials
+
+- [Kucoin API Key Management](https://www.kucoin.com/account/api)
+
+
+#### Import SDK to your project
 ```js
 // require
 const { SpotClient } = require('kucoin-api');
