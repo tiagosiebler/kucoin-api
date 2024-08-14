@@ -3,9 +3,9 @@ import {
   DefaultLogger,
   WebsocketClient,
   WsTopicRequest,
-  // WsSpotOperation,
 } from '../src/index.js';
-// import { WsTopicRequest } from '../src/lib/websocket/websocket-util';
+// import { DefaultLogger, WebsocketClient, WsTopicRequest } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
   // Optional: fully customise the logging experience by injecting a custom logger

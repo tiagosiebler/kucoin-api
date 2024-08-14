@@ -1,4 +1,6 @@
-import { FuturesClient } from '../src';
+import { FuturesClient } from '../src/index.ts';
+// import { FuturesClient } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
   const account = {
@@ -62,6 +64,7 @@ async function start() {
       timeInForce: 'GTC',
       type: 'market',
     });
+    console.log('Market short: ', marketShort);
 
     // A MARKET LONG of 2 contracts of XBT using leverage of 5:
     const marketLong = client.submitOrder({
@@ -73,6 +76,7 @@ async function start() {
       timeInForce: 'GTC',
       type: 'market',
     });
+    console.log('Market long: ', marketLong);
 
     // A LIMIT SHORT of 2 contracts of XBT using leverage of 5:
     const limitShort = client.submitOrder({
@@ -85,6 +89,7 @@ async function start() {
       timeInForce: 'GTC',
       type: 'limit',
     });
+    console.log('Limit short: ', limitShort);
 
     // A LIMIT LONG of 2 contracts of XBT using leverage of 5:
     const limitLong = client.submitOrder({
@@ -97,7 +102,7 @@ async function start() {
       timeInForce: 'GTC',
       type: 'limit',
     });
-
+    console.log('Limit long: ', limitLong);
     // On any "close position" action, if you specify a SIZE=0 or leave off the SIZE parameter,
     // then it will close the whole position, regardless of the size.
     // If you specify a SIZE, it will close only the number of contracts you specify.
@@ -116,6 +121,7 @@ async function start() {
       side: 'sell',
       size: 0,
     });
+    console.log('Market close: ', marketClose);
 
     // A LIMIT CLOSE of a LONG example:
     const limitCloseLong = client.submitOrder({
@@ -129,6 +135,7 @@ async function start() {
       timeInForce: 'GTC',
       type: 'limit',
     });
+    console.log('Limit close long: ', limitCloseLong);
 
     // A LIMIT CLOSE of a SHORT example:
     const limitCloseShort = client.submitOrder({
@@ -142,6 +149,7 @@ async function start() {
       timeInForce: 'GTC',
       type: 'limit',
     });
+    console.log('Limit close short: ', limitCloseShort);
 
     // A STOP LOSS example for a LONG position:
     const stopLossLong = client.submitOrder({
@@ -154,6 +162,7 @@ async function start() {
       timeInForce: 'GTC',
       type: 'market',
     });
+    console.log('Stoploss long: ', stopLossLong);
 
     // A STOP LOSS example for a SHORT position:
     const stopLossShort = client.submitOrder({
@@ -166,7 +175,11 @@ async function start() {
       timeInForce: 'GTC',
       type: 'market',
     });
+
+    console.log('Stoploss short: ', stopLossShort);
   } catch (e) {
     console.error(`Req error: `, e);
   }
 }
+
+start();

@@ -1,4 +1,6 @@
-import { SpotClient } from '../src';
+import { SpotClient } from '../src/index.ts';
+// import { SpotClient } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
   const account = {

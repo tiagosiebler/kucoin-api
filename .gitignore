@@ -6,5 +6,5 @@ rest-spot-private-ts-test.ts
 
 localtest.sh
 testfile.ts
-
+dist
 

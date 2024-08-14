@@ -1,4 +1,6 @@
-import { FuturesClient } from '../src';
+import { FuturesClient } from '../src/index.ts';
+// import { FuturesClient } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
   const account = {

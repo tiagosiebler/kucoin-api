@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DefaultLogger, WebsocketClient } from '../src/index.js';
+// import { DefaultLogger, WebsocketClient } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
   // Optional: inject and customise a logger for more control over internal logging
