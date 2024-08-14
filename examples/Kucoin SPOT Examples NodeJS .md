@@ -13,11 +13,11 @@ This document provides comprehensive examples for using the KuCoin SPOT API with
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
-[KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official Kucoin API docs
+- [KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official Kucoin API docs
 
-[Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
+- [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
 
-[Full SPOT client](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) - find all available methods in this file - in this example file are mentioned just most important methods
+Current file contains only certain most used examples. If you can't find what you need, you can search [SpotClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) - all of the endpoints and functions will be there! Otherwise, just ask in [Node.js Traders](https://t.me/nodetraders) Telegram group.
 
 Do you need help with Futures? Check out [Futures Quickstart guide](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/Kucoin%20FUTURES%20Examples%20NodeJS.md)
 
