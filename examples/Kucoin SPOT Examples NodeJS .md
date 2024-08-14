@@ -17,7 +17,7 @@ If you are here, it means you will be great addition to our [Node.js Traders](ht
 
 - [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
 
-Current file contains only certain most used examples. If you can't find what you need, you can search [SpotClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) - all of the endpoints and functions will be there! Otherwise, just ask in [Node.js Traders](https://t.me/nodetraders) Telegram group.
+Current file contains only certain most used examples. If you can't find what you need, you can search through [SpotClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) - all of the endpoints and functions will be there! Otherwise, just ask in [Node.js Traders](https://t.me/nodetraders) Telegram group.
 
 Do you need help with Futures? Check out [Futures Quickstart guide](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/Kucoin%20FUTURES%20Examples%20NodeJS.md)
 
