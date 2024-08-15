@@ -6,19 +6,20 @@ describe('REST PUBLIC', () => {
   describe('public endpoints', () => {
     it('should succeed making a GET request', async () => {
       const res = await rest.getTickers();
-      expect(res).toMatchObject(expect.any(Array));
+      expect(res.data.ticker).toMatchObject(expect.any(Array));
     });
 
-    it('should return orderbook data', async () => {
-      const res = await rest.getFullOrderBook({
-        symbol: 'BTCUSDT',
+    it('should return 24hr stats', async () => {
+      const res = await rest.get24hrStats({
+        symbol: 'BTC-USDT',
       });
 
-      // console.log(JSON.stringify(res, null, 2));
-      expect(res.data.asks).toMatchObject(expect.any(Array));
-      expect(res.data.bids).toMatchObject(expect.any(Array));
-      expect(res.data.time).toEqual(expect.any(String));
-      expect(res.data.sequence).toEqual(expect.any(String));
+      // console.log('res "${expect.getState().currentTestName}"', res);
+      expect(res.data).toMatchObject({
+        averagePrice: expect.any(String),
+        changePrice: expect.any(String),
+        volValue: expect.any(String),
+      });
     });
   });
 });

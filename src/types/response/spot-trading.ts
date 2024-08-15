@@ -12,7 +12,7 @@
  *
  */
 
-interface ChainInfo {
+interface Chain {
   chainName: string;
   withdrawalMinSize: string;
   withdrawalMinFee: string;
@@ -33,7 +33,7 @@ export interface CurrencyInfo {
   contractAddress: string | null;
   isMarginEnabled: boolean;
   isDebitEnabled: boolean;
-  chains: ChainInfo[];
+  chains: Chain[];
 }
 
 export interface SymbolInfo {
@@ -56,7 +56,7 @@ export interface SymbolInfo {
   enableTrading: boolean;
 }
 
-export interface TickerInfo {
+export interface Ticker {
   sequence: string;
   price: string;
   size: string;
@@ -67,9 +67,23 @@ export interface TickerInfo {
   time: number;
 }
 
-export interface AllTickersInfo {
+export interface Symbol24hrStats {
   time: number;
-  ticker: TickerInfo[];
+  symbol: string;
+  buy: string;
+  sell: string;
+  changeRate: string;
+  changePrice: string;
+  high: string;
+  low: string;
+  vol: string;
+  volValue: string;
+  last: string;
+  averagePrice: string;
+  takerFeeRate: string;
+  makerFeeRate: string;
+  takerCoefficient: string;
+  makerCoefficient: string;
 }
 
 export interface OrderBookLevel {

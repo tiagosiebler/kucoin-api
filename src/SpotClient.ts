@@ -127,7 +127,6 @@ import {
   SubmitMarginOrderResponse,
 } from './types/response/spot-margin-trading.js';
 import {
-  AllTickersInfo,
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
   CurrencyInfo,
@@ -148,9 +147,10 @@ import {
   SubmitHFOrderSyncResponse,
   SubmitMultipleHFOrdersResponse,
   SubmitMultipleHFOrdersSyncResponse,
+  Symbol24hrStats,
   SymbolInfo,
   SyncCancelHFOrderResponse,
-  TickerInfo,
+  Ticker,
   TradeHistory,
 } from './types/response/spot-trading.js';
 import { OtcLoan, OtcLoanAccounts } from './types/response/spot-vip.js';
@@ -505,19 +505,22 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v2/symbols', params);
   }
 
-  getTicker(params: {
-    symbol: string;
-  }): Promise<APISuccessResponse<TickerInfo>> {
+  getTicker(params: { symbol: string }): Promise<APISuccessResponse<Ticker>> {
     return this.get(`api/v1/market/orderbook/level1`, params);
   }
 
-  getTickers(): Promise<APISuccessResponse<AllTickersInfo>> {
+  getTickers(): Promise<
+    APISuccessResponse<{
+      time: number;
+      ticker: Ticker[];
+    }>
+  > {
     return this.get('api/v1/market/allTickers');
   }
 
   get24hrStats(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<AllTickersInfo>> {
+  }): Promise<APISuccessResponse<Symbol24hrStats>> {
     return this.get('api/v1/market/stats', params);
   }
 
@@ -540,7 +543,7 @@ export class SpotClient extends BaseRestClient {
   getFullOrderBook(params: {
     symbol: string;
   }): Promise<APISuccessResponse<OrderBookLevel>> {
-    return this.get('api/v3/market/orderbook/level2', params);
+    return this.getPrivate('api/v3/market/orderbook/level2', params);
   }
 
   getTradeHistories(params: {

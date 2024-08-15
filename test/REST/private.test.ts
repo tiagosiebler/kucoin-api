@@ -22,7 +22,7 @@ describe('REST PRIVATE', () => {
   describe('public endpoints', () => {
     it('should succeed making a GET request', async () => {
       const res = await rest.getTickers();
-      expect(res).toMatchObject(expect.any(Array));
+      expect(res.data).toMatchObject(expect.any(Array));
     });
   });
 
@@ -52,7 +52,7 @@ describe('REST PRIVATE', () => {
         try {
           const res = await rest.updateMarginLeverageV3({
             leverage: '1',
-            symbol: 'BTCUSDT',
+            symbol: 'BTC-USDT',
           });
 
           console.log('res "${expect.getState().currentTestName}"', res);
@@ -60,6 +60,7 @@ describe('REST PRIVATE', () => {
             whatever: true,
           });
         } catch (e: any) {
+          console.log('err "${expect.getState().currentTestName}"', e);
           const authSuccessMatchError = 'Invalid sub_account_from';
           if (e.body.message !== authSuccessMatchError) {
             console.error(
