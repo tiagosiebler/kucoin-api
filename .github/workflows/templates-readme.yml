@@ -70,20 +70,11 @@ jobs:
           TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Star-History.md
           TEMPLATE_TAG: star_history
 
-      - name: Check for changes (without prettier) | PR URL HERE
-        id: commitIfChangedOld
-        run: |
-          if git diff --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-
-          echo "Some changes, let's run prettier:"
-          git diff
-
       - name: Check for changes | PR URL HERE
         id: commitIfChanged
         run: |
+          echo "Check for changes before prettier..."
+          git diff
           npx prettier -w README.md
           if git diff --quiet; then
             echo "No changes to commit"
