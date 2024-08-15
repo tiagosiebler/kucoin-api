@@ -74,8 +74,6 @@ jobs:
       - name: Check for changes | PR URL HERE
         id: commitIfChanged
         run: |
-          echo "Check for changes before prettier..."
-          git diff
           npx prettier -w README.md
           if git diff --quiet; then
             echo "No changes to commit"
