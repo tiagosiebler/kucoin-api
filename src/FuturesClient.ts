@@ -27,12 +27,12 @@ import {
 import {
   AccountBalance,
   AccountSummary,
-  AccountTransactions,
   AddMargin,
   CreateSubAccountAPI,
   FillDetail,
   FullOrderBookDetail,
   FundingHistoryItem,
+  FuturesAccountTransaction,
   FuturesActiveOrder,
   FuturesClosedPositions,
   FuturesFills,
@@ -49,7 +49,7 @@ import {
   PositionDetail,
   PremiumIndexItem,
   RiskLimit,
-  SubAccountAPIItem,
+  SubAccountAPI,
   SubBalance,
   SubmitMultipleOrdersFuturesResponse,
   SymbolDetail,
@@ -99,9 +99,12 @@ export class FuturesClient extends BaseRestClient {
    * Get Account Ledgers - Futures
    */
 
-  getTransactions(
-    params: GetTransactionsRequest,
-  ): Promise<APISuccessResponse<AccountTransactions>> {
+  getTransactions(params: GetTransactionsRequest): Promise<
+    APISuccessResponse<{
+      hasMore: boolean; // Whether there are more pages
+      dataList: FuturesAccountTransaction[];
+    }>
+  > {
     return this.getPrivate('api/v1/transaction-history', params);
   }
 
@@ -111,7 +114,7 @@ export class FuturesClient extends BaseRestClient {
 
   getSubAPIs(
     params: GetSubAPIsRequest,
-  ): Promise<APISuccessResponse<SubAccountAPIItem[]>> {
+  ): Promise<APISuccessResponse<SubAccountAPI[]>> {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 

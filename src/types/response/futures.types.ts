@@ -3,7 +3,7 @@
  * Get Account Ledgers - Futures
  */
 
-interface AccountTransactionItem {
+export interface FuturesAccountTransaction {
   time: number; // Event time
   type: 'RealisedPNL' | 'Deposit' | 'Withdrawal' | 'TransferIn' | 'TransferOut'; // Type
   amount: number; // Transaction amount
@@ -15,16 +15,11 @@ interface AccountTransactionItem {
   currency: string; // Currency
 }
 
-export interface AccountTransactions {
-  hasMore: boolean; // Whether there are more pages
-  dataList: AccountTransactionItem[];
-}
-
 /**
  * REST - ACCOUNT  - SUBACCOUNT API
  */
 
-export interface SubAccountAPIItem {
+export interface SubAccountAPI {
   apiKey: string; // API-Key
   createdAt: number; // Time of the event
   ipWhitelist: string; // IP whitelist
@@ -33,14 +28,10 @@ export interface SubAccountAPIItem {
   subName: string; // Sub-account name
 }
 
-export interface GetSubAccountAPIsResponse {
-  data: SubAccountAPIItem[];
-}
-
-export interface CreateSubAccountAPI extends SubAccountAPIItem {
+export type CreateSubAccountAPI = SubAccountAPI & {
   apiSecret: string; // API secret
   passphrase: string; // Password
-}
+};
 
 export interface UpdateSubAccountAPI {
   apiKey: string; // API-Key
@@ -75,9 +66,9 @@ export interface AccountSummary {
   currency: string; // currency
 }
 
-export interface SubBalance extends AccountBalance {
+export type SubBalance = AccountBalance & {
   accountName: string; // Account name, main account is main
-}
+};
 
 /**
  * REST - FUNDING - TRANSFER
