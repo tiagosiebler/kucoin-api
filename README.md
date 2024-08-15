@@ -59,7 +59,7 @@ Check out my related JavaScript/TypeScript/Node.js projects:
 
 ## Documentation
 
-Most methods accept JS objects. These can be populated using parameters specified by gateio's API documentation.
+Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation.
 
 - [Kucoin API Documentation](https://www.kucoin.com/docs/beginners/introduction)
 - Node.js Quick Start Guides
@@ -84,7 +84,7 @@ Create API credentials
 
 ### REST API
 
-To use any of Gate.io's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `SpotClient` (for spot and margin APIs) or 'FuturesClient' (for futures APIs):
+To use any of Kucoin's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `SpotClient` (for spot and margin APIs) or 'FuturesClient' (for futures APIs):
 
 ```javascript
 const { SpotClient, FuturesClient } = require('kucoin-api');
