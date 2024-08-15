@@ -83,7 +83,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout -b ${{ env.BRANCH_NAME }}
           git add $FILE_NAME
-          git commit -m 'Update ${{ env.FILE_NAME }} '
+          git commit -m 'chore(): ${{ env.FILE_NAME }} template sections'
           git push origin ${{ env.BRANCH_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
