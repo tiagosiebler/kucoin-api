@@ -25,7 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: Install
-        run: npm ci --ignore-scripts
+        run: npm i --ignore-scripts
         if: steps.version-updated.outputs.has-updated
 
       - name: Get the current date and time
@@ -69,6 +69,14 @@ jobs:
         env:
           TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Star-History.md
           TEMPLATE_TAG: star_history
+
+      - name: Check for changes (without prettier) | PR URL HERE
+        id: commitIfChangedOld
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
 
       - name: Check for changes | PR URL HERE
         id: commitIfChanged
