@@ -17,6 +17,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        if: steps.version-updated.outputs.has-updated
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci --ignore-scripts
+        if: steps.version-updated.outputs.has-updated
+
       - name: Get the current date and time
         id: datetime
         run: echo "BRANCH_NAME=$(date +'actions_templates_%Y_%m_%d_%H%M%S')" >> $GITHUB_ENV
@@ -62,6 +73,7 @@ jobs:
       - name: Check for changes | PR URL HERE
         id: commitIfChanged
         run: |
+          npx prettier -w README.md
           if git diff --quiet; then
             echo "No changes to commit"
             exit 0
