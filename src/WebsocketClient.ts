@@ -341,7 +341,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         }
 
         this.logger.error(
-          `!! Unhandled string event type "${eventType}". Defaulting to "update" channel...`,
+          `!! (${wsKey}) Unhandled string event type "${eventType}". Defaulting to "update" channel...`,
           parsed,
         );
 
@@ -354,7 +354,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       }
 
       this.logger.error(
-        `!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
+        `!! (${wsKey}) Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
         parsed,
       );
 
@@ -388,7 +388,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     request: WsTopicRequest<string>,
     wsKey: WsKey,
   ): boolean {
-    return PRIVATE_WS_KEYS.includes(wsKey);
+    return request && PRIVATE_WS_KEYS.includes(wsKey);
   }
 
   protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey {

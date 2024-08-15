@@ -20,7 +20,7 @@ const config: Config = {
   clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: true,
+  collectCoverage: false,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   collectCoverageFrom: ['src/**/*.ts'],
@@ -44,6 +44,8 @@ const config: Config = {
   //   "clover"
   // ],
 
+  setupFiles: ['./test/setupTests.ts'],
+
   // An object that configures minimum threshold enforcement for coverage results
   // coverageThreshold: undefined,
 
@@ -52,6 +54,8 @@ const config: Config = {
 
   // Make calling deprecated APIs throw helpful error messages
   // errorOnDeprecated: false,
+
+  extensionsToTreatAsEsm: ['.ts'],
 
   // The default configuration for fake timers
   // fakeTimers: {
@@ -80,19 +84,24 @@ const config: Config = {
   moduleDirectories: ['node_modules', 'src', 'test'],
 
   // An array of file extensions your modules use
-  // moduleFileExtensions: [
-  //   "js",
-  //   "mjs",
-  //   "cjs",
-  //   "jsx",
-  //   "ts",
-  //   "tsx",
-  //   "json",
-  //   "node"
-  // ],
+  moduleFileExtensions: [
+    'js',
+    'mjs',
+    'cjs',
+    'jsx',
+    'ts',
+    'tsx',
+    'json',
+    'node',
+  ],
+
+  // modulePaths: ['src'],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -182,10 +191,11 @@ const config: Config = {
   // transform: undefined,
 
   transform: {
-    '^.+\\.(t|j)s$': [
+    '^.+\\.m?[tj]sx?$': [
       'ts-jest',
       {
         tsconfig: 'test/tsconfig.test.json',
+        useESM: true,
       },
     ],
   },

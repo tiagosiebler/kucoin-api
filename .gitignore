@@ -8,3 +8,4 @@ localtest.sh
 testfile.ts
 dist
 
+coverage
