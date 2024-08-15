@@ -3,17 +3,7 @@ import { SpotClient } from '../src/index.ts';
 // normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
-  const account = {
-    key: 'keyHere',
-    secret: 'secretHere',
-    passphrase: 'memoHere',
-  };
-
-  const client = new SpotClient({
-    apiKey: account.key,
-    apiSecret: account.secret,
-    apiPassphrase: account.passphrase,
-  });
+  const client = new SpotClient();
 
   try {
     // Fetch all symbols

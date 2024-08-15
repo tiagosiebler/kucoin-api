@@ -94,7 +94,7 @@ async function start() {
      * Or send a more structured object with parameters
      *
      */
-    const subRequest: WsTopicRequest<string> = {
+    const subRequest: WsTopicRequest = {
       topic: '/market/ticker:BTC-USDT',
       /** Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
        *    For more info on parameters, see: https://www.kucoin.com/docs/websocket/basic-info/subscribe/introduction

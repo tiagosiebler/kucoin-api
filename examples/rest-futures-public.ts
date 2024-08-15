@@ -3,16 +3,7 @@ import { FuturesClient } from '../src/index.ts';
 // normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
-  const account = {
-    key: 'keyHere',
-    secret: 'secretHere',
-    passphrase: 'memoHere',
-  };
-  const client = new FuturesClient({
-    apiKey: account.key,
-    apiSecret: account.secret,
-    apiPassphrase: account.passphrase,
-  });
+  const client = new FuturesClient();
 
   try {
     // Fetch all symbols
