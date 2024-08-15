@@ -78,6 +78,9 @@ jobs:
             exit 0
           fi
 
+          echo "Some changes, let's run prettier:"
+          git diff
+
       - name: Check for changes | PR URL HERE
         id: commitIfChanged
         run: |
