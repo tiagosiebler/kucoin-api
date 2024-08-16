@@ -39,7 +39,7 @@ import {
   getHFMarginFillsRequest,
   GetLendingRedemptionOrdersV3Request,
   GetLendingSubscriptionOrdersV3Request,
-  HFMarginOrder,
+  HFMarginRequestOrder,
   InitiateLendingRedemptionV3Request,
   InitiateLendingSubscriptionV3Request,
   MarginBorrowV3Request,
@@ -74,12 +74,12 @@ import { APISuccessResponse } from './types/response/shared.types.js';
 import {
   Account,
   AccountHFMarginTransactions,
-  AccountHFTransactions,
   Balances,
   CreateSubAccount,
   CreateSubAPI,
   DeleteSubAccountAPI,
   SpotAccountSummary,
+  SpotAccountTransaction,
   SpotAccountTransactions,
   SubAccountAPIInfo,
   SubAccountBalance,
@@ -99,19 +99,19 @@ import {
   DepositAddress,
   DepositAddressV2,
   Deposits,
+  HistoricalWithdrawalsV1,
   IsolatedMarginBalance,
   MarginAccountBalance,
   MarginBalance,
   TransferableFunds,
   V1HistoricalDeposits,
-  V1HistoricalWithdrawals,
   WithdrawalQuotas,
   Withdrawals,
 } from './types/response/spot-funding.js';
 import {
-  HFMarginFilledList,
-  HFMarginOrderItem,
-  HFMarginTransactionList,
+  HFMarginFilledOrder,
+  HFMarginOrder,
+  HFMarginTransactionRecord,
   IsolatedMarginAccountInfo,
   IsolatedMarginSymbolsConfig,
   LendingCurrencyV3,
@@ -132,7 +132,7 @@ import {
   CurrencyInfo,
   FillItem,
   Fills,
-  HFFilledList,
+  HFFilledOrder,
   HFOrder,
   Kline,
   MultipleOrdersResponse,
@@ -153,7 +153,7 @@ import {
   Ticker,
   TradeHistory,
 } from './types/response/spot-trading.js';
-import { OtcLoan, OtcLoanAccounts } from './types/response/spot-vip.js';
+import { OtcLoan, OtcLoanAccount } from './types/response/spot-vip.js';
 import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
@@ -231,7 +231,7 @@ export class SpotClient extends BaseRestClient {
    */
   getHFTransactions(
     params: AccountHFTransactionsRequest,
-  ): Promise<APISuccessResponse<AccountHFTransactions[]>> {
+  ): Promise<APISuccessResponse<SpotAccountTransaction[]>> {
     return this.getPrivate('api/v1/hf/accounts/ledgers', params);
   }
 
@@ -396,7 +396,7 @@ export class SpotClient extends BaseRestClient {
 
   getHistoricalWithdrawalsV1(
     params?: GetWithdrawalsRequest,
-  ): Promise<APISuccessResponse<V1HistoricalWithdrawals>> {
+  ): Promise<APISuccessResponse<HistoricalWithdrawalsV1>> {
     return this.getPrivate('api/v1/hist-withdrawals', params);
   }
 
@@ -728,9 +728,12 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query');
   }
 
-  getHFFilledOrders(
-    params: GetHFFilledListRequest,
-  ): Promise<APISuccessResponse<HFFilledList>> {
+  getHFFilledOrders(params: GetHFFilledListRequest): Promise<
+    APISuccessResponse<{
+      items: HFFilledOrder[];
+      lastId: number;
+    }>
+  > {
     return this.getPrivate('api/v1/hf/fills', params);
   }
 
@@ -1048,36 +1051,42 @@ export class SpotClient extends BaseRestClient {
   }
 
   getHFActiveMarginOrders(
-    params: HFMarginOrder,
-  ): Promise<APISuccessResponse<HFMarginOrderItem[]>> {
+    params: HFMarginRequestOrder,
+  ): Promise<APISuccessResponse<HFMarginOrder[]>> {
     return this.getPrivate(`api/v3/hf/margin/orders/active`, params);
   }
 
-  getHFMarginFilledOrders(
-    params: GetHFMarginFilledRequest,
-  ): Promise<APISuccessResponse<HFMarginFilledList>> {
+  getHFMarginFilledOrders(params: GetHFMarginFilledRequest): Promise<
+    APISuccessResponse<{
+      lastId: number;
+      items: HFMarginFilledOrder[];
+    }>
+  > {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
   }
 
   getHFMarginOrderByOrderId(params: {
     orderId: string;
     symbol: string;
-  }): Promise<APISuccessResponse<HFMarginOrderItem>> {
+  }): Promise<APISuccessResponse<HFMarginOrder>> {
     return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
   }
 
   getHFMarginOrderByClientOid(params: {
     clientOid: string;
     symbol: string;
-  }): Promise<APISuccessResponse<HFMarginOrderItem>> {
+  }): Promise<APISuccessResponse<HFMarginOrder>> {
     return this.getPrivate(
       `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
     );
   }
 
-  getHFMarginFills(
-    params: getHFMarginFillsRequest,
-  ): Promise<APISuccessResponse<HFMarginTransactionList>> {
+  getHFMarginFills(params: getHFMarginFillsRequest): Promise<
+    APISuccessResponse<{
+      lastId: number;
+      items: HFMarginTransactionRecord[];
+    }>
+  > {
     return this.getPrivate('api/v3/hf/margin/fills', params);
   }
 
@@ -1413,7 +1422,7 @@ export class SpotClient extends BaseRestClient {
    *
    * This endpoint is only for querying accounts that are currently involved in off-exchange funding and loans.
    */
-  getOtcLoanAccounts(): Promise<APISuccessResponse<OtcLoanAccounts[]>> {
+  getOtcLoanAccounts(): Promise<APISuccessResponse<OtcLoanAccount[]>> {
     return this.getPrivate('api/v1/otc-loan/accounts');
   }
 

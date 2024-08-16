@@ -29,30 +29,30 @@ import {
   AccountSummary,
   AddMargin,
   CreateSubAccountAPI,
-  FillDetail,
   FullOrderBookDetail,
-  FundingHistoryItem,
+  FuturesAccountFundingRateHistory,
   FuturesAccountTransaction,
   FuturesActiveOrder,
   FuturesClosedPositions,
+  FuturesCurrentFundingRate,
+  FuturesFill,
   FuturesFills,
-  FuturesFundingRate,
-  FuturesFundingRates,
+  FuturesHistoricFundingRate,
+  FuturesKline,
   FuturesMarkPrice,
+  FuturesOrder,
   FuturesOrders,
+  FuturesPosition,
+  FuturesRiskLimit,
+  FuturesSymbolInfo,
   FuturesTransferRecords,
   IndexListItem,
   InterestRateItem,
-  Klines,
   MarketTradeDetail,
-  OrderDetail,
-  PositionDetail,
   PremiumIndexItem,
-  RiskLimit,
   SubAccountAPI,
   SubBalance,
   SubmitMultipleOrdersFuturesResponse,
-  SymbolDetail,
   TickerDetail,
   TransferDetail,
   UpdateSubAccountAPI,
@@ -198,13 +198,13 @@ export class FuturesClient extends BaseRestClient {
    *
    */
 
-  getSymbols(): Promise<APISuccessResponse<SymbolDetail[]>> {
+  getSymbols(): Promise<APISuccessResponse<FuturesSymbolInfo[]>> {
     return this.get('api/v1/contracts/active');
   }
 
   getSymbol(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<SymbolDetail>> {
+  }): Promise<APISuccessResponse<FuturesSymbolInfo>> {
     return this.get(`api/v1/contracts/${params.symbol}`);
   }
 
@@ -238,7 +238,9 @@ export class FuturesClient extends BaseRestClient {
     return this.get('api/v1/trade/history', params);
   }
 
-  getKlines(params: GetKlinesRequest): Promise<APISuccessResponse<Klines[]>> {
+  getKlines(
+    params: GetKlinesRequest,
+  ): Promise<APISuccessResponse<FuturesKline[]>> {
     return this.get('api/v1/kline/query', params);
   }
 
@@ -341,19 +343,19 @@ export class FuturesClient extends BaseRestClient {
 
   getRecentOrders(params?: {
     symbol?: string;
-  }): Promise<APISuccessResponse<OrderDetail[]>> {
+  }): Promise<APISuccessResponse<FuturesOrder[]>> {
     return this.getPrivate('api/v1/recentDoneOrders', params);
   }
 
   getOrderByOrderId(params: {
     orderId: string;
-  }): Promise<APISuccessResponse<OrderDetail>> {
+  }): Promise<APISuccessResponse<FuturesOrder>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
   getOrderByClientOrderId(params: {
     clientOid: string;
-  }): Promise<APISuccessResponse<OrderDetail>> {
+  }): Promise<APISuccessResponse<FuturesOrder>> {
     return this.getPrivate(`api/v1/orders/byClientOid`, params);
   }
 
@@ -382,7 +384,7 @@ export class FuturesClient extends BaseRestClient {
    */
   getRecentFills(params?: {
     symbol?: string;
-  }): Promise<APISuccessResponse<FillDetail[]>> {
+  }): Promise<APISuccessResponse<FuturesFill[]>> {
     return this.getPrivate('api/v1/recentFills', params);
   }
 
@@ -400,13 +402,13 @@ export class FuturesClient extends BaseRestClient {
 
   getPosition(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<PositionDetail>> {
+  }): Promise<APISuccessResponse<FuturesPosition>> {
     return this.getPrivate('api/v1/position', params);
   }
 
   getPositions(params?: {
     currency?: string;
-  }): Promise<APISuccessResponse<PositionDetail[]>> {
+  }): Promise<APISuccessResponse<FuturesPosition[]>> {
     return this.getPrivate('api/v1/positions', params);
   }
 
@@ -459,7 +461,7 @@ export class FuturesClient extends BaseRestClient {
 
   getRiskLimitLevel(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<RiskLimit[]>> {
+  }): Promise<APISuccessResponse<FuturesRiskLimit[]>> {
     return this.getPrivate(`api/v1/contracts/risk-limit/${params.symbol}`);
   }
 
@@ -478,19 +480,19 @@ export class FuturesClient extends BaseRestClient {
 
   getFundingRate(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<FuturesFundingRate>> {
+  }): Promise<APISuccessResponse<FuturesCurrentFundingRate>> {
     return this.get(`api/v1/funding-rate/${params.symbol}/current`);
   }
 
   getFundingRates(
     params: GetFundingRatesRequest,
-  ): Promise<APISuccessResponse<FuturesFundingRates[]>> {
+  ): Promise<APISuccessResponse<FuturesHistoricFundingRate[]>> {
     return this.get('api/v1/contract/funding-rates', params);
   }
 
   getFundingHistory(params: GetFundingHistoryRequest): Promise<
     APISuccessResponse<{
-      dataList: FundingHistoryItem[];
+      dataList: FuturesAccountFundingRateHistory[];
       hasMore: boolean; // Whether there are more pages
     }>
   > {

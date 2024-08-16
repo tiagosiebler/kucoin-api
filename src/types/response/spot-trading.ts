@@ -170,28 +170,25 @@ export interface AutoCancelHFOrderSettingQueryResponse {
   triggerTime: number; // Trigger cancellation time (in seconds)
 }
 
-export interface HFFilledList {
-  items: {
-    id: number; // Id of transaction detail
-    symbol: string; // Trading pair
-    tradeId: number; // Trade Id
-    orderId: string; // Order Id
-    counterOrderId: string; // Counterparty order Id
-    side: string; // Buy or sell
-    liquidity: string; // Liquidity type: taker or maker
-    forceTaker: boolean; // Whether or not to forcefully process as taker
-    price: string; // Order price
-    size: string; // Order size
-    funds: string; // Turnover
-    fee: string; // Service fee
-    feeRate: string; // Fee rate
-    feeCurrency: string; // Currency used to calculate fees
-    stop: string; // Take Profit and Stop Loss type, currently HFT does not support the Take Profit and Stop Loss type, so it is empty
-    tradeType: string; // Trade type: TRADE(Spot Trading)
-    type: string; // Order type: limit or market
-    createdAt: number; // Transaction(Creation) time
-  }[];
-  lastId: number;
+export interface HFFilledOrder {
+  id: number; // Id of transaction detail
+  symbol: string; // Trading pair
+  tradeId: number; // Trade Id
+  orderId: string; // Order Id
+  counterOrderId: string; // Counterparty order Id
+  side: string; // Buy or sell
+  liquidity: string; // Liquidity type: taker or maker
+  forceTaker: boolean; // Whether or not to forcefully process as taker
+  price: string; // Order price
+  size: string; // Order size
+  funds: string; // Turnover
+  fee: string; // Service fee
+  feeRate: string; // Fee rate
+  feeCurrency: string; // Currency used to calculate fees
+  stop: string; // Take Profit and Stop Loss type, currently HFT does not support the Take Profit and Stop Loss type, so it is empty
+  tradeType: string; // Trade type: TRADE(Spot Trading)
+  type: string; // Order type: limit or market
+  createdAt: number; // Transaction(Creation) time
 }
 
 export interface HFOrder {

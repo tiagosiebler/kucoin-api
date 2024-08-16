@@ -121,7 +121,7 @@ export interface FuturesTransferRecords {
  *
  */
 
-export interface SymbolDetail {
+export interface FuturesSymbolInfo {
   symbol: string; // Contract status
   rootSymbol: string; // Contract group
   type: string; // Type of the contract
@@ -212,7 +212,7 @@ export interface FullOrderBookDetail {
   ts: number; // Timestamp
 }
 
-export type Klines = [
+export type FuturesKline = [
   number, // Time
   number, // Entry price
   number, // Highest price
@@ -269,7 +269,7 @@ export interface PremiumIndexItem {
  *
  */
 
-export interface OrderDetail {
+export interface FuturesOrder {
   id: string; // Order ID
   symbol: string; // Symbol of the contract
   type: string; // Order type, market order or limit order
@@ -321,7 +321,7 @@ export interface FuturesOrders {
   pageSize: number;
   totalNum: number;
   totalPage: number;
-  items: OrderDetail[];
+  items: FuturesOrder[];
 }
 
 /**
@@ -330,7 +330,7 @@ export interface FuturesOrders {
  *
  */
 
-export interface FillDetail {
+export interface FuturesFill {
   symbol: string; // Symbol of the contract
   tradeId: string; // Trade ID
   orderId: string; // Order ID
@@ -359,7 +359,7 @@ export interface FuturesFills {
   pageSize: number;
   totalNum: number;
   totalPage: number;
-  items: FillDetail[];
+  items: FuturesFill[];
 }
 
 export interface FuturesActiveOrder {
@@ -376,7 +376,7 @@ export interface FuturesActiveOrder {
  *
  */
 
-export interface PositionDetail {
+export interface FuturesPosition {
   id: string; // Position ID
   symbol: string; // Symbol
   autoDeposit: boolean; // Auto deposit margin or not
@@ -464,7 +464,7 @@ export interface AddMargin {
  *
  */
 
-export interface RiskLimit {
+export interface FuturesRiskLimit {
   symbol: string; // Path parameter. Symbol of the contract.
   level: number; // level
   maxRiskLimit: number; // Upper limit (includes)
@@ -480,7 +480,7 @@ export interface RiskLimit {
  *
  */
 
-export interface FuturesFundingRate {
+export interface FuturesCurrentFundingRate {
   symbol: string; // Funding Rate Symbol
   granularity: number; // Granularity (milliseconds)
   timePoint: number; // Time point (milliseconds)
@@ -488,13 +488,13 @@ export interface FuturesFundingRate {
   predictedValue: number; // Predicted funding rate
 }
 
-export interface FuturesFundingRates {
+export interface FuturesHistoricFundingRate {
   symbol: string; // Symbol of the contract
   timePoint: number; // Time point (milliseconds)
   fundingRate: number; // Funding rate
 }
 
-export interface FundingHistoryItem {
+export interface FuturesAccountFundingRateHistory {
   id: number; // id
   symbol: string; // Symbol of the contract
   timePoint: number; // Time point (milliseconds)
@@ -506,7 +506,7 @@ export interface FundingHistoryItem {
   settleCurrency: string; // settlement currency
 }
 
-export interface ClosePositionDetail {
+export interface FuturesClosedPosition {
   closeId: string;
   positionId: string;
   uid: number;
@@ -534,5 +534,5 @@ export interface FuturesClosedPositions {
   pageSize: number;
   totalNum: number;
   totalPage: number;
-  items: ClosePositionDetail[];
+  items: FuturesClosedPosition[];
 }

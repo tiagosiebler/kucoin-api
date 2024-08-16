@@ -32,7 +32,7 @@ export interface SubmitHFMarginOrderRequest {
   funds?: string;
 }
 
-export interface HFMarginOrder {
+export interface HFMarginRequestOrder {
   symbol: string;
   tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
 }

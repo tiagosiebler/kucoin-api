@@ -26,26 +26,28 @@ export interface GetEarnRedeemPreviewResponse {
   redeemAll: boolean;
 }
 
+export interface EarnFixedIncomeHoldAsset {
+  orderId: string;
+  productId: string;
+  productCategory: string;
+  productType: string;
+  currency: string;
+  incomeCurrency: string;
+  returnRate: string;
+  holdAmount: string;
+  redeemedAmount: string;
+  redeemingAmount: string;
+  lockStartTime: number;
+  lockEndTime: number | null;
+  purchaseTime: number;
+  redeemPeriod: number;
+  status: 'LOCKED' | 'REDEEMING';
+  earlyRedeemSupported: 0 | 1;
+}
+
 export interface EarnFixedIncomeHoldAssets {
   totalNum: number;
-  items: {
-    orderId: string;
-    productId: string;
-    productCategory: string;
-    productType: string;
-    currency: string;
-    incomeCurrency: string;
-    returnRate: string;
-    holdAmount: string;
-    redeemedAmount: string;
-    redeemingAmount: string;
-    lockStartTime: number;
-    lockEndTime: number | null;
-    purchaseTime: number;
-    redeemPeriod: number;
-    status: 'LOCKED' | 'REDEEMING';
-    earlyRedeemSupported: 0 | 1;
-  }[];
+  items: EarnFixedIncomeHoldAsset[];
   currentPage: number;
   pageSize: number;
   totalPage: number;

@@ -71,9 +71,9 @@ export interface DepositAddress {
   chain: string;
 }
 
-export interface DepositAddressV2 extends DepositAddress {
+export type DepositAddressV2 = DepositAddress & {
   contractAddress: string;
-}
+};
 
 export interface DepositItem {
   address: string;
@@ -121,7 +121,7 @@ export interface V1HistoricalDeposits {
  *
  */
 
-interface WithdrawalItem {
+interface DetailedWithdrawal {
   id: string;
   address: string;
   memo: string;
@@ -137,7 +137,7 @@ interface WithdrawalItem {
   updatedAt: number;
 }
 
-interface HistoricalWithdrawalItem {
+interface HistoricalWithdrawal {
   currency: string;
   createAt: number;
   amount: string;
@@ -152,15 +152,15 @@ export interface Withdrawals {
   pageSize: number;
   totalNum: number;
   totalPage: number;
-  items: WithdrawalItem[];
+  items: DetailedWithdrawal[];
 }
 
-export interface V1HistoricalWithdrawals {
+export interface HistoricalWithdrawalsV1 {
   currentPage: number;
   pageSize: number;
   totalNum: number;
   totalPage: number;
-  items: HistoricalWithdrawalItem[];
+  items: HistoricalWithdrawal[];
 }
 
 export interface WithdrawalQuotas {

@@ -27,26 +27,7 @@ export interface Account {
   holds: string;
 }
 
-export interface SpotAccountTransactions {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: {
-    id: string;
-    currency: string;
-    amount: string;
-    fee: string;
-    balance: string;
-    accountType: 'MAIN' | 'TRADE' | 'MARGIN' | 'CONTRACT';
-    bizType: string;
-    direction: 'in' | 'out';
-    createdAt: number;
-    context: string;
-  }[];
-}
-
-export interface AccountHFTransactions {
+export interface SpotAccountTransaction {
   id: string;
   currency: string;
   amount: string;
@@ -57,6 +38,14 @@ export interface AccountHFTransactions {
   direction: 'out' | 'in';
   createdAt: string;
   context: string;
+}
+
+export interface SpotAccountTransactions {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: SpotAccountTransaction[];
 }
 
 export interface AccountHFMarginTransactions {
@@ -155,10 +144,10 @@ export interface SubAccountAPIInfo {
   subName: string;
 }
 
-export interface CreateSubAPI extends SubAccountAPIInfo {
+export type CreateSubAPI = SubAccountAPIInfo & {
   apiSecret: string;
   passphrase: string;
-}
+};
 
 export interface UpdateSubAPI {
   apiKey: string;

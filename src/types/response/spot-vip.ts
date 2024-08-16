@@ -30,7 +30,7 @@ export interface OtcLoan {
   }[];
 }
 
-export interface OtcLoanAccounts {
+export interface OtcLoanAccount {
   uid: string;
   marginCcy: string;
   marginQty: string;

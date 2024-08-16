@@ -12,7 +12,7 @@
  *
  */
 
-export interface HFMarginOrderItem {
+export interface HFMarginOrder {
   id: string;
   symbol: string;
   opType: 'DEAL';
@@ -44,22 +44,12 @@ export interface HFMarginOrderItem {
   tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
 }
 
-export interface HFMarginItem extends HFMarginOrderItem {
+export type HFMarginFilledOrder = HFMarginOrder & {
   inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
   active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
-}
+};
 
-export interface HFMarginTransactionList {
-  lastId: number;
-  items: HFMarginTransactionRecordResponse[];
-}
-
-export interface HFMarginFilledList {
-  lastId: number;
-  items: HFMarginItem[];
-}
-
-export interface HFMarginTransactionRecordResponse {
+export interface HFMarginTransactionRecord {
   id: number;
   symbol: string;
   tradeId: number;
@@ -270,14 +260,7 @@ export interface LendingCurrencyV3 {
   items: LendingMarketItem[];
 }
 
-export interface GetLendingMarketInterestRatesV3Response {
-  data: {
-    time: string; // Time: YYYYMMDDHH00
-    marketInterestRate: string; // Market interest rate
-  }[];
-}
-
-export interface LendingOrderItem {
+export interface LendingOrder {
   currency: string; // Currency
   purchaseOrderNo: string; // Subscription order number
   redeemOrderNo?: string; // Redemption order number
@@ -296,5 +279,5 @@ export interface LendingRedemption {
   pageSize: number;
   totalNum: number;
   totalPage: number;
-  items: LendingOrderItem[];
+  items: LendingOrder[];
 }

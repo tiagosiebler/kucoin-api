@@ -22,7 +22,7 @@ describe('REST PRIVATE', () => {
   describe('public endpoints', () => {
     it('should succeed making a GET request', async () => {
       const res = await rest.getTickers();
-      expect(res.data).toMatchObject(expect.any(Array));
+      expect(res.data.ticker).toMatchObject(expect.any(Array));
     });
   });
 
@@ -32,8 +32,8 @@ describe('REST PRIVATE', () => {
         const res = await rest.getBalances();
         // console.log('res without', res);
         expect(res).toMatchObject({
-          details: expect.any(Object),
-          total: expect.any(Object),
+          code: '200000',
+          data: expect.any(Array),
         });
       });
 
@@ -41,8 +41,8 @@ describe('REST PRIVATE', () => {
         const res = await rest.getBalances({ currency: 'USDT' });
         // console.log('res with', res);
         expect(res).toMatchObject({
-          details: expect.any(Object),
-          total: expect.any(Object),
+          code: '200000',
+          data: expect.any(Array),
         });
       });
     });
@@ -60,15 +60,13 @@ describe('REST PRIVATE', () => {
             whatever: true,
           });
         } catch (e: any) {
-          console.log('err "${expect.getState().currentTestName}"', e);
-          const authSuccessMatchError = 'Invalid sub_account_from';
-          if (e.body.message !== authSuccessMatchError) {
-            console.error(
-              `Request failed for test: "${expect.getState().currentTestName}"`,
-              e,
-            );
-          }
-          expect(e.body.message).toStrictEqual(authSuccessMatchError);
+          // These are deliberatly restricted API keys. If the response is a permission error, it confirms the sign + request was OK and permissions were denied.
+          // console.log(`err "${expect.getState().currentTestName}"`, e?.body);
+          const responseBody = e?.body;
+          expect(responseBody).toMatchObject({
+            code: '400007',
+            msg: expect.stringContaining('more permission'),
+          });
         }
       });
     });
