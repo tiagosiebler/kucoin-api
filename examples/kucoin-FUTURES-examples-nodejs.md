@@ -52,7 +52,7 @@ Do you need help with Spot? Check out [Spot Quickstart guide](https://github.com
     - [Fetching orders](#fetching-orders)
     - [Fills](#fills)
     - [Positions](#positions)
-  - [Futures HF trade](#futures-hf-trade)
+
 
 - [WebSocket](#websocket)
 - [Community group](#community-group)
