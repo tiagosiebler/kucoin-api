@@ -85,7 +85,7 @@ Create API credentials
 
 ### REST API
 
-To use any of Kucoin's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `SpotClient` (for spot and margin APIs) or 'FuturesClient' (for futures APIs):
+To use any of Kucoin's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `SpotClient` (for spot and margin APIs) or `FuturesClient` (for futures APIs):
 
 ```javascript
 const { SpotClient, FuturesClient } = require('kucoin-api');
