@@ -19,7 +19,7 @@ If you are here, it means you will be great addition to our [Node.js Traders](ht
 
 Current file contains only certain most used examples. If you can't find what you need, you can search through [FuturesClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts) - all of the endpoints and functions will be there! Otherwise, just ask in [Node.js Traders](https://t.me/nodetraders) Telegram group.
 
-Do you need help with Spot? Check out [Spot Quickstart guide](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/Kucoin%20SPOT%20Examples%20NodeJS.md)
+Do you need help with Spot? Check out [Spot Quickstart guide](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/kucoin-SPOT-examples-nodejs.md)
 
 **Table of contents:**
 
