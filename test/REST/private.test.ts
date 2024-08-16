@@ -55,7 +55,7 @@ describe('REST PRIVATE', () => {
             symbol: 'BTC-USDT',
           });
 
-          console.log('res "${expect.getState().currentTestName}"', res);
+          console.log(`res "${expect.getState().currentTestName}"`, res);
           expect(res).toMatchObject({
             whatever: true,
           });

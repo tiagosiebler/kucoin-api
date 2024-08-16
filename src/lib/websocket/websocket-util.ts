@@ -33,10 +33,6 @@ export type WsTopicRequestOrStringTopic<
   TWSPayload = any,
 > = WsTopicRequest<TWSTopic, TWSPayload> | string;
 
-export const WS_ERROR_ENUM = {
-  INVALID_ACCESS_KEY: 'todo:',
-};
-
 export interface MessageEventLike {
   target: WebSocket;
   type: 'message';

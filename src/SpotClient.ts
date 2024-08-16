@@ -130,8 +130,6 @@ import {
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
   CurrencyInfo,
-  FillItem,
-  Fills,
   HFFilledOrder,
   HFOrder,
   Kline,
@@ -140,8 +138,10 @@ import {
   OCOOrderListItem,
   OCOOrders,
   OrderBookLevel,
-  OrderList,
-  OrderListItem,
+  SpotOrder,
+  SpotOrderFill,
+  SpotOrderFills,
+  SpotOrderList,
   StopOrderItem,
   StopOrders,
   SubmitHFOrderSyncResponse,
@@ -796,26 +796,26 @@ export class SpotClient extends BaseRestClient {
   // Retrieves the current list of orders. Supports filtering by status and trade type.
   getOrders(
     params?: GetOrderListRequest,
-  ): Promise<APISuccessResponse<OrderList>> {
+  ): Promise<APISuccessResponse<SpotOrderList>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
   // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
-  getRecentOrders(): Promise<APISuccessResponse<OrderListItem[]>> {
+  getRecentOrders(): Promise<APISuccessResponse<SpotOrder[]>> {
     return this.getPrivate('api/v1/limit/orders');
   }
 
   // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
   getOrderByOrderId(params: {
     orderId: string;
-  }): Promise<APISuccessResponse<OrderListItem>> {
+  }): Promise<APISuccessResponse<SpotOrder>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
   // Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders submitd with a unique client-provided identifier.
   getOrderByClientOid(params: {
     clientOid: string;
-  }): Promise<APISuccessResponse<OrderListItem>> {
+  }): Promise<APISuccessResponse<SpotOrder>> {
     return this.getPrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
@@ -826,12 +826,14 @@ export class SpotClient extends BaseRestClient {
    */
 
   // General permission, Retrieves a list of fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
-  getFills(params?: GetFillsRequest): Promise<APISuccessResponse<Fills>> {
+  getFills(
+    params?: GetFillsRequest,
+  ): Promise<APISuccessResponse<SpotOrderFills>> {
     return this.getPrivate('api/v1/fills', params);
   }
 
   // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
-  getRecentFills(): Promise<APISuccessResponse<FillItem[]>> {
+  getRecentFills(): Promise<APISuccessResponse<SpotOrderFill[]>> {
     return this.getPrivate('api/v1/limit/fills');
   }
 
