@@ -13,7 +13,9 @@ export interface GetSpotTransactionsRequest {
     | 'SUB_TRANSFER'
     | 'TRADE_EXCHANGE'
     | 'MARGIN_EXCHANGE'
-    | 'KUCOIN_BONUS';
+    | 'KUCOIN_BONUS'
+    | 'BROKER_TRANSFER'
+    | 'REBATE';
   startAt?: number;
   endAt?: number;
 }

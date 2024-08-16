@@ -221,7 +221,7 @@ export class SpotClient extends BaseRestClient {
    * Get Account Ledgers - Spot/Margin
    */
   getTransactions(
-    params: GetSpotTransactionsRequest,
+    params?: GetSpotTransactionsRequest,
   ): Promise<APISuccessResponse<SpotAccountTransactions>> {
     return this.getPrivate('api/v1/accounts/ledgers', params);
   }
