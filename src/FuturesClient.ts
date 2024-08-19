@@ -20,6 +20,7 @@ import {
   GetSubAPIsRequest,
   GetTransactionsRequest,
   GetTransfersRequest,
+  MaxOpenSizeRequest,
   Order,
   SubmitTransfer,
   UpdateSubAPIRequest,
@@ -49,6 +50,7 @@ import {
   IndexListItem,
   InterestRateItem,
   MarketTradeDetail,
+  MaxOpenSize,
   PremiumIndexItem,
   SubAccountAPI,
   SubBalance,
@@ -212,6 +214,10 @@ export class FuturesClient extends BaseRestClient {
     symbol: string;
   }): Promise<APISuccessResponse<TickerDetail>> {
     return this.get('api/v1/ticker', params);
+  }
+
+  getTickers(): Promise<APISuccessResponse<TickerDetail[]>> {
+    return this.get('api/v1/allTickers');
   }
 
   getFullOrderBookLevel2(params: {
@@ -399,6 +405,12 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUTURES TRADING - Positions
    *
    */
+
+  getMaxOpenSize(
+    params: MaxOpenSizeRequest,
+  ): Promise<APISuccessResponse<MaxOpenSize>> {
+    return this.getPrivate('api/v2/getMaxOpenSize', params);
+  }
 
   getPosition(params: {
     symbol: string;

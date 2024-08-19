@@ -179,6 +179,12 @@ export interface AccountFillsRequest {
  *
  */
 
+export interface MaxOpenSizeRequest {
+  symbol: string;
+  price: number;
+  leverage: number;
+}
+
 /**
  *
  * Futures risk limit

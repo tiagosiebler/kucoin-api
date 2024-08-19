@@ -376,6 +376,12 @@ export interface FuturesActiveOrder {
  *
  */
 
+export interface MaxOpenSize {
+  symbol: string;
+  maxBuyOpenSize: number;
+  maxSellOpenSize: number;
+}
+
 export interface FuturesPosition {
   id: string; // Position ID
   symbol: string; // Symbol
