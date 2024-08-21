@@ -9,6 +9,8 @@
 export interface GetMarginBalanceRequest {
   quoteCurrency?: string;
   queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
+  currentPage?: number;
+  pageSize?: number;
 }
 
 export interface GetIsolatedMarginBalanceRequest {
@@ -28,6 +30,8 @@ export interface GetDepositsRequest {
   startAt?: number;
   endAt?: number;
   status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  currentPage?: number;
+  pageSize?: number;
 }
 
 /**
@@ -41,6 +45,8 @@ export interface GetWithdrawalsRequest {
   status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
   startAt?: number;
   endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
 }
 
 export interface ApplyWithdrawRequest {

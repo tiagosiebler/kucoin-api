@@ -801,8 +801,11 @@ export class SpotClient extends BaseRestClient {
   }
 
   // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
-  getRecentOrders(): Promise<APISuccessResponse<SpotOrder[]>> {
-    return this.getPrivate('api/v1/limit/orders');
+  getRecentOrders(params?: {
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<APISuccessResponse<SpotOrder[]>> {
+    return this.getPrivate('api/v1/limit/orders', params);
   }
 
   // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
