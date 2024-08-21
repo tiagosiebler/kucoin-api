@@ -159,6 +159,8 @@ export interface GetOrderListRequest {
   tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
   startAt?: number;
   endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
 }
 
 /**
