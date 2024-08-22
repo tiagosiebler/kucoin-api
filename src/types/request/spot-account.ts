@@ -18,6 +18,8 @@ export interface GetSpotTransactionsRequest {
     | 'REBATE';
   startAt?: number;
   endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
 }
 
 export interface AccountHFTransactionsRequest {
