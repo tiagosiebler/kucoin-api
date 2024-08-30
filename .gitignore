@@ -9,3 +9,6 @@ testfile.ts
 dist
 
 coverage
+
+privaterepotracker
+restClientRegex.ts
