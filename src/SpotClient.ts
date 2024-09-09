@@ -505,6 +505,12 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v2/symbols', params);
   }
 
+  getSymbol(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<SymbolInfo>> {
+    return this.get(`api/v2/symbols/${params.symbol}`);
+  }
+
   getTicker(params: { symbol: string }): Promise<APISuccessResponse<Ticker>> {
     return this.get(`api/v1/market/orderbook/level1`, params);
   }
@@ -571,6 +577,7 @@ export class SpotClient extends BaseRestClient {
   submitHFOrder(params: SubmitHFOrderRequest): Promise<
     APISuccessResponse<{
       orderId: string;
+      clientOid: string;
     }>
   > {
     return this.postPrivate('api/v1/hf/orders', params);
@@ -601,6 +608,7 @@ export class SpotClient extends BaseRestClient {
   updateHFOrder(params: ModifyHFOrderRequest): Promise<
     APISuccessResponse<{
       newOrderId: string;
+      clientOid: string;
     }>
   > {
     return this.postPrivate('api/v1/hf/orders/alter', params);
