@@ -126,12 +126,14 @@ export interface SubmitHFOrderSyncResponse {
   canceledSize: string; // Cumulative number of cancellations
   status: string; // Order Status. open: the order is active; done: the order has been completed
   matchTime: number; // matching time
+  clientOid: string;
 }
 
 export interface SubmitMultipleHFOrdersResponse {
   orderId: string;
   success?: boolean;
   failMsg?: string; // Reason of failure, optional based on success status
+  clientOid: string;
 }
 
 export interface SubmitMultipleHFOrdersSyncResponse {
@@ -144,6 +146,7 @@ export interface SubmitMultipleHFOrdersSyncResponse {
   status: string; // Order Status. open: the order is active; done: the order has been completed
   matchTime: number; // matching time
   success: boolean; // Whether the order was submitted successfully.
+  clientOid: string;
 }
 
 export interface SyncCancelHFOrderResponse {
