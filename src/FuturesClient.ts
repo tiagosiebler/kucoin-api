@@ -297,11 +297,19 @@ export class FuturesClient extends BaseRestClient {
    *
    */
 
-  submitOrder(params: Order): Promise<APISuccessResponse<{ orderId: string }>> {
+  submitOrder(params: Order): Promise<
+    APISuccessResponse<{
+      orderId?: string;
+      clientOid?: string;
+    }>
+  > {
     return this.postPrivate('api/v1/orders', params);
   }
 
-  submitNewOrderTest(): Promise<any> {
+  submitNewOrderTest(): Promise<{
+    orderId?: string;
+    clientOid?: string;
+  }> {
     return this.postPrivate('api/v1/orders/test');
   }
 
@@ -315,6 +323,15 @@ export class FuturesClient extends BaseRestClient {
     clientOid: string;
   }): Promise<APISuccessResponse<{ clientOid: string }>> {
     return this.deletePrivate(`api/v1/orders/client-order/${params.clientOid}`);
+  }
+
+  submitSLTPOrder(params: Order): Promise<
+    APISuccessResponse<{
+      orderId?: string;
+      clientOid?: string;
+    }>
+  > {
+    return this.postPrivate('api/v1/st-orders', params);
   }
 
   submitMultipleOrders(

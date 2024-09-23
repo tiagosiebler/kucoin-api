@@ -53,14 +53,14 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getServiceStatus()` |  | GET | `api/v1/status` |
 | `getAccountSummary()` | :closed_lock_with_key:  | GET | `api/v2/user-info` |
 | `getBalances()` | :closed_lock_with_key:  | GET | `api/v1/accounts` |
-| `getAccountDetail()` | :closed_lock_with_key:  | GET | `api/v1/accounts/${params.accountId}` |
+| `getAccountDetail()` | :closed_lock_with_key:  | GET | `api/v1/accounts/{accountId}` |
 | `getTransactions()` | :closed_lock_with_key:  | GET | `api/v1/accounts/ledgers` |
 | `getHFTransactions()` | :closed_lock_with_key:  | GET | `api/v1/hf/accounts/ledgers` |
 | `getHFMarginTransactions()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/account/ledgers` |
 | `getSubAccountsV1()` | :closed_lock_with_key:  | GET | `api/v1/sub/user` |
 | `getSubAccountsV2()` | :closed_lock_with_key:  | GET | `api/v2/sub/user` |
 | `createSubAccount()` | :closed_lock_with_key:  | POST | `api/v2/sub/user/created` |
-| `getSubAccountBalance()` | :closed_lock_with_key:  | GET | `api/v1/sub-accounts/${params.subUserId}` |
+| `getSubAccountBalance()` | :closed_lock_with_key:  | GET | `api/v1/sub-accounts/{subUserId}` |
 | `getSubAccountBalancesV1()` | :closed_lock_with_key:  | GET | `api/v1/sub-accounts` |
 | `getSubAccountBalancesV2()` | :closed_lock_with_key:  | GET | `api/v2/sub-accounts` |
 | `getSubAPIs()` | :closed_lock_with_key:  | GET | `api/v1/sub/api-key` |
@@ -79,7 +79,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getHistoricalWithdrawalsV1()` | :closed_lock_with_key:  | GET | `api/v1/hist-withdrawals` |
 | `getWithdrawalQuotas()` | :closed_lock_with_key:  | GET | `api/v1/withdrawals/quotas` |
 | `submitWithdraw()` | :closed_lock_with_key:  | POST | `api/v1/withdrawals` |
-| `cancelWithdrawal()` | :closed_lock_with_key:  | DELETE | `api/v1/withdrawals/${params.withdrawalId}` |
+| `cancelWithdrawal()` | :closed_lock_with_key:  | DELETE | `api/v1/withdrawals/{withdrawalId}` |
 | `getTransferable()` | :closed_lock_with_key:  | GET | `api/v1/accounts/transferable` |
 | `submitFlexTransfer()` | :closed_lock_with_key:  | POST | `api/v3/accounts/universal-transfer` |
 | `submitTransferMasterSub()` | :closed_lock_with_key:  | POST | `api/v2/accounts/sub-transfer` |
@@ -87,8 +87,9 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getBasicUserFee()` | :closed_lock_with_key:  | GET | `api/v1/base-fee` |
 | `getTradingPairFee()` | :closed_lock_with_key:  | GET | `api/v1/trade-fees` |
 | `getCurrencies()` |  | GET | `api/v3/currencies` |
-| `getCurrency()` |  | GET | `api/v3/currencies/${params.currency}` |
+| `getCurrency()` |  | GET | `api/v3/currencies/{currency}` |
 | `getSymbols()` |  | GET | `api/v2/symbols` |
+| `getSymbol()` |  | GET | `api/v2/symbols/{symbol}` |
 | `getTicker()` |  | GET | `api/v1/market/orderbook/level1` |
 | `getTickers()` |  | GET | `api/v1/market/allTickers` |
 | `get24hrStats()` |  | GET | `api/v1/market/stats` |
@@ -105,69 +106,69 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `submitHFMultipleOrders()` | :closed_lock_with_key:  | POST | `api/v1/hf/orders/multi` |
 | `submitHFMultipleOrdersSync()` | :closed_lock_with_key:  | POST | `api/v1/hf/orders/multi/sync` |
 | `updateHFOrder()` | :closed_lock_with_key:  | POST | `api/v1/hf/orders/alter` |
-| `cancelHFOrder()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/${params.orderId}` |
-| `cancelHFOrderSync()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/${params.orderId}` |
-| `cancelHFOrderByClientOId()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/client-order/${params.clientOid}` |
-| `cancelHFOrderSyncByClientOId()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/client-order/${params.clientOid}` |
-| `cancelHFOrdersNumber()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/cancel/${params.orderId}` |
+| `cancelHFOrder()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/{orderId}` |
+| `cancelHFOrderSync()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/{orderId}` |
+| `cancelHFOrderByClientOId()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/client-order/{clientOid}` |
+| `cancelHFOrderSyncByClientOId()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/client-order/{clientOid}` |
+| `cancelHFOrdersNumber()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/cancel/{orderId}` |
 | `cancelHFAllOrdersBySymbol()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders` |
 | `cancelHFAllOrders()` | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/cancelAll` |
 | `getHFActiveOrders()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active` |
 | `getHFActiveSymbols()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active/symbols` |
 | `getHFCompletedOrders()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/done` |
-| `getHFOrderDetailsByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/${params.orderId}` |
-| `getHFOrderDetailsByClientOid()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/client-order/${params.clientOid}` |
+| `getHFOrderDetailsByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/{orderId}` |
+| `getHFOrderDetailsByClientOid()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/client-order/{clientOid}` |
 | `cancelHFOrderAutoSetting()` | :closed_lock_with_key:  | POST | `api/v1/hf/orders/dead-cancel-all` |
 | `cancelHFOrderAutoSettingQuery()` | :closed_lock_with_key:  | GET | `api/v1/hf/orders/dead-cancel-all/query` |
 | `getHFFilledOrders()` | :closed_lock_with_key:  | GET | `api/v1/hf/fills` |
 | `submitOrder()` | :closed_lock_with_key:  | POST | `api/v1/orders` |
 | `submitOrderTest()` | :closed_lock_with_key:  | POST | `api/v1/orders/test` |
 | `submitMultipleOrders()` | :closed_lock_with_key:  | POST | `api/v1/orders/multi` |
-| `cancelOrderById()` | :closed_lock_with_key:  | DELETE | `api/v1/orders/${params.orderId}` |
-| `cancelOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v1/order/client-order/${params.clientOid}` |
+| `cancelOrderById()` | :closed_lock_with_key:  | DELETE | `api/v1/orders/{orderId}` |
+| `cancelOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v1/order/client-order/{clientOid}` |
 | `cancelAllOrders()` | :closed_lock_with_key:  | DELETE | `api/v1/orders` |
 | `getOrders()` | :closed_lock_with_key:  | GET | `api/v1/orders` |
 | `getRecentOrders()` | :closed_lock_with_key:  | GET | `api/v1/limit/orders` |
-| `getOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/orders/${params.orderId}` |
-| `getOrderByClientOid()` | :closed_lock_with_key:  | GET | `api/v1/order/client-order/${params.clientOid}` |
+| `getOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/orders/{orderId}` |
+| `getOrderByClientOid()` | :closed_lock_with_key:  | GET | `api/v1/order/client-order/{clientOid}` |
 | `getFills()` | :closed_lock_with_key:  | GET | `api/v1/fills` |
 | `getRecentFills()` | :closed_lock_with_key:  | GET | `api/v1/limit/fills` |
 | `submitStopOrder()` | :closed_lock_with_key:  | POST | `api/v1/stop-order` |
-| `cancelStopOrderById()` | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/${params.orderId}` |
+| `cancelStopOrderById()` | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/{orderId}` |
 | `cancelStopOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/cancelOrderByClientOid` |
 | `cancelStopOrders()` | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/cancel` |
 | `getStopOrders()` | :closed_lock_with_key:  | GET | `api/v1/stop-order` |
-| `getStopOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/stop-order/${params.orderId}` |
+| `getStopOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/stop-order/{orderId}` |
 | `getStopOrderByClientOid()` | :closed_lock_with_key:  | GET | `api/v1/stop-order/queryOrderByClientOid` |
 | `submitOCOOrder()` | :closed_lock_with_key:  | POST | `api/v3/oco/order` |
-| `cancelOCOOrderById()` | :closed_lock_with_key:  | DELETE | `api/v3/oco/order/${params.orderId}` |
-| `cancelOCOOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v3/oco/client-order/${params.clientOid}` |
+| `cancelOCOOrderById()` | :closed_lock_with_key:  | DELETE | `api/v3/oco/order/{orderId}` |
+| `cancelOCOOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v3/oco/client-order/{clientOid}` |
 | `cancelMultipleOCOOrders()` | :closed_lock_with_key:  | DELETE | `api/v3/oco/orders` |
-| `getOCOOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v3/oco/order/${params.orderId}` |
-| `getOCOOrderByClientOid()` | :closed_lock_with_key:  | GET | `api/v3/oco/client-order/${params.clientOid}` |
-| `getOCOOrderDetails()` | :closed_lock_with_key:  | GET | `api/v3/oco/order/details/${params.orderId}` |
+| `getOCOOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v3/oco/order/{orderId}` |
+| `getOCOOrderByClientOid()` | :closed_lock_with_key:  | GET | `api/v3/oco/client-order/{clientOid}` |
+| `getOCOOrderDetails()` | :closed_lock_with_key:  | GET | `api/v3/oco/order/details/{orderId}` |
 | `getOCOOrders()` | :closed_lock_with_key:  | GET | `api/v3/oco/orders` |
 | `submitHFMarginOrder()` | :closed_lock_with_key:  | POST | `api/v3/hf/margin/order` |
 | `submitHFMarginOrderTest()` | :closed_lock_with_key:  | POST | `api/v3/hf/margin/order/test` |
-| `cancelHFMarginOrder()` | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/${params.orderId}` |
-| `cancelHFMarginOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/client-order/${params.clientOid}` |
+| `cancelHFMarginOrder()` | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/{orderId}` |
+| `cancelHFMarginOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/client-order/{clientOid}` |
 | `cancelHFAllMarginOrders()` | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders` |
 | `getHFActiveMarginOrders()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/active` |
 | `getHFMarginFilledOrders()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/done` |
-| `getHFMarginOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/${params.orderId}` |
-| `getHFMarginOrderByClientOid()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}` |
+| `getHFMarginOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/{orderId}` |
+| `getHFMarginOrderByClientOid()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/client-order/{clientOid}?symbol={symbol}` |
 | `getHFMarginFills()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/fills` |
 | `getHFMarginOpenSymbols()` | :closed_lock_with_key:  | GET | `api/v3/hf/margin/order/active/symbols` |
 | `submitMarginOrder()` | :closed_lock_with_key:  | POST | `api/v1/margin/order` |
 | `submitMarginOrderTest()` | :closed_lock_with_key:  | POST | `api/v1/margin/order/test` |
 | `getMarginLeveragedToken()` |  | GET | `api/v3/etf/info` |
 | `getMarginMarkPrices()` |  | GET | `api/v3/mark-price/all-symbols` |
-| `getMarginMarkPrice()` |  | GET | `api/v1/mark-price/${params.symbol}/current` |
+| `getMarginMarkPrice()` |  | GET | `api/v1/mark-price/{symbol}/current` |
 | `getMarginConfigInfo()` |  | GET | `api/v1/margin/config` |
 | `getMarginRiskLimitConfig()` |  | GET | `api/v3/margin/currencies` |
 | `getIsolatedMarginSymbolsConfig()` | :closed_lock_with_key:  | GET | `api/v1/isolated/symbols` |
 | `getIsolatedMarginAccounts()` | :closed_lock_with_key:  | GET | `api/v1/isolated/accounts` |
-| `getIsolatedMarginAccount()` | :closed_lock_with_key:  | GET | `api/v1/isolated/account/${params.symbol}` |
+| `getIsolatedMarginAccount()` | :closed_lock_with_key:  | GET | `api/v1/isolated/account/{symbol}` |
 | `marginBorrowV3()` | :closed_lock_with_key:  | POST | `api/v3/margin/borrow` |
 | `marginRepayV3()` | :closed_lock_with_key:  | POST | `api/v3/margin/repay` |
 | `getMarginBorrowHistoryV3()` | :closed_lock_with_key:  | GET | `api/v3/margin/borrow` |
@@ -218,7 +219,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getTransfers()` | :closed_lock_with_key:  | GET | `api/v1/transfer-list` |
 | `getTradingPairFee()` | :closed_lock_with_key:  | GET | `/api/v1/trade-fees` |
 | `getSymbols()` |  | GET | `api/v1/contracts/active` |
-| `getSymbol()` |  | GET | `api/v1/contracts/${params.symbol}` |
+| `getSymbol()` |  | GET | `api/v1/contracts/{symbol}` |
 | `getTicker()` |  | GET | `api/v1/ticker` |
 | `getTickers()` |  | GET | `api/v1/allTickers` |
 | `getFullOrderBookLevel2()` |  | GET | `api/v1/level2/snapshot` |
@@ -228,20 +229,21 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getKlines()` |  | GET | `api/v1/kline/query` |
 | `getInterestRates()` |  | GET | `api/v1/interest/query` |
 | `getIndex()` |  | GET | `api/v1/index/query` |
-| `getMarkPrice()` |  | GET | `api/v1/mark-price/${params.symbol}/current` |
+| `getMarkPrice()` |  | GET | `api/v1/mark-price/{symbol}/current` |
 | `getPremiumIndex()` |  | GET | `api/v1/premium/query` |
 | `get24HourTransactionVolume()` |  | GET | `api/v1/trade-statistics` |
 | `submitOrder()` | :closed_lock_with_key:  | POST | `api/v1/orders` |
 | `submitNewOrderTest()` | :closed_lock_with_key:  | POST | `api/v1/orders/test` |
-| `cancelOrderById()` | :closed_lock_with_key:  | DELETE | `api/v1/orders/${params.orderId}` |
-| `cancelOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v1/orders/client-order/${params.clientOid}` |
+| `cancelOrderById()` | :closed_lock_with_key:  | DELETE | `api/v1/orders/{orderId}` |
+| `cancelOrderByClientOid()` | :closed_lock_with_key:  | DELETE | `api/v1/orders/client-order/{clientOid}` |
+| `submitSLTPOrder()` | :closed_lock_with_key:  | POST | `api/v1/st-orders` |
 | `submitMultipleOrders()` | :closed_lock_with_key:  | POST | `api/v1/orders/multi` |
 | `cancelAllOrders()` | :closed_lock_with_key:  | DELETE | `api/v1/orders` |
 | `cancelAllStopOrders()` | :closed_lock_with_key:  | DELETE | `api/v1/stopOrders` |
 | `getOrders()` | :closed_lock_with_key:  | GET | `api/v1/orders` |
 | `getStopOrders()` | :closed_lock_with_key:  | GET | `api/v1/stopOrders` |
 | `getRecentOrders()` | :closed_lock_with_key:  | GET | `api/v1/recentDoneOrders` |
-| `getOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/orders/${params.orderId}` |
+| `getOrderByOrderId()` | :closed_lock_with_key:  | GET | `api/v1/orders/{orderId}` |
 | `getOrderByClientOrderId()` | :closed_lock_with_key:  | GET | `api/v1/orders/byClientOid` |
 | `getFills()` | :closed_lock_with_key:  | GET | `api/v1/fills` |
 | `getRecentFills()` | :closed_lock_with_key:  | GET | `api/v1/recentFills` |
@@ -254,9 +256,9 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getMaxWithdrawMargin()` | :closed_lock_with_key:  | GET | `api/v1/margin/maxWithdrawMargin` |
 | `withdrawMargin()` | :closed_lock_with_key:  | POST | `api/v1/margin/withdrawMargin` |
 | `depositMargin()` | :closed_lock_with_key:  | POST | `api/v1/position/margin/deposit-margin` |
-| `getRiskLimitLevel()` | :closed_lock_with_key:  | GET | `api/v1/contracts/risk-limit/${params.symbol}` |
+| `getRiskLimitLevel()` | :closed_lock_with_key:  | GET | `api/v1/contracts/risk-limit/{symbol}` |
 | `updateRiskLimitLevel()` | :closed_lock_with_key:  | POST | `api/v1/position/risk-limit-level/change` |
-| `getFundingRate()` |  | GET | `api/v1/funding-rate/${params.symbol}/current` |
+| `getFundingRate()` |  | GET | `api/v1/funding-rate/{symbol}/current` |
 | `getFundingRates()` |  | GET | `api/v1/contract/funding-rates` |
 | `getFundingHistory()` | :closed_lock_with_key:  | GET | `api/v1/funding-history` |
 | `getPublicWSConnectionToken()` |  | POST | `api/v1/bullet-public` |
