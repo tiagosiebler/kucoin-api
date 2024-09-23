@@ -1,4 +1,4 @@
-# Node.js & JavaScript SDK for Kucoin REST APIs, WebSockets & WebSocket API
+# Node.js & JavaScript SDK for Kucoin REST APIs & Websockets
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
