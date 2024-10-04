@@ -133,6 +133,7 @@ export interface Order {
   hidden?: boolean;
   iceberg?: boolean;
   visibleSize?: number;
+  marginMode?: 'ISOLATED' | 'CROSS';
 }
 
 export interface GetOrdersRequest {

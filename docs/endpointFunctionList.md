@@ -256,10 +256,15 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getMaxWithdrawMargin()` | :closed_lock_with_key:  | GET | `api/v1/margin/maxWithdrawMargin` |
 | `withdrawMargin()` | :closed_lock_with_key:  | POST | `api/v1/margin/withdrawMargin` |
 | `depositMargin()` | :closed_lock_with_key:  | POST | `api/v1/position/margin/deposit-margin` |
+| `getMarginMode()` | :closed_lock_with_key:  | GET | `api/v2/position/getMarginMode` |
+| `updateMarginMode()` | :closed_lock_with_key:  | POST | `api/v2/position/changeMarginMode` |
+| `getCrossMarginLeverage()` | :closed_lock_with_key:  | GET | `api/v2/getCrossUserLeverage` |
+| `changeCrossMarginLeverage()` | :closed_lock_with_key:  | POST | `api/v2/changeCrossUserLeverage` |
 | `getRiskLimitLevel()` | :closed_lock_with_key:  | GET | `api/v1/contracts/risk-limit/{symbol}` |
 | `updateRiskLimitLevel()` | :closed_lock_with_key:  | POST | `api/v1/position/risk-limit-level/change` |
 | `getFundingRate()` |  | GET | `api/v1/funding-rate/{symbol}/current` |
 | `getFundingRates()` |  | GET | `api/v1/contract/funding-rates` |
 | `getFundingHistory()` | :closed_lock_with_key:  | GET | `api/v1/funding-history` |
+| `getBrokerRebateOrderDownloadLink()` | :closed_lock_with_key:  | GET | `api/v1/broker/api/rebase/download` |
 | `getPublicWSConnectionToken()` |  | POST | `api/v1/bullet-public` |
 | `getPrivateWSConnectionToken()` | :closed_lock_with_key:  | POST | `api/v1/bullet-private` |
