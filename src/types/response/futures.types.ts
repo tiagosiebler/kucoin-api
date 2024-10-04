@@ -306,6 +306,7 @@ export interface FuturesOrder {
   filledSize: number; // Value of the executed orders
   filledValue: string; // Executed order quantity
   reduceOnly: boolean; // A mark to reduce the position size only
+  marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
 }
 
 export interface SubmitMultipleOrdersFuturesResponse {
@@ -352,6 +353,7 @@ export interface FuturesFill {
   openFeePay: string; // Opening transaction fee
   closeFeePay: string; // Closing transaction fee
   tradeTime: number; // trade time in nanosecond
+  marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
 }
 
 export interface FuturesFills {
@@ -422,6 +424,10 @@ export interface FuturesPosition {
   maintainMargin: number; // Maintenance margin rate
   userId: number; // userId
   riskLimitLevel: number; // Risk Limit Level
+  marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
+  positionSide: string;
+  posFunding: number;
+  leverage: number;
 }
 
 export interface AddMargin {

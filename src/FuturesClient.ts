@@ -482,6 +482,48 @@ export class FuturesClient extends BaseRestClient {
     return this.postPrivate('api/v1/position/margin/deposit-margin', params);
   }
 
+  getMarginMode(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      symbol: string;
+      marginMode: 'ISOLATED' | 'CROSS';
+    }>
+  > {
+    return this.getPrivate('api/v2/position/getMarginMode', params);
+  }
+
+  updateMarginMode(params: {
+    symbol: string;
+    marginMode: 'ISOLATED' | 'CROSS';
+  }): Promise<
+    APISuccessResponse<{
+      symbol: string;
+      marginMode: 'ISOLATED' | 'CROSS';
+    }>
+  > {
+    return this.postPrivate('api/v2/position/changeMarginMode', params);
+  }
+
+  getCrossMarginLeverage(params: { symbol: string }): Promise<
+    APISuccessResponse<{
+      symbol: string;
+      leverage: string;
+    }>
+  > {
+    return this.getPrivate('api/v2/getCrossUserLeverage', params);
+  }
+
+  changeCrossMarginLeverage(params: {
+    symbol: string;
+    leverage: string;
+  }): Promise<
+    APISuccessResponse<{
+      symbol: string;
+      leverage: string;
+    }>
+  > {
+    return this.postPrivate('api/v2/changeCrossUserLeverage', params);
+  }
+
   /**
    *
    * REST - FUTURES TRADING - Risk limit
