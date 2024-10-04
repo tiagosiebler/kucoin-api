@@ -1,9 +1,12 @@
-name: 'Build & Test'
+name: E2ETests
 
-on: [push]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  E2ETests:
     name: 'Build & Test'
     runs-on: ubuntu-latest
 
