@@ -9,6 +9,7 @@ import {
 } from './lib/requestUtils.js';
 import {
   AccountFillsRequest,
+  BatchCancelOrdersRequest,
   CreateSubAPIRequest,
   DeleteSubAPIRequest,
   GetFundingHistoryRequest,
@@ -29,6 +30,7 @@ import {
   AccountBalance,
   AccountSummary,
   AddMargin,
+  BatchCancelOrderResult,
   CreateSubAccountAPI,
   FullOrderBookDetail,
   FuturesAccountFundingRateHistory,
@@ -323,6 +325,14 @@ export class FuturesClient extends BaseRestClient {
     clientOid: string;
   }): Promise<APISuccessResponse<{ clientOid: string }>> {
     return this.deletePrivate(`api/v1/orders/client-order/${params.clientOid}`);
+  }
+
+  batchCancelOrders(params: BatchCancelOrdersRequest): Promise<
+    APISuccessResponse<{
+      data: BatchCancelOrderResult[];
+    }>
+  > {
+    return this.deletePrivate('api/v1/orders/multi-cancel', params);
   }
 
   submitSLTPOrder(params: Order): Promise<

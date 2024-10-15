@@ -34,6 +34,10 @@ export interface CurrencyInfo {
   isMarginEnabled: boolean;
   isDebitEnabled: boolean;
   chains: Chain[];
+  withdrawPrecision: number;
+  needTag: boolean;
+  maxWithdraw: string;
+  maxDeposit: string;
 }
 
 export interface SymbolInfo {

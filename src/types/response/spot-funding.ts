@@ -75,6 +75,17 @@ export type DepositAddressV2 = DepositAddress & {
   contractAddress: string;
 };
 
+export interface DepositAddressV3 {
+  address: string;
+  memo: string;
+  chainName: string;
+  chainId: string;
+  contractAddress: string;
+  expirationDate: number;
+  to: 'main' | 'trade';
+  currency: string;
+}
+
 export interface DepositItem {
   address: string;
   memo: string;
@@ -113,6 +124,16 @@ export interface V1HistoricalDeposits {
   totalNum: number;
   totalPage: number;
   items: HistoricalDepositItem[];
+}
+
+export interface CreateDepositAddressV3Response {
+  address: string;
+  memo: string | null;
+  chainName: string;
+  chainId: string;
+  to: string;
+  currency: string;
+  expirationDate?: string;
 }
 
 /**
