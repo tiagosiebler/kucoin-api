@@ -1,6 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
-import { deprecate } from 'util';
 
 import { BaseRestClient } from './lib/BaseRestClient.js';
 import {
@@ -35,7 +34,7 @@ import {
   GetWithdrawalsRequest,
   InnerTransferRequest,
   submitTransferMasterSubRequest,
-  SubmitWithdrawV3Req,
+  SubmitWithdrawV3Request,
 } from './types/request/spot-funding.js';
 import {
   GetHFMarginFilledRequest,
@@ -443,7 +442,7 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/withdrawals', params);
   }
 
-  submitWithdrawV3(params: SubmitWithdrawV3Req): Promise<
+  submitWithdrawV3(params: SubmitWithdrawV3Request): Promise<
     APISuccessResponse<{
       withdrawalId: string;
     }>

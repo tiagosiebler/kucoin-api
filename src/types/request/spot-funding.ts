@@ -67,7 +67,7 @@ export interface ApplyWithdrawRequest {
   feeDeductType?: 'INTERNAL' | 'EXTERNAL';
 }
 
-export interface SubmitWithdrawV3Req {
+export interface SubmitWithdrawV3Request {
   currency: string;
   toAddress: string;
   amount: number;
