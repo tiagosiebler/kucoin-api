@@ -36,6 +36,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
 
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/kucoin-api/issues).
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/QuantSDKs)
 
 <!-- template_related_projects -->
 
