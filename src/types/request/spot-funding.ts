@@ -6,6 +6,13 @@
  *
  */
 
+export interface CreateDepositAddressV3Request {
+  currency: string;
+  chain?: string;
+  to?: 'main' | 'trade';
+  amount?: string;
+}
+
 export interface GetMarginBalanceRequest {
   quoteCurrency?: string;
   queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
@@ -58,6 +65,18 @@ export interface ApplyWithdrawRequest {
   remark?: string;
   chain?: string;
   feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+}
+
+export interface SubmitWithdrawV3Request {
+  currency: string;
+  toAddress: string;
+  amount: number;
+  memo?: string;
+  isInner?: boolean;
+  remark?: string;
+  chain?: string;
+  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+  withdrawType: 'ADDRESS' | 'UID' | 'MAIL' | 'PHONE';
 }
 
 /**

@@ -309,6 +309,13 @@ export interface FuturesOrder {
   marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
 }
 
+export interface BatchCancelOrderResult {
+  orderId: string | null;
+  clientOid: string | null;
+  code: string;
+  msg: string;
+}
+
 export interface SubmitMultipleOrdersFuturesResponse {
   orderId: string;
   clientOid: string;

@@ -157,6 +157,15 @@ export interface GetStopOrdersRequest {
   pageSize?: number;
 }
 
+export interface BatchCancelOrdersRequest {
+  symbol?: string;
+  orderIdsList?: string[];
+  clientOidsList?: {
+    symbol: string;
+    clientOid: string;
+  }[];
+}
+
 /**
  *
  * Futures Fills

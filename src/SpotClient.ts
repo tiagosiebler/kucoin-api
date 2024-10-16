@@ -25,6 +25,7 @@ import {
 } from './types/request/spot-earn.js';
 import {
   ApplyWithdrawRequest,
+  CreateDepositAddressV3Request,
   FlexTransferRequest,
   GetDepositsRequest,
   GetIsolatedMarginBalanceRequest,
@@ -33,6 +34,7 @@ import {
   GetWithdrawalsRequest,
   InnerTransferRequest,
   submitTransferMasterSubRequest,
+  SubmitWithdrawV3Request,
 } from './types/request/spot-funding.js';
 import {
   GetHFMarginFilledRequest,
@@ -96,6 +98,7 @@ import {
   SubscribeEarnFixedIncomeResponse,
 } from './types/response/spot-earn.js';
 import {
+  CreateDepositAddressV3Response,
   DepositAddress,
   DepositAddressV2,
   Deposits,
@@ -350,6 +353,9 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated This method is deprecated. Please use createDepositAddressV3 instead.
+   */
   createDepositAddress(params: {
     currency: string;
     chain?: string;
@@ -357,17 +363,37 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/deposit-addresses', params);
   }
 
+  createDepositAddressV3(
+    params: CreateDepositAddressV3Request,
+  ): Promise<APISuccessResponse<CreateDepositAddressV3Response>> {
+    return this.postPrivate('api/v3/deposit-address/create', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated. Please use getDepositAddressesV3 instead.
+   */
   getDepositAddressesV2(params: {
     currency: string;
   }): Promise<APISuccessResponse<DepositAddressV2[]>> {
     return this.getPrivate('api/v2/deposit-addresses', params);
   }
 
+  /**
+   * @deprecated This method is deprecated. Please use getDepositAddressesV3 instead.
+   */
   getDepositAddressV1(params: {
     currency: string;
     chain?: string;
   }): Promise<APISuccessResponse<DepositAddress>> {
     return this.getPrivate('api/v1/deposit-addresses', params);
+  }
+
+  getDepositAddressesV3(params: {
+    currency: string;
+    amount?: string;
+    chain?: string;
+  }): Promise<APISuccessResponse<DepositAddress[]>> {
+    return this.getPrivate('api/v3/deposit-addresses', params);
   }
 
   getDeposits(
@@ -407,10 +433,21 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/withdrawals/quotas', params);
   }
 
+  /**
+   * @deprecated This method is deprecated. Please use submitWithdrawalV3 instead.
+   */
   submitWithdraw(
     params: ApplyWithdrawRequest,
   ): Promise<APISuccessResponse<{ withdrawalId: string }>> {
     return this.postPrivate('api/v1/withdrawals', params);
+  }
+
+  submitWithdrawV3(params: SubmitWithdrawV3Request): Promise<
+    APISuccessResponse<{
+      withdrawalId: string;
+    }>
+  > {
+    return this.postPrivate('api/v3/withdrawals', params);
   }
 
   cancelWithdrawal(params: {
@@ -573,6 +610,10 @@ export class SpotClient extends BaseRestClient {
    * REST - SPOT TRADING - Spot HF trade
    *
    */
+
+  getUserType(): Promise<APISuccessResponse<boolean>> {
+    return this.getPrivate('api/v1/hf/accounts/opened');
+  }
 
   submitHFOrder(params: SubmitHFOrderRequest): Promise<
     APISuccessResponse<{
