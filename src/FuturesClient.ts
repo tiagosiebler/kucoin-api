@@ -193,7 +193,7 @@ export class FuturesClient extends BaseRestClient {
       makerFeeRate: string;
     }>
   > {
-    return this.getPrivate('/api/v1/trade-fees', params);
+    return this.getPrivate('api/v1/trade-fees', params);
   }
 
   /**
@@ -458,7 +458,7 @@ export class FuturesClient extends BaseRestClient {
     limit?: number;
     pageId?: number;
   }): Promise<APISuccessResponse<FuturesClosedPositions>> {
-    return this.getPrivate('/api/v1/history-positions', params);
+    return this.getPrivate('api/v1/history-positions', params);
   }
 
   updateAutoDepositStatus(params: {
