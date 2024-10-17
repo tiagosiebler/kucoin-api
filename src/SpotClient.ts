@@ -1,7 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
-import { GetAnnouncementsRequest } from 'types/request/spot-misc.js';
-import { Announcements } from 'types/response/spot-misc.js';
 
 import { BaseRestClient } from './lib/BaseRestClient.js';
 import {
@@ -55,6 +53,7 @@ import {
   SubmitHFMarginOrderRequest,
   SubmitMarginOrderRequest,
 } from './types/request/spot-margin-trading.js';
+import { GetAnnouncementsRequest } from './types/request/spot-misc.js';
 import {
   CancelAllOrdersRequest,
   CancelSpecifiedNumberHFOrdersRequest,
@@ -131,6 +130,7 @@ import {
   SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
 } from './types/response/spot-margin-trading.js';
+import { Announcements } from './types/response/spot-misc.js';
 import {
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
@@ -204,7 +204,7 @@ export class SpotClient extends BaseRestClient {
    * This method is used to get the latency and time sync between the client and the server.
    * This is not official API endpoint and is only used for internal testing purposes.
    * Use this method to check the latency and time sync between the client and the server.
-   * Final values are might vary slightly, but it should be within few ms difference.
+   * Final values might vary slightly, but it should be within few ms difference.
    * If you have any suggestions or improvements to this measurement, please create an issue or pull request on GitHub.
    */
   async getLatencyAndTimeSync(): Promise<any> {

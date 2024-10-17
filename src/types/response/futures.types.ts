@@ -307,7 +307,7 @@ export interface FuturesOrder {
   filledValue: string; // Executed order quantity
   reduceOnly: boolean; // A mark to reduce the position size only
   marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
-  avgDealPrice: number;
+  avgDealPrice: string;
 }
 
 export interface BatchCancelOrderResult {
