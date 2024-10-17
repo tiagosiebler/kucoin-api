@@ -49,8 +49,6 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| [fetchLatencySummary()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L193) |  | GET | `api/v1/timestamp` |
-| [getServerTime()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L252) |  | GET | `api/v1/timestamp` |
 | [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L256) |  | GET | `api/v1/status` |
 | [getAnnouncements()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L260) |  | GET | `api/v3/announcements` |
 | [getAccountSummary()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L272) | :closed_lock_with_key:  | GET | `api/v2/user-info` |
@@ -211,7 +209,6 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| [getServerTime()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L93) |  | GET | `api/v1/timestamp` |
 | [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L97) |  | GET | `api/v1/status` |
 | [getTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L106) | :closed_lock_with_key:  | GET | `api/v1/transaction-history` |
 | [getSubAPIs()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L119) | :closed_lock_with_key:  | GET | `api/v1/sub/api-key` |

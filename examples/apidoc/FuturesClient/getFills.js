@@ -5,7 +5,6 @@ const { FuturesClient } = require('kucoin-api');
   // ENDPOINT: api/v1/fills
   // METHOD: GET
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L407
 
 const client = new FuturesClient({
   apiKey: 'insert_api_key_here',

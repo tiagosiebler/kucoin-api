@@ -5,7 +5,6 @@ const { FuturesClient } = require('kucoin-api');
   // ENDPOINT: api/v1/orders/{orderId}
   // METHOD: DELETE
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L318
 
 const client = new FuturesClient({
   apiKey: 'insert_api_key_here',
