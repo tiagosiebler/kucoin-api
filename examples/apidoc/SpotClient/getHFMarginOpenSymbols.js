@@ -5,7 +5,7 @@ const { SpotClient } = require('kucoin-api');
   // ENDPOINT: api/v3/hf/margin/order/active/symbols
   // METHOD: GET
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1147
+  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1217
 
 const client = new SpotClient({
   apiKey: 'insert_api_key_here',

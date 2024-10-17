@@ -5,7 +5,7 @@ const { SpotClient } = require('kucoin-api');
   // ENDPOINT: api/v3/oco/orders
   // METHOD: DELETE
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1013
+  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1083
 
 const client = new SpotClient({
   apiKey: 'insert_api_key_here',

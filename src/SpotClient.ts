@@ -179,27 +179,10 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * Misc Utility Methods
+   * Misc SDK Methods
    *
    */
 
-  generateNewOrderID(): string {
-    return nanoid(32);
-  }
-
-  getServerTime(): Promise<any> {
-    return this.get('api/v1/timestamp');
-  }
-
-  getServiceStatus(): Promise<any> {
-    return this.get('api/v1/status');
-  }
-
-  getAnnouncements(
-    params?: GetAnnouncementsRequest,
-  ): Promise<APISuccessResponse<Announcements>> {
-    return this.get('api/v3/announcements', params);
-  }
   /**
    * This method is used to get the latency and time sync between the client and the server.
    * This is not official API endpoint and is only used for internal testing purposes.
@@ -207,7 +190,7 @@ export class SpotClient extends BaseRestClient {
    * Final values might vary slightly, but it should be within few ms difference.
    * If you have any suggestions or improvements to this measurement, please create an issue or pull request on GitHub.
    */
-  async getLatencyAndTimeSync(): Promise<any> {
+  async fetchLatencySummary(): Promise<any> {
     const clientTimeReqStart = Date.now();
     const serverTime = await this.getServerTime();
     const clientTimeReqEnd = Date.now();
@@ -236,16 +219,16 @@ export class SpotClient extends BaseRestClient {
 
     console.log(
       `Your approximate latency to exchange server: 
-      One way: ${estimatedOneWayLatency}ms.
-      Round trip: ${roundTripTime}ms.
-      `,
+    One way: ${estimatedOneWayLatency}ms.
+    Round trip: ${roundTripTime}ms.
+    `,
     );
 
     if (timeDifference > 500) {
       console.warn(
         `WARNING! Time difference between server and client clock is greater than 500ms. It is currently ${timeDifference}ms.
-        Consider adjusting your system clock to avoid unwanted clock sync errors!
-        Visit https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow for more information`,
+      Consider adjusting your system clock to avoid unwanted clock sync errors!
+      Visit https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow for more information`,
       );
     } else {
       console.log(
@@ -254,6 +237,30 @@ export class SpotClient extends BaseRestClient {
     }
 
     return result;
+  }
+
+  /**
+   *
+   * Misc Utility Methods
+   *
+   */
+
+  generateNewOrderID(): string {
+    return nanoid(32);
+  }
+
+  getServerTime(): Promise<any> {
+    return this.get('api/v1/timestamp');
+  }
+
+  getServiceStatus(): Promise<any> {
+    return this.get('api/v1/status');
+  }
+
+  getAnnouncements(
+    params?: GetAnnouncementsRequest,
+  ): Promise<APISuccessResponse<Announcements>> {
+    return this.get('api/v3/announcements', params);
   }
 
   /**

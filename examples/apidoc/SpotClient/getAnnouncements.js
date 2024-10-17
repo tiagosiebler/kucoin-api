@@ -2,17 +2,17 @@ const { SpotClient } = require('kucoin-api');
 
   // This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
   // This kucoin API SDK is available on npm via "npm install kucoin-api"
-  // ENDPOINT: api/v1/hf/orders/multi
-  // METHOD: POST
-  // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L707
+  // ENDPOINT: api/v3/announcements
+  // METHOD: GET
+  // PUBLIC: YES
+  // Link to function: https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L260
 
 const client = new SpotClient({
   apiKey: 'insert_api_key_here',
   apiSecret: 'insert_api_secret_here',
 });
 
-client.submitHFMultipleOrders(params)
+client.getAnnouncements(params)
   .then((response) => {
     console.log(response);
   })
