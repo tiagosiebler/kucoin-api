@@ -577,7 +577,7 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/base-fee', params);
   }
 
-  getTradingPairFee(params: { symbols: string }): Promise<
+  getTradingPairFee(params: { symbol: string }): Promise<
     APISuccessResponse<
       {
         symbol: string;
