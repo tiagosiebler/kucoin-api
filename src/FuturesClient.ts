@@ -93,7 +93,7 @@ export class FuturesClient extends BaseRestClient {
     return nanoid(32);
   }
 
-  getServerTime(): Promise<any> {
+  getServerTime(): Promise<number> {
     return this.get('api/v1/timestamp');
   }
 
