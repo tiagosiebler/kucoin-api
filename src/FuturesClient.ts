@@ -61,7 +61,10 @@ import {
   TransferDetail,
   UpdateSubAccountAPI,
 } from './types/response/futures.types.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
+import {
+  APISuccessResponse,
+  ServiceStatus,
+} from './types/response/shared.types.js';
 import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
@@ -94,7 +97,7 @@ export class FuturesClient extends BaseRestClient {
     return this.get('api/v1/timestamp');
   }
 
-  getServiceStatus(): Promise<any> {
+  getServiceStatus(): Promise<APISuccessResponse<ServiceStatus>> {
     return this.get('api/v1/status');
   }
 
