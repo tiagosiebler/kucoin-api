@@ -189,7 +189,7 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUNDING - TRADE FEE
    */
 
-  getTradingPairFee(params: { symbols: string }): Promise<
+  getTradingPairFee(params: { symbol: string }): Promise<
     APISuccessResponse<{
       symbol: string;
       takerFeeRate: string;
