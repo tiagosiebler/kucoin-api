@@ -73,7 +73,10 @@ import {
   SubmitOrderRequest,
   SubmitStopOrderRequest,
 } from './types/request/spot-trading.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
+import {
+  APISuccessResponse,
+  ServiceStatus,
+} from './types/response/shared.types.js';
 import {
   Account,
   AccountHFMarginTransactions,
@@ -249,11 +252,11 @@ export class SpotClient extends BaseRestClient {
     return nanoid(32);
   }
 
-  getServerTime(): Promise<any> {
+  getServerTime(): Promise<APISuccessResponse<number>> {
     return this.get('api/v1/timestamp');
   }
 
-  getServiceStatus(): Promise<any> {
+  getServiceStatus(): Promise<APISuccessResponse<ServiceStatus>> {
     return this.get('api/v1/status');
   }
 

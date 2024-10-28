@@ -9,3 +9,8 @@ export interface APIErrorResponse {
 }
 
 export type APIResponse<TData> = APISuccessResponse<TData> | APIErrorResponse;
+
+export interface ServiceStatus {
+  msg: string;
+  code: 'cancelonly' | 'close' | 'open';
+}
