@@ -23,6 +23,7 @@ import {
   GetTransfersRequest,
   MaxOpenSizeRequest,
   Order,
+  SLTPOrder,
   SubmitTransfer,
   UpdateSubAPIRequest,
 } from './types/request/futures.types.js';
@@ -338,7 +339,7 @@ export class FuturesClient extends BaseRestClient {
     return this.deletePrivate('api/v1/orders/multi-cancel', params);
   }
 
-  submitSLTPOrder(params: Order): Promise<
+  submitSLTPOrder(params: SLTPOrder): Promise<
     APISuccessResponse<{
       orderId?: string;
       clientOid?: string;
