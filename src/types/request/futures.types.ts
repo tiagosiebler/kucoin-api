@@ -136,6 +136,11 @@ export interface Order {
   marginMode?: 'ISOLATED' | 'CROSS';
 }
 
+export interface SLTPOrder extends Order {
+  triggerStopDownPrice?: string;
+  triggerStopUpPrice?: string;
+}
+
 export interface GetOrdersRequest {
   status?: 'active' | 'done';
   symbol?: string;
