@@ -87,7 +87,7 @@ export interface SubmitWithdrawV3Request {
 
 export interface GetTransferableRequest {
   currency: string;
-  type: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'ISOLATED';
+  type: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'ISOLATED' | 'OPTION';
   tag?: string;
 }
 
@@ -104,7 +104,8 @@ export interface FlexTransferRequest {
     | 'ISOLATED'
     | 'TRADE_HF'
     | 'MARGIN_V2'
-    | 'ISOLATED_V2';
+    | 'ISOLATED_V2'
+    | 'OPTION';
   fromAccountTag?: string;
   type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
   toUserId?: string;
@@ -116,7 +117,8 @@ export interface FlexTransferRequest {
     | 'ISOLATED'
     | 'TRADE_HF'
     | 'MARGIN_V2'
-    | 'ISOLATED_V2';
+    | 'ISOLATED_V2'
+    | 'OPTION';
   toAccountTag?: string;
 }
 
@@ -125,8 +127,20 @@ export interface submitTransferMasterSubRequest {
   currency: string;
   amount: string;
   direction: 'OUT' | 'IN';
-  accountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
-  subAccountType?: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'CONTRACT';
+  accountType?:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'CONTRACT'
+    | 'OPTION';
+  subAccountType?:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'CONTRACT'
+    | 'OPTION';
   subUserId: string;
 }
 
@@ -141,7 +155,8 @@ export interface InnerTransferRequest {
     | 'isolated'
     | 'margin_v2'
     | 'isolated_v2'
-    | 'contract';
+    | 'contract'
+    | 'option';
   to:
     | 'main'
     | 'trade'
@@ -150,7 +165,8 @@ export interface InnerTransferRequest {
     | 'isolated'
     | 'margin_v2'
     | 'isolated_v2'
-    | 'contract';
+    | 'contract'
+    | 'option';
   amount: string;
   fromTag?: string;
   toTag?: string;

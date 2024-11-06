@@ -53,6 +53,7 @@ export interface AccountBalance {
   frozenFunds: number; // Frozen funds for withdrawal and out-transfer
   availableBalance: number; // Available balance
   currency: string; // currency code
+  riskRatio: number; // Cross margin risk ratio
 }
 
 export interface AccountSummary {
@@ -177,6 +178,7 @@ export interface FuturesSymbolInfo {
   highPrice: number; // 24H High
   priceChgPct: number; // 24H Change%
   priceChg: number; // 24H Change
+  supportCross: boolean; // Support cross margin or not
 }
 
 export interface TickerDetail {
