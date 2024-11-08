@@ -7,8 +7,9 @@ const { SpotClient } = require('kucoin-api');
   // PUBLIC: NO
 
 const client = new SpotClient({
-  apiKey: 'insert_api_key_here',
-  apiSecret: 'insert_api_secret_here',
+  apiKey: 'apiKeyHere',
+  apiSecret: 'apiSecretHere',
+  apiPassphrase: 'apiPassPhraseHere',
 });
 
 client.getHFActiveMarginOrders(params)
