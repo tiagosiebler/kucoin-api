@@ -7,8 +7,9 @@ const { FuturesClient } = require('kucoin-api');
   // PUBLIC: NO
 
 const client = new FuturesClient({
-  apiKey: 'insert_api_key_here',
-  apiSecret: 'insert_api_secret_here',
+  apiKey: 'apiKeyHere',
+  apiSecret: 'apiSecretHere',
+  apiPassphrase: 'apiPassPhraseHere',
 });
 
 client.changeCrossMarginLeverage(params)
