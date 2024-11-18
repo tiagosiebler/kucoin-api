@@ -179,6 +179,8 @@ export interface FuturesSymbolInfo {
   priceChgPct: number; // 24H Change%
   priceChg: number; // 24H Change
   supportCross: boolean; // Support cross margin or not
+  buyLimit: number; // Buy limit
+  sellLimit: number; // Sell limit
 }
 
 export interface TickerDetail {
@@ -508,6 +510,8 @@ export interface FuturesCurrentFundingRate {
   timePoint: number; // Time point (milliseconds)
   value: number; // Funding rate
   predictedValue: number; // Predicted funding rate
+  fundingRateCap: number; // Funding rate cap
+  fundingRateFloor: number; // Funding rate floor
 }
 
 export interface FuturesHistoricFundingRate {

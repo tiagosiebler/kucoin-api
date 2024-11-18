@@ -129,6 +129,8 @@ export interface Order {
   stp?: 'CN' | 'CO' | 'CB';
   price?: string;
   size?: number;
+  qty?: string;
+  valueQty?: string;
   timeInForce?: 'GTC' | 'IOC';
   hidden?: boolean;
   iceberg?: boolean;
