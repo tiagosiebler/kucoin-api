@@ -188,6 +188,7 @@ export interface AccountFillsRequest {
   endAt?: number;
   currentPage?: number;
   pageSize?: number;
+  tradeTypes?: string;
 }
 
 /**

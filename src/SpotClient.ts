@@ -343,6 +343,14 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
 
+  enableSubAccountMargin(params: { uid: string }): Promise<void> {
+    return this.postPrivate('api/v3/sub/user/margin/enable', params);
+  }
+
+  enableSubAccountFutures(params: { uid: string }): Promise<void> {
+    return this.postPrivate('api/v3/sub/user/futures/enable', params);
+  }
+
   getSubAccountBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
