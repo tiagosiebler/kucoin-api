@@ -1,3 +1,5 @@
+import { Agent } from 'node:http';
+
 /** General configuration for the WebsocketClient */
 export interface WSClientConfigurableOptions {
   /** Your API key */
@@ -23,6 +25,7 @@ export interface WSClientConfigurableOptions {
 
   wsUrl?: string;
 
+  agent?: Agent | undefined;
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *
