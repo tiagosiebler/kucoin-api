@@ -411,10 +411,9 @@ export abstract class BaseWebsocketClient<
       wsKey,
     });
 
-    const ws = new WebSocket(
-      url,
-      this.options.agent ? { agent: this.options.agent } : undefined,
-    );
+    const { protocols = [], ...wsOptions } = this.options.wsOptions || {};
+
+    const ws = new WebSocket(url, protocols, wsOptions);
 
     ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
     ws.onmessage = (event: any) => this.onWsMessage(event, wsKey, ws);

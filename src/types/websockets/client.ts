@@ -1,5 +1,3 @@
-import { Agent } from 'node:http';
-
 /** General configuration for the WebsocketClient */
 export interface WSClientConfigurableOptions {
   /** Your API key */
@@ -23,9 +21,12 @@ export interface WSClientConfigurableOptions {
   /** Delay in milliseconds before respawning the connection */
   reconnectTimeout?: number;
 
-  wsUrl?: string;
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  };
 
-  agent?: Agent | undefined;
+  wsUrl?: string;
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *
