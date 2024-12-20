@@ -21,8 +21,12 @@ export interface WSClientConfigurableOptions {
   /** Delay in milliseconds before respawning the connection */
   reconnectTimeout?: number;
 
-  wsUrl?: string;
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  };
 
+  wsUrl?: string;
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *
