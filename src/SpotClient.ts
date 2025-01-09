@@ -1256,7 +1256,7 @@ export class SpotClient extends BaseRestClient {
   getMarginLeveragedToken(params?: {
     currency?: string;
   }): Promise<APISuccessResponse<MarginLevTokenInfo[]>> {
-    return this.get('api/v3/etf/info', params);
+    return this.getPrivate('api/v3/etf/info', params);
   }
 
   getMarginMarkPrices(): Promise<APISuccessResponse<MarginMarkPrice[]>> {
@@ -1276,7 +1276,7 @@ export class SpotClient extends BaseRestClient {
   getMarginRiskLimitConfig(
     params: MarginRiskLimitRequest,
   ): Promise<APISuccessResponse<MarginRiskLimit[]>> {
-    return this.get('api/v3/margin/currencies', params);
+    return this.getPrivate('api/v3/margin/currencies', params);
   }
 
   /**
