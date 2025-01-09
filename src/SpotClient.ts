@@ -1276,7 +1276,7 @@ export class SpotClient extends BaseRestClient {
   getMarginRiskLimitConfig(
     params: MarginRiskLimitRequest,
   ): Promise<APISuccessResponse<MarginRiskLimit[]>> {
-    return this.get('api/v3/margin/currencies', params);
+    return this.getPrivate('api/v3/margin/currencies', params);
   }
 
   /**

@@ -363,8 +363,8 @@ export class FuturesClient extends BaseRestClient {
     return this.deletePrivate('api/v1/orders', params);
   }
 
-  cancelAllOrdersV3(params?: {
-    symbol?: string;
+  cancelAllOrdersV3(params: {
+    symbol: string;
   }): Promise<APISuccessResponse<{ cancelledOrderIds: string[] }>> {
     return this.deletePrivate('api/v3/orders', params);
   }
