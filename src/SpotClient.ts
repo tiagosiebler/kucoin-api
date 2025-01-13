@@ -326,6 +326,10 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v2/sub/user endpoint instead of this endpoint
+   */
   getSubAccountsV1(): Promise<APISuccessResponse<SubAccountInfo[]>> {
     return this.getPrivate('api/v1/sub/user');
   }
@@ -351,6 +355,10 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/sub/user/futures/enable', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v2/sub/accounts/balance endpoint instead of this endpoint
+   */
   getSubAccountBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
@@ -407,6 +415,10 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v3/margin/accounts endpoint instead of this endpoint
+   */
   getMarginBalances(): Promise<
     APISuccessResponse<{
       debtRatio: string;
@@ -483,6 +495,10 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/deposits', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/deposits endpoint instead of this endpoint
+   */
   getHistoricalDepositsV1(
     params?: GetDepositsRequest,
   ): Promise<APISuccessResponse<V1HistoricalDeposits>> {
@@ -501,6 +517,10 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/withdrawals', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/withdrawals endpoint instead of this endpoint
+   */
   getHistoricalWithdrawalsV1(
     params?: GetWithdrawalsRequest,
   ): Promise<APISuccessResponse<HistoricalWithdrawalsV1>> {
@@ -515,7 +535,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated. Please use submitWithdrawalV3 instead.
+   * @deprecated This method is deprecated. Please use submitWithdrawV3 instead.
    */
   submitWithdraw(
     params: ApplyWithdrawRequest,
@@ -557,6 +577,10 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/accounts/universal-transfer', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v3/accounts/universal-transfer endpoint instead of this endpoint
+   */
   submitTransferMasterSub(params: submitTransferMasterSubRequest): Promise<
     APISuccessResponse<{
       orderId: string;
@@ -565,6 +589,10 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v2/accounts/sub-transfer', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v3/accounts/universal-transfer endpoint instead of this endpoint
+   */
   submitInnerTransfer(params: InnerTransferRequest): Promise<
     APISuccessResponse<{
       orderId: string;
@@ -873,7 +901,10 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  // SPOT and MARGIN
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the POST /api/v1/hf/orders endpoint instead of this endpoint
+   */
   submitOrder(params: SubmitOrderRequest): Promise<
     APISuccessResponse<{
       orderId: string; // An order Id is returned once an order is successfully submitd.
@@ -882,12 +913,18 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/orders', params);
   }
 
-  // SPOT and MARGIN
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the POST /api/v1/hf/orders/test endpoint instead of this endpoint
+   */
   submitOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/orders/test');
   }
 
-  //SPOT
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the POST /api/v1/hf/orders/multi endpoint instead of this endpoint
+   */
   submitMultipleOrders(params: {
     symbol: string;
     orderList: SubmitMultipleOrdersRequest[];
@@ -895,7 +932,10 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/orders/multi', params);
   }
 
-  // Used for Spot and Margin Trading: Cancels a single order by orderId.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the DELETE /api/v1/hf/orders/{orderId} endpoint instead of this endpoint
+   */
   cancelOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[];
@@ -904,7 +944,10 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/orders/${params.orderId}`);
   }
 
-  // Used for Spot and Margin Trading: Cancels a single order by clientOid.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the DELETE /api/v1/hf/orders/client-order/{params.clientOid} endpoint instead of this endpoint
+   */
   cancelOrderByClientOid(params: { clientOid: string }): Promise<
     APISuccessResponse<{
       cancelledOrderId: string;
@@ -914,7 +957,10 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/order/client-order/${params.clientOid}`);
   }
 
-  // Used for Spot and Margin Trading: Cancels all open orders.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the DELETE /api/v1/hf/orders/cancelAll endpoint instead of this endpoint
+   */
   cancelAllOrders(params?: CancelAllOrdersRequest): Promise<
     APISuccessResponse<{
       cancelledOrderIds: string[];
@@ -923,14 +969,20 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate('api/v1/orders', params);
   }
 
-  // Retrieves the current list of orders. Supports filtering by status and trade type.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/hf/orders/active endpoint instead of this endpoint
+   */
   getOrders(
     params?: GetOrderListRequest,
   ): Promise<APISuccessResponse<SpotOrderList>> {
     return this.getPrivate('api/v1/orders', params);
   }
 
-  // Needs General permission, Retrieves a list of the most recent 1000 orders within the last 24 hours, sorted in descending order by time.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/hf/orders/active endpoint instead of this endpoint
+   */
   getRecentOrders(params?: {
     currentPage?: number;
     pageSize?: number;
@@ -938,14 +990,20 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/limit/orders', params);
   }
 
-  // Needs General Permission, Retrieves the details of a single order by its orderId. Useful for tracking the status and details of specific trades.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/hf/orders/{params.orderId} endpoint instead of this endpoint
+   */
   getOrderByOrderId(params: {
     orderId: string;
   }): Promise<APISuccessResponse<SpotOrder>> {
     return this.getPrivate(`api/v1/orders/${params.orderId}`);
   }
 
-  // Needs general permission, Retrieves the details of a single order by its clientOid. This is useful for checking the status of orders submitd with a unique client-provided identifier.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/hf/orders/client-order/{params.clientOid} endpoint instead of this endpoint
+   */
   getOrderByClientOid(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<SpotOrder>> {
@@ -958,14 +1016,20 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
-  // General permission, Retrieves a list of fills for your orders, providing details such as the executed price, size, and the fees incurred. Useful for tracking trade executions and their impact on your portfolio.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/hf/fills endpoint instead of this endpoint
+   */
   getFills(
     params?: GetFillsRequest,
   ): Promise<APISuccessResponse<SpotOrderFills>> {
     return this.getPrivate('api/v1/fills', params);
   }
 
-  // General permission, Retrieves a list of the most recent 1000 fills within the last 24 hours, sorted in descending order by time.
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v1/hf/fills endpoint instead of this endpoint
+   */
   getRecentFills(): Promise<APISuccessResponse<SpotOrderFill[]>> {
     return this.getPrivate('api/v1/limit/fills');
   }
@@ -1237,12 +1301,20 @@ export class SpotClient extends BaseRestClient {
    *
    */
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the POST /api/v3/hf/margin/order endpoint instead of this endpoint
+   */
   submitMarginOrder(
     params: SubmitMarginOrderRequest,
   ): Promise<APISuccessResponse<SubmitMarginOrderResponse>> {
     return this.postPrivate('api/v1/margin/order', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the POST /api/v3/hf/margin/order/test endpoint instead of this endpoint
+   */
   submitMarginOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/margin/order/test');
   }
@@ -1291,12 +1363,20 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/isolated/symbols');
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v3/margin/accounts endpoint instead of this endpoint
+   */
   getIsolatedMarginAccounts(params?: {
     balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
   }): Promise<APISuccessResponse<IsolatedMarginAccountInfo>> {
     return this.getPrivate('api/v1/isolated/accounts', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v3/isolated/accounts endpoint instead of this endpoint
+   */
   getIsolatedMarginAccount(params: {
     symbol: string;
   }): Promise<APISuccessResponse<SingleIsolatedMarginAccountInfo>> {

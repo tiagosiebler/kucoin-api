@@ -170,16 +170,27 @@ export class FuturesClient extends BaseRestClient {
    * REST - FUNDING - TRANSFER
    */
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v3/accounts/universal-transfer endpoint instead of this endpoint
+   */
   submitTransferOut(
     params: SubmitTransfer,
   ): Promise<Promise<APISuccessResponse<TransferDetail>>> {
     return this.postPrivate('api/v3/transfer-out', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the GET /api/v3/accounts/universal-transfer endpoint instead of this endpoint
+   */
   submitTransferIn(params: SubmitTransfer): Promise<any> {
     return this.postPrivate('api/v1/transfer-in', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   */
   getTransfers(
     params: GetTransfersRequest,
   ): Promise<APISuccessResponse<FuturesTransferRecords>> {
@@ -474,6 +485,12 @@ export class FuturesClient extends BaseRestClient {
     return this.getPrivate('api/v1/history-positions', params);
   }
 
+  /**
+   * @deprecated This method is deprecated.
+   * Currently, it is not recommended to use the Isolated margin + auto deposit margin feature.
+   * It is recommended to switch to the cross margin mode.
+   * Please refer to POST /api/v2/position/changeMarginMode endpoint
+   */
   updateAutoDepositStatus(params: {
     symbol: string;
     status: boolean;
