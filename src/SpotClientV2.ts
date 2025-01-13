@@ -1392,7 +1392,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - ACCOUNT - Sub-Account
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1414,7 +1414,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - FUNDING - Funding overview
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1433,7 +1433,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - FUNDING -Deposit
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1478,7 +1478,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - FUNDING -Withdrawals
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1503,7 +1503,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - FUNDING - Transfer
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1533,7 +1533,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - SPOT TRADING - Orders
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1648,7 +1648,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - SPOT TRADING -Fills
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1672,7 +1672,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - MARGIN TRADING - Orders
-   *
+   * DEPRECATED
    */
 
   /**
@@ -1696,7 +1696,7 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - MARGIN TRADING - Isolated Margin
-   *
+   * DEPRECATED
    */
 
   /**
