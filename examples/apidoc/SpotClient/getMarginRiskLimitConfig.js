@@ -4,7 +4,7 @@ const { SpotClient } = require('kucoin-api');
   // This kucoin API SDK is available on npm via "npm install kucoin-api"
   // ENDPOINT: api/v3/margin/currencies
   // METHOD: GET
-  // PUBLIC: YES
+  // PUBLIC: NO
 
 const client = new SpotClient({
   apiKey: 'apiKeyHere',
