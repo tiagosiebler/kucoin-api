@@ -28,11 +28,14 @@ export interface MarginAssetDetail {
 }
 
 export interface MarginAccountDetail {
-  totalLiabilityOfQuoteCurrency: string;
-  totalAssetOfQuoteCurrency: string;
-  debtRatio: string;
-  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
-  assets: MarginAssetDetail[];
+  currency: string;
+  total: string;
+  available: string;
+  hold: string;
+  liability: string;
+  maxBorrowSize: string;
+  borrowEnabled: boolean;
+  transferInEnabled: boolean;
 }
 
 export interface IsolatedMarginAssetDetail {
@@ -44,12 +47,11 @@ export interface IsolatedMarginAssetDetail {
 }
 
 export interface MarginBalance {
-  timestamp: number;
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: MarginAccountDetail[];
+  totalAssetOfQuoteCurrency: string;
+  totalLiabilityOfQuoteCurrency: string;
+  debtRatio: string;
+  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
+  accounts: MarginAccountDetail[];
 }
 
 export interface IsolatedMarginBalance {
