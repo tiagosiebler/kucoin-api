@@ -64,7 +64,7 @@ Check out my related JavaScript/TypeScript/Node.js projects:
 
 Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation.
 
-- [Kucoin API Documentation](https://www.kucoin.com/docs/beginners/introduction)
+- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
 - Node.js Quick Start Guides
   - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
   - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
@@ -102,7 +102,7 @@ const client = new SpotClient({
 });
 
 try {
-  const spotBuyResult = await client.submitOrder({
+  const spotBuyResult = await client.submitHFOrder({
     clientOid: client.generateNewOrderID(),
     side: 'buy',
     type: 'market',
@@ -111,7 +111,7 @@ try {
   });
   console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
 
-  const spotSellResult = await client.submitOrder({
+  const spotSellResult = await client.submitHFOrder({
     clientOid: client.generateNewOrderID(),
     side: 'sell',
     type: 'market',
