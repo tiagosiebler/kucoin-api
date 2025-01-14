@@ -735,4 +735,63 @@ export class FuturesClient extends BaseRestClient {
   getPrivateWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
     return this.postPrivate('api/v1/bullet-private');
   }
+
+  /*
+   *
+   * DEPRECATED
+   *
+   */
+
+  /**
+   * @deprecated - please use universal transfer from SpotClient
+   */
+  submitTransferOut(params: {
+    currency: string;
+    amount: number;
+    recAccountType: 'MAIN' | 'TRADE';
+  }): Promise<APISuccessResponse<any>> {
+    return this.postPrivate('api/v3/transfer-out', params);
+  }
+
+  /**
+   * @deprecated - please use universal transfer from SpotClient
+   */
+  submitTransferIn(params: {
+    currency: string;
+    amount: number;
+    payAccountType: 'MAIN' | 'TRADE';
+  }): Promise<APISuccessResponse<any>> {
+    return this.postPrivate('api/v1/transfer-in', params);
+  }
+
+  /**
+   * @deprecated - please use universal transfer from SpotClient
+   */
+  getTransfers(params?: {
+    currency?: string;
+    type?: 'MAIN' | 'TRADE' | 'MARGIN' | 'ISOLATED';
+    tag?: string[];
+    startAt?: number;
+    endAt?: number;
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v1/transfer-list', params);
+  }
+
+  /**
+   * @deprecated - please use updateMarginMode() instead
+   */
+  updateAutoDepositStatus(params: {
+    symbol: string;
+    status: boolean;
+  }): Promise<APISuccessResponse<any>> {
+    console.warn(
+      'WARNING: This method is deprecated. It is recommended to use cross margin mode instead.',
+    );
+    return this.postPrivate(
+      'api/v1/position/margin/auto-deposit-status',
+      params,
+    );
+  }
 }

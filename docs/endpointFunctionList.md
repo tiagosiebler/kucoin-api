@@ -267,3 +267,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getBrokerRebateOrderDownloadLink()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L717) | :closed_lock_with_key:  | GET | `api/v1/broker/api/rebase/download` |
 | [getPublicWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L731) |  | POST | `api/v1/bullet-public` |
 | [getPrivateWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L735) | :closed_lock_with_key:  | POST | `api/v1/bullet-private` |
+| [submitTransferOut()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L748) | :closed_lock_with_key:  | POST | `api/v3/transfer-out` |
+| [submitTransferIn()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L759) | :closed_lock_with_key:  | POST | `api/v1/transfer-in` |
+| [getTransfers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L770) | :closed_lock_with_key:  | GET | `api/v1/transfer-list` |
+| [updateAutoDepositStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L785) | :closed_lock_with_key:  | POST | `api/v1/position/margin/auto-deposit-status` |
