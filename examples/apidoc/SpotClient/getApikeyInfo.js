@@ -1,18 +1,18 @@
-const { FuturesClient } = require('kucoin-api');
+const { SpotClient } = require('kucoin-api');
 
   // This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
   // This kucoin API SDK is available on npm via "npm install kucoin-api"
-  // ENDPOINT: api/v1/transfer-in
-  // METHOD: POST
+  // ENDPOINT: api/v1/user/api-key
+  // METHOD: GET
   // PUBLIC: NO
 
-const client = new FuturesClient({
+const client = new SpotClient({
   apiKey: 'apiKeyHere',
   apiSecret: 'apiSecretHere',
   apiPassphrase: 'apiPassPhraseHere',
 });
 
-client.submitTransferIn(params)
+client.getApikeyInfo(params)
   .then((response) => {
     console.log(response);
   })
