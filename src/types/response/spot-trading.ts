@@ -45,7 +45,9 @@ export interface SymbolInfo {
   name: string;
   baseCurrency: string;
   quoteCurrency: string;
+  feeCategory: number;
   feeCurrency: string;
+  makerFeeCoefficient: string;
   market: string;
   baseMinSize: string;
   quoteMinSize: string;
@@ -56,6 +58,8 @@ export interface SymbolInfo {
   priceIncrement: string;
   priceLimitRate: string;
   minFunds: string;
+  st: boolean;
+  takerFeeCoefficient: string;
   isMarginEnabled: boolean;
   enableTrading: boolean;
 }
