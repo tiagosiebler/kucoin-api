@@ -1,20 +1,22 @@
 export interface SpotAccountSummary {
   level: number;
   subQuantity: number;
-  maxDefaultSubQuantity: number;
-  maxSubQuantity: number;
   spotSubQuantity: number;
   marginSubQuantity: number;
   futuresSubQuantity: number;
+  optionSubQuantity: number;
+  maxSubQuantity: number;
+  maxDefaultSubQuantity: number;
   maxSpotSubQuantity: number;
   maxMarginSubQuantity: number;
   maxFuturesSubQuantity: number;
+  maxOptionSubQuantity: number;
 }
 
 export interface Balances {
   id: string;
   currency: string;
-  type: 'main' | 'trade' | 'trade_hf' | 'margin';
+  type: 'main' | 'trade';
   balance: string;
   available: string;
   holds: string;
@@ -32,9 +34,10 @@ export interface SpotAccountTransaction {
   currency: string;
   amount: string;
   fee: string;
+  tax: string;
   balance: string;
-  accountType: 'TRADE_HF';
-  bizType: 'TRANSFER' | 'TRADE_EXCHANGE';
+  accountType: string; // 'TRADE_HF'
+  bizType: string;
   direction: 'out' | 'in';
   createdAt: string;
   context: string;
@@ -63,6 +66,7 @@ export interface AccountHFMarginTransactions {
     | 'ASSERT_RETURN';
   direction: 'out' | 'in';
   createdAt: string;
+  tax: string;
   context: string;
 }
 
@@ -72,15 +76,57 @@ export interface AccountHFMarginTransactions {
  *
  */
 
+export interface SubAccountsV2 {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: SubAccountInfo[];
+}
+
 export interface SubAccountInfo {
   userId: string;
-  uid: string | number;
+  uid: number;
   subName: string;
+  status: number;
   type: number;
-  remarks: string | null;
   access: string;
-  status?: number;
-  createdAt?: number;
+  createdAt: number;
+  remarks: string;
+  tradeTypes: string[];
+  openedTradeTypes: string[];
+  hostedStatus: null | string;
+}
+
+export interface CreateSubAccount {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: SubAccountItem[];
+}
+
+export interface SubAccountItem {
+  userId: string;
+  uid: number;
+  subName: string;
+  status: number;
+  type: number;
+  access: string;
+  createdAt: number;
+  remarks: string;
+  tradeTypes: string[];
+  openedTradeTypes: string[];
+  hostedStatus: null | string;
+}
+
+// deprecated
+export interface SubAccountBalances {
+  subUserId: string;
+  subName: string;
+  mainAccounts: SubAccountBalance[];
+  tradeAccounts: SubAccountBalance[];
+  marginAccounts: SubAccountBalance[];
 }
 
 export interface SubAccountBalance {
@@ -91,29 +137,6 @@ export interface SubAccountBalance {
   baseCurrency: string;
   baseCurrencyPrice: string;
   baseAmount: string;
-}
-
-export interface SubAccountsV2 {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: SubAccountInfo[];
-}
-
-export interface CreateSubAccount {
-  uid: number;
-  subName: string;
-  remarks: string;
-  access: string;
-}
-
-export interface SubAccountBalances {
-  subUserId: string;
-  subName: string;
-  mainAccounts: SubAccountBalance[];
-  tradeAccounts: SubAccountBalance[];
-  marginAccounts: SubAccountBalance[];
 }
 
 export interface SubAccountBalancesV2 {
@@ -128,6 +151,26 @@ export interface SubAccountBalancesV2 {
   }[];
 }
 
+export interface SubAccountBalanceItemV2 {
+  subUserId: string;
+  subName: string;
+  mainAccounts: SubAccountV2Details[]; // Funding Account
+  tradeAccounts: SubAccountV2Details[]; // Spot Account
+  marginAccounts: SubAccountV2Details[]; // Margin Account
+  tradeHFAccounts: string[]; // Deprecated, only for old users
+}
+
+export interface SubAccountV2Details {
+  currency?: string;
+  balance?: string;
+  available?: string;
+  holds?: string;
+  baseCurrency?: string;
+  baseCurrencyPrice?: string;
+  baseAmount?: string;
+  tag?: string;
+}
+
 /**
  *
  * Sub-Account API
@@ -136,18 +179,27 @@ export interface SubAccountBalancesV2 {
  */
 
 export interface SubAccountAPIInfo {
-  apiKey: string;
-  createdAt: number;
-  ipWhitelist: string;
-  permission: string;
-  remark: string;
   subName: string;
+  remark: string;
+  apiKey: string;
+  apiVersion: number;
+  permission: string;
+  ipWhitelist: string;
+  createdAt: number;
+  uid: number;
+  isMaster: boolean;
 }
 
-export type CreateSubAPI = SubAccountAPIInfo & {
+export interface CreateSubAPI {
+  subName: string;
+  remark: string;
+  apiKey: string;
   apiSecret: string;
+  apiVersion: number;
   passphrase: string;
-};
+  permission: string;
+  createdAt: number;
+}
 
 export interface UpdateSubAPI {
   apiKey: string;

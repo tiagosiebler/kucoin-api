@@ -60,7 +60,6 @@ import {
   GetStopOrdersListRequest,
   ModifyHFOrderRequest,
   SubmitHFOrderRequest,
-  SubmitMultipleHFOrdersRequest,
   SubmitMultipleOrdersRequest,
   SubmitOCOOrderRequest,
   SubmitOrderRequest,
@@ -94,6 +93,7 @@ import {
   CreateDepositAddressV3Response,
   DepositAddress,
   DepositAddressV2,
+  DepositAddressV3,
   Deposits,
   HistoricalWithdrawalsV1,
   IsolatedMarginBalance,
@@ -124,6 +124,7 @@ import {
 } from 'types/response/spot-margin-trading.js';
 import { Announcements } from 'types/response/spot-misc.js';
 import {
+  AllTickers,
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
   CurrencyInfo,
@@ -407,7 +408,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint can be used to add sub-accounts Margin permission.
    * Before using this endpoints, you need to ensure that the master account apikey has Margin permissions and the Margin function has been activated.
    */
-  enableSubAccountMargin(params: { uid: string }): Promise<void> {
+  enableSubAccountMargin(params: { uid: string }): Promise<boolean | null> {
     return this.postPrivate('api/v3/sub/user/margin/enable', params);
   }
 
@@ -417,7 +418,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint can be used to add sub-accounts Futures permission.
    * Before using this endpoints, you need to ensure that the master account apikey has Futures permissions and the Futures function has been activated.
    */
-  enableSubAccountFutures(params: { uid: string }): Promise<void> {
+  enableSubAccountFutures(params: { uid: string }): Promise<boolean | null> {
     return this.postPrivate('api/v3/sub/user/futures/enable', params);
   }
 
@@ -536,7 +537,7 @@ export class SpotClient extends BaseRestClient {
     currency: string;
     amount?: string;
     chain?: string;
-  }): Promise<APISuccessResponse<DepositAddress[]>> {
+  }): Promise<APISuccessResponse<DepositAddressV3[]>> {
     return this.getPrivate('api/v3/deposit-addresses', params);
   }
 
@@ -590,7 +591,7 @@ export class SpotClient extends BaseRestClient {
    */
   cancelWithdrawal(params: {
     withdrawalId: string;
-  }): Promise<APISuccessResponse<{ withdrawalId: string }>> {
+  }): Promise<APISuccessResponse<string | null>> {
     return this.deletePrivate(`api/v1/withdrawals/${params.withdrawalId}`);
   }
 
@@ -647,7 +648,7 @@ export class SpotClient extends BaseRestClient {
    *
    * This interface is for the spot/margin basic fee rate of users
    */
-  getBasicUserFee(params: { currencyType: string }): Promise<
+  getBasicUserFee(params: { currencyType: number }): Promise<
     APISuccessResponse<{
       takerFeeRate: string;
       makerFeeRate: string;
@@ -753,12 +754,7 @@ export class SpotClient extends BaseRestClient {
    *
    * Request market tickers for all the trading pairs in the market (including 24h volume), takes a snapshot every 2 seconds.
    */
-  getTickers(): Promise<
-    APISuccessResponse<{
-      time: number;
-      ticker: Ticker[];
-    }>
-  > {
+  getTickers(): Promise<APISuccessResponse<AllTickers>> {
     return this.get('api/v1/market/allTickers');
   }
 
@@ -890,8 +886,8 @@ export class SpotClient extends BaseRestClient {
    * Order test endpoint, the request parameters and return parameters of this endpoint are exactly the same as the order endpoint,
    * and can be used to verify whether the signature is correct and other operations. After placing an order, the order will not enter the matching system, and the order cannot be queried.
    */
-  submitHFOrderTest(): Promise<any> {
-    return this.postPrivate('api/v1/hf/orders/test');
+  submitHFOrderTest(params: SubmitHFOrderRequest): Promise<any> {
+    return this.postPrivate('api/v1/hf/orders/test', params);
   }
 
   /**
@@ -900,7 +896,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint supports sequential batch order placement from a single endpoint. A maximum of 20 orders can be placed simultaneously.
    */
   submitHFMultipleOrders(params: {
-    orderList: SubmitMultipleHFOrdersRequest[];
+    orderList: SubmitHFOrderRequest[];
   }): Promise<APISuccessResponse<SubmitMultipleHFOrdersResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
@@ -912,7 +908,7 @@ export class SpotClient extends BaseRestClient {
    * The difference between this interface and "Batch Add Orders" is that this interface will synchronously return the order information after the order matching is completed.
    */
   submitHFMultipleOrdersSync(params: {
-    orderList: SubmitMultipleHFOrdersRequest[];
+    orderList: SubmitHFOrderRequest[];
   }): Promise<APISuccessResponse<SubmitMultipleHFOrdersSyncResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
@@ -988,9 +984,10 @@ export class SpotClient extends BaseRestClient {
    *
    * This interface can cancel the specified quantity of the order according to the orderId.
    */
-  cancelHFOrdersNumber(
-    params: CancelSpecifiedNumberHFOrdersRequest,
-  ): Promise<any> {
+  cancelHFOrdersNumber(params: CancelSpecifiedNumberHFOrdersRequest): Promise<{
+    orderId: string;
+    cancelSize: string;
+  }> {
     return this.deletePrivate(
       `api/v1/hf/orders/cancel/${params.orderId}`,
       params,
@@ -1002,12 +999,9 @@ export class SpotClient extends BaseRestClient {
    *
    * This endpoint can cancel all spot orders for specific symbol.
    */
-  cancelHFAllOrdersBySymbol(params: { symbol: string }): Promise<
-    APISuccessResponse<{
-      orderId: string;
-      cancelSize: string;
-    }>
-  > {
+  cancelHFAllOrdersBySymbol(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<string>> {
     return this.deletePrivate(`api/v1/hf/orders`, params);
   }
 
@@ -1152,7 +1146,7 @@ export class SpotClient extends BaseRestClient {
    */
   submitStopOrder(
     params: SubmitStopOrderRequest,
-  ): Promise<APISuccessResponse<{ orderId: string }>> {
+  ): Promise<APISuccessResponse<{ orderId: string; clientOid: string }>> {
     return this.postPrivate('api/v1/stop-order', params);
   }
 
