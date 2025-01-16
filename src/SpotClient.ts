@@ -105,20 +105,22 @@ import {
   Withdrawals,
 } from 'types/response/spot-funding.js';
 import {
-  HFMarginFilledOrder,
   HFMarginOrder,
   HFMarginTransactionRecord,
   IsolatedMarginAccountInfo,
   IsolatedMarginSymbolsConfig,
   LendingCurrencyV3,
   LendingRedemption,
+  MarginActivePairsV3,
+  MarginBorrowHistoryV3,
   MarginConfigInfo,
-  MarginHistoryRecord,
   MarginInterestRecords,
   MarginLevTokenInfo,
   MarginMarkPrice,
   MarginOrderV3,
+  MarginRepayHistoryV3,
   MarginRiskLimit,
+  MarginSubmitOrderV3Response,
   SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
 } from 'types/response/spot-margin-trading.js';
@@ -1342,7 +1344,9 @@ export class SpotClient extends BaseRestClient {
    */
   getMarginActivePairsV3(params?: {
     symbol?: string;
-  }): Promise<APISuccessResponse<{ timestamp: number; items: any[] }>> {
+  }): Promise<
+    APISuccessResponse<{ timestamp: number; items: MarginActivePairsV3[] }>
+  > {
     return this.getPrivate('api/v3/margin/symbols', params);
   }
   /**
@@ -1406,11 +1410,9 @@ export class SpotClient extends BaseRestClient {
    *
    * Place order to the Cross-margin or Isolated-margin trading system
    */
-  submitHFMarginOrder(params: SubmitHFMarginOrderRequest): Promise<
-    APISuccessResponse<{
-      orderNo: string; // An order Id is returned once an order is successfully submitd.
-    }>
-  > {
+  submitHFMarginOrder(
+    params: SubmitHFMarginOrderRequest,
+  ): Promise<APISuccessResponse<MarginSubmitOrderV3Response>> {
     return this.postPrivate('api/v3/hf/margin/order', params);
   }
   /**
@@ -1418,8 +1420,10 @@ export class SpotClient extends BaseRestClient {
    *
    * This interface is used to test the order submission.
    */
-  submitHFMarginOrderTest(): Promise<any> {
-    return this.postPrivate('api/v3/hf/margin/order/test');
+  submitHFMarginOrderTest(
+    params: SubmitHFMarginOrderRequest,
+  ): Promise<MarginSubmitOrderV3Response> {
+    return this.postPrivate('api/v3/hf/margin/order/test', params);
   }
   /**
    * Cancel Order By OrderId
@@ -1460,7 +1464,10 @@ export class SpotClient extends BaseRestClient {
    *
    * This interface can cancel all open Margin orders by symbol
    */
-  cancelHFAllMarginOrders(params: HFMarginOrder): Promise<any> {
+  cancelHFAllMarginOrders(params: {
+    symbol: string;
+    tradeType: string;
+  }): Promise<any> {
     return this.deletePrivate(`api/v3/hf/margin/orders`, params);
   }
 
@@ -1494,7 +1501,7 @@ export class SpotClient extends BaseRestClient {
   getHFMarginFilledOrders(params: GetHFMarginFilledRequest): Promise<
     APISuccessResponse<{
       lastId: number;
-      items: HFMarginFilledOrder[];
+      items: HFMarginOrder[];
     }>
   > {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
@@ -1563,7 +1570,7 @@ export class SpotClient extends BaseRestClient {
    */
   getMarginBorrowHistoryV3(
     params: MarginHistoryV3Request,
-  ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
+  ): Promise<APISuccessResponse<MarginBorrowHistoryV3[]>> {
     return this.getPrivate('api/v3/margin/borrow', params);
   }
 
@@ -1585,7 +1592,7 @@ export class SpotClient extends BaseRestClient {
    */
   getMarginRepayHistoryV3(
     params: MarginHistoryV3Request,
-  ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
+  ): Promise<APISuccessResponse<MarginRepayHistoryV3[]>> {
     return this.getPrivate('api/v3/margin/repay', params);
   }
 

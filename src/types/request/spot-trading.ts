@@ -184,24 +184,32 @@ export interface GetFillsRequest {
  */
 
 export interface SubmitStopOrderRequest {
-  clientOid: string;
-  side: 'buy' | 'sell';
+  // Required fields
   symbol: string;
-  type?: 'limit' | 'market';
+  side: 'buy' | 'sell';
+  stopPrice: string;
+  type: 'limit' | 'market';
+
+  // Optional base fields
+  clientOid?: string;
+  stp?: 'DC' | 'CO' | 'CN' | 'CB';
   remark?: string;
-  stop?: 'loss' | 'entry';
-  stopPrice?: string;
-  stp?: 'CN' | 'CO' | 'CB' | 'DC';
   tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+
+  // Limit order required fields (when type is 'limit')
   price?: string;
   size?: string;
   timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+
+  // Optional limit order fields
   cancelAfter?: number;
   postOnly?: boolean;
   hidden?: boolean;
   iceberg?: boolean;
   visibleSize?: string;
-  funds?: string;
+
+  // Market order fields (when type is 'market')
+  funds?: string; // Required for market orders if size is not provided
 }
 
 export interface CancelStopOrdersRequest {

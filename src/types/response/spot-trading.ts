@@ -381,37 +381,37 @@ export interface StopOrders {
 }
 
 export interface StopOrderItem {
-  id: string;
-  symbol: string;
-  userId: string;
-  status: 'NEW' | 'TRIGGERED';
-  type: 'limit' | 'market';
-  side: 'buy' | 'sell';
-  price: string;
-  size: string;
-  funds: string | null;
-  stp: string | null;
-  timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-  cancelAfter: number;
-  postOnly: boolean;
-  hidden: boolean;
-  iceberg: boolean;
-  visibleSize: string | null;
-  channel: string;
-  clientOid: string;
-  remark: string | null;
-  tags: string | null;
-  orderTime: number;
-  domainId: string;
-  tradeSource: 'USER' | 'MARGIN_SYSTEM';
-  tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  feeCurrency: string;
-  takerFeeRate: string;
-  makerFeeRate: string;
-  createdAt: number;
-  stop: 'loss' | 'entry';
-  stopTriggerTime: number | null;
-  stopPrice: string;
+  id?: string;
+  symbol?: string;
+  userId?: string;
+  status?: 'NEW' | 'TRIGGERED';
+  type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+  side?: 'buy' | 'sell';
+  price?: string;
+  size?: string;
+  funds?: string | null;
+  stp?: string | null;
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+  cancelAfter?: number;
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string | null;
+  channel?: string;
+  clientOid?: string;
+  remark?: string | null;
+  tags?: string | null;
+  domainId?: string;
+  tradeSource?: 'USER' | 'MARGIN_SYSTEM';
+  tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  feeCurrency?: string;
+  takerFeeRate?: string;
+  makerFeeRate?: string;
+  createdAt?: number;
+  stop?: 'loss' | 'entry';
+  stopTriggerTime?: number | null;
+  stopPrice?: string;
+  orderTime?: number;
 }
 
 /**
