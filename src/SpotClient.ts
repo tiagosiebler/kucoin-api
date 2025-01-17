@@ -874,7 +874,7 @@ export class SpotClient extends BaseRestClient {
    *
    * Place order to the spot trading system
    *
-   * The difference between this endpoint and "Add order" is that this endpoint will synchronously return the order information after the order matching is completed.
+   * The difference between this endpoint and "SubmitHFOrder()" is that this endpoint will synchronously return the order information after the order matching is completed.
    */
   submitHFOrderSync(
     params: SubmitHFOrderRequest,
@@ -907,7 +907,7 @@ export class SpotClient extends BaseRestClient {
    * Batch Add Orders Sync
    *
    * This endpoint supports sequential batch order placement from a single endpoint. A maximum of 20 orders can be placed simultaneously.
-   * The difference between this endpoint and "Batch Add Orders" is that this endpoint will synchronously return the order information after the order matching is completed.
+   * The difference between this endpoint and "submitHFMultipleOrders()" is that this endpoint will synchronously return the order information after the order matching is completed.
    */
   submitHFMultipleOrdersSync(params: {
     orderList: SubmitHFOrderRequest[];
@@ -933,7 +933,7 @@ export class SpotClient extends BaseRestClient {
    * Cancel Order By OrderId Sync
    *
    * This endpoint can be used to cancel a spot order by orderId.
-   * The difference between this endpoint and "Cancel Order By OrderId" is that this endpoint will synchronously return the order information after the order canceling is completed.
+   * The difference between this endpoint and "cancelHFOrder()" is that this endpoint will synchronously return the order information after the order canceling is completed.
    */
   cancelHFOrderSync(params: {
     orderId: string;
@@ -969,7 +969,7 @@ export class SpotClient extends BaseRestClient {
    * Cancel Order By ClientOid Sync
    *
    * This endpoint can be used to cancel a spot order by clientOid.
-   * The difference between this endpoint and "Cancel Order By ClientOid" is that this endpoint will synchronously return the order information after the order canceling is completed.
+   * The difference between this endpoint and "cancelHFOrderByClientOId()" is that this endpoint will synchronously return the order information after the order canceling is completed.
    */
   cancelHFOrderSyncByClientOId(params: {
     clientOid: string;
