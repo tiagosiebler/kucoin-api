@@ -52,7 +52,7 @@ export interface HFMarginOrder {
   lastUpdatedAt: number;
 }
 
-// deprecated, not used anymore
+/** @deprecated not used anymore **/
 export type HFMarginFilledOrder = HFMarginOrder & {
   inOrderBook: boolean;
   active: boolean;

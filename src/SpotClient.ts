@@ -438,7 +438,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v2/sub/accounts/balance endpoint instead of this endpoint
+   * It is recommended to use the getSubAccountBalancesV2() endpoint instead of this endpoint
    */
   getSubAccountBalance(params: {
     subUserId: string;
