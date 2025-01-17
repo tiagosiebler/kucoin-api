@@ -67,7 +67,6 @@ import {
   GetStopOrdersListRequest,
   ModifyHFOrderRequest,
   SubmitHFOrderRequest,
-  SubmitMultipleHFOrdersRequest,
   SubmitMultipleOrdersRequest,
   SubmitOCOOrderRequest,
   SubmitOrderRequest,
@@ -105,6 +104,7 @@ import {
   CreateDepositAddressV3Response,
   DepositAddress,
   DepositAddressV2,
+  DepositAddressV3,
   Deposits,
   HistoricalWithdrawalsV1,
   IsolatedMarginBalance,
@@ -116,25 +116,28 @@ import {
   Withdrawals,
 } from './types/response/spot-funding.js';
 import {
-  HFMarginFilledOrder,
   HFMarginOrder,
   HFMarginTransactionRecord,
   IsolatedMarginAccountInfo,
   IsolatedMarginSymbolsConfig,
   LendingCurrencyV3,
   LendingRedemption,
+  MarginActivePairsV3,
+  MarginBorrowHistoryV3,
   MarginConfigInfo,
-  MarginHistoryRecord,
   MarginInterestRecords,
   MarginLevTokenInfo,
   MarginMarkPrice,
   MarginOrderV3,
+  MarginRepayHistoryV3,
   MarginRiskLimit,
+  MarginSubmitOrderV3Response,
   SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
 } from './types/response/spot-margin-trading.js';
 import { Announcements } from './types/response/spot-misc.js';
 import {
+  AllTickers,
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
   CurrencyInfo,
@@ -298,7 +301,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Account Type - Spot
    *
-   * This interface determines whether the current user is a spot high-frequency user or a spot low-frequency user.
+   * This endpoint determines whether the current user is a spot high-frequency user or a spot low-frequency user.
    */
   getUserType(): Promise<APISuccessResponse<boolean>> {
     return this.getPrivate('api/v1/hf/accounts/opened');
@@ -351,7 +354,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Account Ledgers - Spot/Margin
    *
-   * This interface is for transaction records from all types of your accounts, supporting inquiry of various currencies.
+   * This endpoint is for transaction records from all types of your accounts, supporting inquiry of various currencies.
    * Items are paginated and sorted to show the latest first.
    * See the Pagination section for retrieving additional entries after the first page.
    */
@@ -407,7 +410,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint can be used to add sub-accounts Margin permission.
    * Before using this endpoints, you need to ensure that the master account apikey has Margin permissions and the Margin function has been activated.
    */
-  enableSubAccountMargin(params: { uid: string }): Promise<void> {
+  enableSubAccountMargin(params: { uid: string }): Promise<boolean | null> {
     return this.postPrivate('api/v3/sub/user/margin/enable', params);
   }
 
@@ -417,7 +420,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint can be used to add sub-accounts Futures permission.
    * Before using this endpoints, you need to ensure that the master account apikey has Futures permissions and the Futures function has been activated.
    */
-  enableSubAccountFutures(params: { uid: string }): Promise<void> {
+  enableSubAccountFutures(params: { uid: string }): Promise<boolean | null> {
     return this.postPrivate('api/v3/sub/user/futures/enable', params);
   }
 
@@ -536,7 +539,7 @@ export class SpotClient extends BaseRestClient {
     currency: string;
     amount?: string;
     chain?: string;
-  }): Promise<APISuccessResponse<DepositAddress[]>> {
+  }): Promise<APISuccessResponse<DepositAddressV3[]>> {
     return this.getPrivate('api/v3/deposit-addresses', params);
   }
 
@@ -561,7 +564,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Withdrawal Quotas
    *
-   * This interface can obtain the withdrawal quotas information of this currency.
+   * This endpoint can obtain the withdrawal quotas information of this currency.
    */
   getWithdrawalQuotas(params: {
     currency: string;
@@ -573,7 +576,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Withdraw(V3)
    *
-   * Use this interface to withdraw the specified currency
+   * Use this endpoint to withdraw the specified currency
    */
   submitWithdrawV3(params: SubmitWithdrawV3Request): Promise<
     APISuccessResponse<{
@@ -586,11 +589,11 @@ export class SpotClient extends BaseRestClient {
   /**
    * Cancel Withdrawal
    *
-   * This interface can cancel the withdrawal, Only withdrawals requests of PROCESSING status could be canceled.
+   * This endpoint can cancel the withdrawal, Only withdrawals requests of PROCESSING status could be canceled.
    */
   cancelWithdrawal(params: {
     withdrawalId: string;
-  }): Promise<APISuccessResponse<{ withdrawalId: string }>> {
+  }): Promise<APISuccessResponse<string | null>> {
     return this.deletePrivate(`api/v1/withdrawals/${params.withdrawalId}`);
   }
 
@@ -626,7 +629,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Flex Transfer
    *
-   * This interface can be used for transfers between master and sub accounts and inner transfers
+   * This endpoint can be used for transfers between master and sub accounts and inner transfers
    */
   submitFlexTransfer(params: FlexTransferRequest): Promise<
     APISuccessResponse<{
@@ -645,9 +648,9 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Basic Fee - Spot/Margin
    *
-   * This interface is for the spot/margin basic fee rate of users
+   * This endpoint is for the spot/margin basic fee rate of users
    */
-  getBasicUserFee(params: { currencyType: string }): Promise<
+  getBasicUserFee(params: { currencyType: number }): Promise<
     APISuccessResponse<{
       takerFeeRate: string;
       makerFeeRate: string;
@@ -659,7 +662,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Actual Fee - Spot/Margin
    *
-   * This interface is for the actual fee rate of the trading pair.
+   * This endpoint is for the actual fee rate of the trading pair.
    * You can inquire about fee rates of 10 trading pairs each time at most.
    * The fee rate of your sub-account is the same as that of the master account.
    */
@@ -684,7 +687,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Announcements
    *
-   * This interface can obtain the latest news announcements, and the default page search is for announcements within a month.
+   * This endpoint can obtain the latest news announcements, and the default page search is for announcements within a month.
    */
   getAnnouncements(
     params?: GetAnnouncementsRequest,
@@ -753,12 +756,7 @@ export class SpotClient extends BaseRestClient {
    *
    * Request market tickers for all the trading pairs in the market (including 24h volume), takes a snapshot every 2 seconds.
    */
-  getTickers(): Promise<
-    APISuccessResponse<{
-      time: number;
-      ticker: Ticker[];
-    }>
-  > {
+  getTickers(): Promise<APISuccessResponse<AllTickers>> {
     return this.get('api/v1/market/allTickers');
   }
 
@@ -876,7 +874,7 @@ export class SpotClient extends BaseRestClient {
    *
    * Place order to the spot trading system
    *
-   * The difference between this interface and "Add order" is that this interface will synchronously return the order information after the order matching is completed.
+   * The difference between this endpoint and "SubmitHFOrder()" is that this endpoint will synchronously return the order information after the order matching is completed.
    */
   submitHFOrderSync(
     params: SubmitHFOrderRequest,
@@ -890,8 +888,8 @@ export class SpotClient extends BaseRestClient {
    * Order test endpoint, the request parameters and return parameters of this endpoint are exactly the same as the order endpoint,
    * and can be used to verify whether the signature is correct and other operations. After placing an order, the order will not enter the matching system, and the order cannot be queried.
    */
-  submitHFOrderTest(): Promise<any> {
-    return this.postPrivate('api/v1/hf/orders/test');
+  submitHFOrderTest(params: SubmitHFOrderRequest): Promise<any> {
+    return this.postPrivate('api/v1/hf/orders/test', params);
   }
 
   /**
@@ -900,7 +898,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint supports sequential batch order placement from a single endpoint. A maximum of 20 orders can be placed simultaneously.
    */
   submitHFMultipleOrders(params: {
-    orderList: SubmitMultipleHFOrdersRequest[];
+    orderList: SubmitHFOrderRequest[];
   }): Promise<APISuccessResponse<SubmitMultipleHFOrdersResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
@@ -909,10 +907,10 @@ export class SpotClient extends BaseRestClient {
    * Batch Add Orders Sync
    *
    * This endpoint supports sequential batch order placement from a single endpoint. A maximum of 20 orders can be placed simultaneously.
-   * The difference between this interface and "Batch Add Orders" is that this interface will synchronously return the order information after the order matching is completed.
+   * The difference between this endpoint and "submitHFMultipleOrders()" is that this endpoint will synchronously return the order information after the order matching is completed.
    */
   submitHFMultipleOrdersSync(params: {
-    orderList: SubmitMultipleHFOrdersRequest[];
+    orderList: SubmitHFOrderRequest[];
   }): Promise<APISuccessResponse<SubmitMultipleHFOrdersSyncResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
@@ -935,7 +933,7 @@ export class SpotClient extends BaseRestClient {
    * Cancel Order By OrderId Sync
    *
    * This endpoint can be used to cancel a spot order by orderId.
-   * The difference between this interface and "Cancel Order By OrderId" is that this interface will synchronously return the order information after the order canceling is completed.
+   * The difference between this endpoint and "cancelHFOrder()" is that this endpoint will synchronously return the order information after the order canceling is completed.
    */
   cancelHFOrderSync(params: {
     orderId: string;
@@ -971,7 +969,7 @@ export class SpotClient extends BaseRestClient {
    * Cancel Order By ClientOid Sync
    *
    * This endpoint can be used to cancel a spot order by clientOid.
-   * The difference between this interface and "Cancel Order By ClientOid" is that this interface will synchronously return the order information after the order canceling is completed.
+   * The difference between this endpoint and "cancelHFOrderByClientOId()" is that this endpoint will synchronously return the order information after the order canceling is completed.
    */
   cancelHFOrderSyncByClientOId(params: {
     clientOid: string;
@@ -986,11 +984,12 @@ export class SpotClient extends BaseRestClient {
   /**
    * Cancel Partial Order
    *
-   * This interface can cancel the specified quantity of the order according to the orderId.
+   * This endpoint can cancel the specified quantity of the order according to the orderId.
    */
-  cancelHFOrdersNumber(
-    params: CancelSpecifiedNumberHFOrdersRequest,
-  ): Promise<any> {
+  cancelHFOrdersNumber(params: CancelSpecifiedNumberHFOrdersRequest): Promise<{
+    orderId: string;
+    cancelSize: string;
+  }> {
     return this.deletePrivate(
       `api/v1/hf/orders/cancel/${params.orderId}`,
       params,
@@ -1002,12 +1001,9 @@ export class SpotClient extends BaseRestClient {
    *
    * This endpoint can cancel all spot orders for specific symbol.
    */
-  cancelHFAllOrdersBySymbol(params: { symbol: string }): Promise<
-    APISuccessResponse<{
-      orderId: string;
-      cancelSize: string;
-    }>
-  > {
+  cancelHFAllOrdersBySymbol(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<string>> {
     return this.deletePrivate(`api/v1/hf/orders`, params);
   }
 
@@ -1023,7 +1019,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Modify Order
    *
-   * This interface can modify the price and quantity of the order according to orderId or clientOid.
+   * This endpoint can modify the price and quantity of the order according to orderId or clientOid.
    */
   updateHFOrder(params: ModifyHFOrderRequest): Promise<
     APISuccessResponse<{
@@ -1064,7 +1060,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Symbols With Open Order
    *
-   * This interface can query all spot symbol that has active orders
+   * This endpoint can query all spot symbol that has active orders
    */
   getHFActiveSymbols(): Promise<
     APISuccessResponse<{
@@ -1077,7 +1073,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Open Orders
    *
-   * This interface is to obtain all Spot active order lists, and the return value of the active order interface is the paged data of all uncompleted order lists.
+   * This endpoint is to obtain all Spot active order lists, and the return value of the active order endpoint is the paged data of all uncompleted order lists.
    * The returned data is sorted in descending order according to the latest update time of the order.
    */
   getHFActiveOrders(params: {
@@ -1088,7 +1084,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Closed Orders
    *
-   * This interface is to obtain all Spot completed order lists, and the return value of the completed order interface is the paged data of all completed order lists.
+   * This endpoint is to obtain all Spot completed order lists, and the return value of the completed order endpoint is the paged data of all completed order lists.
    * The returned data is sorted in descending order according to the latest update time of the order.
    */
   getHFCompletedOrders(params: GetHFCompletedOrdersRequest): Promise<
@@ -1118,7 +1114,7 @@ export class SpotClient extends BaseRestClient {
    * Get DCP
    *
    * Get Disconnection Protect(Deadman Swich)
-   * Through this interface, you can query the settings of automatic order cancellation
+   * Through this endpoint, you can query the settings of automatic order cancellation
    */
   cancelHFOrderAutoSettingQuery(): Promise<
     APISuccessResponse<AutoCancelHFOrderSettingQueryResponse>
@@ -1130,8 +1126,8 @@ export class SpotClient extends BaseRestClient {
    * Set DCP
    *
    * Set Disconnection Protect(Deadman Swich)
-   * Through this interface, Call this interface to automatically cancel all orders of the set trading pair after the specified time.
-   * If this interface is not called again for renewal or cancellation before the set time, the system will help the user to cancel the order of the corresponding trading pair. Otherwise it will not.
+   * Through this endpoint, Call this endpoint to automatically cancel all orders of the set trading pair after the specified time.
+   * If this endpoint is not called again for renewal or cancellation before the set time, the system will help the user to cancel the order of the corresponding trading pair. Otherwise it will not.
    */
   cancelHFOrderAutoSetting(params: {
     timeout: number;
@@ -1152,7 +1148,7 @@ export class SpotClient extends BaseRestClient {
    */
   submitStopOrder(
     params: SubmitStopOrderRequest,
-  ): Promise<APISuccessResponse<{ orderId: string }>> {
+  ): Promise<APISuccessResponse<{ orderId: string; clientOid: string }>> {
     return this.postPrivate('api/v1/stop-order', params);
   }
 
@@ -1192,7 +1188,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Batch Cancel Stop Orders
    *
-   * Request via this interface to cancel a batch of stop orders.
+   * Request via this endpoint to cancel a batch of stop orders.
    */
   cancelStopOrders(params?: CancelStopOrdersRequest): Promise<
     APISuccessResponse<{
@@ -1216,7 +1212,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Stop Order By OrderId
    *
-   * Request via this interface to get a stop order information via the order ID.
+   * Request via this endpoint to get a stop order information via the order ID.
 
 
    */
@@ -1278,7 +1274,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Batch Cancel OCO Order
    *
-   * This interface can batch cancel OCO orders through orderIds.
+   * This endpoint can batch cancel OCO orders through orderIds.
    */
   cancelMultipleOCOOrders(params?: {
     orderIds?: string;
@@ -1294,7 +1290,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get OCO Order By OrderId
    *
-   * Request via this interface to get a oco order information via the order ID.
+   * Request via this endpoint to get a oco order information via the order ID.
    */
   getOCOOrderByOrderId(params: {
     orderId: string;
@@ -1305,7 +1301,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get OCO Order By ClientOid
    *
-   * Request via this interface to get a oco order information via the clientOid.
+   * Request via this endpoint to get a oco order information via the clientOid.
    */
   getOCOOrderByClientOid(params: {
     clientOid: string;
@@ -1316,7 +1312,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get OCO Order Details
    *
-   * Request via this interface to get a oco order information via the order ID.
+   * Request via this endpoint to get a oco order information via the order ID.
    */
   getOCOOrderDetails(params: {
     orderId: string;
@@ -1348,7 +1344,9 @@ export class SpotClient extends BaseRestClient {
    */
   getMarginActivePairsV3(params?: {
     symbol?: string;
-  }): Promise<APISuccessResponse<{ timestamp: number; items: any[] }>> {
+  }): Promise<
+    APISuccessResponse<{ timestamp: number; items: MarginActivePairsV3[] }>
+  > {
     return this.getPrivate('api/v3/margin/symbols', params);
   }
   /**
@@ -1363,7 +1361,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get ETF Info
    *
-   * This interface returns leveraged token information
+   * This endpoint returns leveraged token information
    */
   getMarginLeveragedToken(params?: {
     currency?: string;
@@ -1412,20 +1410,20 @@ export class SpotClient extends BaseRestClient {
    *
    * Place order to the Cross-margin or Isolated-margin trading system
    */
-  submitHFMarginOrder(params: SubmitHFMarginOrderRequest): Promise<
-    APISuccessResponse<{
-      orderNo: string; // An order Id is returned once an order is successfully submitd.
-    }>
-  > {
+  submitHFMarginOrder(
+    params: SubmitHFMarginOrderRequest,
+  ): Promise<APISuccessResponse<MarginSubmitOrderV3Response>> {
     return this.postPrivate('api/v3/hf/margin/order', params);
   }
   /**
    * Add Order Test
    *
-   * This interface is used to test the order submission.
+   * This endpoint is used to test the order submission.
    */
-  submitHFMarginOrderTest(): Promise<any> {
-    return this.postPrivate('api/v3/hf/margin/order/test');
+  submitHFMarginOrderTest(
+    params: SubmitHFMarginOrderRequest,
+  ): Promise<MarginSubmitOrderV3Response> {
+    return this.postPrivate('api/v3/hf/margin/order/test', params);
   }
   /**
    * Cancel Order By OrderId
@@ -1464,16 +1462,19 @@ export class SpotClient extends BaseRestClient {
   /**
    * Cancel All Orders By Symbol
    *
-   * This interface can cancel all open Margin orders by symbol
+   * This endpoint can cancel all open Margin orders by symbol
    */
-  cancelHFAllMarginOrders(params: HFMarginOrder): Promise<any> {
+  cancelHFAllMarginOrders(params: {
+    symbol: string;
+    tradeType: string;
+  }): Promise<any> {
     return this.deletePrivate(`api/v3/hf/margin/orders`, params);
   }
 
   /**
    * Get Symbols With Open Order
    *
-   * This interface can query all Margin symbol that has active orders
+   * This endpoint can query all Margin symbol that has active orders
    */
   getHFMarginOpenSymbols(params: {
     tradeType: string;
@@ -1484,7 +1485,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Open Orders
    *
-   * This interface is to obtain all Margin active order lists, and the return value of the active order interface is the paged data of all uncompleted order lists.
+   * This endpoint is to obtain all Margin active order lists, and the return value of the active order endpoint is the paged data of all uncompleted order lists.
    */
   getHFActiveMarginOrders(
     params: HFMarginRequestOrder,
@@ -1495,12 +1496,12 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Closed Orders
    *
-   * This interface is to obtain all Margin Closed order lists
+   * This endpoint is to obtain all Margin Closed order lists
    */
   getHFMarginFilledOrders(params: GetHFMarginFilledRequest): Promise<
     APISuccessResponse<{
       lastId: number;
-      items: HFMarginFilledOrder[];
+      items: HFMarginOrder[];
     }>
   > {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
@@ -1569,7 +1570,7 @@ export class SpotClient extends BaseRestClient {
    */
   getMarginBorrowHistoryV3(
     params: MarginHistoryV3Request,
-  ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
+  ): Promise<APISuccessResponse<MarginBorrowHistoryV3[]>> {
     return this.getPrivate('api/v3/margin/borrow', params);
   }
 
@@ -1591,7 +1592,7 @@ export class SpotClient extends BaseRestClient {
    */
   getMarginRepayHistoryV3(
     params: MarginHistoryV3Request,
-  ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
+  ): Promise<APISuccessResponse<MarginRepayHistoryV3[]>> {
     return this.getPrivate('api/v3/margin/repay', params);
   }
 
@@ -1844,8 +1845,10 @@ export class SpotClient extends BaseRestClient {
    * This endpoint retrieves ETH Staking products. If no ETH Staking products are available, an empty list is returned.
    *
    */
-  getEarnEthStakingProducts(): Promise<APISuccessResponse<EarnProduct[]>> {
-    return this.getPrivate('api/v1/earn/eth-staking/products');
+  getEarnEthStakingProducts(params?: {
+    currency: string;
+  }): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/eth-staking/products', params);
   }
 
   /**
@@ -1868,7 +1871,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Accounts - VIP Lending
    *
-   * Accounts participating in OTC lending, This interface is only for querying accounts currently running OTC lending.
+   * Accounts participating in OTC lending, This endpoint is only for querying accounts currently running OTC lending.
    */
   getOtcLoanAccounts(): Promise<APISuccessResponse<OtcLoanAccount[]>> {
     return this.getPrivate('api/v1/otc-loan/accounts');
@@ -1885,12 +1888,8 @@ export class SpotClient extends BaseRestClient {
    *
    * This endpoint allows getting affiliate user rebate information.
    */
-  getAffiliateUserRebateInfo(params: {
-    date: string;
-    maxCount?: number;
-    offset: string;
-  }): Promise<APISuccessResponse<any>> {
-    return this.getPrivate('api/v2/affiliate/inviter/statistics', params);
+  getAffiliateUserRebateInfo(): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v2/affiliate/inviter/statistics');
   }
 
   /**
@@ -2081,7 +2080,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the submitHFOrder() endpoint instead of this endpoint
    */
   submitOrder(params: SubmitOrderRequest): Promise<
     APISuccessResponse<{
@@ -2093,7 +2092,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the submitHFOrderTest() endpoint instead of this endpoint
    */
   submitOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/orders/test');
@@ -2101,7 +2100,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the submitMultipleHFOrders() endpoint instead of this endpoint
    */
   submitMultipleOrders(params: {
     symbol: string;
@@ -2112,7 +2111,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the cancelHFOrder() endpoint instead of this endpoint
    */
   cancelOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
@@ -2124,7 +2123,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the cancelHFOrderByClientOid() endpoint instead of this endpoint
    */
   cancelOrderByClientOid(params: { clientOid: string }): Promise<
     APISuccessResponse<{
@@ -2137,7 +2136,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the  HF trading endpoints instead of this endpoint
+   * It is recommended to use the cancelHFAllOrders() endpoint instead of this endpoint
    */
   cancelAllOrders(params?: CancelAllOrdersRequest): Promise<
     APISuccessResponse<{
@@ -2149,7 +2148,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the getHfOrderDetails() endpoint instead of this endpoint
    */
   getOrders(
     params?: GetOrderListRequest,
@@ -2159,7 +2158,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the getHFOrders() endpoint instead of this endpoint
    */
   getRecentOrders(params?: {
     currentPage?: number;
@@ -2170,7 +2169,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the getHFOrderDetailsByOrderId() instead of this endpoint
    */
   getOrderByOrderId(params: {
     orderId: string;
@@ -2180,7 +2179,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the getHFOrderDetailsByClientOid() instead of this endpoint
    */
   getOrderByClientOid(params: {
     clientOid: string;
@@ -2196,7 +2195,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the getHFFilledOrders() instead of this endpoint
    */
   getFills(
     params?: GetFillsRequest,
@@ -2206,7 +2205,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * @deprecated This method is deprecated.
-   * It is recommended to use the HF trading endpoints instead of this endpoint
+   * It is recommended to use the getHFFilledOrders() instead of this endpoint
    */
   getRecentFills(): Promise<APISuccessResponse<SpotOrderFill[]>> {
     return this.getPrivate('api/v1/limit/fills');

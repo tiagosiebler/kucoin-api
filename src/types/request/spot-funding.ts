@@ -16,8 +16,6 @@ export interface CreateDepositAddressV3Request {
 export interface GetMarginBalanceRequest {
   quoteCurrency?: string;
   queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
-  currentPage?: number;
-  pageSize?: number;
 }
 
 export interface GetIsolatedMarginBalanceRequest {

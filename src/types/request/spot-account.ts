@@ -1,6 +1,6 @@
 export interface GetBalancesRequest {
   currency?: string;
-  type?: 'main' | 'trade' | 'margin' | 'trade_hf';
+  type?: 'main' | 'trade';
 }
 
 export interface GetSpotTransactionsRequest {

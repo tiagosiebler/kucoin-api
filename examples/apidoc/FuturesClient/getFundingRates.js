@@ -4,7 +4,7 @@ const { FuturesClient } = require('kucoin-api');
   // This kucoin API SDK is available on npm via "npm install kucoin-api"
   // ENDPOINT: api/v1/contract/funding-rates
   // METHOD: GET
-  // PUBLIC: YES
+  // PUBLIC: NO
 
 const client = new FuturesClient({
   apiKey: 'apiKeyHere',
