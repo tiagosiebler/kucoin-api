@@ -1,5 +1,12 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
+
+import { BaseRestClient } from './lib/BaseRestClient.js';
+import {
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+} from './lib/requestUtils.js';
 import {
   AccountHFMarginTransactionsRequest,
   AccountHFTransactionsRequest,
@@ -9,13 +16,13 @@ import {
   GetBalancesRequest,
   GetSpotTransactionsRequest,
   UpdateSubAccountAPIRequest,
-} from 'types/request/spot-account.js';
+} from './types/request/spot-account.js';
 import {
   GetEarnFixedIncomeHoldAssetsRequest,
   GetEarnRedeemPreviewRequest,
   InitiateRedemptionRequest,
   SubscribeEarnFixedIncomeRequest,
-} from 'types/request/spot-earn.js';
+} from './types/request/spot-earn.js';
 import {
   ApplyWithdrawRequest,
   CreateDepositAddressV3Request,
@@ -28,7 +35,7 @@ import {
   InnerTransferRequest,
   submitTransferMasterSubRequest,
   SubmitWithdrawV3Request,
-} from 'types/request/spot-funding.js';
+} from './types/request/spot-funding.js';
 import {
   GetHFMarginFilledRequest,
   getHFMarginFillsRequest,
@@ -45,8 +52,8 @@ import {
   ModifyLendingSubscriptionOrdersV3Request,
   SubmitHFMarginOrderRequest,
   SubmitMarginOrderRequest,
-} from 'types/request/spot-margin-trading.js';
-import { GetAnnouncementsRequest } from 'types/request/spot-misc.js';
+} from './types/request/spot-margin-trading.js';
+import { GetAnnouncementsRequest } from './types/request/spot-misc.js';
 import {
   CancelAllOrdersRequest,
   CancelSpecifiedNumberHFOrdersRequest,
@@ -65,7 +72,11 @@ import {
   SubmitOCOOrderRequest,
   SubmitOrderRequest,
   SubmitStopOrderRequest,
-} from 'types/request/spot-trading.js';
+} from './types/request/spot-trading.js';
+import {
+  APISuccessResponse,
+  ServiceStatus,
+} from './types/response/shared.types.js';
 import {
   Account,
   AccountHFMarginTransactions,
@@ -82,14 +93,14 @@ import {
   SubAccountInfo,
   SubAccountsV2,
   UpdateSubAPI,
-} from 'types/response/spot-account.js';
+} from './types/response/spot-account.js';
 import {
   EarnFixedIncomeHoldAssets,
   EarnProduct,
   GetEarnRedeemPreviewResponse,
   InitiateRedemptionResponse,
   SubscribeEarnFixedIncomeResponse,
-} from 'types/response/spot-earn.js';
+} from './types/response/spot-earn.js';
 import {
   CreateDepositAddressV3Response,
   DepositAddress,
@@ -103,7 +114,7 @@ import {
   V1HistoricalDeposits,
   WithdrawalQuotas,
   Withdrawals,
-} from 'types/response/spot-funding.js';
+} from './types/response/spot-funding.js';
 import {
   HFMarginFilledOrder,
   HFMarginOrder,
@@ -121,8 +132,8 @@ import {
   MarginRiskLimit,
   SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
-} from 'types/response/spot-margin-trading.js';
-import { Announcements } from 'types/response/spot-misc.js';
+} from './types/response/spot-margin-trading.js';
+import { Announcements } from './types/response/spot-misc.js';
 import {
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
@@ -149,20 +160,9 @@ import {
   SyncCancelHFOrderResponse,
   Ticker,
   TradeHistory,
-} from 'types/response/spot-trading.js';
-import { OtcLoan, OtcLoanAccount } from 'types/response/spot-vip.js';
-import { WsConnectionInfo } from 'types/response/ws.js';
-
-import { BaseRestClient } from './lib/BaseRestClient.js';
-import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
-import {
-  APISuccessResponse,
-  ServiceStatus,
-} from './types/response/shared.types.js';
+} from './types/response/spot-trading.js';
+import { OtcLoan, OtcLoanAccount } from './types/response/spot-vip.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
  *

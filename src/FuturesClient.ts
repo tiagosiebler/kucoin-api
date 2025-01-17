@@ -1,5 +1,12 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
+
+import { BaseRestClient } from './lib/BaseRestClient.js';
+import {
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+} from './lib/requestUtils.js';
 import {
   AccountFillsRequest,
   BatchCancelOrdersRequest,
@@ -13,7 +20,7 @@ import {
   MaxOpenSizeRequest,
   Order,
   SLTPOrder,
-} from 'types/request/futures.types.js';
+} from './types/request/futures.types.js';
 import {
   AccountBalance,
   AccountSummary,
@@ -43,19 +50,12 @@ import {
   SubBalance,
   SubmitMultipleOrdersFuturesResponse,
   TickerDetail,
-} from 'types/response/futures.types.js';
-import { WsConnectionInfo } from 'types/response/ws.js';
-
-import { BaseRestClient } from './lib/BaseRestClient.js';
-import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
+} from './types/response/futures.types.js';
 import {
   APISuccessResponse,
   ServiceStatus,
 } from './types/response/shared.types.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
  *
