@@ -585,3 +585,51 @@ export interface FuturesClosedPositions {
   totalPage: number;
   items: FuturesClosedPosition[];
 }
+
+/**
+ *
+ * Copy Trading
+ *
+ */
+
+export interface CopyTradePosition {
+  id: string;
+  symbol: string;
+  autoDeposit: boolean;
+  maintMarginReq: string;
+  riskLimit: number;
+  realLeverage: string;
+  crossMode: boolean;
+  marginMode: string;
+  positionSide: string;
+  leverage: string;
+  delevPercentage: number;
+  openingTimestamp: number;
+  currentTimestamp: number;
+  currentQty: number;
+  currentCost: string;
+  currentComm: string;
+  unrealisedCost: string;
+  realisedGrossCost: string;
+  realisedCost: string;
+  isOpen: boolean;
+  markPrice: string;
+  markValue: string;
+  posCost: string;
+  posCross: string;
+  posInit: string;
+  posComm: string;
+  posLoss: string;
+  posMargin: string;
+  posMaint: string;
+  maintMargin: string;
+  realisedGrossPnl: string;
+  realisedPnl: string;
+  unrealisedPnl: string;
+  unrealisedPnlPcnt: string;
+  unrealisedRoePcnt: string;
+  avgEntryPrice: string;
+  liquidationPrice: string;
+  bankruptPrice: string;
+  settleCurrency: string;
+}

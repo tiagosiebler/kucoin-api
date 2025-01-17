@@ -251,3 +251,38 @@ export interface GetFundingHistoryRequest {
   forward?: boolean;
   maxCount?: number;
 }
+
+/**
+ *
+ * Futures Copy Trading
+ *
+ */
+
+export interface CopyTradeOrderRequest {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  type: 'limit' | 'market';
+  leverage?: number;
+  remark?: string;
+  stop?: 'up' | 'down';
+  stopPriceType?: 'TP' | 'MP' | 'IP';
+  stopPrice?: string;
+  reduceOnly?: boolean;
+  closeOrder?: boolean;
+  forceHold?: boolean;
+  marginMode?: 'ISOLATED' | 'CROSS';
+  price?: string;
+  size: number;
+  timeInForce?: 'GTC' | 'IOC';
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+}
+
+export interface CopyTradeSLTPOrderRequest extends CopyTradeOrderRequest {
+  triggerStopUpPrice?: string; // Take profit price
+  triggerStopDownPrice?: string; // Stop loss price
+  stopPriceType?: 'TP' | 'MP' | 'IP';
+}

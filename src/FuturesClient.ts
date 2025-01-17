@@ -10,6 +10,8 @@ import {
 import {
   AccountFillsRequest,
   BatchCancelOrdersRequest,
+  CopyTradeOrderRequest,
+  CopyTradeSLTPOrderRequest,
   GetFundingHistoryRequest,
   GetFundingRatesRequest,
   GetInterestRatesRequest,
@@ -26,6 +28,7 @@ import {
   AccountSummary,
   AddMargin,
   BatchCancelOrderResult,
+  CopyTradePosition,
   FullOrderBookDetail,
   FuturesAccountFundingRateHistory,
   FuturesAccountTransaction,
@@ -101,7 +104,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Account Ledgers - Futures
-   * This interface can query the ledger records of the futures business line
+   * This endpoint can query the ledger records of the futures business line
    */
   getTransactions(params: GetTransactionsRequest): Promise<
     APISuccessResponse<{
@@ -139,7 +142,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Actual Fee - Futures
-   * This interface is for the actual futures fee rate of the trading pair. The fee rate of your sub-account is the same as that of the master account.
+   * This endpoint is for the actual futures fee rate of the trading pair. The fee rate of your sub-account is the same as that of the master account.
    */
   getTradingPairFee(params: { symbol: string }): Promise<
     APISuccessResponse<{
@@ -364,7 +367,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Add Take Profit And Stop Loss Order
-   * Place take profit and stop loss order supports both take-profit and stop-loss functions, and other functions are exactly the same as the place order interface.
+   * Place take profit and stop loss order supports both take-profit and stop-loss functions, and other functions are exactly the same as the place order endpoint.
    */
   submitSLTPOrder(params: SLTPOrder): Promise<
     APISuccessResponse<{
@@ -471,7 +474,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Stop Order List
-   * Get the un-triggered stop orders list. Stop orders that have been triggered can be queried through the general order interface
+   * Get the un-triggered stop orders list. Stop orders that have been triggered can be queried through the general order endpoint
    */
   getStopOrders(
     params?: GetStopOrdersRequest,
@@ -518,7 +521,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Margin Mode
-   * This interface can query the margin mode of the current symbol.
+   * This endpoint can query the margin mode of the current symbol.
    */
   getMarginMode(params: { symbol: string }): Promise<
     APISuccessResponse<{
@@ -577,7 +580,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Positions History
-   * This interface can query position history information records.
+   * This endpoint can query position history information records.
    */
   getHistoryPositions(params?: {
     symbol?: string;
@@ -591,7 +594,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Max Withdraw Margin
-   * This interface can query the maximum amount of margin that the current position supports withdrawal.
+   * This endpoint can query the maximum amount of margin that the current position supports withdrawal.
    */
   getMaxWithdrawMargin(params: {
     symbol: string;
@@ -601,7 +604,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Cross Margin Leverage
-   * This interface can query the current symbol’s cross-margin leverage multiple.
+   * This endpoint can query the current symbol’s cross-margin leverage multiple.
    */
   getCrossMarginLeverage(params: { symbol: string }): Promise<
     APISuccessResponse<{
@@ -614,7 +617,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Modify Cross Margin Leverage
-   * This interface can modify the current symbol’s cross-margin leverage multiple.
+   * This endpoint can modify the current symbol’s cross-margin leverage multiple.
    */
   changeCrossMarginLeverage(params: {
     symbol: string;
@@ -653,7 +656,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Isolated Margin Risk Limit
-   * This interface can be used to obtain information about risk limit level of a specific contract(Only valid for isolated Margin).
+   * This endpoint can be used to obtain information about risk limit level of a specific contract(Only valid for isolated Margin).
    */
   getRiskLimitLevel(params: {
     symbol: string;
@@ -663,7 +666,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Modify Isolated Margin Risk Limit
-   * This interface is for the adjustment of the risk limit level(Only valid for isolated Margin).
+   * This endpoint is for the adjustment of the risk limit level(Only valid for isolated Margin).
    */
   updateRiskLimitLevel(params: {
     symbol: string;
@@ -680,7 +683,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Current Funding Rate
-   * This interface can be used to obtain the current funding rate of the specified symbol.
+   * This endpoint can be used to obtain the current funding rate of the specified symbol.
    */
   getFundingRate(params: {
     symbol: string;
@@ -710,6 +713,174 @@ export class FuturesClient extends BaseRestClient {
   > {
     return this.getPrivate('api/v1/funding-history', params);
   }
+
+  /**
+   *
+   * REST - Futures Trading - CopyTrading
+   *
+   */
+
+  /**
+   * Add Order
+   * Place order to the futures trading system for copy trading
+   */
+  submitCopyTradeOrder(params: CopyTradeOrderRequest): Promise<
+    APISuccessResponse<{
+      orderId: string;
+      clientOid: string;
+    }>
+  > {
+    return this.postPrivate('api/v1/copy-trade/futures/orders', params);
+  }
+
+  /**
+   * Add Order Test
+   * Order test endpoint, the request parameters and return parameters of this endpoint are exactly the same as the order endpoint,
+   * and can be used to verify whether the signature is correct and other operations.
+   */
+  submitCopyTradeOrderTest(params: CopyTradeOrderRequest): Promise<
+    APISuccessResponse<{
+      orderId: string;
+      clientOid: string;
+    }>
+  > {
+    return this.postPrivate('api/v1/copy-trade/futures/orders/test', params);
+  }
+
+  /**
+   * Add Take Profit And Stop Loss Order
+   * Place take profit and stop loss order supports both take-profit and stop-loss functions, and other functions are exactly the same as the place order endpoint.
+   */
+  submitCopyTradeSLTPOrder(params: CopyTradeSLTPOrderRequest): Promise<
+    APISuccessResponse<{
+      orderId: string;
+      clientOid: string;
+    }>
+  > {
+    return this.postPrivate('api/v1/copy-trade/futures/st-orders', params);
+  }
+
+  /**
+   * Cancel Order By OrderId
+   * Cancel an order (including a stop order) in copy trading.
+   */
+  cancelCopyTradeOrderById(params: {
+    orderId: string;
+  }): Promise<APISuccessResponse<{ cancelledOrderIds: string[] }>> {
+    return this.deletePrivate('api/v1/copy-trade/futures/orders', params);
+  }
+
+  /**
+   * Cancel Order By Client Order Id
+   * Cancel an order (including a stop order) in copy trading by client order id.
+   */
+  cancelCopyTradeOrderByClientOid(params: {
+    clientOid?: string;
+    symbol: string;
+  }): Promise<APISuccessResponse<{ clientOid: string }>> {
+    return this.deletePrivate(
+      `api/v1/copy-trade/futures/orders/client-order`,
+      params,
+    );
+  }
+
+  /**
+   * Get Max Open Size
+   * Get Maximum Open Position Size.
+   */
+  getCopyTradeMaxOpenSize(params: {
+    symbol: string;
+    maxBuyOpenSize: string;
+    maxSellOpenSize: string;
+  }): Promise<
+    APISuccessResponse<{
+      symbol: string;
+      price: string;
+      leverage: number;
+    }>
+  > {
+    return this.getPrivate(
+      'api/v1/copy-trade/futures/get-max-open-size',
+      params,
+    );
+  }
+
+  /**
+   * Get Max Withdraw Margin
+   * This endpoint can query the maximum amount of margin that the current position supports withdrawal.
+   */
+  getCopyTradeMaxWithdrawMargin(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<string>> {
+    return this.getPrivate(
+      'api/v1/copy-trade/futures/position/margin/max-withdraw-margin',
+      params,
+    );
+  }
+
+  /**
+   * Add Isolated Margin
+   * Add Isolated Margin Manually.
+   */
+  addCopyTradeIsolatedMargin(params: {
+    symbol: string;
+    margin: number;
+    bizNo: string;
+  }): Promise<APISuccessResponse<CopyTradePosition>> {
+    return this.postPrivate(
+      'api/v1/copy-trade/futures/position/margin/deposit-margin',
+      params,
+    );
+  }
+
+  /**
+   * Remove Isolated Margin
+   * Remove Isolated Margin Manually.
+   */
+  removeCopyTradeIsolatedMargin(params: {
+    symbol: string;
+    withdrawAmount: string;
+  }): Promise<APISuccessResponse<string>> {
+    return this.postPrivate(
+      'api/v1/copy-trade/futures/position/margin/withdraw-margin',
+      params,
+    );
+  }
+
+  /**
+   * Modify Isolated Margin Risk Limit
+   * This endpoint is for the adjustment of the risk limit level(Only valid for isolated Margin).
+   * To adjust the level will cancel the open order, the response can only indicate whether the submit of the adjustment request is successful or not.
+   */
+  modifyCopyTradeRiskLimitLevel(params: {
+    symbol: string;
+    level: number;
+  }): Promise<APISuccessResponse<boolean>> {
+    return this.postPrivate(
+      'api/v1/copy-trade/futures/position/risk-limit-level/change',
+      params,
+    );
+  }
+
+  /**
+   * Modify Isolated Margin Auto-Deposit Status
+   * This endpoint is only applicable to isolated margin and is no longer recommended. It is recommended to use cross margin instead.
+   * @deprecated - It is recommended to use cross margin instead
+   */
+  updateCopyTradeAutoDepositStatus(params: {
+    symbol: string;
+    status: boolean;
+  }): Promise<APISuccessResponse<boolean>> {
+    return this.postPrivate(
+      'api/v1/copy-trade/futures/position/margin/auto-deposit-status',
+      params,
+    );
+  }
+  /**
+   *
+   * REST - Futures - Broker
+   *
+   */
 
   /**
    * Get download link for broker rebate orders
