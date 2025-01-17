@@ -1,131 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
 import {
-  AccountHFMarginTransactionsRequest,
-  AccountHFTransactionsRequest,
-  CreateSubAccountAPIRequest,
-  CreateSubAccountRequest,
-  DeleteSubAccountAPIRequest,
-  GetBalancesRequest,
-  GetSpotTransactionsRequest,
-  UpdateSubAccountAPIRequest,
-} from 'types/request/spot-account.js';
-import {
-  GetEarnFixedIncomeHoldAssetsRequest,
-  GetEarnRedeemPreviewRequest,
-  InitiateRedemptionRequest,
-  SubscribeEarnFixedIncomeRequest,
-} from 'types/request/spot-earn.js';
-import {
-  ApplyWithdrawRequest,
-  CreateDepositAddressV3Request,
-  FlexTransferRequest,
-  GetDepositsRequest,
-  GetIsolatedMarginBalanceRequest,
-  GetMarginBalanceRequest,
-  GetTransferableRequest,
-  GetWithdrawalsRequest,
-  InnerTransferRequest,
-  submitTransferMasterSubRequest,
-  SubmitWithdrawV3Request,
-} from 'types/request/spot-funding.js';
-import {
-  GetHFMarginFilledRequest,
-  getHFMarginFillsRequest,
-  GetLendingRedemptionOrdersV3Request,
-  GetLendingSubscriptionOrdersV3Request,
-  HFMarginRequestOrder,
-  InitiateLendingRedemptionV3Request,
-  InitiateLendingSubscriptionV3Request,
-  MarginBorrowV3Request,
-  MarginHistoryV3Request,
-  MarginInterestRecordsRequest,
-  MarginRepayV3Request,
-  MarginRiskLimitRequest,
-  ModifyLendingSubscriptionOrdersV3Request,
-  SubmitHFMarginOrderRequest,
-  SubmitMarginOrderRequest,
-} from 'types/request/spot-margin-trading.js';
-import { GetAnnouncementsRequest } from 'types/request/spot-misc.js';
-import {
-  CancelAllOrdersRequest,
-  CancelSpecifiedNumberHFOrdersRequest,
-  CancelStopOrdersRequest,
-  GetFillsRequest,
-  GetHFCompletedOrdersRequest,
-  GetHFFilledListRequest,
-  GetOCOOrdersRequest,
-  GetOrderListRequest,
-  GetSpotKlinesRequest,
-  GetStopOrdersListRequest,
-  ModifyHFOrderRequest,
-  SubmitHFOrderRequest,
-  SubmitMultipleOrdersRequest,
-  SubmitOCOOrderRequest,
-  SubmitOrderRequest,
-  SubmitStopOrderRequest,
-} from 'types/request/spot-trading.js';
-import {
-  Account,
-  AccountHFMarginTransactions,
-  Balances,
-  CreateSubAccount,
-  CreateSubAPI,
-  DeleteSubAccountAPI,
-  SpotAccountSummary,
-  SpotAccountTransaction,
-  SpotAccountTransactions,
-  SubAccountAPIInfo,
-  SubAccountBalance,
-  SubAccountBalancesV2,
-  SubAccountInfo,
-  SubAccountsV2,
-  UpdateSubAPI,
-} from 'types/response/spot-account.js';
-import {
-  EarnFixedIncomeHoldAssets,
-  EarnProduct,
-  GetEarnRedeemPreviewResponse,
-  InitiateRedemptionResponse,
-  SubscribeEarnFixedIncomeResponse,
-} from 'types/response/spot-earn.js';
-import {
-  CreateDepositAddressV3Response,
-  DepositAddress,
-  DepositAddressV2,
-  DepositAddressV3,
-  Deposits,
-  HistoricalWithdrawalsV1,
-  IsolatedMarginBalance,
-  MarginAccountBalance,
-  MarginBalance,
-  TransferableFunds,
-  V1HistoricalDeposits,
-  WithdrawalQuotas,
-  Withdrawals,
-} from 'types/response/spot-funding.js';
-import {
-  HFMarginOrder,
-  HFMarginTransactionRecord,
-  IsolatedMarginAccountInfo,
-  IsolatedMarginSymbolsConfig,
-  LendingCurrencyV3,
-  LendingRedemption,
-  MarginActivePairsV3,
-  MarginBorrowHistoryV3,
-  MarginConfigInfo,
-  MarginInterestRecords,
-  MarginLevTokenInfo,
-  MarginMarkPrice,
-  MarginOrderV3,
-  MarginRepayHistoryV3,
-  MarginRiskLimit,
-  MarginSubmitOrderV3Response,
-  SingleIsolatedMarginAccountInfo,
-  SubmitMarginOrderResponse,
-} from 'types/response/spot-margin-trading.js';
-import { Announcements } from 'types/response/spot-misc.js';
-import {
   AllTickers,
   AutoCancelHFOrderSettingQueryResponse,
   CancelAllHFOrdersResponse,
@@ -153,8 +28,6 @@ import {
   Ticker,
   TradeHistory,
 } from 'types/response/spot-trading.js';
-import { OtcLoan, OtcLoanAccount } from 'types/response/spot-vip.js';
-import { WsConnectionInfo } from 'types/response/ws.js';
 
 import { BaseRestClient } from './lib/BaseRestClient.js';
 import {
@@ -163,9 +36,136 @@ import {
   RestClientType,
 } from './lib/requestUtils.js';
 import {
+  AccountHFMarginTransactionsRequest,
+  AccountHFTransactionsRequest,
+  CreateSubAccountAPIRequest,
+  CreateSubAccountRequest,
+  DeleteSubAccountAPIRequest,
+  GetBalancesRequest,
+  GetSpotTransactionsRequest,
+  UpdateSubAccountAPIRequest,
+} from './types/request/spot-account.js';
+import {
+  GetEarnFixedIncomeHoldAssetsRequest,
+  GetEarnRedeemPreviewRequest,
+  InitiateRedemptionRequest,
+  SubscribeEarnFixedIncomeRequest,
+} from './types/request/spot-earn.js';
+import {
+  ApplyWithdrawRequest,
+  CreateDepositAddressV3Request,
+  FlexTransferRequest,
+  GetDepositsRequest,
+  GetIsolatedMarginBalanceRequest,
+  GetMarginBalanceRequest,
+  GetTransferableRequest,
+  GetWithdrawalsRequest,
+  InnerTransferRequest,
+  submitTransferMasterSubRequest,
+  SubmitWithdrawV3Request,
+} from './types/request/spot-funding.js';
+import {
+  GetHFMarginFilledRequest,
+  getHFMarginFillsRequest,
+  GetLendingRedemptionOrdersV3Request,
+  GetLendingSubscriptionOrdersV3Request,
+  HFMarginRequestOrder,
+  InitiateLendingRedemptionV3Request,
+  InitiateLendingSubscriptionV3Request,
+  MarginBorrowV3Request,
+  MarginHistoryV3Request,
+  MarginInterestRecordsRequest,
+  MarginRepayV3Request,
+  MarginRiskLimitRequest,
+  ModifyLendingSubscriptionOrdersV3Request,
+  SubmitHFMarginOrderRequest,
+  SubmitMarginOrderRequest,
+} from './types/request/spot-margin-trading.js';
+import { GetAnnouncementsRequest } from './types/request/spot-misc.js';
+import {
+  CancelAllOrdersRequest,
+  CancelSpecifiedNumberHFOrdersRequest,
+  CancelStopOrdersRequest,
+  GetFillsRequest,
+  GetHFCompletedOrdersRequest,
+  GetHFFilledListRequest,
+  GetOCOOrdersRequest,
+  GetOrderListRequest,
+  GetSpotKlinesRequest,
+  GetStopOrdersListRequest,
+  ModifyHFOrderRequest,
+  SubmitHFOrderRequest,
+  SubmitMultipleOrdersRequest,
+  SubmitOCOOrderRequest,
+  SubmitOrderRequest,
+  SubmitStopOrderRequest,
+} from './types/request/spot-trading.js';
+import {
   APISuccessResponse,
   ServiceStatus,
 } from './types/response/shared.types.js';
+import {
+  Account,
+  AccountHFMarginTransactions,
+  Balances,
+  CreateSubAccount,
+  CreateSubAPI,
+  DeleteSubAccountAPI,
+  SpotAccountSummary,
+  SpotAccountTransaction,
+  SpotAccountTransactions,
+  SubAccountAPIInfo,
+  SubAccountBalance,
+  SubAccountBalancesV2,
+  SubAccountInfo,
+  SubAccountsV2,
+  UpdateSubAPI,
+} from './types/response/spot-account.js';
+import {
+  EarnFixedIncomeHoldAssets,
+  EarnProduct,
+  GetEarnRedeemPreviewResponse,
+  InitiateRedemptionResponse,
+  SubscribeEarnFixedIncomeResponse,
+} from './types/response/spot-earn.js';
+import {
+  CreateDepositAddressV3Response,
+  DepositAddress,
+  DepositAddressV2,
+  DepositAddressV3,
+  Deposits,
+  HistoricalWithdrawalsV1,
+  IsolatedMarginBalance,
+  MarginAccountBalance,
+  MarginBalance,
+  TransferableFunds,
+  V1HistoricalDeposits,
+  WithdrawalQuotas,
+  Withdrawals,
+} from './types/response/spot-funding.js';
+import {
+  HFMarginOrder,
+  HFMarginTransactionRecord,
+  IsolatedMarginAccountInfo,
+  IsolatedMarginSymbolsConfig,
+  LendingCurrencyV3,
+  LendingRedemption,
+  MarginActivePairsV3,
+  MarginBorrowHistoryV3,
+  MarginConfigInfo,
+  MarginInterestRecords,
+  MarginLevTokenInfo,
+  MarginMarkPrice,
+  MarginOrderV3,
+  MarginRepayHistoryV3,
+  MarginRiskLimit,
+  MarginSubmitOrderV3Response,
+  SingleIsolatedMarginAccountInfo,
+  SubmitMarginOrderResponse,
+} from './types/response/spot-margin-trading.js';
+import { Announcements } from './types/response/spot-misc.js';
+import { OtcLoan, OtcLoanAccount } from './types/response/spot-vip.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
  *
@@ -1845,8 +1845,10 @@ export class SpotClient extends BaseRestClient {
    * This endpoint retrieves ETH Staking products. If no ETH Staking products are available, an empty list is returned.
    *
    */
-  getEarnEthStakingProducts(): Promise<APISuccessResponse<EarnProduct[]>> {
-    return this.getPrivate('api/v1/earn/eth-staking/products');
+  getEarnEthStakingProducts(params?: {
+    currency: string;
+  }): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/eth-staking/products', params);
   }
 
   /**
@@ -1886,12 +1888,8 @@ export class SpotClient extends BaseRestClient {
    *
    * This endpoint allows getting affiliate user rebate information.
    */
-  getAffiliateUserRebateInfo(params: {
-    date: string;
-    maxCount?: number;
-    offset: string;
-  }): Promise<APISuccessResponse<any>> {
-    return this.getPrivate('api/v2/affiliate/inviter/statistics', params);
+  getAffiliateUserRebateInfo(): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v2/affiliate/inviter/statistics');
   }
 
   /**

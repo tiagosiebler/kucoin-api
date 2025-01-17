@@ -1,5 +1,12 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
+
+import { BaseRestClient } from './lib/BaseRestClient.js';
+import {
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+} from './lib/requestUtils.js';
 import {
   AccountFillsRequest,
   BatchCancelOrdersRequest,
@@ -13,7 +20,7 @@ import {
   MaxOpenSizeRequest,
   Order,
   SLTPOrder,
-} from 'types/request/futures.types.js';
+} from './types/request/futures.types.js';
 import {
   AccountBalance,
   AccountSummary,
@@ -34,28 +41,21 @@ import {
   FuturesOrders,
   FuturesPosition,
   FuturesRiskLimit,
+  FuturesSubAccount,
   FuturesSymbolInfo,
   IndexListItem,
   InterestRateItem,
   MarketTradeDetail,
   MaxOpenSize,
   PremiumIndexItem,
-  SubBalance,
   SubmitMultipleOrdersFuturesResponse,
   TickerDetail,
-} from 'types/response/futures.types.js';
-import { WsConnectionInfo } from 'types/response/ws.js';
-
-import { BaseRestClient } from './lib/BaseRestClient.js';
-import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
+} from './types/response/futures.types.js';
 import {
   APISuccessResponse,
   ServiceStatus,
 } from './types/response/shared.types.js';
+import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
  *
@@ -125,7 +125,7 @@ export class FuturesClient extends BaseRestClient {
   getSubBalances(params?: { currency?: string }): Promise<
     APISuccessResponse<{
       summary: AccountSummary;
-      accounts: SubBalance[];
+      accounts: FuturesSubAccount[];
     }>
   > {
     return this.getPrivate('api/v1/account-overview-all', params);
@@ -391,19 +391,21 @@ export class FuturesClient extends BaseRestClient {
    */
   cancelOrderByClientOid(params: {
     clientOid: string;
+    symbol: string;
   }): Promise<APISuccessResponse<{ clientOid: string }>> {
-    return this.deletePrivate(`api/v1/orders/client-order/${params.clientOid}`);
+    const { clientOid, symbol } = params;
+    return this.deletePrivate(`api/v1/orders/client-order/${clientOid}`, {
+      symbol,
+    });
   }
 
   /**
    * Batch Cancel Orders
    * Cancel multiple orders.
    */
-  batchCancelOrders(params: BatchCancelOrdersRequest): Promise<
-    APISuccessResponse<{
-      data: BatchCancelOrderResult[];
-    }>
-  > {
+  batchCancelOrders(
+    params: BatchCancelOrdersRequest,
+  ): Promise<APISuccessResponse<BatchCancelOrderResult[]>> {
     return this.deletePrivate('api/v1/orders/multi-cancel', params);
   }
 
@@ -593,7 +595,7 @@ export class FuturesClient extends BaseRestClient {
    */
   getMaxWithdrawMargin(params: {
     symbol: string;
-  }): Promise<APISuccessResponse<number>> {
+  }): Promise<APISuccessResponse<string>> {
     return this.getPrivate('api/v1/margin/maxWithdrawMargin', params);
   }
 
@@ -645,7 +647,7 @@ export class FuturesClient extends BaseRestClient {
   withdrawMargin(params: {
     symbol: string;
     withdrawAmount: string;
-  }): Promise<APISuccessResponse<{ sybmol: string; withdrawAmount: number }>> {
+  }): Promise<APISuccessResponse<string>> {
     return this.postPrivate('api/v1/margin/withdrawMargin', params);
   }
 
@@ -666,7 +668,7 @@ export class FuturesClient extends BaseRestClient {
   updateRiskLimitLevel(params: {
     symbol: string;
     level: number;
-  }): Promise<any> {
+  }): Promise<boolean> {
     return this.postPrivate('api/v1/position/risk-limit-level/change', params);
   }
 
@@ -683,7 +685,7 @@ export class FuturesClient extends BaseRestClient {
   getFundingRate(params: {
     symbol: string;
   }): Promise<APISuccessResponse<FuturesCurrentFundingRate>> {
-    return this.get(`api/v1/funding-rate/${params.symbol}/current`);
+    return this.getPrivate(`api/v1/funding-rate/${params.symbol}/current`);
   }
 
   /**
@@ -693,7 +695,7 @@ export class FuturesClient extends BaseRestClient {
   getFundingRates(
     params: GetFundingRatesRequest,
   ): Promise<APISuccessResponse<FuturesHistoricFundingRate[]>> {
-    return this.get('api/v1/contract/funding-rates', params);
+    return this.getPrivate('api/v1/contract/funding-rates', params);
   }
 
   /**
@@ -786,9 +788,6 @@ export class FuturesClient extends BaseRestClient {
     symbol: string;
     status: boolean;
   }): Promise<APISuccessResponse<any>> {
-    console.warn(
-      'WARNING: This method is deprecated. It is recommended to use cross margin mode instead.',
-    );
     return this.postPrivate(
       'api/v1/position/margin/auto-deposit-status',
       params,

@@ -114,40 +114,60 @@ export interface GetInterestRatesRequest {
 
 export interface Order {
   clientOid: string;
-  side?: 'buy' | 'sell';
+  side: 'buy' | 'sell';
   symbol: string;
-  leverage?: string;
-  type?: 'market' | 'limit';
+  leverage: number;
+  type?: 'limit' | 'market';
   remark?: string;
   stop?: 'down' | 'up';
-  stopPriceType?: 'TP' | 'IP' | 'MP';
+  stopPriceType?: 'TP' | 'MP' | 'IP';
   stopPrice?: string;
   reduceOnly?: boolean;
-  postOnly?: boolean;
   closeOrder?: boolean;
   forceHold?: boolean;
   stp?: 'CN' | 'CO' | 'CB';
+  marginMode?: 'ISOLATED' | 'CROSS';
   price?: string;
   size?: number;
   qty?: string;
   valueQty?: string;
   timeInForce?: 'GTC' | 'IOC';
+  postOnly?: boolean;
   hidden?: boolean;
   iceberg?: boolean;
-  visibleSize?: number;
-  marginMode?: 'ISOLATED' | 'CROSS';
+  visibleSize?: string;
 }
 
-export interface SLTPOrder extends Order {
-  triggerStopDownPrice?: string;
+export interface SLTPOrder {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  leverage: number;
+  type: 'limit' | 'market';
+  remark?: string;
   triggerStopUpPrice?: string;
+  stopPriceType?: 'TP' | 'MP' | 'IP';
+  triggerStopDownPrice?: string;
+  reduceOnly?: boolean;
+  closeOrder?: boolean;
+  forceHold?: boolean;
+  stp?: 'CN' | 'CO' | 'CB';
+  marginMode?: 'ISOLATED' | 'CROSS';
+  price?: string;
+  size?: number;
+  qty?: string;
+  valueQty?: string;
+  timeInForce?: 'GTC' | 'IOC';
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
 }
-
 export interface GetOrdersRequest {
-  status?: 'active' | 'done';
+  status: 'active' | 'done';
   symbol?: string;
-  side?: 'buy' | 'sell';
-  type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+  side: 'buy' | 'sell';
+  type: 'limit' | 'market' | 'limit_stop' | 'market_stop';
   startAt?: number;
   endAt?: number;
   currentPage?: number;
@@ -164,8 +184,9 @@ export interface GetStopOrdersRequest {
   pageSize?: number;
 }
 
+// Note: Either orderIdsList or clientOidsList must be provided, but not both.
+// When both are provided, orderIdsList takes precedence.
 export interface BatchCancelOrdersRequest {
-  symbol?: string;
   orderIdsList?: string[];
   clientOidsList?: {
     symbol: string;
@@ -199,7 +220,7 @@ export interface AccountFillsRequest {
 
 export interface MaxOpenSizeRequest {
   symbol: string;
-  price: number;
+  price: string;
   leverage: number;
 }
 
@@ -223,8 +244,8 @@ export interface GetFundingRatesRequest {
 
 export interface GetFundingHistoryRequest {
   symbol: string;
-  startAt?: number;
-  endAt?: number;
+  from?: number;
+  to?: number;
   reverse?: boolean;
   offset?: number;
   forward?: boolean;
