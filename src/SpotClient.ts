@@ -260,33 +260,66 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v1/status');
   }
 
-  getAnnouncements(
-    params?: GetAnnouncementsRequest,
-  ): Promise<APISuccessResponse<Announcements>> {
-    return this.get('api/v3/announcements', params);
-  }
-
   /**
    *
-   * REST - ACCOUNT - Basic Info
+   * REST - Account Info - Account & Funding
    *
    */
 
+  /**
+   * Get Account Summary Info
+   *
+   * This endpoint can be used to obtain account summary information.
+   */
   getAccountSummary(): Promise<APISuccessResponse<SpotAccountSummary>> {
     return this.getPrivate('api/v2/user-info');
   }
 
   /**
+   * Get API Key Information
+   *
+   * Get information about the API key being used. Works for both master and sub user API keys.
+   */
+  getApikeyInfo(): Promise<
+    APISuccessResponse<{
+      remark: string;
+      apiKey: string;
+      apiVersion: number;
+      permission: string;
+      ipWhitelist: string;
+      createdAt: number;
+      uid: number;
+      isMaster: boolean;
+    }>
+  > {
+    return this.getPrivate('api/v1/user/api-key');
+  }
+
+  /**
+   * Get Account Type - Spot
+   *
+   * This interface determines whether the current user is a spot high-frequency user or a spot low-frequency user.
+   */
+  getUserType(): Promise<APISuccessResponse<boolean>> {
+    return this.getPrivate('api/v1/hf/accounts/opened');
+  }
+
+  /**
    * Get a list of acounts and their balance states (spot/margin/trade_hf)
    *
-   * Get Account List - Spot/Margin/trade_hf
+   * Get Account List - Spot
    */
   getBalances(
     params?: GetBalancesRequest,
-  ): Promise<Promise<APISuccessResponse<Balances[]>>> {
+  ): Promise<APISuccessResponse<Balances[]>> {
     return this.getPrivate('api/v1/accounts', params);
   }
 
+  /**
+   * Get Account Detail - Spot
+   *
+   * Get Information for a single spot account. Use this endpoint when you know the accountId.
+   */
   getAccountDetail(params: {
     accountId: any;
   }): Promise<APISuccessResponse<Account>> {
@@ -294,7 +327,33 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * Get Account - Cross Margin
+   *
+   * Request via this endpoint to get the info of the cross margin account.
+   */
+  getMarginBalance(
+    params?: GetMarginBalanceRequest,
+  ): Promise<APISuccessResponse<MarginBalance>> {
+    return this.getPrivate('api/v3/margin/accounts', params);
+  }
+
+  /**
+   * Get Account - Isolated Margin
+   *
+   * Request via this endpoint to get the info of the isolated margin account.
+   */
+  getIsolatedMarginBalance(
+    params?: GetIsolatedMarginBalanceRequest,
+  ): Promise<APISuccessResponse<IsolatedMarginBalance[]>> {
+    return this.getPrivate('api/v3/isolated/accounts', params);
+  }
+
+  /**
    * Get Account Ledgers - Spot/Margin
+   *
+   * This interface is for transaction records from all types of your accounts, supporting inquiry of various currencies.
+   * Items are paginated and sorted to show the latest first.
+   * See the Pagination section for retrieving additional entries after the first page.
    */
   getTransactions(
     params?: GetSpotTransactionsRequest,
@@ -304,6 +363,9 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * Get Account Ledgers - trade_hf
+   *
+   * This API endpoint returns all transfer (in and out) records in high-frequency trading account and supports multi-coin queries.
+   * The query results are sorted in descending order by createdAt and id.
    */
   getHFTransactions(
     params: AccountHFTransactionsRequest,
@@ -313,6 +375,9 @@ export class SpotClient extends BaseRestClient {
 
   /**
    * Get Account Ledgers - margin_hf
+   *
+   * This API endpoint returns all transfer (in and out) records in high-frequency margin trading account and supports multi-coin queries.
+   * The query results are sorted in descending order by createdAt and id.
    */
   getHFMarginTransactions(
     params: AccountHFMarginTransactionsRequest,
@@ -322,37 +387,50 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - ACCOUNT - Sub-Account
+   * REST - Account Info - Sub Account
    *
    */
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v2/sub/user endpoint instead of this endpoint
+   * Add SubAccount
+   *
+   * This endpoint is used to create a sub-account.
    */
-  getSubAccountsV1(): Promise<APISuccessResponse<SubAccountInfo[]>> {
-    return this.getPrivate('api/v1/sub/user');
-  }
-
-  getSubAccountsV2(params?: {
-    currentPage?: number;
-    pageSize?: number;
-  }): Promise<APISuccessResponse<SubAccountsV2>> {
-    return this.getPrivate('api/v2/sub/user', params);
-  }
-
   createSubAccount(
     params: CreateSubAccountRequest,
   ): Promise<APISuccessResponse<CreateSubAccount>> {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
-
+  /**
+   * Add SubAccount Margin Permission
+   *
+   * This endpoint can be used to add sub-accounts Margin permission.
+   * Before using this endpoints, you need to ensure that the master account apikey has Margin permissions and the Margin function has been activated.
+   */
   enableSubAccountMargin(params: { uid: string }): Promise<void> {
     return this.postPrivate('api/v3/sub/user/margin/enable', params);
   }
 
+  /**
+   * Add SubAccount Futures Permission
+   *
+   * This endpoint can be used to add sub-accounts Futures permission.
+   * Before using this endpoints, you need to ensure that the master account apikey has Futures permissions and the Futures function has been activated.
+   */
   enableSubAccountFutures(params: { uid: string }): Promise<void> {
     return this.postPrivate('api/v3/sub/user/futures/enable', params);
+  }
+
+  /**
+   * Get SubAccount List - Summary Info
+   *
+   * This endpoint can be used to get a paginated list of sub-accounts. Pagination is required.
+   */
+  getSubAccountsV2(params?: {
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<APISuccessResponse<SubAccountsV2>> {
+    return this.getPrivate('api/v2/sub/user', params);
   }
 
   /**
@@ -366,10 +444,12 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
 
-  getSubAccountBalancesV1(): Promise<APISuccessResponse<SubAccountBalance>> {
-    return this.getPrivate('api/v1/sub-accounts');
-  }
-
+  /**
+   * Get SubAccount List - Spot Balance(V2)
+   *
+   * This endpoint can be used to get paginated Spot sub-account information.
+   * Pagination is required.
+   */
   getSubAccountBalancesV2(params?: {
     currentPage?: number;
     pageSize?: number;
@@ -379,11 +459,38 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - ACCOUNT - Sub-Account API
-   *
+   * REST - Account Info - Sub Account API
    *
    */
 
+  /**
+   * Add SubAccount API
+   *
+   * This endpoint can be used to create APIs for sub-accounts.
+   */
+  createSubAPI(
+    params: CreateSubAccountAPIRequest,
+  ): Promise<APISuccessResponse<CreateSubAPI>> {
+    return this.postPrivate('api/v1/sub/api-key', params);
+  }
+
+  /**
+   * Modify SubAccount API
+   *
+   * This endpoint can be used to update APIs for sub-accounts.
+   */
+  updateSubAPI(
+    params: UpdateSubAccountAPIRequest,
+  ): Promise<APISuccessResponse<UpdateSubAPI>> {
+    return this.postPrivate('api/v1/sub/api-key/update', params);
+  }
+
+  /**
+   * Get SubAccount API List
+   *
+   * This endpoint can be used to obtain a list of APIs pertaining to a sub-account.
+   * (Not contain ND Broker Sub Account)
+   */
   getSubAPIs(params: {
     apiKey?: string;
     subName: string;
@@ -391,18 +498,11 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/sub/api-key', params);
   }
 
-  createSubAPI(
-    params: CreateSubAccountAPIRequest,
-  ): Promise<APISuccessResponse<CreateSubAPI>> {
-    return this.postPrivate('api/v1/sub/api-key', params);
-  }
-
-  updateSubAPI(
-    params: UpdateSubAccountAPIRequest,
-  ): Promise<APISuccessResponse<UpdateSubAPI>> {
-    return this.postPrivate('api/v1/sub/api-key/update', params);
-  }
-
+  /**
+   * Delete SubAccount API
+   *
+   * This endpoint can be used to delete an API for a sub-account.
+   */
   deleteSubAPI(
     params: DeleteSubAccountAPIRequest,
   ): Promise<APISuccessResponse<DeleteSubAccountAPI>> {
@@ -411,51 +511,15 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - FUNDING - Funding overview
+   * REST - Account Info - Deposit
    *
    */
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v3/margin/accounts endpoint instead of this endpoint
-   */
-  getMarginBalances(): Promise<
-    APISuccessResponse<{
-      debtRatio: string;
-      accounts: MarginAccountBalance[];
-    }>
-  > {
-    return this.getPrivate('api/v1/margin/account');
-  }
-
-  getMarginBalance(
-    params?: GetMarginBalanceRequest,
-  ): Promise<APISuccessResponse<MarginBalance>> {
-    return this.getPrivate('api/v3/margin/accounts', params);
-  }
-
-  getIsolatedMarginBalance(
-    params?: GetIsolatedMarginBalanceRequest,
-  ): Promise<APISuccessResponse<IsolatedMarginBalance[]>> {
-    return this.getPrivate('api/v3/isolated/accounts', params);
-  }
-
-  /**
+   * Add Deposit Address(V3)
    *
-   * REST - FUNDING -Deposit
-   *
+   * Request via this endpoint to create a deposit address for a currency you intend to deposit.
    */
-
-  /**
-   * @deprecated This method is deprecated. Please use createDepositAddressV3 instead.
-   */
-  createDepositAddress(params: {
-    currency: string;
-    chain?: string;
-  }): Promise<APISuccessResponse<DepositAddress>> {
-    return this.postPrivate('api/v1/deposit-addresses', params);
-  }
-
   createDepositAddressV3(
     params: CreateDepositAddressV3Request,
   ): Promise<APISuccessResponse<CreateDepositAddressV3Response>> {
@@ -463,24 +527,11 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated. Please use getDepositAddressesV3 instead.
+   * Get Deposit Address(V3)
+   *
+   * Get all deposit addresses for the currency you intend to deposit.
+   * If the returned data is empty, you may need to Add Deposit Address first.
    */
-  getDepositAddressesV2(params: {
-    currency: string;
-  }): Promise<APISuccessResponse<DepositAddressV2[]>> {
-    return this.getPrivate('api/v2/deposit-addresses', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated. Please use getDepositAddressesV3 instead.
-   */
-  getDepositAddressV1(params: {
-    currency: string;
-    chain?: string;
-  }): Promise<APISuccessResponse<DepositAddress>> {
-    return this.getPrivate('api/v1/deposit-addresses', params);
-  }
-
   getDepositAddressesV3(params: {
     currency: string;
     amount?: string;
@@ -489,6 +540,12 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v3/deposit-addresses', params);
   }
 
+  /**
+   * Get Deposit History
+   *
+   * Request via this endpoint to get deposit list Items are paginated and sorted to show the latest first.
+   * See the Pagination section for retrieving additional entries after the first page.
+   */
   getDeposits(
     params?: GetDepositsRequest,
   ): Promise<APISuccessResponse<Deposits>> {
@@ -496,37 +553,16 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/deposits endpoint instead of this endpoint
-   */
-  getHistoricalDepositsV1(
-    params?: GetDepositsRequest,
-  ): Promise<APISuccessResponse<V1HistoricalDeposits>> {
-    return this.getPrivate('api/v1/hist-deposits', params);
-  }
-
-  /**
    *
-   * REST - FUNDING -Withdrawals
+   * REST - Account Info - Withdrawals
    *
    */
 
-  getWithdrawals(
-    params?: GetWithdrawalsRequest,
-  ): Promise<APISuccessResponse<Withdrawals>> {
-    return this.getPrivate('api/v1/withdrawals', params);
-  }
-
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/withdrawals endpoint instead of this endpoint
+   * Get Withdrawal Quotas
+   *
+   * This interface can obtain the withdrawal quotas information of this currency.
    */
-  getHistoricalWithdrawalsV1(
-    params?: GetWithdrawalsRequest,
-  ): Promise<APISuccessResponse<HistoricalWithdrawalsV1>> {
-    return this.getPrivate('api/v1/hist-withdrawals', params);
-  }
-
   getWithdrawalQuotas(params: {
     currency: string;
     chain?: string;
@@ -535,14 +571,10 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated. Please use submitWithdrawV3 instead.
+   * Withdraw(V3)
+   *
+   * Use this interface to withdraw the specified currency
    */
-  submitWithdraw(
-    params: ApplyWithdrawRequest,
-  ): Promise<APISuccessResponse<{ withdrawalId: string }>> {
-    return this.postPrivate('api/v1/withdrawals', params);
-  }
-
   submitWithdrawV3(params: SubmitWithdrawV3Request): Promise<
     APISuccessResponse<{
       withdrawalId: string;
@@ -551,6 +583,11 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/withdrawals', params);
   }
 
+  /**
+   * Cancel Withdrawal
+   *
+   * This interface can cancel the withdrawal, Only withdrawals requests of PROCESSING status could be canceled.
+   */
   cancelWithdrawal(params: {
     withdrawalId: string;
   }): Promise<APISuccessResponse<{ withdrawalId: string }>> {
@@ -558,17 +595,39 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * Get Withdrawal History
    *
-   * REST - FUNDING - Transfer
+   * Request via this endpoint to get withdrawal list Items are paginated and sorted to show the latest first.
+   * See the Pagination section for retrieving additional entries after the first page.
+   */
+  getWithdrawals(
+    params?: GetWithdrawalsRequest,
+  ): Promise<APISuccessResponse<Withdrawals>> {
+    return this.getPrivate('api/v1/withdrawals', params);
+  }
+
+  /**
+   *
+   * REST - Account Info - Transfer
    *
    */
 
+  /**
+   * Get Transfer Quotas
+   *
+   * This endpoint returns the transferable balance of a specified account.
+   */
   getTransferable(
     params: GetTransferableRequest,
   ): Promise<APISuccessResponse<TransferableFunds>> {
     return this.getPrivate('api/v1/accounts/transferable', params);
   }
 
+  /**
+   * Flex Transfer
+   *
+   * This interface can be used for transfers between master and sub accounts and inner transfers
+   */
   submitFlexTransfer(params: FlexTransferRequest): Promise<
     APISuccessResponse<{
       orderId: string;
@@ -578,35 +637,16 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v3/accounts/universal-transfer endpoint instead of this endpoint
-   */
-  submitTransferMasterSub(params: submitTransferMasterSubRequest): Promise<
-    APISuccessResponse<{
-      orderId: string;
-    }>
-  > {
-    return this.postPrivate('api/v2/accounts/sub-transfer', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v3/accounts/universal-transfer endpoint instead of this endpoint
-   */
-  submitInnerTransfer(params: InnerTransferRequest): Promise<
-    APISuccessResponse<{
-      orderId: string;
-    }>
-  > {
-    return this.postPrivate('api/v2/accounts/inner-transfer', params);
-  }
-
-  /**
    *
-   * REST - FUNDING - Trade Fee
+   * REST - Account Info - Trade Fee
    *
    */
 
+  /**
+   * Get Basic Fee - Spot/Margin
+   *
+   * This interface is for the spot/margin basic fee rate of users
+   */
   getBasicUserFee(params: { currencyType: string }): Promise<
     APISuccessResponse<{
       takerFeeRate: string;
@@ -616,6 +656,13 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v1/base-fee', params);
   }
 
+  /**
+   * Get Actual Fee - Spot/Margin
+   *
+   * This interface is for the actual fee rate of the trading pair.
+   * You can inquire about fee rates of 10 trading pairs each time at most.
+   * The fee rate of your sub-account is the same as that of the master account.
+   */
   getTradingPairFee(params: { symbol: string }): Promise<
     APISuccessResponse<
       {
@@ -630,14 +677,26 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - SPOT TRADING -Market data
+   * REST - SPOT TRADING - Market Data
    *
    */
 
-  getCurrencies(): Promise<APISuccessResponse<CurrencyInfo[]>> {
-    return this.get('api/v3/currencies');
+  /**
+   * Get Announcements
+   *
+   * This interface can obtain the latest news announcements, and the default page search is for announcements within a month.
+   */
+  getAnnouncements(
+    params?: GetAnnouncementsRequest,
+  ): Promise<APISuccessResponse<Announcements>> {
+    return this.get('api/v3/announcements', params);
   }
 
+  /**
+   * Get Currency
+   *
+   * Request via this endpoint to get the currency details of a specified currency.
+   */
   getCurrency(params: {
     currency: string;
     chain?: string;
@@ -645,22 +704,55 @@ export class SpotClient extends BaseRestClient {
     return this.get(`api/v3/currencies/${params.currency}`, params);
   }
 
-  getSymbols(params?: {
-    market?: string;
-  }): Promise<APISuccessResponse<SymbolInfo[]>> {
-    return this.get('api/v2/symbols', params);
+  /**
+   * Get All Currencies
+   *
+   * Request via this endpoint to get the currency list. Not all currencies currently can be used for trading.
+   */
+  getCurrencies(): Promise<APISuccessResponse<CurrencyInfo[]>> {
+    return this.get('api/v3/currencies');
   }
 
+  /**
+   * Get Symbol
+   *
+   * Request via this endpoint to get detail currency pairs for trading.
+   * If you want to get the market information of the trading symbol, please use Get All Tickers.
+   */
   getSymbol(params: {
     symbol: string;
   }): Promise<APISuccessResponse<SymbolInfo>> {
     return this.get(`api/v2/symbols/${params.symbol}`);
   }
 
+  /**
+   * Get All Symbols
+   *
+   * Request via this endpoint to get detail currency pairs for trading.
+   * If you want to get the market information of the trading symbol, please use Get All Tickers.
+   */
+  getSymbols(params?: {
+    market?: string;
+  }): Promise<APISuccessResponse<SymbolInfo[]>> {
+    return this.get('api/v2/symbols', params);
+  }
+
+  /**
+   * Get Ticker
+   *
+   * Request via this endpoint to get Level 1 Market Data.
+   * The returned value includes the best bid price and size,
+   * the best ask price and size as well as the last traded price and the last traded size.
+   */
   getTicker(params: { symbol: string }): Promise<APISuccessResponse<Ticker>> {
     return this.get(`api/v1/market/orderbook/level1`, params);
   }
 
+  /**
+   * Get All Tickers
+   *
+   * Request market tickers for all the trading pairs in the market (including 24h volume), takes a snapshot every 2 seconds.
+   */
   getTickers(): Promise<
     APISuccessResponse<{
       time: number;
@@ -670,33 +762,12 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v1/market/allTickers');
   }
 
-  get24hrStats(params: {
-    symbol: string;
-  }): Promise<APISuccessResponse<Symbol24hrStats>> {
-    return this.get('api/v1/market/stats', params);
-  }
-
-  getMarkets(): Promise<APISuccessResponse<string[]>> {
-    return this.get('api/v1/markets');
-  }
-
-  getOrderBookLevel20(params: {
-    symbol: string;
-  }): Promise<APISuccessResponse<OrderBookLevel>> {
-    return this.get(`api/v1/market/orderbook/level2_20`, params);
-  }
-
-  getOrderBookLevel100(params: {
-    symbol: string;
-  }): Promise<APISuccessResponse<OrderBookLevel>> {
-    return this.get(`api/v1/market/orderbook/level2_100`, params);
-  }
-
-  getFullOrderBook(params: {
-    symbol: string;
-  }): Promise<APISuccessResponse<OrderBookLevel>> {
-    return this.getPrivate('api/v3/market/orderbook/level2', params);
-  }
+  /**
+   * Get Trade History
+   *
+   * Request via this endpoint to get the trade history of the specified symbol,
+   * the returned quantity is the last 100 transaction records.
+   */
 
   getTradeHistories(params: {
     symbol: string;
@@ -704,26 +775,93 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v1/market/histories', params);
   }
 
+  /**
+   * Get Klines
+   *
+   * Get the Kline of the symbol.
+   * Data are returned in grouped buckets based on requested type.
+   */
   getKlines(
     params: GetSpotKlinesRequest,
   ): Promise<APISuccessResponse<Kline[]>> {
     return this.get('api/v1/market/candles', params);
   }
 
+  /**
+   * Get Part OrderBook
+   *
+   * Query for part orderbook depth data. Level 20(aggregated by price)
+   */
+  getOrderBookLevel20(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<OrderBookLevel>> {
+    return this.get(`api/v1/market/orderbook/level2_20`, params);
+  }
+
+  /**
+   * Get Part OrderBook
+   *
+   * Query for part orderbook depth data. Level 100(aggregated by price)
+   */
+  getOrderBookLevel100(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<OrderBookLevel>> {
+    return this.get(`api/v1/market/orderbook/level2_100`, params);
+  }
+
+  /**
+   * Get Full OrderBook
+   *
+   * Query for full orderbook depth data. (aggregated by price)
+   */
+  getFullOrderBook(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<OrderBookLevel>> {
+    return this.getPrivate('api/v3/market/orderbook/level2', params);
+  }
+
+  /**
+   * Get Fiat Price
+   *
+   * Request via this endpoint to get the fiat price of the currencies for the available trading pairs.
+   */
   getFiatPrice(params?: { base?: string; currencies?: string }): Promise<any> {
     return this.get('api/v1/prices', params);
   }
 
   /**
+   * Get 24hr Stats
    *
-   * REST - SPOT TRADING - Spot HF trade
+   * Request via this endpoint to get the statistics of the specified ticker in the last 24 hours.
+   */
+  get24hrStats(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<Symbol24hrStats>> {
+    return this.get('api/v1/market/stats', params);
+  }
+
+  /**
+   * Get Market List
+   *
+   * Request via this endpoint to get the transaction currency for the entire trading market.
+   */
+  getMarkets(): Promise<APISuccessResponse<string[]>> {
+    return this.get('api/v1/markets');
+  }
+
+  /**
+   *
+   * REST - SPOT TRADING - Orders
    *
    */
 
-  getUserType(): Promise<APISuccessResponse<boolean>> {
-    return this.getPrivate('api/v1/hf/accounts/opened');
-  }
-
+  /**
+   * Add Order
+   *
+   * Place order to the Spot trading system, you can place two major types of orders: limit and market.
+   * Orders can only be placed if your account has sufficient funds. Once an order is placed, your funds will be put on hold for the duration of the order.
+   * The amount of funds on hold depends on the order type and parameters specified.
+   */
   submitHFOrder(params: SubmitHFOrderRequest): Promise<
     APISuccessResponse<{
       orderId: string;
@@ -733,37 +871,58 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/hf/orders', params);
   }
 
-  submitHFOrderTest(): Promise<any> {
-    return this.postPrivate('api/v1/hf/orders/test');
-  }
-
+  /**
+   * Add Order Sync
+   *
+   * Place order to the spot trading system
+   *
+   * The difference between this interface and "Add order" is that this interface will synchronously return the order information after the order matching is completed.
+   */
   submitHFOrderSync(
     params: SubmitHFOrderRequest,
   ): Promise<APISuccessResponse<SubmitHFOrderSyncResponse>> {
     return this.postPrivate('api/v1/hf/orders/sync', params);
   }
 
+  /**
+   * Add Order Test
+   *
+   * Order test endpoint, the request parameters and return parameters of this endpoint are exactly the same as the order endpoint,
+   * and can be used to verify whether the signature is correct and other operations. After placing an order, the order will not enter the matching system, and the order cannot be queried.
+   */
+  submitHFOrderTest(): Promise<any> {
+    return this.postPrivate('api/v1/hf/orders/test');
+  }
+
+  /**
+   * Batch Add Orders
+   *
+   * This endpoint supports sequential batch order placement from a single endpoint. A maximum of 20 orders can be placed simultaneously.
+   */
   submitHFMultipleOrders(params: {
     orderList: SubmitMultipleHFOrdersRequest[];
   }): Promise<APISuccessResponse<SubmitMultipleHFOrdersResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi', params);
   }
 
+  /**
+   * Batch Add Orders Sync
+   *
+   * This endpoint supports sequential batch order placement from a single endpoint. A maximum of 20 orders can be placed simultaneously.
+   * The difference between this interface and "Batch Add Orders" is that this interface will synchronously return the order information after the order matching is completed.
+   */
   submitHFMultipleOrdersSync(params: {
     orderList: SubmitMultipleHFOrdersRequest[];
   }): Promise<APISuccessResponse<SubmitMultipleHFOrdersSyncResponse[]>> {
     return this.postPrivate('api/v1/hf/orders/multi/sync', params);
   }
 
-  updateHFOrder(params: ModifyHFOrderRequest): Promise<
-    APISuccessResponse<{
-      newOrderId: string;
-      clientOid: string;
-    }>
-  > {
-    return this.postPrivate('api/v1/hf/orders/alter', params);
-  }
-
+  /**
+   * Cancel Order By OrderId
+   *
+   * This endpoint can be used to cancel a spot order by orderId.
+   * This endpoint only sends cancellation requests. The results of the requests must be obtained by checking the order status or subscribing to websocket.
+   */
   cancelHFOrder(params: { orderId: string; symbol: string }): Promise<
     APISuccessResponse<{
       orderId: string;
@@ -772,6 +931,12 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
+  /**
+   * Cancel Order By OrderId Sync
+   *
+   * This endpoint can be used to cancel a spot order by orderId.
+   * The difference between this interface and "Cancel Order By OrderId" is that this interface will synchronously return the order information after the order canceling is completed.
+   */
   cancelHFOrderSync(params: {
     orderId: string;
     symbol: string;
@@ -782,6 +947,12 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Cancel Order By ClientOid
+   *
+   * This endpoint can be used to cancel a spot order by clientOid.
+   * This endpoint only sends cancellation requests. The results of the requests must be obtained by checking the order status or subscribing to websocket.
+   */
   cancelHFOrderByClientOId(params: {
     clientOid: string;
     symbol: string;
@@ -796,6 +967,12 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Cancel Order By ClientOid Sync
+   *
+   * This endpoint can be used to cancel a spot order by clientOid.
+   * The difference between this interface and "Cancel Order By ClientOid" is that this interface will synchronously return the order information after the order canceling is completed.
+   */
   cancelHFOrderSyncByClientOId(params: {
     clientOid: string;
     symbol: string;
@@ -806,6 +983,11 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Cancel Partial Order
+   *
+   * This interface can cancel the specified quantity of the order according to the orderId.
+   */
   cancelHFOrdersNumber(
     params: CancelSpecifiedNumberHFOrdersRequest,
   ): Promise<any> {
@@ -815,6 +997,11 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Cancel All Orders By Symbol
+   *
+   * This endpoint can cancel all spot orders for specific symbol.
+   */
   cancelHFAllOrdersBySymbol(params: { symbol: string }): Promise<
     APISuccessResponse<{
       orderId: string;
@@ -824,33 +1011,34 @@ export class SpotClient extends BaseRestClient {
     return this.deletePrivate(`api/v1/hf/orders`, params);
   }
 
+  /**
+   * Cancel All Orders
+   *
+   * This endpoint can cancel all spot orders for all symbol.
+   */
   cancelHFAllOrders(): Promise<APISuccessResponse<CancelAllHFOrdersResponse>> {
     return this.deletePrivate(`api/v1/hf/orders/cancelAll`);
   }
 
-  getHFActiveOrders(params: {
-    symbol: string;
-  }): Promise<APISuccessResponse<HFOrder[]>> {
-    return this.getPrivate(`api/v1/hf/orders/active`, params);
-  }
-
-  getHFActiveSymbols(): Promise<
+  /**
+   * Modify Order
+   *
+   * This interface can modify the price and quantity of the order according to orderId or clientOid.
+   */
+  updateHFOrder(params: ModifyHFOrderRequest): Promise<
     APISuccessResponse<{
-      symbols: string[];
+      newOrderId: string;
+      clientOid: string;
     }>
   > {
-    return this.getPrivate(`api/v1/hf/orders/active/symbols`);
+    return this.postPrivate('api/v1/hf/orders/alter', params);
   }
 
-  getHFCompletedOrders(params: GetHFCompletedOrdersRequest): Promise<
-    APISuccessResponse<{
-      lastId: number;
-      items: HFOrder[];
-    }>
-  > {
-    return this.getPrivate(`api/v1/hf/orders/done`, params);
-  }
-
+  /**
+   * Get Order By OrderId
+   *
+   * This endpoint can be used to obtain information for a single Spot order using the order id.
+   */
   getHFOrderDetailsByOrderId(params: {
     orderId: string;
     symbol: string;
@@ -858,6 +1046,11 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate(`api/v1/hf/orders/${params.orderId}`, params);
   }
 
+  /**
+   * Get Order By ClientOid
+   *
+   * This endpoint can be used to obtain information for a single Spot order using the clientOid.
+   */
   getHFOrderDetailsByClientOid(params: {
     clientOid: string;
     symbol: string;
@@ -868,6 +1061,78 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Get Symbols With Open Order
+   *
+   * This interface can query all spot symbol that has active orders
+   */
+  getHFActiveSymbols(): Promise<
+    APISuccessResponse<{
+      symbols: string[];
+    }>
+  > {
+    return this.getPrivate(`api/v1/hf/orders/active/symbols`);
+  }
+
+  /**
+   * Get Open Orders
+   *
+   * This interface is to obtain all Spot active order lists, and the return value of the active order interface is the paged data of all uncompleted order lists.
+   * The returned data is sorted in descending order according to the latest update time of the order.
+   */
+  getHFActiveOrders(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<HFOrder[]>> {
+    return this.getPrivate(`api/v1/hf/orders/active`, params);
+  }
+  /**
+   * Get Closed Orders
+   *
+   * This interface is to obtain all Spot completed order lists, and the return value of the completed order interface is the paged data of all completed order lists.
+   * The returned data is sorted in descending order according to the latest update time of the order.
+   */
+  getHFCompletedOrders(params: GetHFCompletedOrdersRequest): Promise<
+    APISuccessResponse<{
+      lastId: number;
+      items: HFOrder[];
+    }>
+  > {
+    return this.getPrivate(`api/v1/hf/orders/done`, params);
+  }
+
+  /**
+   * Get Trade History
+   *
+   * This endpoint can be used to obtain a list of the latest Spot transaction details.
+   */
+  getHFFilledOrders(params: GetHFFilledListRequest): Promise<
+    APISuccessResponse<{
+      items: HFFilledOrder[];
+      lastId: number;
+    }>
+  > {
+    return this.getPrivate('api/v1/hf/fills', params);
+  }
+
+  /**
+   * Get DCP
+   *
+   * Get Disconnection Protect(Deadman Swich)
+   * Through this interface, you can query the settings of automatic order cancellation
+   */
+  cancelHFOrderAutoSettingQuery(): Promise<
+    APISuccessResponse<AutoCancelHFOrderSettingQueryResponse>
+  > {
+    return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query');
+  }
+
+  /**
+   * Set DCP
+   *
+   * Set Disconnection Protect(Deadman Swich)
+   * Through this interface, Call this interface to automatically cancel all orders of the set trading pair after the specified time.
+   * If this interface is not called again for renewal or cancellation before the set time, the system will help the user to cancel the order of the corresponding trading pair. Otherwise it will not.
+   */
   cancelHFOrderAutoSetting(params: {
     timeout: number;
     symbols?: string;
@@ -880,189 +1145,21 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v1/hf/orders/dead-cancel-all', params);
   }
 
-  cancelHFOrderAutoSettingQuery(): Promise<
-    APISuccessResponse<AutoCancelHFOrderSettingQueryResponse>
-  > {
-    return this.getPrivate('api/v1/hf/orders/dead-cancel-all/query');
-  }
-
-  getHFFilledOrders(params: GetHFFilledListRequest): Promise<
-    APISuccessResponse<{
-      items: HFFilledOrder[];
-      lastId: number;
-    }>
-  > {
-    return this.getPrivate('api/v1/hf/fills', params);
-  }
-
   /**
+   * Add Stop Order
    *
-   * REST - SPOT TRADING - Orders
-   *
+   * Place stop order to the Spot trading system.
    */
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the POST /api/v1/hf/orders endpoint instead of this endpoint
-   */
-  submitOrder(params: SubmitOrderRequest): Promise<
-    APISuccessResponse<{
-      orderId: string; // An order Id is returned once an order is successfully submitd.
-    }>
-  > {
-    return this.postPrivate('api/v1/orders', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the POST /api/v1/hf/orders/test endpoint instead of this endpoint
-   */
-  submitOrderTest(): Promise<any> {
-    return this.postPrivate('api/v1/orders/test');
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the POST /api/v1/hf/orders/multi endpoint instead of this endpoint
-   */
-  submitMultipleOrders(params: {
-    symbol: string;
-    orderList: SubmitMultipleOrdersRequest[];
-  }): Promise<APISuccessResponse<MultipleOrdersResponse[]>> {
-    return this.postPrivate('api/v1/orders/multi', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the DELETE /api/v1/hf/orders/{orderId} endpoint instead of this endpoint
-   */
-  cancelOrderById(params: { orderId: string }): Promise<
-    APISuccessResponse<{
-      cancelledOrderIds: string[];
-    }>
-  > {
-    return this.deletePrivate(`api/v1/orders/${params.orderId}`);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the DELETE /api/v1/hf/orders/client-order/{params.clientOid} endpoint instead of this endpoint
-   */
-  cancelOrderByClientOid(params: { clientOid: string }): Promise<
-    APISuccessResponse<{
-      cancelledOrderId: string;
-      clientOid: string;
-    }>
-  > {
-    return this.deletePrivate(`api/v1/order/client-order/${params.clientOid}`);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the DELETE /api/v1/hf/orders/cancelAll endpoint instead of this endpoint
-   */
-  cancelAllOrders(params?: CancelAllOrdersRequest): Promise<
-    APISuccessResponse<{
-      cancelledOrderIds: string[];
-    }>
-  > {
-    return this.deletePrivate('api/v1/orders', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/hf/orders/active endpoint instead of this endpoint
-   */
-  getOrders(
-    params?: GetOrderListRequest,
-  ): Promise<APISuccessResponse<SpotOrderList>> {
-    return this.getPrivate('api/v1/orders', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/hf/orders/active endpoint instead of this endpoint
-   */
-  getRecentOrders(params?: {
-    currentPage?: number;
-    pageSize?: number;
-  }): Promise<APISuccessResponse<SpotOrder[]>> {
-    return this.getPrivate('api/v1/limit/orders', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/hf/orders/{params.orderId} endpoint instead of this endpoint
-   */
-  getOrderByOrderId(params: {
-    orderId: string;
-  }): Promise<APISuccessResponse<SpotOrder>> {
-    return this.getPrivate(`api/v1/orders/${params.orderId}`);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/hf/orders/client-order/{params.clientOid} endpoint instead of this endpoint
-   */
-  getOrderByClientOid(params: {
-    clientOid: string;
-  }): Promise<APISuccessResponse<SpotOrder>> {
-    return this.getPrivate(`api/v1/order/client-order/${params.clientOid}`);
-  }
-
-  /**
-   *
-   * REST - SPOT TRADING -Fills
-   *
-   */
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/hf/fills endpoint instead of this endpoint
-   */
-  getFills(
-    params?: GetFillsRequest,
-  ): Promise<APISuccessResponse<SpotOrderFills>> {
-    return this.getPrivate('api/v1/fills', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v1/hf/fills endpoint instead of this endpoint
-   */
-  getRecentFills(): Promise<APISuccessResponse<SpotOrderFill[]>> {
-    return this.getPrivate('api/v1/limit/fills');
-  }
-
-  /**
-   *
-   * REST - SPOT TRADING - Stop order
-   *
-   */
-
-  // Spot and margin trading, submits a stop order on the platform.
   submitStopOrder(
     params: SubmitStopOrderRequest,
   ): Promise<APISuccessResponse<{ orderId: string }>> {
     return this.postPrivate('api/v1/stop-order', params);
   }
-  /**
-   * Cancels a single stop order by orderId. Applicable for both spot and margin trading.
-   *
-   * This endpoint requires the "Spot Trading" or "Margin Trading" permission on your API key.
-   */
 
-  // Cancels a single stop order by orderId. Applicable for both spot and margin trading.
-  // This endpoint requires the "Spot Trading" or "Margin Trading" permission on your API key.
-  cancelStopOrderById(params: { orderId: string }): Promise<
-    APISuccessResponse<{
-      cancelledOrderIds: string[]; // Unique ID of the cancelled order
-    }>
-  > {
-    return this.deletePrivate(`api/v1/stop-order/${params.orderId}`);
-  }
   /**
-   * Cancels a stop order by clientOid. Requires "Spot Trading" or "Margin Trading" permission.
+   * Cancel Stop Order By ClientOid
+   *
+   * This endpoint can be used to cancel a spot stop order by clientOid.
    */
   cancelStopOrderByClientOid(params: {
     clientOid: string;
@@ -1078,8 +1175,24 @@ export class SpotClient extends BaseRestClient {
       params,
     );
   }
+
   /**
-   *  Cancels a batch of stop orders. Requires "Spot Trading" or "Margin Trading" permission.
+   * Cancel Stop Order By OrderId
+   *
+   * Request via this endpoint to cancel a single stop order previously placed.
+   */
+  cancelStopOrderById(params: { orderId: string }): Promise<
+    APISuccessResponse<{
+      cancelledOrderIds: string[]; // Unique ID of the cancelled order
+    }>
+  > {
+    return this.deletePrivate(`api/v1/stop-order/${params.orderId}`);
+  }
+
+  /**
+   * Batch Cancel Stop Orders
+   *
+   * Request via this interface to cancel a batch of stop orders.
    */
   cancelStopOrders(params?: CancelStopOrdersRequest): Promise<
     APISuccessResponse<{
@@ -1088,16 +1201,24 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.deletePrivate(`api/v1/stop-order/cancel`, params);
   }
+
   /**
-   *  Retrieves your current untriggered stop order list, paginated and sorted to show the latest first.
+   * Get Stop Orders List
+   *
+   * Request via this endpoint to get your current untriggered stop order list.
    */
   getStopOrders(
     params?: GetStopOrdersListRequest,
   ): Promise<APISuccessResponse<StopOrders>> {
     return this.getPrivate('api/v1/stop-order', params);
   }
+
   /**
-   * Retrieves the details of a single stop order by its orderId.
+   * Get Stop Order By OrderId
+   *
+   * Request via this interface to get a stop order information via the order ID.
+
+
    */
   getStopOrderByOrderId(params: {
     orderId: string;
@@ -1106,7 +1227,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Retrieves the details of a single stop order by its clientOid.
+   * Get Stop Order By ClientOid
+   *
+   *
    */
   getStopOrderByClientOid(params: {
     clientOid: string;
@@ -1114,14 +1237,11 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<StopOrderItem[]>> {
     return this.getPrivate('api/v1/stop-order/queryOrderByClientOid', params);
   }
-
   /**
+   * Add OCO Order
    *
-   * REST - SPOT TRADING - OCO order
-   *
+   * Place OCO order to the Spot trading system
    */
-
-  // submits an OCO (One Cancels the Other) order on the platform.
   submitOCOOrder(params: SubmitOCOOrderRequest): Promise<
     APISuccessResponse<{
       orderId: string; // An order Id is returned once an order is successfully submitd.
@@ -1129,9 +1249,10 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.postPrivate('api/v3/oco/order', params);
   }
-
   /**
-   * Cancels a single OCO order by orderId.
+   * Cancel OCO Order By OrderId
+   *
+   * Request via this endpoint to cancel a single oco order previously placed.
    */
   cancelOCOOrderById(params: { orderId: string }): Promise<
     APISuccessResponse<{
@@ -1142,7 +1263,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Cancels a single OCO order by clientOid.
+   * Cancel OCO Order By ClientOid
+   *
+   * Request via this endpoint to cancel a single oco order previously placed.
    */
   cancelOCOOrderByClientOid(params: { clientOid: string }): Promise<
     APISuccessResponse<{
@@ -1153,7 +1276,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Batch cancels OCO orders through orderIds.
+   * Batch Cancel OCO Order
+   *
+   * This interface can batch cancel OCO orders through orderIds.
    */
   cancelMultipleOCOOrders(params?: {
     orderIds?: string;
@@ -1167,7 +1292,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Retrieves the details of a single OCO order by its orderId.
+   * Get OCO Order By OrderId
+   *
+   * Request via this interface to get a oco order information via the order ID.
    */
   getOCOOrderByOrderId(params: {
     orderId: string;
@@ -1176,7 +1303,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Retrieves the details of a single OCO order by its clientOid.
+   * Get OCO Order By ClientOid
+   *
+   * Request via this interface to get a oco order information via the clientOid.
    */
   getOCOOrderByClientOid(params: {
     clientOid: string;
@@ -1185,7 +1314,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Retrieves the details of a single OCO order by its orderId, including detailed information about the individual orders.
+   * Get OCO Order Details
+   *
+   * Request via this interface to get a oco order information via the order ID.
    */
   getOCOOrderDetails(params: {
     orderId: string;
@@ -1194,7 +1325,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Retrieves your current OCO order list, paginated and sorted to show the latest first.
+   * Get OCO Order List
+   *
+   * Request via this endpoint to get your current OCO order list.
    */
   getOCOOrders(
     params: GetOCOOrdersRequest,
@@ -1204,10 +1337,81 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - MARGIN TRADING -Margin HF trade
+   * REST - MARGIN TRADING - Market Data
    *
    */
 
+  /**
+   * Get Symbols - Cross Margin
+   *
+   * This  endpoint allows querying the configuration of cross margin symbol.
+   */
+  getMarginActivePairsV3(params?: {
+    symbol?: string;
+  }): Promise<APISuccessResponse<{ timestamp: number; items: any[] }>> {
+    return this.getPrivate('api/v3/margin/symbols', params);
+  }
+  /**
+   * Get Margin Config
+   *
+   * Request via this endpoint to get the configure info of the cross margin.
+   */
+  getMarginConfigInfo(): Promise<APISuccessResponse<MarginConfigInfo>> {
+    return this.get('api/v1/margin/config');
+  }
+
+  /**
+   * Get ETF Info
+   *
+   * This interface returns leveraged token information
+   */
+  getMarginLeveragedToken(params?: {
+    currency?: string;
+  }): Promise<APISuccessResponse<MarginLevTokenInfo[]>> {
+    return this.getPrivate('api/v3/etf/info', params);
+  }
+
+  /**
+   * Get Mark Price List
+   *
+   * This endpoint returns the current Mark price for all margin trading pairs.
+   */
+  getMarginMarkPrices(): Promise<APISuccessResponse<MarginMarkPrice[]>> {
+    return this.get('api/v3/mark-price/all-symbols');
+  }
+
+  /**
+   * Get Mark Price Detail
+   *
+   * This endpoint returns the current Mark price for specified margin trading pairs.
+   */
+  getMarginMarkPrice(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<MarginMarkPrice>> {
+    return this.get(`api/v1/mark-price/${params.symbol}/current`);
+  }
+  /**
+   * Get Symbols - Isolated Margin
+   *
+   * This endpoint allows querying the configuration of isolated margin symbol.
+   */
+  getIsolatedMarginSymbolsConfig(): Promise<
+    APISuccessResponse<IsolatedMarginSymbolsConfig[]>
+  > {
+    return this.getPrivate('api/v1/isolated/symbols');
+  }
+
+  /**
+   *
+   * REST - MARGIN TRADING - Orders
+   *
+   */
+
+  /**
+   * Add Order
+   *
+   * Place order to the Cross-margin or Isolated-margin trading system
+   */
   submitHFMarginOrder(params: SubmitHFMarginOrderRequest): Promise<
     APISuccessResponse<{
       orderNo: string; // An order Id is returned once an order is successfully submitd.
@@ -1215,11 +1419,19 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.postPrivate('api/v3/hf/margin/order', params);
   }
-
+  /**
+   * Add Order Test
+   *
+   * This interface is used to test the order submission.
+   */
   submitHFMarginOrderTest(): Promise<any> {
     return this.postPrivate('api/v3/hf/margin/order/test');
   }
-
+  /**
+   * Cancel Order By OrderId
+   *
+   * This endpoint can be used to cancel a margin order by orderId.
+   */
   cancelHFMarginOrder(params: { orderId: string; symbol: string }): Promise<
     APISuccessResponse<{
       orderId: string;
@@ -1231,6 +1443,11 @@ export class SpotClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Cancel Order By ClientOid
+   *
+   * This endpoint can be used to cancel a margin order by clientOid.
+   */
   cancelHFMarginOrderByClientOid(params: {
     clientOid: string;
     symbol: string;
@@ -1244,17 +1461,42 @@ export class SpotClient extends BaseRestClient {
       params,
     );
   }
-
+  /**
+   * Cancel All Orders By Symbol
+   *
+   * This interface can cancel all open Margin orders by symbol
+   */
   cancelHFAllMarginOrders(params: HFMarginOrder): Promise<any> {
     return this.deletePrivate(`api/v3/hf/margin/orders`, params);
   }
 
+  /**
+   * Get Symbols With Open Order
+   *
+   * This interface can query all Margin symbol that has active orders
+   */
+  getHFMarginOpenSymbols(params: {
+    tradeType: string;
+  }): Promise<APISuccessResponse<{ symbolSize: number; symbols: string[] }>> {
+    return this.getPrivate('api/v3/hf/margin/order/active/symbols', params);
+  }
+
+  /**
+   * Get Open Orders
+   *
+   * This interface is to obtain all Margin active order lists, and the return value of the active order interface is the paged data of all uncompleted order lists.
+   */
   getHFActiveMarginOrders(
     params: HFMarginRequestOrder,
   ): Promise<APISuccessResponse<HFMarginOrder[]>> {
     return this.getPrivate(`api/v3/hf/margin/orders/active`, params);
   }
 
+  /**
+   * Get Closed Orders
+   *
+   * This interface is to obtain all Margin Closed order lists
+   */
   getHFMarginFilledOrders(params: GetHFMarginFilledRequest): Promise<
     APISuccessResponse<{
       lastId: number;
@@ -1264,22 +1506,11 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v3/hf/margin/orders/done', params);
   }
 
-  getHFMarginOrderByOrderId(params: {
-    orderId: string;
-    symbol: string;
-  }): Promise<APISuccessResponse<HFMarginOrder>> {
-    return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
-  }
-
-  getHFMarginOrderByClientOid(params: {
-    clientOid: string;
-    symbol: string;
-  }): Promise<APISuccessResponse<HFMarginOrder>> {
-    return this.getPrivate(
-      `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
-    );
-  }
-
+  /**
+   * Get Trade History
+   *
+   * This endpoint can be used to obtain a list of the latest Margin transaction details.
+   */
   getHFMarginFills(params: getHFMarginFillsRequest): Promise<
     APISuccessResponse<{
       lastId: number;
@@ -1289,142 +1520,97 @@ export class SpotClient extends BaseRestClient {
     return this.getPrivate('api/v3/hf/margin/fills', params);
   }
 
-  getHFMarginOpenSymbols(params: {
-    tradeType: string;
-  }): Promise<APISuccessResponse<{ symbolSize: number; symbols: string[] }>> {
-    return this.getPrivate('api/v3/hf/margin/order/active/symbols', params);
-  }
-
   /**
+   * Get Order By OrderId
    *
-   * REST - MARGIN TRADING - Orders
-   *
+   * This endpoint can be used to obtain a Margin order by orderId.
    */
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the POST /api/v3/hf/margin/order endpoint instead of this endpoint
-   */
-  submitMarginOrder(
-    params: SubmitMarginOrderRequest,
-  ): Promise<APISuccessResponse<SubmitMarginOrderResponse>> {
-    return this.postPrivate('api/v1/margin/order', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the POST /api/v3/hf/margin/order/test endpoint instead of this endpoint
-   */
-  submitMarginOrderTest(): Promise<any> {
-    return this.postPrivate('api/v1/margin/order/test');
-  }
-
-  /**
-   *
-   * REST - MARGIN TRADING - Margin info
-   *
-   */
-
-  getMarginLeveragedToken(params?: {
-    currency?: string;
-  }): Promise<APISuccessResponse<MarginLevTokenInfo[]>> {
-    return this.getPrivate('api/v3/etf/info', params);
-  }
-
-  getMarginMarkPrices(): Promise<APISuccessResponse<MarginMarkPrice[]>> {
-    return this.get('api/v3/mark-price/all-symbols');
-  }
-
-  getMarginMarkPrice(params: {
+  getHFMarginOrderByOrderId(params: {
+    orderId: string;
     symbol: string;
-  }): Promise<APISuccessResponse<MarginMarkPrice>> {
-    return this.get(`api/v1/mark-price/${params.symbol}/current`);
+  }): Promise<APISuccessResponse<HFMarginOrder>> {
+    return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
   }
-
-  getMarginConfigInfo(): Promise<APISuccessResponse<MarginConfigInfo>> {
-    return this.get('api/v1/margin/config');
-  }
-
-  getMarginRiskLimitConfig(
-    params: MarginRiskLimitRequest,
-  ): Promise<APISuccessResponse<MarginRiskLimit[]>> {
-    return this.getPrivate('api/v3/margin/currencies', params);
-  }
-
   /**
+   * Get Order By ClientOid
    *
-   * REST - MARGIN TRADING - Isolated Margin
-   *
+   * This endpoint can be used to obtain a Margin order by clientOid.
    */
-
-  getIsolatedMarginSymbolsConfig(): Promise<
-    APISuccessResponse<IsolatedMarginSymbolsConfig[]>
-  > {
-    return this.getPrivate('api/v1/isolated/symbols');
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v3/margin/accounts endpoint instead of this endpoint
-   */
-  getIsolatedMarginAccounts(params?: {
-    balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
-  }): Promise<APISuccessResponse<IsolatedMarginAccountInfo>> {
-    return this.getPrivate('api/v1/isolated/accounts', params);
-  }
-
-  /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the GET /api/v3/isolated/accounts endpoint instead of this endpoint
-   */
-  getIsolatedMarginAccount(params: {
+  getHFMarginOrderByClientOid(params: {
+    clientOid: string;
     symbol: string;
-  }): Promise<APISuccessResponse<SingleIsolatedMarginAccountInfo>> {
-    return this.getPrivate(`api/v1/isolated/account/${params.symbol}`);
+  }): Promise<APISuccessResponse<HFMarginOrder>> {
+    return this.getPrivate(
+      `api/v3/hf/margin/orders/client-order/${params.clientOid}?symbol=${params.symbol}`,
+    );
   }
 
   /**
    *
-   * REST - MARGIN TRADING - Margin trading(v3)
+   * REST - MARGIN TRADING - Debit
    *
    */
 
+  /**
+   * Borrow
+   *
+   * This API endpoint is used to initiate an application for cross or isolated margin borrowing.
+   */
   marginBorrowV3(
     params: MarginBorrowV3Request,
   ): Promise<APISuccessResponse<MarginOrderV3>> {
     return this.postPrivate('api/v3/margin/borrow', params);
   }
 
-  marginRepayV3(
-    params: MarginRepayV3Request,
-  ): Promise<APISuccessResponse<MarginOrderV3>> {
-    return this.postPrivate('api/v3/margin/repay', params);
-  }
-
+  /**
+   * Get Borrow History
+   *
+   * This API endpoint is used to get the borrowing orders for cross and isolated margin accounts
+   */
   getMarginBorrowHistoryV3(
     params: MarginHistoryV3Request,
   ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
     return this.getPrivate('api/v3/margin/borrow', params);
   }
 
+  /**
+   * Repay
+   *
+   * This API endpoint is used to initiate an application for cross or isolated margin repayment.
+   */
+  marginRepayV3(
+    params: MarginRepayV3Request,
+  ): Promise<APISuccessResponse<MarginOrderV3>> {
+    return this.postPrivate('api/v3/margin/repay', params);
+  }
+
+  /**
+   * Get Repay History
+   *
+   * This API endpoint is used to get the repayment orders for cross and isolated margin accounts
+   */
   getMarginRepayHistoryV3(
     params: MarginHistoryV3Request,
   ): Promise<APISuccessResponse<MarginHistoryRecord[]>> {
     return this.getPrivate('api/v3/margin/repay', params);
   }
 
+  /**
+   * Get Interest History
+   *
+   * Request via this endpoint to get the interest records of the cross/isolated margin lending.
+   */
   getMarginInterestRecordsV3(
     params?: MarginInterestRecordsRequest,
   ): Promise<APISuccessResponse<MarginInterestRecords>> {
     return this.getPrivate('api/v3/margin/interest', params);
   }
 
-  getMarginActivePairsV3(params?: {
-    symbol?: string;
-  }): Promise<APISuccessResponse<{ timestamp: number; items: any[] }>> {
-    return this.getPrivate('api/v3/margin/symbols', params);
-  }
-
+  /**
+   * Modify Leverage
+   *
+   * This endpoint allows modifying the leverage multiplier for cross margin or isolated margin.
+   */
   updateMarginLeverageV3(params: {
     symbol?: string;
     leverage: string;
@@ -1435,16 +1621,26 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - MARGIN TRADING - Lending market(v3)
+   * REST - MARGIN TRADING - Credit
    *
    */
 
+  /**
+   * Get Loan Market
+   *
+   * This API endpoint is used to get the information about the currencies available for lending.
+   */
   getLendingCurrencyV3(params?: {
     currency?: string;
   }): Promise<APISuccessResponse<LendingCurrencyV3>> {
     return this.get('api/v3/project/list', params);
   }
 
+  /**
+   * Get Loan Market Interest Rate
+   *
+   * This API endpoint is used to get the interest rates of the margin lending market over the past 7 days.
+   */
   getLendingInterestRateV3(params: { currency: string }): Promise<
     APISuccessResponse<
       {
@@ -1456,6 +1652,11 @@ export class SpotClient extends BaseRestClient {
     return this.get('api/v3/project/marketInterestRate', params);
   }
 
+  /**
+   * Purchase
+   *
+   * Invest credit in the market and earn interest,Please ensure that the funds are in the main(funding) account
+   */
   submitLendingSubscriptionV3(
     params: InitiateLendingSubscriptionV3Request,
   ): Promise<
@@ -1468,6 +1669,33 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/purchase', params);
   }
 
+  /**
+   * Modify Purchase
+   *
+   * This API endpoint is used to update the interest rates of subscription orders, which will take effect at the beginning of the next hour.
+   */
+  updateLendingSubscriptionOrdersV3(
+    params: ModifyLendingSubscriptionOrdersV3Request,
+  ): Promise<any> {
+    return this.postPrivate('api/v3/lend/purchase/update', params);
+  }
+
+  /**
+   * Get Purchase Orders
+   *
+   * This API endpoint provides pagination query for the purchase orders.
+   */
+  getLendingSubscriptionOrdersV3(
+    params: GetLendingSubscriptionOrdersV3Request,
+  ): Promise<APISuccessResponse<LendingRedemption>> {
+    return this.getPrivate('api/v3/purchase/orders', params);
+  }
+
+  /**
+   * Redeem
+   *
+   * Redeem your loan order
+   */
   submitLendingRedemptionV3(
     params: InitiateLendingRedemptionV3Request,
   ): Promise<
@@ -1480,35 +1708,51 @@ export class SpotClient extends BaseRestClient {
     return this.postPrivate('api/v3/redeem', params);
   }
 
-  updateLendingSubscriptionOrdersV3(
-    params: ModifyLendingSubscriptionOrdersV3Request,
-  ): Promise<any> {
-    return this.postPrivate('api/v3/lend/purchase/update', params);
-  }
-
+  /**
+   * Get Redeem Orders
+   *
+   * This API endpoint provides pagination query for the redeem orders.
+   */
   getLendingRedemptionOrdersV3(
     params: GetLendingRedemptionOrdersV3Request,
   ): Promise<APISuccessResponse<LendingRedemption>> {
     return this.getPrivate('api/v3/redeem/orders', params);
   }
 
-  getLendingSubscriptionOrdersV3(
-    params: GetLendingSubscriptionOrdersV3Request,
-  ): Promise<APISuccessResponse<LendingRedemption>> {
-    return this.getPrivate('api/v3/purchase/orders', params);
-  }
-
   /**
    *
-   * REST - EARN -General
+   * REST - MARGIN TRADING - Risk Limit
    *
    */
 
   /**
-   * Subscribe to Earn Fixed Income Products
+   * Get Margin Risk Limit
    *
-   * This endpoint allows subscribing to fixed income products.
-   * If the subscription fails, it returns the corresponding error code.
+   * Request via this endpoint to get the Configure and Risk limit info of the margin.
+   */
+  getMarginRiskLimitConfig(
+    params: MarginRiskLimitRequest,
+  ): Promise<APISuccessResponse<MarginRiskLimit[]>> {
+    return this.getPrivate('api/v3/margin/currencies', params);
+  }
+
+  /**
+   *
+   * REST - COPY TRADING
+   *
+   */
+
+  /**
+   *
+   * REST - EARN
+   *
+   */
+
+  /**
+  /**
+   * Earn Purchase
+   *
+   * This endpoint allows subscribing earn product
    */
   subscribeEarnFixedIncome(
     params: SubscribeEarnFixedIncomeRequest,
@@ -1517,19 +1761,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Initiate redemption by holding ID
-   *
-   * This endpoint allows initiating redemption by holding ID. If the current holding is fully redeemed or in the process of being redeemed, it indicates that the holding does not exist.
-   */
-
-  submitRedemption(
-    params: InitiateRedemptionRequest,
-  ): Promise<APISuccessResponse<InitiateRedemptionResponse>> {
-    return this.deletePrivate('api/v1/earn/orders', params);
-  }
-
-  /**
-   * Get Earn Redeem Preview by Holding ID
+   * Get Earn Redeem Preview
    *
    * This endpoint retrieves redemption preview information by holding ID. If the current holding is fully redeemed or in the process of being redeemed, it indicates that the holding does not exist.
    */
@@ -1540,10 +1772,15 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * Earn Redeem
    *
-   * REST - EARN -KUCOIN EARN
-   *
+   * This endpoint allows initiating redemption by holding ID. If the current holding is fully redeemed or in the process of being redeemed, it indicates that the holding does not exist.
    */
+  submitRedemption(
+    params: InitiateRedemptionRequest,
+  ): Promise<APISuccessResponse<InitiateRedemptionResponse>> {
+    return this.deletePrivate('api/v1/earn/orders', params);
+  }
 
   /**
    * Get Earn Savings Products
@@ -1554,17 +1791,6 @@ export class SpotClient extends BaseRestClient {
     currency?: string;
   }): Promise<APISuccessResponse<EarnProduct[]>> {
     return this.getPrivate('api/v1/earn/saving/products', params);
-  }
-
-  /**
-   * Get Earn Fixed Income Current Holdings
-   *
-   * This endpoint retrieves current holding assets of fixed income products. If no current holding assets are available, an empty list is returned.
-   */
-  getEarnFixedIncomeHoldAssets(
-    params?: GetEarnFixedIncomeHoldAssetsRequest,
-  ): Promise<APISuccessResponse<EarnFixedIncomeHoldAssets>> {
-    return this.getPrivate('api/v1/earn/hold-assets', params);
   }
 
   /**
@@ -1579,21 +1805,14 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * Get Earn Account Holdings
    *
-   * REST - EARN - Staking
-   *
+   * This endpoint retrieves current holding assets of fixed income products. If no current holding assets are available, an empty list is returned.
    */
-
-  /**
-   * Get Earn KCS Staking Products
-   *
-   * This endpoint retrieves KCS Staking products. If no KCS Staking products are available, an empty list is returned.
-   *
-   */
-  getEarnKcsStakingProducts(params?: {
-    currency?: string;
-  }): Promise<APISuccessResponse<EarnProduct[]>> {
-    return this.getPrivate('api/v1/earn/kcs-staking/products', params);
+  getEarnFixedIncomeHoldAssets(
+    params?: GetEarnFixedIncomeHoldAssetsRequest,
+  ): Promise<APISuccessResponse<EarnFixedIncomeHoldAssets>> {
+    return this.getPrivate('api/v1/earn/hold-assets', params);
   }
 
   /**
@@ -1605,6 +1824,18 @@ export class SpotClient extends BaseRestClient {
     currency?: string;
   }): Promise<APISuccessResponse<EarnProduct[]>> {
     return this.getPrivate('api/v1/earn/staking/products', params);
+  }
+
+  /**
+   * Get Earn KCS Staking Products
+   *
+   * This endpoint retrieves KCS Staking products. If no KCS Staking products are available, an empty list is returned.
+   *
+   */
+  getEarnKcsStakingProducts(params?: {
+    currency?: string;
+  }): Promise<APISuccessResponse<EarnProduct[]>> {
+    return this.getPrivate('api/v1/earn/kcs-staking/products', params);
   }
 
   /**
@@ -1620,22 +1851,24 @@ export class SpotClient extends BaseRestClient {
   /**
    *
    * REST - VIP LENDING
+   *
    */
 
   /**
-   * Get information on off-exchange funding and loans
+   * Get Account Detail - VIP Lending
    *
+   * The following information is only applicable to loans.
+   * Get information on off-exchange funding and loans.
    * This endpoint is only for querying accounts that are currently involved in loans.
-   *
    */
   getOtcLoan(): Promise<APISuccessResponse<OtcLoan>> {
     return this.getPrivate('api/v1/otc-loan/loan');
   }
 
   /**
-   * Get information on accounts involved in off-exchange loans
+   * Get Accounts - VIP Lending
    *
-   * This endpoint is only for querying accounts that are currently involved in off-exchange funding and loans.
+   * Accounts participating in OTC lending, This interface is only for querying accounts currently running OTC lending.
    */
   getOtcLoanAccounts(): Promise<APISuccessResponse<OtcLoanAccount[]>> {
     return this.getPrivate('api/v1/otc-loan/accounts');
@@ -1651,9 +1884,6 @@ export class SpotClient extends BaseRestClient {
    * Get Affiliate User Rebate Information
    *
    * This endpoint allows getting affiliate user rebate information.
-   *
-   * @param params - The parameters for the request
-   * @returns A promise that resolves to the affiliate user rebate information
    */
   getAffiliateUserRebateInfo(params: {
     date: string;
@@ -1662,6 +1892,12 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<any>> {
     return this.getPrivate('api/v2/affiliate/inviter/statistics', params);
   }
+
+  /**
+   *
+   * REST - BROKER
+   *
+   */
 
   /**
    * Get download link for broker rebate orders
@@ -1688,5 +1924,341 @@ export class SpotClient extends BaseRestClient {
 
   getPrivateWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
     return this.postPrivate('api/v1/bullet-private');
+  }
+
+  /**
+   *
+   * DEPRECATED
+   *
+   */
+
+  /**
+   *
+   * REST - ACCOUNT - Sub-Account
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the getSubAccountsV2() endpoint instead of this endpoint
+   */
+  getSubAccountsV1(): Promise<APISuccessResponse<SubAccountInfo[]>> {
+    return this.getPrivate('api/v1/sub/user');
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the getSubAccountsV2() endpoint instead of this endpoint
+   */
+  getSubAccountBalancesV1(): Promise<APISuccessResponse<SubAccountBalance>> {
+    return this.getPrivate('api/v1/sub-accounts');
+  }
+
+  /**
+   *
+   * REST - FUNDING - Funding overview
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the getMarginBalance() endpoint instead of this endpoint
+   */
+  getMarginBalances(): Promise<
+    APISuccessResponse<{
+      debtRatio: string;
+      accounts: MarginAccountBalance[];
+    }>
+  > {
+    return this.getPrivate('api/v1/margin/account');
+  }
+
+  /**
+   *
+   * REST - FUNDING -Deposit
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated. Please use createDepositAddressV3() instead.
+   */
+  createDepositAddress(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<APISuccessResponse<DepositAddress>> {
+    return this.postPrivate('api/v1/deposit-addresses', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated. Please use getDepositAddressesV3() instead.
+   */
+  getDepositAddressesV2(params: {
+    currency: string;
+  }): Promise<APISuccessResponse<DepositAddressV2[]>> {
+    return this.getPrivate('api/v2/deposit-addresses', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated. Please use getDepositAddressesV3() instead.
+   */
+  getDepositAddressV1(params: {
+    currency: string;
+    chain?: string;
+  }): Promise<APISuccessResponse<DepositAddress>> {
+    return this.getPrivate('api/v1/deposit-addresses', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the getDeposits() endpoint instead of this endpoint
+   */
+  getHistoricalDepositsV1(
+    params?: GetDepositsRequest,
+  ): Promise<APISuccessResponse<V1HistoricalDeposits>> {
+    return this.getPrivate('api/v1/hist-deposits', params);
+  }
+
+  /**
+   *
+   * REST - FUNDING -Withdrawals
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the getWithdrawals() endpoint instead of this endpoint
+   */
+  getHistoricalWithdrawalsV1(
+    params?: GetWithdrawalsRequest,
+  ): Promise<APISuccessResponse<HistoricalWithdrawalsV1>> {
+    return this.getPrivate('api/v1/hist-withdrawals', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated. Please use submitWithdrawV3() instead.
+   */
+  submitWithdraw(
+    params: ApplyWithdrawRequest,
+  ): Promise<APISuccessResponse<{ withdrawalId: string }>> {
+    return this.postPrivate('api/v1/withdrawals', params);
+  }
+
+  /**
+   *
+   * REST - FUNDING - Transfer
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the submitFlexTransfer() endpoint instead of this endpoint
+   */
+  submitTransferMasterSub(params: submitTransferMasterSubRequest): Promise<
+    APISuccessResponse<{
+      orderId: string;
+    }>
+  > {
+    return this.postPrivate('api/v2/accounts/sub-transfer', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the submitFlexTransfer() endpoint instead of this endpoint
+   */
+  submitInnerTransfer(params: InnerTransferRequest): Promise<
+    APISuccessResponse<{
+      orderId: string;
+    }>
+  > {
+    return this.postPrivate('api/v2/accounts/inner-transfer', params);
+  }
+
+  /**
+   *
+   * REST - SPOT TRADING - Orders
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  submitOrder(params: SubmitOrderRequest): Promise<
+    APISuccessResponse<{
+      orderId: string; // An order Id is returned once an order is successfully submitd.
+    }>
+  > {
+    return this.postPrivate('api/v1/orders', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  submitOrderTest(): Promise<any> {
+    return this.postPrivate('api/v1/orders/test');
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  submitMultipleOrders(params: {
+    symbol: string;
+    orderList: SubmitMultipleOrdersRequest[];
+  }): Promise<APISuccessResponse<MultipleOrdersResponse[]>> {
+    return this.postPrivate('api/v1/orders/multi', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  cancelOrderById(params: { orderId: string }): Promise<
+    APISuccessResponse<{
+      cancelledOrderIds: string[];
+    }>
+  > {
+    return this.deletePrivate(`api/v1/orders/${params.orderId}`);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  cancelOrderByClientOid(params: { clientOid: string }): Promise<
+    APISuccessResponse<{
+      cancelledOrderId: string;
+      clientOid: string;
+    }>
+  > {
+    return this.deletePrivate(`api/v1/order/client-order/${params.clientOid}`);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the  HF trading endpoints instead of this endpoint
+   */
+  cancelAllOrders(params?: CancelAllOrdersRequest): Promise<
+    APISuccessResponse<{
+      cancelledOrderIds: string[];
+    }>
+  > {
+    return this.deletePrivate('api/v1/orders', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  getOrders(
+    params?: GetOrderListRequest,
+  ): Promise<APISuccessResponse<SpotOrderList>> {
+    return this.getPrivate('api/v1/orders', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  getRecentOrders(params?: {
+    currentPage?: number;
+    pageSize?: number;
+  }): Promise<APISuccessResponse<SpotOrder[]>> {
+    return this.getPrivate('api/v1/limit/orders', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  getOrderByOrderId(params: {
+    orderId: string;
+  }): Promise<APISuccessResponse<SpotOrder>> {
+    return this.getPrivate(`api/v1/orders/${params.orderId}`);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  getOrderByClientOid(params: {
+    clientOid: string;
+  }): Promise<APISuccessResponse<SpotOrder>> {
+    return this.getPrivate(`api/v1/order/client-order/${params.clientOid}`);
+  }
+
+  /**
+   *
+   * REST - SPOT TRADING -Fills
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  getFills(
+    params?: GetFillsRequest,
+  ): Promise<APISuccessResponse<SpotOrderFills>> {
+    return this.getPrivate('api/v1/fills', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the HF trading endpoints instead of this endpoint
+   */
+  getRecentFills(): Promise<APISuccessResponse<SpotOrderFill[]>> {
+    return this.getPrivate('api/v1/limit/fills');
+  }
+
+  /**
+   *
+   * REST - MARGIN TRADING - Orders
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the submitHFMarginOrder() endpoint instead of this endpoint
+   */
+  submitMarginOrder(
+    params: SubmitMarginOrderRequest,
+  ): Promise<APISuccessResponse<SubmitMarginOrderResponse>> {
+    return this.postPrivate('api/v1/margin/order', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the submitHFMarginOrderTest() endpoint instead of this endpoint
+   */
+  submitMarginOrderTest(): Promise<any> {
+    return this.postPrivate('api/v1/margin/order/test');
+  }
+
+  /**
+   *
+   * REST - MARGIN TRADING - Isolated Margin
+   * DEPRECATED
+   */
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the getMarginBalance() endpoint instead of this endpoint
+   */
+  getIsolatedMarginAccounts(params?: {
+    balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
+  }): Promise<APISuccessResponse<IsolatedMarginAccountInfo>> {
+    return this.getPrivate('api/v1/isolated/accounts', params);
+  }
+
+  /**
+   * @deprecated This method is deprecated.
+   * It is recommended to use the getIsolatedMarginBalance() endpoint instead of this endpoint
+   */
+  getIsolatedMarginAccount(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<SingleIsolatedMarginAccountInfo>> {
+    return this.getPrivate(`api/v1/isolated/account/${params.symbol}`);
   }
 }
