@@ -2,7 +2,7 @@ const { FuturesClient } = require('kucoin-api');
 
   // This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
   // This kucoin API SDK is available on npm via "npm install kucoin-api"
-  // ENDPOINT: api/v1/funding-rate/{symbol}/current
+  // ENDPOINT: api/v1/copy-trade/futures/position/margin/max-withdraw-margin
   // METHOD: GET
   // PUBLIC: NO
 
@@ -12,7 +12,7 @@ const client = new FuturesClient({
   apiPassphrase: 'apiPassPhraseHere',
 });
 
-client.getFundingRate(params)
+client.getCopyTradeMaxWithdrawMargin(params)
   .then((response) => {
     console.log(response);
   })

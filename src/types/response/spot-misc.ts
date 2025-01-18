@@ -10,8 +10,8 @@ export interface Announcement {
 
 export interface Announcements {
   totalNum: number;
-  items: Announcement[];
   currentPage: number;
   pageSize: number;
   totalPage: number;
+  items: Announcement[];
 }

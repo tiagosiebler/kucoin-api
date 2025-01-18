@@ -38,14 +38,6 @@ export interface MarginAccountDetail {
   transferInEnabled: boolean;
 }
 
-export interface IsolatedMarginAssetDetail {
-  symbol: string;
-  debtRatio: string;
-  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
-  baseAsset: MarginAssetDetail;
-  quoteAsset: MarginAssetDetail;
-}
-
 export interface MarginBalance {
   totalAssetOfQuoteCurrency: string;
   totalLiabilityOfQuoteCurrency: string;
@@ -59,6 +51,14 @@ export interface IsolatedMarginBalance {
   totalLiabilityOfQuoteCurrency: string;
   timestamp: number;
   assets: IsolatedMarginAssetDetail[];
+}
+
+export interface IsolatedMarginAssetDetail {
+  symbol: string;
+  debtRatio: string;
+  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
+  baseAsset: MarginAssetDetail;
+  quoteAsset: MarginAssetDetail;
 }
 
 /**
@@ -80,27 +80,12 @@ export type DepositAddressV2 = DepositAddress & {
 export interface DepositAddressV3 {
   address: string;
   memo: string;
-  chainName: string;
   chainId: string;
-  contractAddress: string;
+  to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
   expirationDate: number;
-  to: 'main' | 'trade';
   currency: string;
-}
-
-export interface DepositItem {
-  address: string;
-  memo: string;
-  amount: string;
-  fee: string;
-  currency: string;
-  chain: string;
-  isInner: boolean;
-  walletTxId: string;
-  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  remark: string;
-  createdAt: number;
-  updatedAt: number;
+  contractAddress: string;
+  chainName: string;
 }
 
 export interface HistoricalDepositItem {
@@ -118,6 +103,22 @@ export interface Deposits {
   totalNum: number;
   totalPage: number;
   items: DepositItem[];
+}
+
+export interface DepositItem {
+  currency?: string;
+  chain?: string;
+  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  address?: string;
+  memo?: string;
+  isInner?: boolean;
+  amount?: string;
+  fee?: string;
+  walletTxId?: string | null;
+  createdAt?: number;
+  updatedAt?: number;
+  remark?: string;
+  arrears?: boolean;
 }
 
 export interface V1HistoricalDeposits {
@@ -187,21 +188,22 @@ export interface HistoricalWithdrawalsV1 {
 }
 
 export interface WithdrawalQuotas {
-  limitBTCAmount: string;
-  quotaCurrency: string;
-  chain: string;
-  remainAmount: string;
-  innerWithdrawMinFee: string;
-  usedBTCAmount: string;
-  limitQuotaCurrencyAmount: string;
-  withdrawMinSize: string;
-  withdrawMinFee: string;
-  precision: number;
-  reason: string | null;
-  usedQuotaCurrencyAmount: string;
   currency: string;
+  limitBTCAmount: string;
+  usedBTCAmount: string;
+  quotaCurrency: string;
+  limitQuotaCurrencyAmount: string;
+  usedQuotaCurrencyAmount: string;
+  remainAmount: string;
   availableAmount: string;
+  withdrawMinFee: string;
+  innerWithdrawMinFee: string;
+  withdrawMinSize: string;
   isWithdrawEnabled: boolean;
+  precision: number;
+  chain: string;
+  reason: string | null;
+  lockedAmount: string;
 }
 
 /**

@@ -12,18 +12,6 @@
  *
  */
 
-interface Chain {
-  chainName: string;
-  withdrawalMinSize: string;
-  withdrawalMinFee: string;
-  isWithdrawEnabled: boolean;
-  isDepositEnabled: boolean;
-  confirms: number;
-  preConfirms: number;
-  contractAddress: string;
-  chainId: string;
-}
-
 export interface CurrencyInfo {
   currency: string;
   name: string;
@@ -34,10 +22,24 @@ export interface CurrencyInfo {
   isMarginEnabled: boolean;
   isDebitEnabled: boolean;
   chains: Chain[];
+}
+
+interface Chain {
+  chainName: string;
+  withdrawalMinSize: string;
+  depositMinSize: string | null;
+  withdrawFeeRate: string;
+  withdrawalMinFee: string;
+  isWithdrawEnabled: boolean;
+  isDepositEnabled: boolean;
+  confirms: number;
+  preConfirms: number;
+  contractAddress: string;
   withdrawPrecision: number;
+  maxWithdraw: string | null;
+  maxDeposit: string | null;
   needTag: boolean;
-  maxWithdraw: string;
-  maxDeposit: string;
+  chainId: string;
 }
 
 export interface SymbolInfo {
@@ -46,7 +48,7 @@ export interface SymbolInfo {
   baseCurrency: string;
   quoteCurrency: string;
   feeCurrency: string;
-  market: string;
+  market: 'USDS' | 'BTC' | 'ALTS';
   baseMinSize: string;
   quoteMinSize: string;
   baseMaxSize: string;
@@ -58,6 +60,10 @@ export interface SymbolInfo {
   minFunds: string;
   isMarginEnabled: boolean;
   enableTrading: boolean;
+  feeCategory: 1 | 2 | 3;
+  makerFeeCoefficient: string;
+  takerFeeCoefficient: string;
+  st: boolean;
 }
 
 export interface Ticker {
@@ -69,6 +75,33 @@ export interface Ticker {
   bestBid: string;
   bestBidSize: string;
   time: number;
+}
+
+export interface AllTickers {
+  time: number;
+  ticker: Ticker[];
+}
+
+// AllTickers returns different data than asking for one ticker
+export interface AllTickersItem {
+  symbol: string;
+  symbolName: string;
+  buy: string;
+  bestBidSize: string;
+  sell: string;
+  bestAskSize: string;
+  changeRate: string;
+  changePrice: string;
+  high: string;
+  low: string;
+  vol: string;
+  volValue: string;
+  last: string;
+  averagePrice: string;
+  takerFeeRate: string;
+  makerFeeRate: string;
+  takerCoefficient: string;
+  makerCoefficient: string;
 }
 
 export interface Symbol24hrStats {
@@ -105,15 +138,7 @@ export interface TradeHistory {
   side: string;
 }
 
-export interface Kline {
-  startAt: string;
-  open: string;
-  close: string;
-  high: string;
-  low: string;
-  volume: string;
-  amount: string;
-}
+export type Kline = [string, string, string, string, string, string, string];
 
 /**
  *
@@ -154,7 +179,8 @@ export interface SubmitMultipleHFOrdersSyncResponse {
 }
 
 export interface SyncCancelHFOrderResponse {
-  orderId: string; // order Id
+  clientOid?: string; // client order Id
+  orderId?: string; // order Id
   originSize: string; // original order size
   dealSize: string; // deal size
   remainSize: string; // remain size
@@ -178,60 +204,63 @@ export interface AutoCancelHFOrderSettingQueryResponse {
 }
 
 export interface HFFilledOrder {
-  id: number; // Id of transaction detail
-  symbol: string; // Trading pair
-  tradeId: number; // Trade Id
-  orderId: string; // Order Id
-  counterOrderId: string; // Counterparty order Id
-  side: string; // Buy or sell
-  liquidity: string; // Liquidity type: taker or maker
-  forceTaker: boolean; // Whether or not to forcefully process as taker
-  price: string; // Order price
-  size: string; // Order size
-  funds: string; // Turnover
-  fee: string; // Service fee
-  feeRate: string; // Fee rate
-  feeCurrency: string; // Currency used to calculate fees
-  stop: string; // Take Profit and Stop Loss type, currently HFT does not support the Take Profit and Stop Loss type, so it is empty
-  tradeType: string; // Trade type: TRADE(Spot Trading)
-  type: string; // Order type: limit or market
-  createdAt: number; // Transaction(Creation) time
+  id: number;
+  orderId: string;
+  counterOrderId: string;
+  tradeId: number;
+  symbol: string;
+  side: 'buy' | 'sell';
+  liquidity: 'taker' | 'maker';
+  type: 'limit' | 'market';
+  forceTaker: boolean;
+  price: string;
+  size: string;
+  funds: string;
+  fee: string;
+  feeRate: string;
+  feeCurrency: string;
+  stop: string;
+  tradeType: string;
+  taxRate: string;
+  tax: string;
+  createdAt: number;
 }
 
 export interface HFOrder {
-  id: string; // Order id, a unique identifier pertaining to the order
-  symbol: string; // Trading pair
-  opType: string; // Operation type: DEAL
-  type: string; // Order type
-  side: string; // Buy or sell
-  price: string; // Order price
-  size: string; // Order size
-  dealSize: string; // Number of filled transactions
-  cancelledSize: string; // Number of canceled transactions
-  remainSize: string; // Number of remain transactions
-  funds: string; // Order amount
-  dealFunds: string; // Number of filled funds
-  cancelledFunds: string; // Number of canceled funds
-  remainFunds: string; // Number of remain funds
-  fee: string; // Service fee
-  feeCurrency: string; // Currency used to calculate fees
-  stp: string; // Self trade protection
-  timeInForce: string; // Time in force
-  postOnly: boolean; // Is it post only?
-  hidden: boolean; // Is it a hidden order?
-  iceberg: boolean; // Is it an iceberg order?
-  visibleSize: string; // Visible size of iceberg order in order book.
-  cancelAfter: number; // A GTT timeInForce that expires in n seconds
-  channel: string; // Source of orders
-  clientOid: string; // Identifier created by the client
-  remark: string; // Order description
-  tags: string; // Order identifier
-  active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
-  inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
-  cancelExist: boolean; // Are there any cancellation records pertaining to the order?
-  createdAt: number; // Order creation time
-  lastUpdatedAt: number; // Last update time of order
-  tradeType: string; // Trade type: TRADE (Spot Trading)
+  id: string;
+  clientOid: string;
+  symbol: string;
+  opType: string;
+  type: 'limit' | 'market';
+  side: 'buy' | 'sell';
+  price: string;
+  size: string;
+  funds: string;
+  dealSize: string;
+  dealFunds: string;
+  remainSize: string;
+  remainFunds: string;
+  cancelledSize: string;
+  cancelledFunds: string;
+  fee: string;
+  feeCurrency: string;
+  stp?: 'DC' | 'CO' | 'CN' | 'CB' | null;
+  timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+  postOnly: boolean;
+  hidden: boolean;
+  iceberg: boolean;
+  visibleSize: string;
+  cancelAfter: number;
+  channel: string;
+  remark?: string | null;
+  tags?: string | null;
+  cancelExist: boolean;
+  tradeType: string;
+  inOrderBook: boolean;
+  active: boolean;
+  tax: string;
+  createdAt: number;
+  lastUpdatedAt: number;
 }
 
 /**
@@ -352,37 +381,37 @@ export interface StopOrders {
 }
 
 export interface StopOrderItem {
-  id: string;
-  symbol: string;
-  userId: string;
-  status: 'NEW' | 'TRIGGERED';
-  type: 'limit' | 'market';
-  side: 'buy' | 'sell';
-  price: string;
-  size: string;
-  funds: string | null;
-  stp: string | null;
-  timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-  cancelAfter: number;
-  postOnly: boolean;
-  hidden: boolean;
-  iceberg: boolean;
-  visibleSize: string | null;
-  channel: string;
-  clientOid: string;
-  remark: string | null;
-  tags: string | null;
-  orderTime: number;
-  domainId: string;
-  tradeSource: 'USER' | 'MARGIN_SYSTEM';
-  tradeType: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  feeCurrency: string;
-  takerFeeRate: string;
-  makerFeeRate: string;
-  createdAt: number;
-  stop: 'loss' | 'entry';
-  stopTriggerTime: number | null;
-  stopPrice: string;
+  id?: string;
+  symbol?: string;
+  userId?: string;
+  status?: 'NEW' | 'TRIGGERED';
+  type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+  side?: 'buy' | 'sell';
+  price?: string;
+  size?: string;
+  funds?: string | null;
+  stp?: string | null;
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+  cancelAfter?: number;
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string | null;
+  channel?: string;
+  clientOid?: string;
+  remark?: string | null;
+  tags?: string | null;
+  domainId?: string;
+  tradeSource?: 'USER' | 'MARGIN_SYSTEM';
+  tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  feeCurrency?: string;
+  takerFeeRate?: string;
+  makerFeeRate?: string;
+  createdAt?: number;
+  stop?: 'loss' | 'entry';
+  stopTriggerTime?: number | null;
+  stopPrice?: string;
+  orderTime?: number;
 }
 
 /**

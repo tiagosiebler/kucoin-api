@@ -14,18 +14,26 @@
 
 export interface HFMarginOrder {
   id: string;
+  clientOid: string;
   symbol: string;
-  opType: 'DEAL';
+  opType: string;
   type: 'limit' | 'market';
   side: 'buy' | 'sell';
   price: string;
   size: string;
   funds: string;
-  dealFunds: string;
   dealSize: string;
+  dealFunds: string;
+  remainSize: string;
+  remainFunds: string;
+  cancelledSize: string;
+  cancelledFunds: string;
   fee: string;
   feeCurrency: string;
-  stp: string;
+  stp?: 'DC' | 'CO' | 'CN' | 'CB' | null;
+  stop?: string | null;
+  stopTriggered: boolean;
+  stopPrice: string;
   timeInForce: 'GTC' | 'GTT' | 'IOC' | 'FOK';
   postOnly: boolean;
   hidden: boolean;
@@ -33,20 +41,21 @@ export interface HFMarginOrder {
   visibleSize: string;
   cancelAfter: number;
   channel: string;
-  clientOid: string;
-  remark: string;
-  tags: string;
-  active: boolean;
-  inOrderBook: boolean;
+  remark?: string | null;
+  tags?: string | null;
   cancelExist: boolean;
+  tradeType: string;
+  inOrderBook: boolean;
+  tax: string;
+  active: boolean;
   createdAt: number;
   lastUpdatedAt: number;
-  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
 }
 
+/** @deprecated not used anymore **/
 export type HFMarginFilledOrder = HFMarginOrder & {
-  inOrderBook: boolean; // Whether to enter the orderbook: true: enter the orderbook; false: not enter the orderbook
-  active: boolean; // Order status: true-The status of the order is active; false-The status of the order is done
+  inOrderBook: boolean;
+  active: boolean;
 };
 
 export interface HFMarginTransactionRecord {
@@ -64,10 +73,12 @@ export interface HFMarginTransactionRecord {
   fee: string;
   feeRate: string;
   feeCurrency: string;
-  type: 'limit' | 'market';
   stop: string;
+  tradeType: 'TRADE' | 'MARGIN_TRADE';
+  tax: string;
+  taxRate: string;
+  type: 'limit' | 'market';
   createdAt: number;
-  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
 }
 
 /**
@@ -88,12 +99,31 @@ export interface SubmitMarginOrderResponse {
  *
  */
 
+export interface MarginActivePairsV3 {
+  symbol: string;
+  name: string;
+  enableTrading: boolean;
+  market: string;
+  baseCurrency: string;
+  quoteCurrency: string;
+  baseIncrement: string;
+  baseMinSize: string;
+  baseMaxSize: string;
+  quoteIncrement: string;
+  quoteMinSize: string;
+  quoteMaxSize: string;
+  priceIncrement: string;
+  feeCurrency: string;
+  priceLimitRate: string;
+  minFunds: string;
+}
+
 export interface MarginLevTokenInfo {
   currency: string; // currency
   netAsset: number; // Net worth
   targetLeverage: string; // Target leverage
   actualLeverage: string; // Actual leverage
-  assetsUnderManagement: string; // The amount of currency issued
+  issuedSize: string; // The amount of currency issued
   basket: string; // basket information
 }
 
@@ -150,18 +180,20 @@ export interface MarginRiskLimit {
  */
 
 export interface IsolatedMarginSymbolsConfig {
-  symbol: string; // The trading pair code
-  symbolName: string; // Trading pair name
-  baseCurrency: string; // Base currency type
-  quoteCurrency: string; // Quote coin
-  maxLeverage: number; // Maximum leverage
-  flDebtRatio: string; // Liquidation debt ratio
-  tradeEnable: boolean; // Trade switch
-  autoRenewMaxDebtRatio: string; // During automatic renewal of the max debt ratio, the loan will only be renewed if it is lower than the debt ratio, with partial liquidation triggered for repayment if the debt ratio is in excess
-  baseBorrowEnable: boolean; // base coin type borrow switch
-  quoteBorrowEnable: boolean; // quote coin type borrow switch
-  baseTransferInEnable: boolean; // base coin type transfer switch
-  quoteTransferInEnable: boolean; // quote coin type transfer switch
+  symbol: string;
+  symbolName: string;
+  baseCurrency: string;
+  quoteCurrency: string;
+  maxLeverage: number;
+  flDebtRatio: string;
+  tradeEnable: boolean;
+  autoRenewMaxDebtRatio: string;
+  baseBorrowEnable: boolean;
+  quoteBorrowEnable: boolean;
+  baseTransferInEnable: boolean;
+  quoteTransferInEnable: boolean;
+  baseBorrowCoefficient: string;
+  quoteBorrowCoefficient: string;
 }
 
 export interface IsolatedMarginAccountInfo {
@@ -202,12 +234,28 @@ export interface AssetDetail {
  *
  */
 
+export interface MarginSubmitOrderV3Response {
+  orderId: string;
+  clientOid: string;
+  borrowSize: string;
+  loanApplyId: string;
+}
 export interface MarginOrderV3 {
+  timestamp: number;
   orderNo: string; // Borrow order number
   actualSize: number; // Actual borrowed amount
 }
 
-export interface MarginHistoryRecord {
+export interface MarginBorrowHistoryV3 {
+  timestamp: number;
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: MarginBorrowHistoryRecord[];
+}
+
+export interface MarginBorrowHistoryRecord {
   orderNo: string; // Borrow order ID
   symbol: string; // Isolated margin trading pair; empty for cross margin
   currency: string; // Currency
@@ -217,14 +265,35 @@ export interface MarginHistoryRecord {
   createdTime: number; // Time of borrowing
 }
 
-export interface MarginInterestRecord {
-  createdAt: number;
+export interface MarginRepayHistoryV3 {
+  timestamp: number;
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: MarginRepayHistoryRecord[];
+}
+
+export interface MarginRepayHistoryRecord {
+  orderNo: string;
+  symbol: string | null;
   currency: string;
-  interestAmount: string;
+  size: string;
+  principal: string;
+  interest: string;
+  status: string;
+  createdTime: number;
+}
+
+export interface MarginInterestRecord {
+  currency: string;
   dayRatio: string;
+  interestAmount: string;
+  createdTime: number;
 }
 
 export interface MarginInterestRecords {
+  timestamp: number;
   currentPage: number;
   pageSize: number;
   totalNum: number;

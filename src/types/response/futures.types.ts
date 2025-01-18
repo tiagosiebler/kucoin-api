@@ -67,9 +67,17 @@ export interface AccountSummary {
   currency: string; // currency
 }
 
-export type SubBalance = AccountBalance & {
-  accountName: string; // Account name, main account is main
-};
+export interface FuturesSubAccount {
+  accountName: string;
+  accountEquity: number;
+  unrealisedPNL: number;
+  marginBalance: number;
+  positionMargin: number;
+  orderMargin: number;
+  frozenFunds: number;
+  availableBalance: number;
+  currency: string;
+}
 
 /**
  * REST - FUNDING - TRANSFER
@@ -123,64 +131,75 @@ export interface FuturesTransferRecords {
  */
 
 export interface FuturesSymbolInfo {
-  symbol: string; // Contract status
-  rootSymbol: string; // Contract group
-  type: string; // Type of the contract
-  firstOpenDate: number; // First Open Date
-  expireDate: number | null; // Expiration date. Null means it will never expire
-  settleDate: number | null; // Settlement date. Null indicates that automatic settlement is not supported
-  baseCurrency: string; // Base currency
-  quoteCurrency: string; // Quote currency
-  settleCurrency: string; // Currency used to clear and settle the trades
-  maxOrderQty: number; // Maximum order quantity
-  maxPrice: number; // Maximum order price
-  lotSize: number; // Minimum lot size
-  tickSize: number; // Minimum price changes
-  indexPriceTickSize: number; // Index price of tick size
-  multiplier: number; // Contract multiplier
-  initialMargin: number; // Initial margin requirement
-  maintainMargin: number; // Maintenance margin requirement
-  maxRiskLimit: number; // Maximum risk limit (unit: XBT)
-  minRiskLimit: number; // Minimum risk limit (unit: XBT)
-  riskStep: number; // Risk limit increment value (unit: XBT)
-  makerFeeRate: number; // Maker fees
-  takerFeeRate: number; // Taker fees
-  takerFixFee: number; // Fixed taker fees(Deprecated field, no actual use of the value field)
-  makerFixFee: number; // Fixed maker fees(Deprecated field, no actual use of the value field)
-  settlementFee: number | null; // settlement fee
-  isDeleverage: boolean; // Enabled ADL or not
-  isQuanto: boolean; // Whether quanto or not(Deprecated field, no actual use of the value field)
-  isInverse: boolean; // Reverse contract or not
-  markMethod: string; // Marking method
-  fairMethod: string; // Fair price marking method
-  fundingBaseSymbol: string; // Ticker symbol of the based currency
-  fundingQuoteSymbol: string; // Ticker symbol of the quote currency
-  fundingRateSymbol: string; // Funding rate symbol
-  indexSymbol: string; // Index symbol
-  settlementSymbol: string; // Settlement Symbol
-  status: string; // Contract status
-  fundingFeeRate: number; // Funding fee rate
-  predictedFundingFeeRate: number; // Predicted funding fee rate
-  openInterest: string; // open interest
-  turnoverOf24h: number; // turnover of 24 hours
-  volumeOf24h: number; // volume of 24 hours
-  markPrice: number; // Mark price
-  indexPrice: number; // Index price
-  lastTradePrice: number; // last trade price
-  nextFundingRateTime: number; // next funding rate time
-  maxLeverage: number; // maximum leverage
-  sourceExchanges: string[]; // The contract index source exchange
-  premiumsSymbol1M: string; // Premium index symbol (1 minute)
-  premiumsSymbol8H: string; // Premium index symbol (8 hours)
-  fundingBaseSymbol1M: string; // Base currency interest rate symbol (1 minute)
-  fundingQuoteSymbol1M: string; // Quote currency interest rate symbol (1 minute)
-  lowPrice: number; // 24H Low
-  highPrice: number; // 24H High
-  priceChgPct: number; // 24H Change%
-  priceChg: number; // 24H Change
-  supportCross: boolean; // Support cross margin or not
-  buyLimit: number; // Buy limit
-  sellLimit: number; // Sell limit
+  symbol: string;
+  rootSymbol: string;
+  type: 'FFWCSX' | 'FFICSX';
+  firstOpenDate: number;
+  expireDate: number | null;
+  settleDate: number | null;
+  baseCurrency: string;
+  quoteCurrency: string;
+  settleCurrency: string;
+  maxOrderQty: number;
+  maxPrice: number;
+  lotSize: number;
+  tickSize: number;
+  indexPriceTickSize: number;
+  multiplier: number;
+  initialMargin: number;
+  maintainMargin: number;
+  maxRiskLimit: number;
+  minRiskLimit: number;
+  riskStep: number;
+  makerFeeRate: number;
+  takerFeeRate: number;
+  takerFixFee: number;
+  makerFixFee: number;
+  settlementFee: number | null;
+  isDeleverage: boolean;
+  isQuanto: boolean;
+  isInverse: boolean;
+  markMethod: 'FairPrice';
+  fairMethod: 'FundingRate';
+  fundingBaseSymbol: string;
+  fundingQuoteSymbol: string;
+  fundingRateSymbol: string;
+  indexSymbol: string;
+  settlementSymbol: string | null;
+  status:
+    | 'Init'
+    | 'Open'
+    | 'BeingSettled'
+    | 'Settled'
+    | 'Paused'
+    | 'Closed'
+    | 'CancelOnly';
+  fundingFeeRate: number;
+  predictedFundingFeeRate: number;
+  fundingRateGranularity: number;
+  openInterest: string;
+  turnoverOf24h: number;
+  volumeOf24h: number;
+  markPrice: number;
+  indexPrice: number;
+  lastTradePrice: number;
+  nextFundingRateTime: number;
+  maxLeverage: number;
+  sourceExchanges: string[];
+  premiumsSymbol1M: string;
+  premiumsSymbol8H: string;
+  fundingBaseSymbol1M: string;
+  fundingQuoteSymbol1M: string;
+  lowPrice: number;
+  highPrice: number;
+  priceChgPct: number;
+  priceChg: number;
+  k: number;
+  m: number;
+  f: number;
+  mmrLimit: number;
+  mmrLevConstant: number;
+  supportCross: boolean;
 }
 
 export interface TickerDetail {
@@ -211,8 +230,8 @@ export interface MarketTradeDetail {
 export interface FullOrderBookDetail {
   symbol: string; // Symbol
   sequence: number; // Ticker sequence number
-  asks: [string, number][]; // asks. [Price, quantity]
-  bids: [string, number][]; // bids. [Price, quantity]
+  asks: [number, number][]; // asks. [Price, quantity]
+  bids: [number, number][]; // bids. [Price, quantity]
   ts: number; // Timestamp
 }
 
@@ -274,44 +293,44 @@ export interface PremiumIndexItem {
  */
 
 export interface FuturesOrder {
-  id: string; // Order ID
-  symbol: string; // Symbol of the contract
-  type: string; // Order type, market order or limit order
-  side: string; // Transaction side
-  price: string; // Order price
-  size: number; // Order quantity
-  value: string; // Order value
-  dealValue: string; // Executed size of funds
-  dealSize: number; // Executed quantity
-  stp: string; // self trade prevention
-  stop: string; // Stop order type (stop limit or stop market)
-  stopPriceType: string; // Trigger price type of stop orders
-  stopTriggered: boolean; // Mark to show whether the stop order is triggered
-  stopPrice: string | null; // Trigger price of stop orders
-  timeInForce: string; // Time in force policy type
-  postOnly: boolean; // Mark of post only
-  hidden: boolean; // Mark of the hidden order
-  iceberg: boolean; // Mark of the iceberg order
-  leverage: string; // Leverage of the order
-  forceHold: boolean; // A mark to forcibly hold the funds for an order
-  closeOrder: boolean; // A mark to close the position
-  visibleSize: number | null; // Visible size of the iceberg order
-  clientOid: string; // Unique order id created by users to identify their orders
-  remark: string | null; // Remark of the order
-  tags: string | null; // tag order source
-  isActive: boolean; // Mark of the active orders
-  cancelExist: boolean; // Mark of the canceled orders
-  createdAt: number; // Time the order created
-  updatedAt: number; // last update time
-  endAt: number; // End time
-  orderTime: number; // Order create time in nanosecond
-  settleCurrency: string; // settlement currency
-  status: string; // order status: “open” or “done”
-  filledSize: number; // Value of the executed orders
-  filledValue: string; // Executed order quantity
-  reduceOnly: boolean; // A mark to reduce the position size only
-  marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
+  id: string;
+  symbol: string;
+  type: 'market' | 'limit';
+  side: 'buy' | 'sell';
+  price: string;
+  size: number;
+  value: string;
+  dealValue: string;
+  dealSize: number;
+  stp: 'CN' | 'CO' | 'CB' | '';
+  stop: string;
+  stopPriceType: 'TP' | 'MP' | 'IP' | '';
+  stopTriggered: boolean;
+  stopPrice: number | null;
+  timeInForce: string;
+  postOnly: boolean;
+  hidden: boolean;
+  iceberg: boolean;
+  leverage: string;
+  forceHold: boolean;
+  closeOrder: boolean;
+  visibleSize: number;
+  clientOid: string;
+  remark: string | null;
+  tags: string;
+  isActive: boolean;
+  cancelExist: boolean;
+  createdAt: number;
+  updatedAt: number;
+  endAt: number | null;
+  orderTime: number;
+  settleCurrency: string;
+  marginMode: 'ISOLATED' | 'CROSS';
   avgDealPrice: string;
+  filledSize: number;
+  filledValue: string;
+  status: 'open' | 'done';
+  reduceOnly: boolean;
 }
 
 export interface BatchCancelOrderResult {
@@ -344,28 +363,30 @@ export interface FuturesOrders {
  */
 
 export interface FuturesFill {
-  symbol: string; // Symbol of the contract
-  tradeId: string; // Trade ID
-  orderId: string; // Order ID
-  side: string; // Transaction side
-  liquidity: string; // Liquidity- taker or maker
-  forceTaker: boolean; // Whether to force processing as a taker
-  price: string; // Filled price
-  size: number; // Filled amount
-  value: string; // Order value
-  feeRate: string; // Floating fees
-  fixFee: string; // Fixed fees
-  feeCurrency: string; // Charging currency
-  stop: string; // A mark to the stop order type
-  fee: string; // Transaction fee
-  orderType: string; // Order type
-  tradeType: string; // Trade type (trade, liquidation, ADL or settlement)
-  createdAt: number; // Time the order created
-  settleCurrency: string; // settlement currency
-  openFeePay: string; // Opening transaction fee
-  closeFeePay: string; // Closing transaction fee
-  tradeTime: number; // trade time in nanosecond
-  marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
+  symbol: string;
+  tradeId: string;
+  orderId: string;
+  side: 'buy' | 'sell';
+  liquidity: 'taker' | 'maker';
+  forceTaker: boolean;
+  price: string;
+  size: number;
+  value: string;
+  openFeePay: string;
+  closeFeePay: string;
+  stop: string;
+  feeRate: string;
+  fixFee: string; // Deprecated field
+  feeCurrency: string;
+  marginMode: 'ISOLATED' | 'CROSS';
+  fee: string;
+  settleCurrency: string;
+  orderType: 'market' | 'limit';
+  displayType: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+  tradeType: 'trade' | 'cancel' | 'liquid' | 'adl' | 'settlement';
+  subTradeType: string | null; // Deprecated field
+  tradeTime: number;
+  createdAt: number;
 }
 
 export interface FuturesFills {
@@ -397,49 +418,53 @@ export interface MaxOpenSize {
 }
 
 export interface FuturesPosition {
-  id: string; // Position ID
-  symbol: string; // Symbol
-  autoDeposit: boolean; // Auto deposit margin or not
-  maintMarginReq: number; // Maintenance margin requirement
-  riskLimit: number; // Risk limit
-  realLeverage: number; // Leverage of the order
-  crossMode: boolean; // Cross mode or not
-  delevPercentage: number; // ADL ranking percentile
-  openingTimestamp: number; // Open time
-  currentTimestamp: number; // Current timestamp
-  currentQty: number; // Current position quantity
-  currentCost: number; // Current position value
-  currentComm: number; // Current commission
-  unrealisedCost: number; // Unrealised value
-  realisedGrossCost: number; // Accumulated realised gross profit value
-  realisedCost: number; // Current realised position value
-  isOpen: boolean; // Opened position or not
-  markPrice: number; // Mark price
-  markValue: number; // Mark value
-  posCost: number; // Position value
-  posCross: number; // added margin
-  posInit: number; // Leverage margin
-  posComm: number; // Bankruptcy cost
-  posLoss: number; // Funding fees paid out
-  posMargin: number; // Bankruptcy cost
-  posMaint: number; // Maintenance margin
-  maintMargin: number; // Position margin
-  realisedGrossPnl: number; // Accumulated realised gross profit value
-  realisedPnl: number; // Realised profit and loss
-  unrealisedPnl: number; // Unrealised profit and loss
-  unrealisedPnlPcnt: number; // Profit-loss ratio of the position
-  unrealisedRoePcnt: number; // Rate of return on investment
-  avgEntryPrice: number; // Average entry price
-  liquidationPrice: number; // Liquidation price
-  bankruptPrice: number; // Bankruptcy price
-  settleCurrency: string; // Currency used to clear and settle the trades
-  maintainMargin: number; // Maintenance margin rate
-  userId: number; // userId
-  riskLimitLevel: number; // Risk Limit Level
-  marginMode: 'ISOLATED' | 'CROSS'; // Margin mode
-  positionSide: string;
-  posFunding: number;
+  id: string;
+  symbol: string;
+  marginMode: 'CROSS' | 'ISOLATED';
+  crossMode: boolean;
+  delevPercentage: number;
+  openingTimestamp: number;
+  currentTimestamp: number;
+  currentQty: number;
+  currentCost: number;
+  currentComm: number;
+  realisedGrossPnl: number;
+  realisedGrossCost: number;
+  realisedCost: number;
+  unrealisedCost: number;
+  unrealisedPnlPcnt: number;
+  unrealisedPnl: number;
+  unrealisedRoePcnt: number;
+  isOpen: boolean;
+  markPrice: number;
+  markValue: number;
+  posCost: number;
+  posInit: number;
+  posMargin: number;
+  realisedPnl: number;
+  avgEntryPrice: number;
+  liquidationPrice: number;
+  bankruptPrice: number;
+  settleCurrency: string;
+  isInverse: boolean;
+  positionSide: 'BOTH';
   leverage: number;
+
+  // Isolated margin specific fields
+  autoDeposit?: boolean;
+  maintMarginReq?: number;
+  riskLimit?: number;
+  realLeverage?: number;
+  posCross?: number;
+  posCrossMargin?: number;
+  posComm?: number;
+  posCommCommon?: number;
+  posLoss?: number;
+  posFunding?: number;
+  posMaint?: number;
+  maintMargin?: number;
+  maintainMargin?: number;
+  riskLimitLevel?: number;
 }
 
 export interface AddMargin {
@@ -521,38 +546,36 @@ export interface FuturesHistoricFundingRate {
 }
 
 export interface FuturesAccountFundingRateHistory {
-  id: number; // id
-  symbol: string; // Symbol of the contract
-  timePoint: number; // Time point (milliseconds)
-  fundingRate: number; // Funding rate
-  markPrice: number; // Mark price
-  positionQty: number; // Position size
-  positionCost: number; // Position value at settlement period
-  funding: number; // Settled funding fees. A positive number means that the user received the funding fee, and vice versa.
-  settleCurrency: string; // settlement currency
+  id: number;
+  symbol: string;
+  timePoint: number;
+  fundingRate: number;
+  markPrice: number;
+  positionQty: number;
+  positionCost: number;
+  funding: number;
+  settleCurrency: string;
+  context: string; // JSON string containing additional details
+  marginMode: 'ISOLATED' | 'CROSS';
 }
 
 export interface FuturesClosedPosition {
   closeId: string;
-  positionId: string;
-  uid: number;
   userId: string;
   symbol: string;
   settleCurrency: string;
   leverage: string;
   type: string;
-  side: string | null;
-  closeSize: number | null;
   pnl: string;
   realisedGrossCost: string;
   withdrawPnl: string;
-  roe: number | null;
   tradeFee: string;
   fundingFee: string;
   openTime: number;
   closeTime: number;
-  openPrice: number | null;
-  closePrice: number | null;
+  openPrice: string;
+  closePrice: string;
+  marginMode: 'CROSS' | 'ISOLATED';
 }
 
 export interface FuturesClosedPositions {
@@ -561,4 +584,52 @@ export interface FuturesClosedPositions {
   totalNum: number;
   totalPage: number;
   items: FuturesClosedPosition[];
+}
+
+/**
+ *
+ * Copy Trading
+ *
+ */
+
+export interface CopyTradePosition {
+  id: string;
+  symbol: string;
+  autoDeposit: boolean;
+  maintMarginReq: string;
+  riskLimit: number;
+  realLeverage: string;
+  crossMode: boolean;
+  marginMode: string;
+  positionSide: string;
+  leverage: string;
+  delevPercentage: number;
+  openingTimestamp: number;
+  currentTimestamp: number;
+  currentQty: number;
+  currentCost: string;
+  currentComm: string;
+  unrealisedCost: string;
+  realisedGrossCost: string;
+  realisedCost: string;
+  isOpen: boolean;
+  markPrice: string;
+  markValue: string;
+  posCost: string;
+  posCross: string;
+  posInit: string;
+  posComm: string;
+  posLoss: string;
+  posMargin: string;
+  posMaint: string;
+  maintMargin: string;
+  realisedGrossPnl: string;
+  realisedPnl: string;
+  unrealisedPnl: string;
+  unrealisedPnlPcnt: string;
+  unrealisedRoePcnt: string;
+  avgEntryPrice: string;
+  liquidationPrice: string;
+  bankruptPrice: string;
+  settleCurrency: string;
 }
