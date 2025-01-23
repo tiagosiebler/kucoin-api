@@ -1,3 +1,6 @@
+import { AxiosRequestConfig } from 'axios';
+import { RestClientOptions } from 'lib/requestUtils';
+
 /** General configuration for the WebsocketClient */
 export interface WSClientConfigurableOptions {
   /** Your API key */
@@ -20,6 +23,9 @@ export interface WSClientConfigurableOptions {
 
   /** Delay in milliseconds before respawning the connection */
   reconnectTimeout?: number;
+
+  restOptions?: RestClientOptions;
+  requestOptions?: AxiosRequestConfig;
 
   wsOptions?: {
     protocols?: string[];

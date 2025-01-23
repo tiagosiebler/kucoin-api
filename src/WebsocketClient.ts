@@ -1,3 +1,5 @@
+import { RestClientOptions } from 'lib/requestUtils.js';
+
 import { FuturesClient } from './FuturesClient.js';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
@@ -61,11 +63,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         return this.RESTClientCache[clientType];
       }
 
-      this.RESTClientCache[clientType] = new SpotClient({
-        apiKey: this.options.apiKey,
-        apiSecret: this.options.apiSecret,
-        apiPassphrase: this.options.apiPassphrase,
-      });
+      this.RESTClientCache[clientType] = new SpotClient(
+        this.getRestClientOptions(),
+        this.options.requestOptions,
+      );
       return this.RESTClientCache[clientType];
     }
 
@@ -75,17 +76,24 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         return this.RESTClientCache[clientType];
       }
 
-      this.RESTClientCache[clientType] = new FuturesClient({
-        apiKey: this.options.apiKey,
-        apiSecret: this.options.apiSecret,
-        apiPassphrase: this.options.apiPassphrase,
-      });
+      this.RESTClientCache[clientType] = new FuturesClient(
+        this.getRestClientOptions(),
+        this.options.requestOptions,
+      );
       return this.RESTClientCache[clientType];
     }
 
     throw new Error(`Unhandled WsKey: "${wsKey}"`);
   }
 
+  private getRestClientOptions(): RestClientOptions {
+    return {
+      apiKey: this.options.apiKey,
+      apiSecret: this.options.apiSecret,
+      ...this.options,
+      ...this.options.restOptions,
+    };
+  }
   private async getWSConnectionInfo(
     wsKey: WsKey,
   ): Promise<APISuccessResponse<WsConnectionInfo>> {
