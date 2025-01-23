@@ -1,4 +1,4 @@
-import { RestClientOptions } from 'lib/requestUtils.js';
+import { RestClientOptions } from './lib/requestUtils.js';
 
 import { FuturesClient } from './FuturesClient.js';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
