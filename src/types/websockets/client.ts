@@ -1,5 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
-import { RestClientOptions } from '../../lib/requestUtils';
+
+import { RestClientOptions } from '../../lib/requestUtils.js';
 
 /** General configuration for the WebsocketClient */
 export interface WSClientConfigurableOptions {

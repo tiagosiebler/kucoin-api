@@ -135,9 +135,16 @@ export abstract class BaseRestClient {
   }
 
   /**
-   * Timestamp used to sign the request. Override this method to implement your own timestamp/sync mechanism
+   * Generates a timestamp for signing API requests.
+   *
+   * This method can be overridden or customized using `customTimestampFn`
+   * to implement a custom timestamp synchronization mechanism.
+   * If no custom function is provided, it defaults to the current system time.
    */
-  getSignTimestampMs(): number {
+  private getSignTimestampMs(): number {
+    if (typeof this.options.customTimestampFn === 'function') {
+      return this.options.customTimestampFn();
+    }
     return Date.now();
   }
 

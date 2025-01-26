@@ -1,8 +1,7 @@
-import { RestClientOptions } from './lib/requestUtils.js';
-
 import { FuturesClient } from './FuturesClient.js';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
+import { RestClientOptions } from './lib/requestUtils.js';
 import {
   MessageEventLike,
   WS_KEY_MAP,
@@ -57,33 +56,30 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   };
 
   private getRESTClient(wsKey: WsKey): SpotClient | FuturesClient {
-    if (wsKey === 'spotPublicV1' || wsKey === 'spotPrivateV1') {
-      const clientType = 'spot';
-      if (this.RESTClientCache[clientType]) {
-        return this.RESTClientCache[clientType];
-      }
+    const getClientType = (wsKey: WsKey): 'spot' | 'futures' | null => {
+      if (wsKey.startsWith('spot')) return 'spot';
+      if (wsKey.startsWith('futures')) return 'futures';
+      return null;
+    };
 
-      this.RESTClientCache[clientType] = new SpotClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-      return this.RESTClientCache[clientType];
+    const clientType = getClientType(wsKey);
+    if (!clientType) {
+      throw new Error(`Unhandled WsKey: "${wsKey}"`);
     }
 
-    if (wsKey === 'futuresPublicV1' || wsKey === 'futuresPrivateV1') {
-      const clientType = 'futures';
-      if (this.RESTClientCache[clientType]) {
-        return this.RESTClientCache[clientType];
-      }
-
-      this.RESTClientCache[clientType] = new FuturesClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-      return this.RESTClientCache[clientType];
+    if (this.RESTClientCache[clientType]) {
+      return this.RESTClientCache[clientType]!;
     }
 
-    throw new Error(`Unhandled WsKey: "${wsKey}"`);
+    const ClientClass = clientType === 'spot' ? SpotClient : FuturesClient;
+    const newClient = new ClientClass(
+      this.getRestClientOptions(),
+      this.options.requestOptions,
+    );
+
+    this.RESTClientCache[clientType] = newClient;
+
+    return newClient;
   }
 
   private getRestClientOptions(): RestClientOptions {
@@ -94,6 +90,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       ...this.options.restOptions,
     };
   }
+
   private async getWSConnectionInfo(
     wsKey: WsKey,
   ): Promise<APISuccessResponse<WsConnectionInfo>> {
