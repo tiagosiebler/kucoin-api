@@ -30,7 +30,7 @@ describe('REST PRIVATE', () => {
     describe('GET requests', () => {
       test('without params', async () => {
         const res = await rest.getBalances();
-        // console.log('res without', res);
+        console.log('res GET without params', res);
         expect(res).toMatchObject({
           code: '200000',
           data: expect.any(Array),
@@ -39,7 +39,7 @@ describe('REST PRIVATE', () => {
 
       test('with params', async () => {
         const res = await rest.getBalances({ currency: 'USDT' });
-        // console.log('res with', res);
+        console.log('res GET WITH params', res);
         expect(res).toMatchObject({
           code: '200000',
           data: expect.any(Array),
