@@ -1,4 +1,5 @@
 import { SpotClient } from '../../src/index.js';
+import { getTestProxy } from '../proxy.util.js';
 
 describe('REST PRIVATE', () => {
   const account = {
@@ -7,11 +8,14 @@ describe('REST PRIVATE', () => {
     passphrase: process.env.API_PASSPHRASE,
   };
 
-  const rest = new SpotClient({
-    apiKey: account.key,
-    apiSecret: account.secret,
-    apiPassphrase: account.passphrase,
-  });
+  const rest = new SpotClient(
+    {
+      apiKey: account.key,
+      apiSecret: account.secret,
+      apiPassphrase: account.passphrase,
+    },
+    getTestProxy(),
+  );
 
   it('should have credentials to test with', () => {
     expect(account.key).toBeDefined();
