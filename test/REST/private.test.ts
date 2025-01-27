@@ -29,21 +29,31 @@ describe('REST PRIVATE', () => {
   describe('private endpoints', () => {
     describe('GET requests', () => {
       test('without params', async () => {
-        const res = await rest.getBalances();
-        console.log('res GET without params', res);
-        expect(res).toMatchObject({
-          code: '200000',
-          data: expect.any(Array),
-        });
+        try {
+          const res = await rest.getBalances();
+          console.log('res GET without params', res);
+          expect(res).toMatchObject({
+            code: '200000',
+            data: expect.any(Array),
+          });
+        } catch (e) {
+          console.error('res GET without params, failed: ', e);
+          expect(e).not.toBeDefined();
+        }
       });
 
       test('with params', async () => {
-        const res = await rest.getBalances({ currency: 'USDT' });
-        console.log('res GET WITH params', res);
-        expect(res).toMatchObject({
-          code: '200000',
-          data: expect.any(Array),
-        });
+        try {
+          const res = await rest.getBalances({ currency: 'USDT' });
+          console.log('res GET WITH params', res);
+          expect(res).toMatchObject({
+            code: '200000',
+            data: expect.any(Array),
+          });
+        } catch (e) {
+          console.error('res GET WITH params, failed: ', e);
+          expect(e).not.toBeDefined();
+        }
       });
     });
 
