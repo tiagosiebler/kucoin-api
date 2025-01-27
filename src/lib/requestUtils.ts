@@ -40,6 +40,8 @@ export interface RestClientOptions {
 
   /** Default: true. whether to try and post-process request exceptions (and throw them). */
   parseExceptions?: boolean;
+
+  customTimestampFn?: () => number;
 }
 
 export function serializeParams<T extends Record<string, any> | undefined = {}>(
