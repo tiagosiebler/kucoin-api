@@ -1,11 +1,5 @@
-import { AxiosRequestConfig } from 'axios';
-
 import { BaseRestClient } from './lib/BaseRestClient.js';
-import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
+import { REST_CLIENT_TYPE_ENUM, RestClientType } from './lib/requestUtils.js';
 import {
   BrokerTransferRequest,
   CreateBrokerSubAccountApiRequest,
@@ -32,14 +26,6 @@ import { APISuccessResponse } from './types/response/shared.types.js';
  *
  */
 export class BrokerClient extends BaseRestClient {
-  constructor(
-    restClientOptions: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {},
-  ) {
-    super(restClientOptions, requestOptions);
-    return this;
-  }
-
   getClientType(): RestClientType {
     return REST_CLIENT_TYPE_ENUM.broker;
   }
