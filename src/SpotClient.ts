@@ -255,6 +255,10 @@ export class SpotClient extends BaseRestClient {
     return nanoid(32);
   }
 
+  getMyIp(): Promise<APISuccessResponse<number>> {
+    return this.get('api/v1/ip');
+  }
+
   getServerTime(): Promise<APISuccessResponse<number>> {
     return this.get('api/v1/timestamp');
   }

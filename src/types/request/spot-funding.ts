@@ -85,7 +85,15 @@ export interface SubmitWithdrawV3Request {
 
 export interface GetTransferableRequest {
   currency: string;
-  type: 'MAIN' | 'TRADE' | 'TRADE_HF' | 'MARGIN' | 'ISOLATED' | 'OPTION';
+  type:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'ISOLATED'
+    | 'OPTION'
+    | 'MARGIN_V2'
+    | 'ISOLATED_V2';
   tag?: string;
 }
 

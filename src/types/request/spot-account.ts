@@ -25,7 +25,12 @@ export interface GetSpotTransactionsRequest {
 export interface AccountHFTransactionsRequest {
   currency?: string;
   direction?: 'in' | 'out';
-  bizType?: 'TRANSFER' | 'TRADE_EXCHANGE';
+  bizType?:
+    | 'TRANSFER'
+    | 'TRADE_EXCHANGE'
+    | 'RETURNED_FEES'
+    | 'DEDUCTION_FEES'
+    | 'OTHER';
   lastId?: number;
   limit?: number;
   startAt?: number;
