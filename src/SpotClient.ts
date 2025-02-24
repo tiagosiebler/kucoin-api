@@ -164,7 +164,11 @@ import {
   Ticker,
   TradeHistory,
 } from './types/response/spot-trading.js';
-import { OtcLoan, OtcLoanAccount } from './types/response/spot-vip.js';
+import {
+  DiscountRateConfig,
+  OtcLoan,
+  OtcLoanAccount,
+} from './types/response/spot-vip.js';
 import { WsConnectionInfo } from './types/response/ws.js';
 
 /**
@@ -1860,6 +1864,16 @@ export class SpotClient extends BaseRestClient {
    * REST - VIP LENDING
    *
    */
+
+  /**
+   * Get Discount Rate Configs
+   *
+   * Get the gradient discount rate of each currency.
+   * Returns the discount rate configuration for different USDT value ranges per currency.
+   */
+  getDiscountRateConfigs(): Promise<APISuccessResponse<DiscountRateConfig[]>> {
+    return this.getPrivate('api/v1/otc-loan/discount-rate-configs');
+  }
 
   /**
    * Get Account Detail - VIP Lending

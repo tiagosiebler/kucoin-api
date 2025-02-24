@@ -6,6 +6,15 @@
  *
  */
 
+export interface DiscountRateConfig {
+  currency: string;
+  usdtLevels: {
+    left: number;
+    right: number;
+    discountRate: string;
+  }[];
+}
+
 export interface OtcLoan {
   parentUid: string;
   orders: {
