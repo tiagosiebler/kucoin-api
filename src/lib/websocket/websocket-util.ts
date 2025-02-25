@@ -47,3 +47,25 @@ export function isMessageEvent(msg: unknown): msg is MessageEventLike {
   const message = msg as MessageEventLike;
   return message['type'] === 'message' && typeof message['data'] === 'string';
 }
+
+/**
+ * #305: ws.terminate() is undefined in browsers.
+ * This only works in node.js, not in browsers.
+ * Does nothing if `ws` is undefined. Does nothing in browsers.
+ */
+export function safeTerminateWs(
+  ws?: WebSocket | any,
+  fallbackToClose?: boolean,
+): boolean {
+  if (!ws) {
+    return false;
+  }
+  if (typeof ws['terminate'] === 'function') {
+    ws.terminate();
+    return true;
+  } else if (fallbackToClose) {
+    ws.close();
+  }
+
+  return false;
+}
