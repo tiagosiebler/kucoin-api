@@ -139,6 +139,7 @@ import { Announcements } from './types/response/spot-misc.js';
 import {
   AllTickers,
   AutoCancelHFOrderSettingQueryResponse,
+  CallAuctionInfo,
   CancelAllHFOrdersResponse,
   CurrencyInfo,
   HFFilledOrder,
@@ -824,6 +825,35 @@ export class SpotClient extends BaseRestClient {
     symbol: string;
   }): Promise<APISuccessResponse<OrderBookLevel>> {
     return this.getPrivate('api/v3/market/orderbook/level2', params);
+  }
+
+  /**
+   * Get Call Auction Part OrderBook
+   *
+   * Query for call auction part orderbook depth data (aggregated by price).
+   * It is recommended that you submit requests via this endpoint as the system response will be faster and consume less traffic.
+   */
+  getCallAuctionPartOrderBook(params: {
+    symbol: string;
+    size: 20 | 100;
+  }): Promise<APISuccessResponse<OrderBookLevel>> {
+    const { symbol, size } = params;
+    return this.get(`api/v1/market/orderbook/callauction/level2_${size}`, {
+      symbol,
+    });
+  }
+
+  /**
+   * Get Call Auction Info
+   *
+   * Get call auction data. This endpoint will return the following information for the specified symbol
+   * during the call auction phase: estimated transaction price, estimated transaction quantity,
+   * bid price range, and ask price range.
+   */
+  getCallAuctionInfo(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<CallAuctionInfo>> {
+    return this.get('api/v1/market/callauctionData', params);
   }
 
   /**
