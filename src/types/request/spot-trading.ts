@@ -63,6 +63,9 @@ export interface SubmitHFOrderRequest {
 
   // Market order fields
   funds?: string; // Required for market orders if size is not provided
+
+  allowMaxTimeWindow?: number; // Order failed after timeout of specified milliseconds, If clientTimestamp + allowMaxTimeWindow < the server reaches time, this order will fail.
+  clientTimestamp?: number; // Equal to KC-API-TIMESTAMP, Need to be defined if iceberg is specified.
 }
 
 export interface ModifyHFOrderRequest {

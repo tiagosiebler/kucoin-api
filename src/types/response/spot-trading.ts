@@ -64,6 +64,13 @@ export interface SymbolInfo {
   makerFeeCoefficient: string;
   takerFeeCoefficient: string;
   st: boolean;
+  callauctionIsEnabled: boolean;
+  callauctionPriceFloor: string | null;
+  callauctionPriceCeiling: string | null;
+  callauctionFirstStageStartTime: number | null;
+  callauctionSecondStageStartTime: number | null;
+  callauctionThirdStageStartTime: number | null;
+  tradingStartTime: number | null;
 }
 
 export interface Ticker {
@@ -128,6 +135,17 @@ export interface OrderBookLevel {
   time: number;
   bids: [string, string][];
   asks: [string, string][];
+}
+
+export interface CallAuctionInfo {
+  symbol: string; // Symbol (e.g. "BTC-USDT")
+  estimatedPrice: string; // Estimated price
+  estimatedSize: string; // Estimated size
+  sellOrderRangeLowPrice: string; // Sell order minimum price
+  sellOrderRangeHighPrice: string; // Sell order maximum price
+  buyOrderRangeLowPrice: string; // Buy order minimum price
+  buyOrderRangeHighPrice: string; // Buy order maximum price
+  time: number; // Timestamp (ms)
 }
 
 export interface TradeHistory {
