@@ -54,6 +54,7 @@ export interface AccountBalance {
   availableBalance: number; // Available balance
   currency: string; // currency code
   riskRatio: number; // Cross margin risk ratio
+  maxWithdrawAmount: number; // Maximum withdrawal amount
 }
 
 export interface AccountSummary {
