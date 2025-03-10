@@ -446,12 +446,15 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the getSubAccountBalancesV2() endpoint instead of this endpoint
+   * Get sub-account Detail - Balance
+   *
+   * This endpoint returns the account info of a sub-user specified by the subUserId.
    */
   getSubAccountBalance(params: {
     subUserId: string;
     includeBaseAmount: boolean;
+    baseCurrency?: string;
+    baseAmount?: string;
   }): Promise<APISuccessResponse<SubAccountBalance>> {
     return this.getPrivate(`api/v1/sub-accounts/${params.subUserId}`, params);
   }
