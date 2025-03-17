@@ -1112,6 +1112,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated as of 13-03-2025- use getHFActiveOrdersPaginated() instead
    * Get Open Orders
    *
    * This endpoint is to obtain all Spot active order lists, and the return value of the active order endpoint is the paged data of all uncompleted order lists.
@@ -1122,6 +1123,29 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<HFOrder[]>> {
     return this.getPrivate(`api/v1/hf/orders/active`, params);
   }
+
+  /**
+   * Get Open Orders By Page
+   *
+   * This interface is to obtain Spot active order (uncompleted order) lists by page.
+   * The returned data is sorted in descending order according to the create time of the order.
+   */
+  getHFActiveOrdersPaginated(params: {
+    symbol: string;
+    pageNum?: number;
+    pageSize?: number;
+  }): Promise<
+    APISuccessResponse<{
+      currentPage: number;
+      pageSize: number;
+      totalNum: number;
+      totalPage: number;
+      items: HFOrder[];
+    }>
+  > {
+    return this.getPrivate('api/v1/hf/orders/active/page', params);
+  }
+
   /**
    * Get Closed Orders
    *
