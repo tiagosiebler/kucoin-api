@@ -206,6 +206,33 @@ export interface WithdrawalQuotas {
   lockedAmount: string;
 }
 
+export interface WithdrawalById {
+  id: string;
+  uid: number;
+  currency: string;
+  chainId: string;
+  chainName: string;
+  currencyName: string;
+  status: string;
+  failureReason: string;
+  failureReasonMsg: string | null;
+  address: string;
+  memo: string;
+  isInner: boolean;
+  amount: string;
+  fee: string;
+  walletTxId: string | null;
+  addressRemark: string | null;
+  remark: string;
+  createdAt: number;
+  cancelType: string;
+  taxes: string | null;
+  taxDescription: string | null;
+  returnStatus: string;
+  returnAmount: string | null;
+  returnCurrency: string;
+}
+
 /**
  *
  * Transfer
