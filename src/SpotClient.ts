@@ -112,6 +112,7 @@ import {
   MarginBalance,
   TransferableFunds,
   V1HistoricalDeposits,
+  WithdrawalById,
   WithdrawalQuotas,
   Withdrawals,
 } from './types/response/spot-funding.js';
@@ -619,6 +620,17 @@ export class SpotClient extends BaseRestClient {
     params?: GetWithdrawalsRequest,
   ): Promise<APISuccessResponse<Withdrawals>> {
     return this.getPrivate('api/v1/withdrawals', params);
+  }
+
+  /**
+   * Get Withdrawal History By ID
+   *
+   * Request a withdrawal history by id via this endpoint.
+   */
+  getWithdrawalById(params: {
+    withdrawalId: string;
+  }): Promise<APISuccessResponse<WithdrawalById>> {
+    return this.getPrivate(`api/v1/withdrawals/${params.withdrawalId}`);
   }
 
   /**
