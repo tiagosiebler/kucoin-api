@@ -412,6 +412,17 @@ export interface FuturesActiveOrder {
  *
  */
 
+export interface BatchMarginModeUpdateResponse {
+  marginMode: {
+    [symbol: string]: 'ISOLATED' | 'CROSS';
+  };
+  errors: {
+    code: string;
+    msg: string;
+    symbol: string;
+  }[];
+}
+
 export interface MaxOpenSize {
   symbol: string;
   maxBuyOpenSize: number;
@@ -506,6 +517,18 @@ export interface AddMargin {
   bankruptPrice: number; // Bankruptcy price
   settleCurrency: string; // Currency used to clear and settle the trades
   userId: number; // userId
+}
+
+export interface CrossMarginRiskLimit {
+  symbol: string;
+  maxOpenSize: number;
+  maxOpenValue: string;
+  totalMargin: string;
+  price: string;
+  leverage: string;
+  mmr: string;
+  imr: string;
+  currency: string;
 }
 
 /**
