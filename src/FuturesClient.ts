@@ -28,7 +28,9 @@ import {
   AccountSummary,
   AddMargin,
   BatchCancelOrderResult,
+  BatchMarginModeUpdateResponse,
   CopyTradePosition,
+  CrossMarginRiskLimit,
   FullOrderBookDetail,
   FuturesAccountFundingRateHistory,
   FuturesAccountTransaction,
@@ -549,6 +551,17 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
+   * Batch Switch Margin Mode
+   * Batch modify the margin mode of the symbols.
+   */
+  batchSwitchMarginMode(params: {
+    marginMode: 'ISOLATED' | 'CROSS';
+    symbols: string[];
+  }): Promise<APISuccessResponse<BatchMarginModeUpdateResponse>> {
+    return this.postPrivate('api/v2/position/batchChangeMarginMode', params);
+  }
+
+  /**
    * Get Max Open Size
    * Get Maximum Open Position Size.
    */
@@ -604,7 +617,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Get Cross Margin Leverage
-   * This endpoint can query the current symbol’s cross-margin leverage multiple.
+   * This endpoint can query the current symbol's cross-margin leverage multiple.
    */
   getCrossMarginLeverage(params: { symbol: string }): Promise<
     APISuccessResponse<{
@@ -617,7 +630,7 @@ export class FuturesClient extends BaseRestClient {
 
   /**
    * Modify Cross Margin Leverage
-   * This endpoint can modify the current symbol’s cross-margin leverage multiple.
+   * This endpoint can modify the current symbol's cross-margin leverage multiple.
    */
   changeCrossMarginLeverage(params: {
     symbol: string;
@@ -641,6 +654,18 @@ export class FuturesClient extends BaseRestClient {
     bizNo: string;
   }): Promise<APISuccessResponse<AddMargin>> {
     return this.postPrivate('api/v1/position/margin/deposit-margin', params);
+  }
+
+  /**
+   * Get Cross Margin Risk Limit
+   * Batch get cross margin risk limit. (It should be noted that the risk limit of cross margin does not have a fixed gear, but is a smooth curve)
+   */
+  getCrossMarginRiskLimit(params: {
+    symbol: string;
+    totalMargin?: string;
+    leverage?: number;
+  }): Promise<APISuccessResponse<CrossMarginRiskLimit[]>> {
+    return this.getPrivate('api/v2/batchGetCrossOrderLimit', params);
   }
 
   /**

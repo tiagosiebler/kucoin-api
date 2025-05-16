@@ -15,24 +15,14 @@ export interface MarginAccountBalance {
   maxBorrowSize: string;
 }
 
-export interface MarginAssetDetail {
-  currency: string;
-  borrowEnabled: boolean;
-  repayEnabled: boolean;
-  transferEnabled: boolean;
-  borrowed: string;
-  totalAsset: string;
-  available: string;
-  hold: string;
-  maxBorrowSize: string;
-}
-
 export interface MarginAccountDetail {
   currency: string;
   total: string;
   available: string;
   hold: string;
   liability: string;
+  liabilityPrincipal: string;
+  liabilityInterest: string;
   maxBorrowSize: string;
   borrowEnabled: boolean;
   transferInEnabled: boolean;
@@ -57,8 +47,8 @@ export interface IsolatedMarginAssetDetail {
   symbol: string;
   debtRatio: string;
   status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
-  baseAsset: MarginAssetDetail;
-  quoteAsset: MarginAssetDetail;
+  baseAsset: MarginAccountDetail;
+  quoteAsset: MarginAccountDetail;
 }
 
 /**
