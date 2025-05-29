@@ -561,6 +561,8 @@ export interface FuturesCurrentFundingRate {
   predictedValue: number; // Predicted funding rate
   fundingRateCap: number; // Funding rate cap
   fundingRateFloor: number; // Funding rate floor
+  period: number; // Funding rate period
+  fundingTime: number; // Funding time
 }
 
 export interface FuturesHistoricFundingRate {
