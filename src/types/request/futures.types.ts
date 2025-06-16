@@ -116,7 +116,7 @@ export interface Order {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
-  leverage: number;
+  leverage?: number;
   type?: 'limit' | 'market';
   remark?: string;
   stop?: 'down' | 'up';
@@ -142,7 +142,7 @@ export interface SLTPOrder {
   clientOid: string;
   side: 'buy' | 'sell';
   symbol: string;
-  leverage: number;
+  leverage?: number;
   type: 'limit' | 'market';
   remark?: string;
   triggerStopUpPrice?: string;
