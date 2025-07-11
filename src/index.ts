@@ -27,4 +27,3 @@ export * from './types/websockets/client.js';
 export * from './types/websockets/events.js';
 export * from './types/websockets/requests.js';
 export * from './WebsocketClient.js';
-
