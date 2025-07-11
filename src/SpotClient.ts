@@ -1,29 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
-import {
-  AddConvertLimitOrderRequest,
-  AddConvertOrderRequest,
-  CancelConvertLimitOrderRequest,
-  GetConvertLimitOrderDetailRequest,
-  GetConvertLimitOrdersRequest,
-  GetConvertLimitQuoteRequest,
-  GetConvertOrderDetailRequest,
-  GetConvertOrderHistoryRequest,
-  GetConvertQuoteRequest,
-  GetConvertSymbolRequest,
-} from 'types/request/spot-convert.js';
-import {
-  ConvertCurrencies,
-  ConvertLimitOrder,
-  ConvertLimitOrdersList,
-  ConvertLimitQuote,
-  ConvertOrder,
-  ConvertOrderHistory,
-  ConvertQuote,
-  ConvertSymbol,
-  SubmitConvertOrderResponse,
-  SumbitConvertLimitResp,
-} from 'types/response/spot-convert.js';
 
 import { BaseRestClient } from './lib/BaseRestClient.js';
 import {
@@ -41,6 +17,18 @@ import {
   GetSpotTransactionsRequest,
   UpdateSubAccountAPIRequest,
 } from './types/request/spot-account.js';
+import {
+  AddConvertLimitOrderRequest,
+  AddConvertOrderRequest,
+  CancelConvertLimitOrderRequest,
+  GetConvertLimitOrderDetailRequest,
+  GetConvertLimitOrdersRequest,
+  GetConvertLimitQuoteRequest,
+  GetConvertOrderDetailRequest,
+  GetConvertOrderHistoryRequest,
+  GetConvertQuoteRequest,
+  GetConvertSymbolRequest,
+} from './types/request/spot-convert.js';
 import {
   GetEarnFixedIncomeHoldAssetsRequest,
   GetEarnRedeemPreviewRequest,
@@ -117,6 +105,18 @@ import {
   SubAccountsV2,
   UpdateSubAPI,
 } from './types/response/spot-account.js';
+import {
+  ConvertCurrencies,
+  ConvertLimitOrder,
+  ConvertLimitOrdersList,
+  ConvertLimitQuote,
+  ConvertOrder,
+  ConvertOrderHistory,
+  ConvertQuote,
+  ConvertSymbol,
+  SubmitConvertOrderResponse,
+  SumbitConvertLimitResp,
+} from './types/response/spot-convert.js';
 import {
   EarnFixedIncomeHoldAssets,
   EarnProduct,
@@ -254,7 +254,7 @@ export class SpotClient extends BaseRestClient {
     console.log(result);
 
     console.log(
-      `Your approximate latency to exchange server: 
+      `Your approximate latency to exchange server:
     One way: ${estimatedOneWayLatency}ms.
     Round trip: ${roundTripTime}ms.
     `,
