@@ -1,5 +1,29 @@
 import { AxiosRequestConfig } from 'axios';
 import { nanoid } from 'nanoid';
+import {
+  AddConvertLimitOrderRequest,
+  AddConvertOrderRequest,
+  CancelConvertLimitOrderRequest,
+  GetConvertLimitOrderDetailRequest,
+  GetConvertLimitOrdersRequest,
+  GetConvertLimitQuoteRequest,
+  GetConvertOrderDetailRequest,
+  GetConvertOrderHistoryRequest,
+  GetConvertQuoteRequest,
+  GetConvertSymbolRequest,
+} from 'types/request/spot-convert.js';
+import {
+  ConvertCurrencies,
+  ConvertLimitOrder,
+  ConvertLimitOrdersList,
+  ConvertLimitQuote,
+  ConvertOrder,
+  ConvertOrderHistory,
+  ConvertQuote,
+  ConvertSymbol,
+  SubmitConvertOrderResponse,
+  SumbitConvertLimitResp,
+} from 'types/response/spot-convert.js';
 
 import { BaseRestClient } from './lib/BaseRestClient.js';
 import {
@@ -1816,9 +1840,128 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - COPY TRADING
+   * REST - CONVERT
    *
    */
+
+  /**
+   * Get Convert Symbol
+   *
+   * Request via this endpoint to get detail currency pairs for convert.
+   */
+  getConvertSymbol(
+    params: GetConvertSymbolRequest,
+  ): Promise<APISuccessResponse<ConvertSymbol>> {
+    return this.get('api/v1/convert/symbol', params);
+  }
+
+  /**
+   * Get Convert Currencies
+   *
+   * Request via this endpoint to get the list of cryptocurrencies available for convert.
+   */
+  getConvertCurrencies(): Promise<APISuccessResponse<ConvertCurrencies>> {
+    return this.get('api/v1/convert/currencies');
+  }
+
+  /**
+   * Add Convert Order
+   *
+   * Place market order for convert
+   */
+  submitConvertOrder(
+    params: AddConvertOrderRequest,
+  ): Promise<APISuccessResponse<SubmitConvertOrderResponse>> {
+    return this.postPrivate('api/v1/convert/order', params);
+  }
+
+  /**
+   * Get Convert Quote
+   *
+   * Request via this endpoint to get the quote for convert.
+   */
+  getConvertQuote(
+    params: GetConvertQuoteRequest,
+  ): Promise<APISuccessResponse<ConvertQuote>> {
+    return this.getPrivate('api/v1/convert/quote', params);
+  }
+
+  /**
+   * Get Convert Order Detail
+   *
+   * Query convert market order details
+   */
+  getConvertOrder(
+    params: GetConvertOrderDetailRequest,
+  ): Promise<APISuccessResponse<ConvertOrder>> {
+    return this.getPrivate('api/v1/convert/order/detail', params);
+  }
+
+  /**
+   * Get Convert Order History
+   *
+   * Query convert market order history
+   */
+  getConvertOrderHistory(
+    params?: GetConvertOrderHistoryRequest,
+  ): Promise<APISuccessResponse<ConvertOrderHistory>> {
+    return this.getPrivate('api/v1/convert/order/history', params);
+  }
+
+  /**
+   * Add Convert Limit Order
+   *
+   * Place Convert Limit Order
+   */
+  submitConvertLimitOrder(
+    params: AddConvertLimitOrderRequest,
+  ): Promise<APISuccessResponse<SumbitConvertLimitResp>> {
+    return this.postPrivate('api/v1/convert/limit/order', params);
+  }
+
+  /**
+   * Get Convert Limit Quote
+   *
+   * Query the protection price threshold for limit orders for convert，user's order price must be ≥ the protection price
+   */
+  getConvertLimitQuote(
+    params: GetConvertLimitQuoteRequest,
+  ): Promise<APISuccessResponse<ConvertLimitQuote>> {
+    return this.getPrivate('api/v1/convert/limit/quote', params);
+  }
+
+  /**
+   * Get Convert Limit Order Detail
+   *
+   * Query convert limit order detail
+   */
+  getConvertLimitOrder(
+    params: GetConvertLimitOrderDetailRequest,
+  ): Promise<APISuccessResponse<ConvertLimitOrder>> {
+    return this.getPrivate('api/v1/convert/limit/order/detail', params);
+  }
+
+  /**
+   * Get Convert Limit Orders
+   *
+   * Query Active and Historical Convert Limit Orders
+   */
+  getConvertLimitOrders(
+    params?: GetConvertLimitOrdersRequest,
+  ): Promise<APISuccessResponse<ConvertLimitOrdersList>> {
+    return this.getPrivate('api/v1/convert/limit/orders', params);
+  }
+
+  /**
+   * Cancel Convert Limit Order
+   *
+   * Cancel Convert Limit Order
+   */
+  cancelConvertLimitOrder(
+    params: CancelConvertLimitOrderRequest,
+  ): Promise<APISuccessResponse<null>> {
+    return this.deletePrivate('api/v1/convert/limit/order/cancel', params);
+  }
 
   /**
    *
