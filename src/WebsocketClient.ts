@@ -217,7 +217,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
 
     const connectionInfo = await this.getWSConnectionInfo(wsKey);
-    this.logger.trace(`getWSConnectionInfo`, {
+    this.logger.trace('getWSConnectionInfo', {
       wsKey,
       ...connectionInfo,
     });
@@ -225,7 +225,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     const server = connectionInfo.data.instanceServers[0];
     if (!server) {
       this.logger.error(
-        `No servers returned by connection info response?`,
+        'No servers returned by connection info response?',
         JSON.stringify(
           {
             wsKey,
@@ -235,7 +235,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           2,
         ),
       );
-      throw new Error(`No servers returned by connection info response?`);
+      throw new Error('No servers returned by connection info response?');
     }
 
     const connectionUrl = `${server.endpoint}?token=${connectionInfo.data.token}`;
@@ -248,7 +248,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
   protected sendPongEvent(wsKey: WsKey) {
     try {
-      this.logger.trace(`Sending upstream ws PONG: `, {
+      this.logger.trace('Sending upstream ws PONG: ', {
         ...WS_LOGGER_CATEGORY,
         wsMessage: 'PONG',
         wsKey,
@@ -265,7 +265,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       // Send a protocol layer pong
       wsState.ws.pong();
     } catch (e) {
-      this.logger.error(`Failed to send WS PONG`, {
+      this.logger.error('Failed to send WS PONG', {
         ...WS_LOGGER_CATEGORY,
         wsMessage: 'PONG',
         wsKey,
@@ -377,7 +377,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         eventType: 'exception',
       });
 
-      this.logger.error(`Failed to parse event data due to exception: `, {
+      this.logger.error('Failed to parse event data due to exception: ', {
         exception: e,
         eventData: event.data,
       });
@@ -440,7 +440,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       default: {
         throw neverGuard(
           wsKey,
-          `getMaxTopicsPerSubscribeEvent(): Unhandled wsKey`,
+          'getMaxTopicsPerSubscribeEvent(): Unhandled wsKey',
         );
       }
     }

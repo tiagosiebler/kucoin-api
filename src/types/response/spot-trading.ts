@@ -12,18 +12,6 @@
  *
  */
 
-export interface CurrencyInfo {
-  currency: string;
-  name: string;
-  fullName: string;
-  precision: number;
-  confirms: number | null;
-  contractAddress: string | null;
-  isMarginEnabled: boolean;
-  isDebitEnabled: boolean;
-  chains: Chain[];
-}
-
 interface Chain {
   chainName: string;
   withdrawalMinSize: string;
@@ -40,6 +28,18 @@ interface Chain {
   maxDeposit: string | null;
   needTag: boolean;
   chainId: string;
+}
+
+export interface CurrencyInfo {
+  currency: string;
+  name: string;
+  fullName: string;
+  precision: number;
+  confirms: number | null;
+  contractAddress: string | null;
+  isMarginEnabled: boolean;
+  isDebitEnabled: boolean;
+  chains: Chain[];
 }
 
 export interface SymbolInfo {
@@ -309,15 +309,6 @@ export interface MultipleOrdersResponse {
   failMsg?: any;
   clientOid: string;
 }
-
-export interface SpotOrderList {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: SpotOrder[];
-}
-
 export interface SpotOrder {
   id: string;
   symbol: string;
@@ -349,6 +340,14 @@ export interface SpotOrder {
   cancelExist: boolean;
   createdAt: number;
   tradeType: string;
+}
+
+export interface SpotOrderList {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: SpotOrder[];
 }
 
 /**
@@ -390,14 +389,6 @@ export interface SpotOrderFills {
  *
  */
 
-export interface StopOrders {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: StopOrderItem[];
-}
-
 export interface StopOrderItem {
   id?: string;
   symbol?: string;
@@ -432,21 +423,19 @@ export interface StopOrderItem {
   orderTime?: number;
 }
 
+export interface StopOrders {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: StopOrderItem[];
+}
+
 /**
  *
  * OCO order
  *
  */
-
-export interface OCOOrderDetails {
-  orderId: string; // order id, Unique order id created by users to identify their orders
-  symbol: string; // symbol, such as, ETH-BTC
-  clientOid: string; // client order id
-  orderTime: number; // Order Submitment time, milliseconds
-  status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
-  orders: OCOOrderSubOrder[];
-}
-
 export interface OCOOrderSubOrder {
   id: string; // Sub-order ID
   symbol: string; // Symbol of the sub-order
@@ -457,12 +446,13 @@ export interface OCOOrderSubOrder {
   status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Status of the sub-order
 }
 
-export interface OCOOrders {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: OCOOrderListItem[];
+export interface OCOOrderDetails {
+  orderId: string; // order id, Unique order id created by users to identify their orders
+  symbol: string; // symbol, such as, ETH-BTC
+  clientOid: string; // client order id
+  orderTime: number; // Order Submitment time, milliseconds
+  status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
+  orders: OCOOrderSubOrder[];
 }
 
 export interface OCOOrderListItem {
@@ -471,4 +461,12 @@ export interface OCOOrderListItem {
   clientOid: string; // client order id
   orderTime: number; // Order Submitment time, milliseconds
   status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
+}
+
+export interface OCOOrders {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: OCOOrderListItem[];
 }

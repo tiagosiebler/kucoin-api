@@ -451,7 +451,7 @@ export class FuturesClient extends BaseRestClient {
   getOrderByClientOrderId(params: {
     clientOid: string;
   }): Promise<APISuccessResponse<FuturesOrder>> {
-    return this.getPrivate(`api/v1/orders/byClientOid`, params);
+    return this.getPrivate('api/v1/orders/byClientOid', params);
   }
 
   /**
@@ -804,7 +804,7 @@ export class FuturesClient extends BaseRestClient {
     symbol: string;
   }): Promise<APISuccessResponse<{ clientOid: string }>> {
     return this.deletePrivate(
-      `api/v1/copy-trade/futures/orders/client-order`,
+      'api/v1/copy-trade/futures/orders/client-order',
       params,
     );
   }

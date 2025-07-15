@@ -76,6 +76,20 @@ export interface AccountHFMarginTransactions {
  *
  */
 
+export interface SubAccountInfo {
+  userId: string;
+  uid: number;
+  subName: string;
+  status: number;
+  type: number;
+  access: string;
+  createdAt: number;
+  remarks: string;
+  tradeTypes: string[];
+  openedTradeTypes: string[];
+  hostedStatus: null | string;
+}
+
 export interface SubAccountsV2 {
   currentPage: number;
   pageSize: number;
@@ -84,7 +98,7 @@ export interface SubAccountsV2 {
   items: SubAccountInfo[];
 }
 
-export interface SubAccountInfo {
+export interface SubAccountItem {
   userId: string;
   uid: number;
   subName: string;
@@ -106,18 +120,14 @@ export interface CreateSubAccount {
   items: SubAccountItem[];
 }
 
-export interface SubAccountItem {
-  userId: string;
-  uid: number;
-  subName: string;
-  status: number;
-  type: number;
-  access: string;
-  createdAt: number;
-  remarks: string;
-  tradeTypes: string[];
-  openedTradeTypes: string[];
-  hostedStatus: null | string;
+export interface SubAccountBalance {
+  currency: string;
+  balance: string;
+  available: string;
+  holds: string;
+  baseCurrency: string;
+  baseCurrencyPrice: string;
+  baseAmount: string;
 }
 
 // deprecated
@@ -127,16 +137,6 @@ export interface SubAccountBalances {
   mainAccounts: SubAccountBalance[];
   tradeAccounts: SubAccountBalance[];
   marginAccounts: SubAccountBalance[];
-}
-
-export interface SubAccountBalance {
-  currency: string;
-  balance: string;
-  available: string;
-  holds: string;
-  baseCurrency: string;
-  baseCurrencyPrice: string;
-  baseAmount: string;
 }
 
 export interface SubAccountBalancesV2 {
@@ -150,16 +150,6 @@ export interface SubAccountBalancesV2 {
     mainAccounts: SubAccountBalance[];
   }[];
 }
-
-export interface SubAccountBalanceItemV2 {
-  subUserId: string;
-  subName: string;
-  mainAccounts: SubAccountV2Details[]; // Funding Account
-  tradeAccounts: SubAccountV2Details[]; // Spot Account
-  marginAccounts: SubAccountV2Details[]; // Margin Account
-  tradeHFAccounts: string[]; // Deprecated, only for old users
-}
-
 export interface SubAccountV2Details {
   currency?: string;
   balance?: string;
@@ -169,6 +159,15 @@ export interface SubAccountV2Details {
   baseCurrencyPrice?: string;
   baseAmount?: string;
   tag?: string;
+}
+
+export interface SubAccountBalanceItemV2 {
+  subUserId: string;
+  subName: string;
+  mainAccounts: SubAccountV2Details[]; // Funding Account
+  tradeAccounts: SubAccountV2Details[]; // Spot Account
+  marginAccounts: SubAccountV2Details[]; // Margin Account
+  tradeHFAccounts: string[]; // Deprecated, only for old users
 }
 
 /**
