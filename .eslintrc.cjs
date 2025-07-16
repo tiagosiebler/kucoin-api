@@ -28,6 +28,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/ban-types': 'off',
+    'no-param-reassign': ['error'],
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'array-bracket-spacing': ['error', 'never'],
