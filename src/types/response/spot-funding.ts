@@ -35,20 +35,19 @@ export interface MarginBalance {
   status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
   accounts: MarginAccountDetail[];
 }
-
-export interface IsolatedMarginBalance {
-  totalAssetOfQuoteCurrency: string;
-  totalLiabilityOfQuoteCurrency: string;
-  timestamp: number;
-  assets: IsolatedMarginAssetDetail[];
-}
-
 export interface IsolatedMarginAssetDetail {
   symbol: string;
   debtRatio: string;
   status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
   baseAsset: MarginAccountDetail;
   quoteAsset: MarginAccountDetail;
+}
+
+export interface IsolatedMarginBalance {
+  totalAssetOfQuoteCurrency: string;
+  totalLiabilityOfQuoteCurrency: string;
+  timestamp: number;
+  assets: IsolatedMarginAssetDetail[];
 }
 
 /**
@@ -86,15 +85,6 @@ export interface HistoricalDepositItem {
   isInner: boolean;
   status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
 }
-
-export interface Deposits {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: DepositItem[];
-}
-
 export interface DepositItem {
   currency?: string;
   chain?: string;
@@ -109,6 +99,14 @@ export interface DepositItem {
   updatedAt?: number;
   remark?: string;
   arrears?: boolean;
+}
+
+export interface Deposits {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: DepositItem[];
 }
 
 export interface V1HistoricalDeposits {

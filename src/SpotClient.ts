@@ -438,6 +438,7 @@ export class SpotClient extends BaseRestClient {
   ): Promise<APISuccessResponse<CreateSubAccount>> {
     return this.postPrivate('api/v2/sub/user/created', params);
   }
+
   /**
    * Add SubAccount Margin Permission
    *
@@ -796,7 +797,7 @@ export class SpotClient extends BaseRestClient {
    * the best ask price and size as well as the last traded price and the last traded size.
    */
   getTicker(params: { symbol: string }): Promise<APISuccessResponse<Ticker>> {
-    return this.get(`api/v1/market/orderbook/level1`, params);
+    return this.get('api/v1/market/orderbook/level1', params);
   }
 
   /**
@@ -841,7 +842,7 @@ export class SpotClient extends BaseRestClient {
   getOrderBookLevel20(params: {
     symbol: string;
   }): Promise<APISuccessResponse<OrderBookLevel>> {
-    return this.get(`api/v1/market/orderbook/level2_20`, params);
+    return this.get('api/v1/market/orderbook/level2_20', params);
   }
 
   /**
@@ -852,7 +853,7 @@ export class SpotClient extends BaseRestClient {
   getOrderBookLevel100(params: {
     symbol: string;
   }): Promise<APISuccessResponse<OrderBookLevel>> {
-    return this.get(`api/v1/market/orderbook/level2_100`, params);
+    return this.get('api/v1/market/orderbook/level2_100', params);
   }
 
   /**
@@ -1081,7 +1082,7 @@ export class SpotClient extends BaseRestClient {
   cancelHFAllOrdersBySymbol(params: {
     symbol: string;
   }): Promise<APISuccessResponse<string>> {
-    return this.deletePrivate(`api/v1/hf/orders`, params);
+    return this.deletePrivate('api/v1/hf/orders', params);
   }
 
   /**
@@ -1090,7 +1091,7 @@ export class SpotClient extends BaseRestClient {
    * This endpoint can cancel all spot orders for all symbol.
    */
   cancelHFAllOrders(): Promise<APISuccessResponse<CancelAllHFOrdersResponse>> {
-    return this.deletePrivate(`api/v1/hf/orders/cancelAll`);
+    return this.deletePrivate('api/v1/hf/orders/cancelAll');
   }
 
   /**
@@ -1144,7 +1145,7 @@ export class SpotClient extends BaseRestClient {
       symbols: string[];
     }>
   > {
-    return this.getPrivate(`api/v1/hf/orders/active/symbols`);
+    return this.getPrivate('api/v1/hf/orders/active/symbols');
   }
 
   /**
@@ -1157,7 +1158,7 @@ export class SpotClient extends BaseRestClient {
   getHFActiveOrders(params: {
     symbol: string;
   }): Promise<APISuccessResponse<HFOrder[]>> {
-    return this.getPrivate(`api/v1/hf/orders/active`, params);
+    return this.getPrivate('api/v1/hf/orders/active', params);
   }
 
   /**
@@ -1194,7 +1195,7 @@ export class SpotClient extends BaseRestClient {
       items: HFOrder[];
     }>
   > {
-    return this.getPrivate(`api/v1/hf/orders/done`, params);
+    return this.getPrivate('api/v1/hf/orders/done', params);
   }
 
   /**
@@ -1268,7 +1269,7 @@ export class SpotClient extends BaseRestClient {
     }>
   > {
     return this.deletePrivate(
-      `api/v1/stop-order/cancelOrderByClientOid`,
+      'api/v1/stop-order/cancelOrderByClientOid',
       params,
     );
   }
@@ -1296,7 +1297,7 @@ export class SpotClient extends BaseRestClient {
       cancelledOrderIds: string[]; // Unique IDs of the cancelled orders
     }>
   > {
-    return this.deletePrivate(`api/v1/stop-order/cancel`, params);
+    return this.deletePrivate('api/v1/stop-order/cancel', params);
   }
 
   /**
@@ -1334,6 +1335,7 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<StopOrderItem[]>> {
     return this.getPrivate('api/v1/stop-order/queryOrderByClientOid', params);
   }
+
   /**
    * Add OCO Order
    *
@@ -1346,6 +1348,7 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.postPrivate('api/v3/oco/order', params);
   }
+
   /**
    * Cancel OCO Order By OrderId
    *
@@ -1450,6 +1453,7 @@ export class SpotClient extends BaseRestClient {
   > {
     return this.getPrivate('api/v3/margin/symbols', params);
   }
+
   /**
    * Get Margin Config
    *
@@ -1489,6 +1493,7 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<MarginMarkPrice>> {
     return this.get(`api/v1/mark-price/${params.symbol}/current`);
   }
+
   /**
    * Get Symbols - Isolated Margin
    *
@@ -1516,6 +1521,7 @@ export class SpotClient extends BaseRestClient {
   ): Promise<APISuccessResponse<MarginSubmitOrderV3Response>> {
     return this.postPrivate('api/v3/hf/margin/order', params);
   }
+
   /**
    * Add Order Test
    *
@@ -1526,6 +1532,7 @@ export class SpotClient extends BaseRestClient {
   ): Promise<MarginSubmitOrderV3Response> {
     return this.postPrivate('api/v3/hf/margin/order/test', params);
   }
+
   /**
    * Cancel Order By OrderId
    *
@@ -1560,6 +1567,7 @@ export class SpotClient extends BaseRestClient {
       params,
     );
   }
+
   /**
    * Cancel All Orders By Symbol
    *
@@ -1569,7 +1577,7 @@ export class SpotClient extends BaseRestClient {
     symbol: string;
     tradeType: string;
   }): Promise<any> {
-    return this.deletePrivate(`api/v3/hf/margin/orders`, params);
+    return this.deletePrivate('api/v3/hf/margin/orders', params);
   }
 
   /**
@@ -1591,7 +1599,7 @@ export class SpotClient extends BaseRestClient {
   getHFActiveMarginOrders(
     params: HFMarginRequestOrder,
   ): Promise<APISuccessResponse<HFMarginOrder[]>> {
-    return this.getPrivate(`api/v3/hf/margin/orders/active`, params);
+    return this.getPrivate('api/v3/hf/margin/orders/active', params);
   }
 
   /**
@@ -1633,6 +1641,7 @@ export class SpotClient extends BaseRestClient {
   }): Promise<APISuccessResponse<HFMarginOrder>> {
     return this.getPrivate(`api/v3/hf/margin/orders/${params.orderId}`, params);
   }
+
   /**
    * Get Order By ClientOid
    *

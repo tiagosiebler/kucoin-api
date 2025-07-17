@@ -195,6 +195,22 @@ export interface IsolatedMarginSymbolsConfig {
   baseBorrowCoefficient: string;
   quoteBorrowCoefficient: string;
 }
+export interface AssetDetail {
+  currency: string; // Coin type Code
+  totalBalance: string; // Current coin type asset amount
+  holdBalance: string; // Current coin type frozen
+  availableBalance: string; // The available balance
+  liability: string; // Liability
+  interest: string; // Interest
+  borrowableAmount: string; // Borrowable amount
+}
+export interface AssetInfo {
+  symbol: string; // Trading pairs, with each trading pair indicating a position
+  status: string; // The position status
+  debtRatio: string; // Debt ratio
+  baseAsset: AssetDetail;
+  quoteAsset: AssetDetail;
+}
 
 export interface IsolatedMarginAccountInfo {
   totalConversionBalance: string; // The total balance of the isolated margin account (in the specified coin)
@@ -208,24 +224,6 @@ export interface SingleIsolatedMarginAccountInfo {
   debtRatio: string; // Debt ratio
   baseAsset: AssetDetail;
   quoteAsset: AssetDetail;
-}
-
-export interface AssetInfo {
-  symbol: string; // Trading pairs, with each trading pair indicating a position
-  status: string; // The position status
-  debtRatio: string; // Debt ratio
-  baseAsset: AssetDetail;
-  quoteAsset: AssetDetail;
-}
-
-export interface AssetDetail {
-  currency: string; // Coin type Code
-  totalBalance: string; // Current coin type asset amount
-  holdBalance: string; // Current coin type frozen
-  availableBalance: string; // The available balance
-  liability: string; // Liability
-  interest: string; // Interest
-  borrowableAmount: string; // Borrowable amount
 }
 
 /**
@@ -245,16 +243,6 @@ export interface MarginOrderV3 {
   orderNo: string; // Borrow order number
   actualSize: number; // Actual borrowed amount
 }
-
-export interface MarginBorrowHistoryV3 {
-  timestamp: number;
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: MarginBorrowHistoryRecord[];
-}
-
 export interface MarginBorrowHistoryRecord {
   orderNo: string; // Borrow order ID
   symbol: string; // Isolated margin trading pair; empty for cross margin
@@ -265,15 +253,14 @@ export interface MarginBorrowHistoryRecord {
   createdTime: number; // Time of borrowing
 }
 
-export interface MarginRepayHistoryV3 {
+export interface MarginBorrowHistoryV3 {
   timestamp: number;
   currentPage: number;
   pageSize: number;
   totalNum: number;
   totalPage: number;
-  items: MarginRepayHistoryRecord[];
+  items: MarginBorrowHistoryRecord[];
 }
-
 export interface MarginRepayHistoryRecord {
   orderNo: string;
   symbol: string | null;
@@ -283,6 +270,15 @@ export interface MarginRepayHistoryRecord {
   interest: string;
   status: string;
   createdTime: number;
+}
+
+export interface MarginRepayHistoryV3 {
+  timestamp: number;
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: MarginRepayHistoryRecord[];
 }
 
 export interface MarginInterestRecord {
