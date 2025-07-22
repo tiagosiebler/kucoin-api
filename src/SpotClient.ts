@@ -18,6 +18,11 @@ import {
   UpdateSubAccountAPIRequest,
 } from './types/request/spot-account.js';
 import {
+  GetAffiliateCommissionRequest,
+  GetAffiliateInviteesRequest,
+  GetAffiliateTradeHistoryRequest,
+} from './types/request/spot-affiliate.js';
+import {
   AddConvertLimitOrderRequest,
   AddConvertOrderRequest,
   CancelConvertLimitOrderRequest,
@@ -30,9 +35,12 @@ import {
   GetConvertSymbolRequest,
 } from './types/request/spot-convert.js';
 import {
+  GetDualInvestmentProductsRequest,
   GetEarnFixedIncomeHoldAssetsRequest,
   GetEarnRedeemPreviewRequest,
+  GetStructuredProductOrdersRequest,
   InitiateRedemptionRequest,
+  StructuredProductPurchaseRequest,
   SubscribeEarnFixedIncomeRequest,
 } from './types/request/spot-earn.js';
 import {
@@ -106,6 +114,11 @@ import {
   UpdateSubAPI,
 } from './types/response/spot-account.js';
 import {
+  AffiliateCommissionItem,
+  AffiliateInvitees,
+  AffiliateTradeHistory,
+} from './types/response/spot-affiliate.js';
+import {
   ConvertCurrencies,
   ConvertLimitOrder,
   ConvertLimitOrdersList,
@@ -118,10 +131,13 @@ import {
   SumbitConvertLimitResp,
 } from './types/response/spot-convert.js';
 import {
+  DualInvestmentProduct,
   EarnFixedIncomeHoldAssets,
   EarnProduct,
   GetEarnRedeemPreviewResponse,
   InitiateRedemptionResponse,
+  StructuredProductOrders,
+  StructuredProductPurchaseResponse,
   SubscribeEarnFixedIncomeResponse,
 } from './types/response/spot-earn.js';
 import {
@@ -1974,7 +1990,7 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
-   * REST - EARN
+   * REST - EARN - Simple earn
    *
    */
 
@@ -2082,6 +2098,45 @@ export class SpotClient extends BaseRestClient {
 
   /**
    *
+   * REST - EARN - Structured earn(Dual)
+   *
+   */
+
+  /**
+   * Structured Product Purchase
+   *
+   * This endpoint allows you to subscribe Struct-Earn products.
+   */
+  submitStructuredProductPurchase(
+    params: StructuredProductPurchaseRequest,
+  ): Promise<APISuccessResponse<StructuredProductPurchaseResponse>> {
+    return this.postPrivate('api/v1/struct-earn/orders', params);
+  }
+
+  /**
+   * Get Dual Investment Products
+   *
+   * Available dual investment products can be obtained at this endpoint. If no products are available, an empty list is returned.
+   */
+  getDualInvestmentProducts(
+    params: GetDualInvestmentProductsRequest,
+  ): Promise<APISuccessResponse<DualInvestmentProduct[]>> {
+    return this.get('api/v1/struct-earn/dual/products', params);
+  }
+
+  /**
+   * Get Structured Product Orders
+   *
+   * This endpoint is to query structured product orders
+   */
+  getStructuredProductOrders(
+    params: GetStructuredProductOrdersRequest,
+  ): Promise<APISuccessResponse<StructuredProductOrders>> {
+    return this.getPrivate('api/v1/struct-earn/orders', params);
+  }
+
+  /**
+   *
    * REST - VIP LENDING
    *
    */
@@ -2123,12 +2178,46 @@ export class SpotClient extends BaseRestClient {
    */
 
   /**
+   * @deprecated This method is deprecated. Use other affiliate endpoints instead.
    * Get Affiliate User Rebate Information
    *
    * This endpoint allows getting affiliate user rebate information.
    */
   getAffiliateUserRebateInfo(): Promise<APISuccessResponse<any>> {
     return this.getPrivate('api/v2/affiliate/inviter/statistics');
+  }
+
+  /**
+   * Get Trade History
+   *
+   * Trade history information can be obtained at this endpoint.
+   */
+  getAffiliateTradeHistory(
+    params: GetAffiliateTradeHistoryRequest,
+  ): Promise<APISuccessResponse<AffiliateTradeHistory>> {
+    return this.getPrivate('api/v2/affiliate/queryTransactionByUid', params);
+  }
+
+  /**
+   * Get Commission
+   *
+   * My commission information can be obtained at this endpoint.
+   */
+  getAffiliateCommission(
+    params?: GetAffiliateCommissionRequest,
+  ): Promise<APISuccessResponse<AffiliateCommissionItem[]>> {
+    return this.getPrivate('api/v2/affiliate/queryMyCommission', params);
+  }
+
+  /**
+   * Get Invited
+   *
+   * Affiliate user invited information can be obtained at this endpoint.
+   */
+  getAffiliateInvitees(
+    params?: GetAffiliateInviteesRequest,
+  ): Promise<APISuccessResponse<AffiliateInvitees>> {
+    return this.getPrivate('api/v2/affiliate/queryInvitees', params);
   }
 
   /**
