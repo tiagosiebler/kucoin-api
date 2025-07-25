@@ -1,6 +1,6 @@
 {
   "name": "kucoin-api",
-  "version": "2.1.15",
+  "version": "2.1.16",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
@@ -20,7 +20,8 @@
   },
   "type": "module",
   "files": [
-    "dist/*"
+    "dist/*",
+    "llms.txt"
   ],
   "author": "Tiago Siebler (https://github.com/tiagosiebler)",
   "contributors": [
