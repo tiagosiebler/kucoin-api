@@ -22,7 +22,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
 
 - Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
 - Complete integration with all Kucoin REST APIs and WebSockets.
-  - Dedicated clients for Spot, Futures, and Broker operations
+  - Dedicated REST clients for Spot, Futures, and Broker operations
   - Unified WebSocket client for all markets
 - Complete TypeScript support (with type declarations for most API requests & responses).
   - Strongly typed requests and responses.
