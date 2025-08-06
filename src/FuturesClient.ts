@@ -30,6 +30,7 @@ import {
   BatchCancelOrderResult,
   BatchMarginModeUpdateResponse,
   CopyTradePosition,
+  CrossMarginRequirement,
   CrossMarginRiskLimit,
   FullOrderBookDetail,
   FuturesAccountFundingRateHistory,
@@ -677,6 +678,18 @@ export class FuturesClient extends BaseRestClient {
     withdrawAmount: string;
   }): Promise<APISuccessResponse<string>> {
     return this.postPrivate('api/v1/margin/withdrawMargin', params);
+  }
+
+  /**
+   * Get Cross Margin Requirement
+   * This endpoint supports querying the cross margin requirements of a symbol by position value.
+   */
+  getCrossMarginRequirement(params: {
+    symbol: string;
+    positionValue: string;
+    leverage?: string;
+  }): Promise<APISuccessResponse<CrossMarginRequirement>> {
+    return this.getPrivate('api/v2/getCrossModeMarginRequirement', params);
   }
 
   /**
