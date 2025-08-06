@@ -84,5 +84,47 @@ describe('REST PRIVATE', () => {
         }
       });
     });
+
+    describe('DELETE requests', () => {
+      test('without any parameters', async () => {
+        try {
+          const res = await rest.cancelHFAllOrders();
+
+          // console.log(`res "${expect.getState().currentTestName}"`, res);
+          expect(res).toMatchObject({
+            whatever: true,
+          });
+        } catch (e: any) {
+          // These are deliberatly restricted API keys. If the response is a permission error, it confirms the sign + request was OK and permissions were denied.
+          console.log(`err "${expect.getState().currentTestName}"`, e?.body);
+          const responseBody = e?.body;
+          expect(responseBody).toMatchObject({
+            code: '400007',
+            msg: expect.stringContaining('more permission'),
+          });
+        }
+      });
+
+      test('with params', async () => {
+        try {
+          const res = await rest.cancelStopOrderById({
+            orderId: '1234567',
+          });
+
+          // console.log(`res "${expect.getState().currentTestName}"`, res);
+          expect(res).toMatchObject({
+            whatever: true,
+          });
+        } catch (e: any) {
+          // These are deliberatly restricted API keys. If the response is a permission error, it confirms the sign + request was OK and permissions were denied.
+          console.log(`err "${expect.getState().currentTestName}"`, e?.body);
+          const responseBody = e?.body;
+          expect(responseBody).toMatchObject({
+            code: '400007',
+            msg: expect.stringContaining('more permission'),
+          });
+        }
+      });
+    });
   });
 });
