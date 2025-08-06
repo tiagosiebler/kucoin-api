@@ -1681,6 +1681,8 @@ export async function signMessage(
   method: SignEncodeMethod,
   algorithm: SignAlgorithm,
 ): Promise<string>
+⋮----
+export function checkWebCryptoAPISupported()
 
 ================
 File: src/types/request/spot-margin-trading.ts
@@ -3457,6 +3459,389 @@ File: tsconfig.json
 }
 
 ================
+File: src/lib/BaseWSClient.ts
+================
+import EventEmitter from 'events';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import {
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+} from '../types/websockets/client.js';
+import { WsOperation } from '../types/websockets/requests.js';
+import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
+import { DefaultLogger } from './websocket/logger.js';
+import {
+  isMessageEvent,
+  MessageEventLike,
+  safeTerminateWs,
+  WsTopicRequest,
+  WsTopicRequestOrStringTopic,
+} from './websocket/websocket-util.js';
+import { WsStore } from './websocket/WsStore.js';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './websocket/WsStore.types.js';
+⋮----
+interface WSClientEventMap<WsKey extends string> {
+  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+  open: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Reconnecting a dropped connection */
+  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Successfully reconnected a connection that dropped */
+  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Connection closed */
+  close: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Received reply to websocket command (e.g. after subscribing to topics) */
+  response: (response: any & { wsKey: WsKey }) => void;
+  /** Received data for topic */
+  update: (response: any & { wsKey: WsKey }) => void;
+  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+  exception: (response: any & { wsKey: WsKey }) => void;
+  error: (response: any & { wsKey: WsKey }) => void;
+  /** Confirmation that a connection successfully authenticated */
+  authenticated: (event: { wsKey: WsKey; event: any }) => void;
+}
+⋮----
+/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+⋮----
+/** Reconnecting a dropped connection */
+⋮----
+/** Successfully reconnected a connection that dropped */
+⋮----
+/** Connection closed */
+⋮----
+/** Received reply to websocket command (e.g. after subscribing to topics) */
+⋮----
+/** Received data for topic */
+⋮----
+/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+⋮----
+/** Confirmation that a connection successfully authenticated */
+⋮----
+export interface EmittableEvent<TEvent = any> {
+  eventType:
+    | 'response'
+    | 'update'
+    | 'exception'
+    | 'authenticated'
+    | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
+  event: TEvent;
+}
+⋮----
+| 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
+⋮----
+// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
+export interface BaseWebsocketClient<TWSKey extends string> {
+  on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+
+  emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+}
+⋮----
+on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+⋮----
+emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+⋮----
+/**
+ * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
+ *
+ * This method normalises topics into objects (object has topic name + optional params).
+ */
+function getNormalisedTopicRequests(
+  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+): WsTopicRequest<string>[]
+⋮----
+// passed as string, convert to object
+⋮----
+// already a normalised object, thanks to user
+⋮----
+type WSTopic = string;
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export abstract class BaseWebsocketClient<
+TWSKey extends string,
+⋮----
+constructor(
+    options?: WSClientConfigurableOptions,
+    logger?: typeof DefaultLogger,
+)
+⋮----
+// Requires a confirmation "response" from the ws connection before assuming it is ready
+⋮----
+// Automatically auth after opening a connection?
+⋮----
+// Automatically include auth/sign with every WS request
+⋮----
+// Automatically re-auth WS API, if we were auth'd before and get reconnected
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
+⋮----
+protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract isWsPong(data: any): boolean;
+⋮----
+protected abstract isWsPing(data: any): boolean;
+⋮----
+protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
+⋮----
+protected abstract isPrivateTopicRequest(
+    request: WsTopicRequest<WSTopic>,
+    wsKey: TWSKey,
+  ): boolean;
+⋮----
+/**
+   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
+   */
+protected abstract getWsOperationEventsForTopics(
+    topics: WsTopicRequest<WSTopic>[],
+    wsKey: TWSKey,
+    operation: WsOperation,
+  ): Promise<string[]>;
+⋮----
+protected abstract getPrivateWSKeys(): TWSKey[];
+⋮----
+protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
+⋮----
+protected abstract getMaxTopicsPerSubscribeEvent(
+    wsKey: TWSKey,
+  ): number | null;
+⋮----
+/**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+protected abstract resolveEmittableEvents(
+    wsKey: TWSKey,
+    event: MessageEventLike,
+  ): EmittableEvent[];
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+protected abstract connectAll(): Promise<(WSConnectedResult | undefined)[]>;
+⋮----
+protected isPrivateWsKey(wsKey: TWSKey): boolean
+⋮----
+/** Returns auto-incrementing request ID, used to track promise references for async requests */
+protected getNewRequestId(): string
+⋮----
+protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: WSTopic,
+    params?: any,
+  ): Promise<unknown>;
+⋮----
+protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: WSTopic,
+    params: any,
+  ): Promise<unknown>;
+⋮----
+/**
+   * Subscribe to one or more topics on a WS connection (identified by WS Key).
+   *
+   * - Topics are automatically cached
+   * - Connections are automatically opened, if not yet connected
+   * - Authentication is automatically handled
+   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
+   *
+   * @param wsTopicRequests array of topics to subscribe to
+   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
+   */
+public subscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<WSTopic>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+⋮----
+// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
+⋮----
+/**
+       * Are we in the process of connection? Nothing to send yet.
+       */
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't request topics yet.
+       *
+       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+protected unsubscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// If not connected, don't need to do anything.
+// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't need to do anything.
+       * We don't subscribe to topics until auth is complete anyway.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+/**
+   * Splits topic requests into two groups, public & private topic requests
+   */
+private sortTopicRequestsIntoPublicPrivate(
+    wsTopicRequests: WsTopicRequest<string>[],
+    wsKey: TWSKey,
+):
+⋮----
+/** Get the WsStore that tracks websockets & topics */
+public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
+⋮----
+public close(wsKey: TWSKey, force?: boolean)
+⋮----
+public closeAll(force?: boolean)
+⋮----
+public isConnected(wsKey: TWSKey): boolean
+⋮----
+/**
+   * Request connection to a specific websocket, instead of waiting for automatic connection.
+   */
+public async connect(wsKey: TWSKey): Promise<WSConnectedResult | undefined>
+⋮----
+private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
+⋮----
+private parseWsError(context: string, error: any, wsKey: TWSKey)
+⋮----
+/** Get a signature, build the auth request and send it */
+private async sendAuthRequest(wsKey: TWSKey): Promise<void>
+⋮----
+private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
+⋮----
+private ping(wsKey: TWSKey)
+⋮----
+private clearTimers(wsKey: TWSKey)
+⋮----
+// Send a ping at intervals
+private clearPingTimer(wsKey: TWSKey)
+⋮----
+// Expect a pong within a time limit
+private clearPongTimer(wsKey: TWSKey)
+⋮----
+// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
+⋮----
+// this.logger.trace(`No active pong timer for "${wsKey}"`);
+⋮----
+/**
+   * Simply builds and sends subscribe events for a list of topics for a ws key
+   *
+   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
+   */
+private async requestSubscribeTopics(
+    wsKey: TWSKey,
+    topics: WsTopicRequest<string>[],
+)
+⋮----
+// Automatically splits requests into smaller batches, if needed
+⋮----
+`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
+⋮----
+// this.logger.trace(`Sending batch via message: "${wsMessage}"`);
+⋮----
+/**
+   * Simply builds and sends unsubscribe events for a list of topics for a ws key
+   *
+   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
+   */
+private async requestUnsubscribeTopics(
+    wsKey: TWSKey,
+    wsTopicRequests: WsTopicRequest<string>[],
+)
+⋮----
+/**
+   * Try sending a string event on a WS connection (identified by the WS Key)
+   */
+public tryWsSend(wsKey: TWSKey, wsMessage: string)
+⋮----
+private async onWsOpen(event: any, wsKey: TWSKey)
+⋮----
+/**
+   * Called automatically once a connection is ready.
+   * - Some exchanges are ready immediately after the connections open.
+   * - Some exchanges send an event to confirm the connection is ready for us.
+   *
+   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
+   */
+private async onWsReadyForEvents(wsKey: TWSKey)
+⋮----
+// Resolve & cleanup deferred "connection attempt in progress" promise
+⋮----
+// Remove before resolving, in case there's more requests queued
+⋮----
+// Some websockets require an auth packet to be sent after opening the connection
+⋮----
+// Reconnect to topics known before it connected
+⋮----
+// Request sub to public topics, if any
+⋮----
+// Request sub to private topics, if auth on connect isn't needed
+⋮----
+/**
+   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
+   *
+   * Only used for exchanges that require auth before sending private topic subscription requests
+   */
+private onWsAuthenticated(
+    wsKey: TWSKey,
+    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
+)
+⋮----
+private onWsMessage(event: unknown, wsKey: TWSKey, ws: WebSocket)
+⋮----
+// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
+⋮----
+// console.log(`raw event: `, { data, dataType, emittableEvents });
+⋮----
+private onWsClose(event: unknown, wsKey: TWSKey)
+⋮----
+// clean up any pending promises for this connection
+⋮----
+// clean up any pending promises for this connection
+⋮----
+private getWs(wsKey: TWSKey)
+⋮----
+private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
+⋮----
+/**
+   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
+   */
+protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// Start connection, it should automatically store/return a promise.
+
+================
 File: src/types/request/spot-account.ts
 ================
 export interface GetBalancesRequest {
@@ -3542,6 +3927,189 @@ export interface DeleteSubAccountAPIRequest {
   apiKey: string;
   passphrase: string;
   subName: string;
+}
+
+================
+File: src/types/request/spot-funding.ts
+================
+/**
+ *
+ ***********
+ * Funding
+ ***********
+ *
+ */
+⋮----
+export interface CreateDepositAddressV3Request {
+  currency: string;
+  chain?: string;
+  to?: 'main' | 'trade';
+  amount?: string;
+}
+⋮----
+export interface GetMarginBalanceRequest {
+  quoteCurrency?: string;
+  queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
+}
+⋮----
+export interface GetIsolatedMarginBalanceRequest {
+  symbol?: string;
+  quoteCurrency?: string;
+  queryType?: 'ISOLATED' | 'ISOLATED_V2' | 'ALL';
+}
+⋮----
+/**
+ *
+ * Deposit
+ *
+ */
+⋮----
+export interface GetDepositsRequest {
+  currency?: string;
+  startAt?: number;
+  endAt?: number;
+  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+/**
+ *
+ * Withdrawals
+ *
+ */
+⋮----
+export interface GetWithdrawalsRequest {
+  currency?: string;
+  status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
+  startAt?: number;
+  endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+export interface ApplyWithdrawRequest {
+  currency: string;
+  address: string;
+  amount: number;
+  memo?: string;
+  isInner?: boolean;
+  remark?: string;
+  chain?: string;
+  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+}
+⋮----
+export interface SubmitWithdrawV3Request {
+  currency: string;
+  toAddress: string;
+  amount: number;
+  memo?: string;
+  isInner?: boolean;
+  remark?: string;
+  chain?: string;
+  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+  withdrawType: 'ADDRESS' | 'UID' | 'MAIL' | 'PHONE';
+}
+⋮----
+/**
+ *
+ * Transfer
+ *
+ */
+⋮----
+export interface GetTransferableRequest {
+  currency: string;
+  type:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'ISOLATED'
+    | 'OPTION'
+    | 'MARGIN_V2'
+    | 'ISOLATED_V2';
+  tag?: string;
+}
+⋮----
+export interface FlexTransferRequest {
+  clientOid: string;
+  currency?: string;
+  amount: string;
+  fromUserId?: string;
+  fromAccountType:
+    | 'MAIN'
+    | 'TRADE'
+    | 'CONTRACT'
+    | 'MARGIN'
+    | 'ISOLATED'
+    | 'TRADE_HF'
+    | 'MARGIN_V2'
+    | 'ISOLATED_V2'
+    | 'OPTION';
+  fromAccountTag?: string;
+  type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
+  toUserId?: string;
+  toAccountType:
+    | 'MAIN'
+    | 'TRADE'
+    | 'CONTRACT'
+    | 'MARGIN'
+    | 'ISOLATED'
+    | 'TRADE_HF'
+    | 'MARGIN_V2'
+    | 'ISOLATED_V2'
+    | 'OPTION';
+  toAccountTag?: string;
+}
+⋮----
+export interface submitTransferMasterSubRequest {
+  clientOid: string;
+  currency: string;
+  amount: string;
+  direction: 'OUT' | 'IN';
+  accountType?:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'CONTRACT'
+    | 'OPTION';
+  subAccountType?:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'CONTRACT'
+    | 'OPTION';
+  subUserId: string;
+}
+⋮----
+export interface InnerTransferRequest {
+  clientOid: string;
+  currency: string;
+  from:
+    | 'main'
+    | 'trade'
+    | 'trade_hf'
+    | 'margin'
+    | 'isolated'
+    | 'margin_v2'
+    | 'isolated_v2'
+    | 'contract'
+    | 'option';
+  to:
+    | 'main'
+    | 'trade'
+    | 'trade_hf'
+    | 'margin'
+    | 'isolated'
+    | 'margin_v2'
+    | 'isolated_v2'
+    | 'contract'
+    | 'option';
+  amount: string;
+  fromTag?: string;
+  toTag?: string;
 }
 
 ================
@@ -3992,386 +4560,6 @@ File: .eslintrc.cjs
 // 'no-unused-vars': ['warn'],
 
 ================
-File: src/lib/BaseWSClient.ts
-================
-import EventEmitter from 'events';
-import WebSocket from 'isomorphic-ws';
-⋮----
-import {
-  WebsocketClientOptions,
-  WSClientConfigurableOptions,
-} from '../types/websockets/client.js';
-import { WsOperation } from '../types/websockets/requests.js';
-import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
-import { DefaultLogger } from './websocket/logger.js';
-import {
-  isMessageEvent,
-  MessageEventLike,
-  safeTerminateWs,
-  WsTopicRequest,
-  WsTopicRequestOrStringTopic,
-} from './websocket/websocket-util.js';
-import { WsStore } from './websocket/WsStore.js';
-import {
-  WSConnectedResult,
-  WsConnectionStateEnum,
-} from './websocket/WsStore.types.js';
-⋮----
-interface WSClientEventMap<WsKey extends string> {
-  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Reconnecting a dropped connection */
-  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Connection closed */
-  close: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Received reply to websocket command (e.g. after subscribing to topics) */
-  response: (response: any & { wsKey: WsKey }) => void;
-  /** Received data for topic */
-  update: (response: any & { wsKey: WsKey }) => void;
-  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-  exception: (response: any & { wsKey: WsKey }) => void;
-  error: (response: any & { wsKey: WsKey }) => void;
-  /** Confirmation that a connection successfully authenticated */
-  authenticated: (event: { wsKey: WsKey; event: any }) => void;
-}
-⋮----
-/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-⋮----
-/** Reconnecting a dropped connection */
-⋮----
-/** Successfully reconnected a connection that dropped */
-⋮----
-/** Connection closed */
-⋮----
-/** Received reply to websocket command (e.g. after subscribing to topics) */
-⋮----
-/** Received data for topic */
-⋮----
-/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-⋮----
-/** Confirmation that a connection successfully authenticated */
-⋮----
-export interface EmittableEvent<TEvent = any> {
-  eventType:
-    | 'response'
-    | 'update'
-    | 'exception'
-    | 'authenticated'
-    | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
-  event: TEvent;
-}
-⋮----
-| 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
-⋮----
-// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
-export interface BaseWebsocketClient<TWSKey extends string> {
-  on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-
-  emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-}
-⋮----
-on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-⋮----
-emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-⋮----
-/**
- * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
- *
- * This method normalises topics into objects (object has topic name + optional params).
- */
-function getNormalisedTopicRequests(
-  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-): WsTopicRequest<string>[]
-⋮----
-// passed as string, convert to object
-⋮----
-// already a normalised object, thanks to user
-⋮----
-type WSTopic = string;
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export abstract class BaseWebsocketClient<
-TWSKey extends string,
-⋮----
-constructor(
-    options?: WSClientConfigurableOptions,
-    logger?: typeof DefaultLogger,
-)
-⋮----
-// Requires a confirmation "response" from the ws connection before assuming it is ready
-⋮----
-// Automatically auth after opening a connection?
-⋮----
-// Automatically include auth/sign with every WS request
-⋮----
-// Automatically re-auth WS API, if we were auth'd before and get reconnected
-⋮----
-protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract isWsPong(data: any): boolean;
-⋮----
-protected abstract isWsPing(data: any): boolean;
-⋮----
-protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
-⋮----
-protected abstract isPrivateTopicRequest(
-    request: WsTopicRequest<WSTopic>,
-    wsKey: TWSKey,
-  ): boolean;
-⋮----
-/**
-   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
-   */
-protected abstract getWsOperationEventsForTopics(
-    topics: WsTopicRequest<WSTopic>[],
-    wsKey: TWSKey,
-    operation: WsOperation,
-  ): Promise<string[]>;
-⋮----
-protected abstract getPrivateWSKeys(): TWSKey[];
-⋮----
-protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
-⋮----
-protected abstract getMaxTopicsPerSubscribeEvent(
-    wsKey: TWSKey,
-  ): number | null;
-⋮----
-/**
-   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
-   */
-protected abstract resolveEmittableEvents(
-    wsKey: TWSKey,
-    event: MessageEventLike,
-  ): EmittableEvent[];
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-protected abstract connectAll(): Promise<(WSConnectedResult | undefined)[]>;
-⋮----
-protected isPrivateWsKey(wsKey: TWSKey): boolean
-⋮----
-/** Returns auto-incrementing request ID, used to track promise references for async requests */
-protected getNewRequestId(): string
-⋮----
-protected abstract sendWSAPIRequest(
-    wsKey: TWSKey,
-    channel: WSTopic,
-    params?: any,
-  ): Promise<unknown>;
-⋮----
-protected abstract sendWSAPIRequest(
-    wsKey: TWSKey,
-    channel: WSTopic,
-    params: any,
-  ): Promise<unknown>;
-⋮----
-/**
-   * Subscribe to one or more topics on a WS connection (identified by WS Key).
-   *
-   * - Topics are automatically cached
-   * - Connections are automatically opened, if not yet connected
-   * - Authentication is automatically handled
-   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
-   *
-   * @param wsTopicRequests array of topics to subscribe to
-   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
-   */
-public subscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<WSTopic>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
-⋮----
-/**
-       * Are we in the process of connection? Nothing to send yet.
-       */
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't request topics yet.
-       *
-       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-protected unsubscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// If not connected, don't need to do anything.
-// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't need to do anything.
-       * We don't subscribe to topics until auth is complete anyway.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-/**
-   * Splits topic requests into two groups, public & private topic requests
-   */
-private sortTopicRequestsIntoPublicPrivate(
-    wsTopicRequests: WsTopicRequest<string>[],
-    wsKey: TWSKey,
-):
-⋮----
-/** Get the WsStore that tracks websockets & topics */
-public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
-⋮----
-public close(wsKey: TWSKey, force?: boolean)
-⋮----
-public closeAll(force?: boolean)
-⋮----
-public isConnected(wsKey: TWSKey): boolean
-⋮----
-/**
-   * Request connection to a specific websocket, instead of waiting for automatic connection.
-   */
-public async connect(wsKey: TWSKey): Promise<WSConnectedResult | undefined>
-⋮----
-private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
-⋮----
-private parseWsError(context: string, error: any, wsKey: TWSKey)
-⋮----
-/** Get a signature, build the auth request and send it */
-private async sendAuthRequest(wsKey: TWSKey): Promise<void>
-⋮----
-private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
-⋮----
-private ping(wsKey: TWSKey)
-⋮----
-private clearTimers(wsKey: TWSKey)
-⋮----
-// Send a ping at intervals
-private clearPingTimer(wsKey: TWSKey)
-⋮----
-// Expect a pong within a time limit
-private clearPongTimer(wsKey: TWSKey)
-⋮----
-// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
-⋮----
-// this.logger.trace(`No active pong timer for "${wsKey}"`);
-⋮----
-/**
-   * Simply builds and sends subscribe events for a list of topics for a ws key
-   *
-   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
-   */
-private async requestSubscribeTopics(
-    wsKey: TWSKey,
-    topics: WsTopicRequest<string>[],
-)
-⋮----
-// Automatically splits requests into smaller batches, if needed
-⋮----
-`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
-⋮----
-// this.logger.trace(`Sending batch via message: "${wsMessage}"`);
-⋮----
-/**
-   * Simply builds and sends unsubscribe events for a list of topics for a ws key
-   *
-   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
-   */
-private async requestUnsubscribeTopics(
-    wsKey: TWSKey,
-    wsTopicRequests: WsTopicRequest<string>[],
-)
-⋮----
-/**
-   * Try sending a string event on a WS connection (identified by the WS Key)
-   */
-public tryWsSend(wsKey: TWSKey, wsMessage: string)
-⋮----
-private async onWsOpen(event: any, wsKey: TWSKey)
-⋮----
-/**
-   * Called automatically once a connection is ready.
-   * - Some exchanges are ready immediately after the connections open.
-   * - Some exchanges send an event to confirm the connection is ready for us.
-   *
-   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
-   */
-private async onWsReadyForEvents(wsKey: TWSKey)
-⋮----
-// Resolve & cleanup deferred "connection attempt in progress" promise
-⋮----
-// Remove before resolving, in case there's more requests queued
-⋮----
-// Some websockets require an auth packet to be sent after opening the connection
-⋮----
-// Reconnect to topics known before it connected
-⋮----
-// Request sub to public topics, if any
-⋮----
-// Request sub to private topics, if auth on connect isn't needed
-⋮----
-/**
-   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
-   *
-   * Only used for exchanges that require auth before sending private topic subscription requests
-   */
-private onWsAuthenticated(
-    wsKey: TWSKey,
-    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
-)
-⋮----
-private onWsMessage(event: unknown, wsKey: TWSKey, ws: WebSocket)
-⋮----
-// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
-⋮----
-// console.log(`raw event: `, { data, dataType, emittableEvents });
-⋮----
-private onWsClose(event: unknown, wsKey: TWSKey)
-⋮----
-// clean up any pending promises for this connection
-⋮----
-// clean up any pending promises for this connection
-⋮----
-private getWs(wsKey: TWSKey)
-⋮----
-private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
-⋮----
-/**
-   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
-   */
-protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
-⋮----
-// Already in progress? Await shared promise and retry
-⋮----
-// Start connection, it should automatically store/return a promise.
-
-================
 File: src/lib/requestUtils.ts
 ================
 /**
@@ -4470,187 +4658,299 @@ export function getRestBaseUrl(
 ): string
 
 ================
-File: src/types/request/spot-funding.ts
+File: src/types/request/futures.types.ts
 ================
 /**
- *
- ***********
- * Funding
- ***********
- *
+ * REST - ACCOUNT  - BASIC INFO
+ * Get Account Ledgers - Futures
  */
 ⋮----
-export interface CreateDepositAddressV3Request {
-  currency: string;
-  chain?: string;
-  to?: 'main' | 'trade';
-  amount?: string;
-}
-⋮----
-export interface GetMarginBalanceRequest {
-  quoteCurrency?: string;
-  queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
-}
-⋮----
-export interface GetIsolatedMarginBalanceRequest {
-  symbol?: string;
-  quoteCurrency?: string;
-  queryType?: 'ISOLATED' | 'ISOLATED_V2' | 'ALL';
+export interface GetTransactionsRequest {
+  startAt?: number;
+  endAt?: number;
+  type?:
+    | 'RealisedPNL'
+    | 'Deposit'
+    | 'Withdrawal'
+    | 'Transferin'
+    | 'TransferOut';
+  offset?: number;
+  maxCount?: number;
+  currency?: string;
+  forward?: boolean;
 }
 ⋮----
 /**
- *
- * Deposit
- *
+ * REST - ACCOUNT  - SUBACCOUNT API
  */
 ⋮----
-export interface GetDepositsRequest {
-  currency?: string;
+export interface GetSubAPIsRequest {
+  apiKey?: string;
+  subName: string;
+}
+⋮----
+export interface CreateSubAPIRequest {
+  subName: string;
+  passphrase: string;
+  remark: string;
+  permission?: string;
+  ipWhitelist?: string;
+  expire?: string;
+}
+⋮----
+export interface UpdateSubAPIRequest {
+  subName: string;
+  apiKey: string;
+  passphrase: string;
+  permission?: string;
+  ipWhitelist?: string;
+  expire?: string;
+}
+⋮----
+export interface DeleteSubAPIRequest {
+  apiKey: string;
+  passphrase: string;
+  subName: string;
+}
+⋮----
+/**
+ * REST - FUNDING - FUNDING OVERVIEW
+ */
+⋮----
+/**
+ * REST - FUNDING - TRANSFER
+ */
+⋮----
+export interface SubmitTransfer {
+  amount: number;
+  currency: string;
+  recAccountType: 'MAIN' | 'TRADE';
+}
+⋮----
+export interface GetTransfersRequest {
   startAt?: number;
   endAt?: number;
   status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  queryStatus?: 'PROCESSING' | 'SUCCESS' | 'FAILURE'[];
+  currency?: string;
   currentPage?: number;
   pageSize?: number;
 }
 ⋮----
 /**
  *
- * Withdrawals
+ * Futures Market Data
  *
  */
 ⋮----
-export interface GetWithdrawalsRequest {
-  currency?: string;
-  status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
+export interface GetKlinesRequest {
+  symbol: string;
+  granularity: number;
+  from?: number;
+  to?: number;
+}
+⋮----
+export interface GetInterestRatesRequest {
+  symbol: string;
+  startAt?: number;
+  endAt?: number;
+  reverse?: boolean;
+  offset?: number;
+  forward?: boolean;
+  maxCount?: number;
+}
+⋮----
+/**
+ *
+ ***********
+ * Account
+ ***********
+ *
+ */
+⋮----
+/**
+ *
+ * Orders
+ *
+ */
+⋮----
+export interface Order {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  leverage?: number;
+  type?: 'limit' | 'market';
+  remark?: string;
+  stop?: 'down' | 'up';
+  stopPriceType?: 'TP' | 'MP' | 'IP';
+  stopPrice?: string;
+  reduceOnly?: boolean;
+  closeOrder?: boolean;
+  forceHold?: boolean;
+  stp?: 'CN' | 'CO' | 'CB';
+  marginMode?: 'ISOLATED' | 'CROSS';
+  price?: string;
+  size?: number;
+  qty?: string;
+  valueQty?: string;
+  timeInForce?: 'GTC' | 'IOC';
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+}
+⋮----
+export interface SLTPOrder {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  leverage?: number;
+  type: 'limit' | 'market';
+  remark?: string;
+  triggerStopUpPrice?: string;
+  stopPriceType?: 'TP' | 'MP' | 'IP';
+  triggerStopDownPrice?: string;
+  reduceOnly?: boolean;
+  closeOrder?: boolean;
+  forceHold?: boolean;
+  stp?: 'CN' | 'CO' | 'CB';
+  marginMode?: 'ISOLATED' | 'CROSS';
+  price?: string;
+  size?: number;
+  qty?: string;
+  valueQty?: string;
+  timeInForce?: 'GTC' | 'IOC';
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+}
+export interface GetOrdersRequest {
+  status: 'active' | 'done';
+  symbol?: string;
+  side: 'buy' | 'sell';
+  type: 'limit' | 'market' | 'limit_stop' | 'market_stop';
   startAt?: number;
   endAt?: number;
   currentPage?: number;
   pageSize?: number;
 }
 ⋮----
-export interface ApplyWithdrawRequest {
-  currency: string;
-  address: string;
-  amount: number;
-  memo?: string;
-  isInner?: boolean;
-  remark?: string;
-  chain?: string;
-  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+export interface GetStopOrdersRequest {
+  symbol?: string;
+  side?: 'buy' | 'sell';
+  type?: 'limit' | 'market';
+  startAt?: number;
+  endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
 }
 ⋮----
-export interface SubmitWithdrawV3Request {
-  currency: string;
-  toAddress: string;
-  amount: number;
-  memo?: string;
-  isInner?: boolean;
-  remark?: string;
-  chain?: string;
-  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
-  withdrawType: 'ADDRESS' | 'UID' | 'MAIL' | 'PHONE';
+// Note: Either orderIdsList or clientOidsList must be provided, but not both.
+// When both are provided, orderIdsList takes precedence.
+export interface BatchCancelOrdersRequest {
+  orderIdsList?: string[];
+  clientOidsList?: {
+    symbol: string;
+    clientOid: string;
+  }[];
 }
 ⋮----
 /**
  *
- * Transfer
+ * Futures Fills
  *
  */
 ⋮----
-export interface GetTransferableRequest {
-  currency: string;
-  type:
-    | 'MAIN'
-    | 'TRADE'
-    | 'TRADE_HF'
-    | 'MARGIN'
-    | 'ISOLATED'
-    | 'OPTION'
-    | 'MARGIN_V2'
-    | 'ISOLATED_V2';
-  tag?: string;
+export interface AccountFillsRequest {
+  orderId?: string;
+  symbol?: string;
+  side?: 'buy' | 'sell';
+  type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
+  startAt?: number;
+  endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
+  tradeTypes?: string;
 }
 ⋮----
-export interface FlexTransferRequest {
-  clientOid: string;
-  currency?: string;
-  amount: string;
-  fromUserId?: string;
-  fromAccountType:
-    | 'MAIN'
-    | 'TRADE'
-    | 'CONTRACT'
-    | 'MARGIN'
-    | 'ISOLATED'
-    | 'TRADE_HF'
-    | 'MARGIN_V2'
-    | 'ISOLATED_V2'
-    | 'OPTION';
-  fromAccountTag?: string;
-  type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
-  toUserId?: string;
-  toAccountType:
-    | 'MAIN'
-    | 'TRADE'
-    | 'CONTRACT'
-    | 'MARGIN'
-    | 'ISOLATED'
-    | 'TRADE_HF'
-    | 'MARGIN_V2'
-    | 'ISOLATED_V2'
-    | 'OPTION';
-  toAccountTag?: string;
+/**
+ *
+ * Futures Positions
+ *
+ */
+⋮----
+export interface MaxOpenSizeRequest {
+  symbol: string;
+  price: string;
+  leverage: number;
 }
 ⋮----
-export interface submitTransferMasterSubRequest {
-  clientOid: string;
-  currency: string;
-  amount: string;
-  direction: 'OUT' | 'IN';
-  accountType?:
-    | 'MAIN'
-    | 'TRADE'
-    | 'TRADE_HF'
-    | 'MARGIN'
-    | 'CONTRACT'
-    | 'OPTION';
-  subAccountType?:
-    | 'MAIN'
-    | 'TRADE'
-    | 'TRADE_HF'
-    | 'MARGIN'
-    | 'CONTRACT'
-    | 'OPTION';
-  subUserId: string;
+/**
+ *
+ * Futures risk limit
+ *
+ */
+⋮----
+/**
+ *
+ * Futures funding fees
+ *
+ */
+⋮----
+export interface GetFundingRatesRequest {
+  symbol: string;
+  from: number;
+  to: number;
 }
 ⋮----
-export interface InnerTransferRequest {
-  clientOid: string;
-  currency: string;
-  from:
-    | 'main'
-    | 'trade'
-    | 'trade_hf'
-    | 'margin'
-    | 'isolated'
-    | 'margin_v2'
-    | 'isolated_v2'
-    | 'contract'
-    | 'option';
-  to:
-    | 'main'
-    | 'trade'
-    | 'trade_hf'
-    | 'margin'
-    | 'isolated'
-    | 'margin_v2'
-    | 'isolated_v2'
-    | 'contract'
-    | 'option';
-  amount: string;
-  fromTag?: string;
-  toTag?: string;
+export interface GetFundingHistoryRequest {
+  symbol: string;
+  from?: number;
+  to?: number;
+  reverse?: boolean;
+  offset?: number;
+  forward?: boolean;
+  maxCount?: number;
 }
+⋮----
+/**
+ *
+ * Futures Copy Trading
+ *
+ */
+⋮----
+export interface CopyTradeOrderRequest {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  type: 'limit' | 'market';
+  leverage?: number;
+  remark?: string;
+  stop?: 'up' | 'down';
+  stopPriceType?: 'TP' | 'MP' | 'IP';
+  stopPrice?: string;
+  reduceOnly?: boolean;
+  closeOrder?: boolean;
+  forceHold?: boolean;
+  marginMode?: 'ISOLATED' | 'CROSS';
+  price?: string;
+  size: number;
+  timeInForce?: 'GTC' | 'IOC';
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+}
+⋮----
+export interface CopyTradeSLTPOrderRequest extends CopyTradeOrderRequest {
+  triggerStopUpPrice?: string; // Take profit price
+  triggerStopDownPrice?: string; // Stop loss price
+  stopPriceType?: 'TP' | 'MP' | 'IP';
+}
+⋮----
+triggerStopUpPrice?: string; // Take profit price
+triggerStopDownPrice?: string; // Stop loss price
 
 ================
 File: src/types/request/spot-trading.ts
@@ -5372,6 +5672,106 @@ export interface LendingRedemption {
 }
 
 ================
+File: src/types/websockets/client.ts
+================
+import { AxiosRequestConfig } from 'axios';
+⋮----
+import { RestClientOptions } from '../../lib/requestUtils.js';
+⋮----
+/** General configuration for the WebsocketClient */
+export interface WSClientConfigurableOptions {
+  /** Your API key */
+  apiKey?: string;
+
+  /** Your API secret */
+  apiSecret?: string;
+
+  /** Your API passphrase (can be anything) that you included when creating this API key */
+  apiPassphrase?: string;
+
+  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+  recvWindow?: number;
+
+  /** How often to check if the connection is alive */
+  pingInterval?: number;
+
+  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+  pongTimeout?: number;
+
+  /** Delay in milliseconds before respawning the connection */
+  reconnectTimeout?: number;
+
+  restOptions?: RestClientOptions;
+  requestOptions?: AxiosRequestConfig;
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  };
+
+  wsUrl?: string;
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+
+  /**
+   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
+   */
+  reauthWSAPIOnReconnect?: boolean;
+}
+⋮----
+/** Your API key */
+⋮----
+/** Your API secret */
+⋮----
+/** Your API passphrase (can be anything) that you included when creating this API key */
+⋮----
+/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+⋮----
+/** How often to check if the connection is alive */
+⋮----
+/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+⋮----
+/** Delay in milliseconds before respawning the connection */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+⋮----
+/**
+   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
+   */
+⋮----
+/**
+ * WS configuration that's always defined, regardless of user configuration
+ * (usually comes from defaults if there's no user-provided values)
+ */
+export interface WebsocketClientOptions extends WSClientConfigurableOptions {
+  pingInterval: number;
+  pongTimeout: number;
+  reconnectTimeout: number;
+  recvWindow: number;
+  /**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+  requireConnectionReadyConfirmation: boolean;
+  authPrivateConnectionsOnConnect: boolean;
+  authPrivateRequests: boolean;
+  reauthWSAPIOnReconnect: boolean;
+}
+⋮----
+/**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+⋮----
+export type WsMarket = 'spot' | 'futures';
+
+================
 File: src/lib/BaseRestClient.ts
 ================
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
@@ -5389,7 +5789,7 @@ import {
   RestClientType,
   serializeParams,
 } from './requestUtils.js';
-import { signMessage } from './webCryptoAPI.js';
+import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
 ⋮----
 interface SignedRequest<T extends object | undefined = {}> {
   originalParams: T;
@@ -5442,6 +5842,8 @@ constructor(
 ⋮----
 // For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
 // parameter to define a custom httpsAgent with the desired properties
+⋮----
+// Check Web Crypto API support when credentials are provided
 ⋮----
 // Throw if one of the 3 values is missing, but at least one of them is set
 ⋮----
@@ -6103,106 +6505,6 @@ export interface OCOOrders {
 }
 
 ================
-File: src/types/websockets/client.ts
-================
-import { AxiosRequestConfig } from 'axios';
-⋮----
-import { RestClientOptions } from '../../lib/requestUtils.js';
-⋮----
-/** General configuration for the WebsocketClient */
-export interface WSClientConfigurableOptions {
-  /** Your API key */
-  apiKey?: string;
-
-  /** Your API secret */
-  apiSecret?: string;
-
-  /** Your API passphrase (can be anything) that you included when creating this API key */
-  apiPassphrase?: string;
-
-  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-  recvWindow?: number;
-
-  /** How often to check if the connection is alive */
-  pingInterval?: number;
-
-  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-  pongTimeout?: number;
-
-  /** Delay in milliseconds before respawning the connection */
-  reconnectTimeout?: number;
-
-  restOptions?: RestClientOptions;
-  requestOptions?: AxiosRequestConfig;
-
-  wsOptions?: {
-    protocols?: string[];
-    agent?: any;
-  };
-
-  wsUrl?: string;
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
-
-  /**
-   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
-   */
-  reauthWSAPIOnReconnect?: boolean;
-}
-⋮----
-/** Your API key */
-⋮----
-/** Your API secret */
-⋮----
-/** Your API passphrase (can be anything) that you included when creating this API key */
-⋮----
-/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-⋮----
-/** How often to check if the connection is alive */
-⋮----
-/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-⋮----
-/** Delay in milliseconds before respawning the connection */
-⋮----
-/**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-⋮----
-/**
-   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
-   */
-⋮----
-/**
- * WS configuration that's always defined, regardless of user configuration
- * (usually comes from defaults if there's no user-provided values)
- */
-export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  pingInterval: number;
-  pongTimeout: number;
-  reconnectTimeout: number;
-  recvWindow: number;
-  /**
-   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
-   */
-  requireConnectionReadyConfirmation: boolean;
-  authPrivateConnectionsOnConnect: boolean;
-  authPrivateRequests: boolean;
-  reauthWSAPIOnReconnect: boolean;
-}
-⋮----
-/**
-   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
-   */
-⋮----
-export type WsMarket = 'spot' | 'futures';
-
-================
 File: src/index.ts
 ================
 
@@ -6393,301 +6695,6 @@ protected async getWsOperationEventsForTopics(
 ⋮----
 // Not used for kucoin - auth is part of the WS URL
 protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object>
-
-================
-File: src/types/request/futures.types.ts
-================
-/**
- * REST - ACCOUNT  - BASIC INFO
- * Get Account Ledgers - Futures
- */
-⋮----
-export interface GetTransactionsRequest {
-  startAt?: number;
-  endAt?: number;
-  type?:
-    | 'RealisedPNL'
-    | 'Deposit'
-    | 'Withdrawal'
-    | 'Transferin'
-    | 'TransferOut';
-  offset?: number;
-  maxCount?: number;
-  currency?: string;
-  forward?: boolean;
-}
-⋮----
-/**
- * REST - ACCOUNT  - SUBACCOUNT API
- */
-⋮----
-export interface GetSubAPIsRequest {
-  apiKey?: string;
-  subName: string;
-}
-⋮----
-export interface CreateSubAPIRequest {
-  subName: string;
-  passphrase: string;
-  remark: string;
-  permission?: string;
-  ipWhitelist?: string;
-  expire?: string;
-}
-⋮----
-export interface UpdateSubAPIRequest {
-  subName: string;
-  apiKey: string;
-  passphrase: string;
-  permission?: string;
-  ipWhitelist?: string;
-  expire?: string;
-}
-⋮----
-export interface DeleteSubAPIRequest {
-  apiKey: string;
-  passphrase: string;
-  subName: string;
-}
-⋮----
-/**
- * REST - FUNDING - FUNDING OVERVIEW
- */
-⋮----
-/**
- * REST - FUNDING - TRANSFER
- */
-⋮----
-export interface SubmitTransfer {
-  amount: number;
-  currency: string;
-  recAccountType: 'MAIN' | 'TRADE';
-}
-⋮----
-export interface GetTransfersRequest {
-  startAt?: number;
-  endAt?: number;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  queryStatus?: 'PROCESSING' | 'SUCCESS' | 'FAILURE'[];
-  currency?: string;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-/**
- *
- * Futures Market Data
- *
- */
-⋮----
-export interface GetKlinesRequest {
-  symbol: string;
-  granularity: number;
-  from?: number;
-  to?: number;
-}
-⋮----
-export interface GetInterestRatesRequest {
-  symbol: string;
-  startAt?: number;
-  endAt?: number;
-  reverse?: boolean;
-  offset?: number;
-  forward?: boolean;
-  maxCount?: number;
-}
-⋮----
-/**
- *
- ***********
- * Account
- ***********
- *
- */
-⋮----
-/**
- *
- * Orders
- *
- */
-⋮----
-export interface Order {
-  clientOid: string;
-  side: 'buy' | 'sell';
-  symbol: string;
-  leverage?: number;
-  type?: 'limit' | 'market';
-  remark?: string;
-  stop?: 'down' | 'up';
-  stopPriceType?: 'TP' | 'MP' | 'IP';
-  stopPrice?: string;
-  reduceOnly?: boolean;
-  closeOrder?: boolean;
-  forceHold?: boolean;
-  stp?: 'CN' | 'CO' | 'CB';
-  marginMode?: 'ISOLATED' | 'CROSS';
-  price?: string;
-  size?: number;
-  qty?: string;
-  valueQty?: string;
-  timeInForce?: 'GTC' | 'IOC';
-  postOnly?: boolean;
-  hidden?: boolean;
-  iceberg?: boolean;
-  visibleSize?: string;
-}
-⋮----
-export interface SLTPOrder {
-  clientOid: string;
-  side: 'buy' | 'sell';
-  symbol: string;
-  leverage?: number;
-  type: 'limit' | 'market';
-  remark?: string;
-  triggerStopUpPrice?: string;
-  stopPriceType?: 'TP' | 'MP' | 'IP';
-  triggerStopDownPrice?: string;
-  reduceOnly?: boolean;
-  closeOrder?: boolean;
-  forceHold?: boolean;
-  stp?: 'CN' | 'CO' | 'CB';
-  marginMode?: 'ISOLATED' | 'CROSS';
-  price?: string;
-  size?: number;
-  qty?: string;
-  valueQty?: string;
-  timeInForce?: 'GTC' | 'IOC';
-  postOnly?: boolean;
-  hidden?: boolean;
-  iceberg?: boolean;
-  visibleSize?: string;
-}
-export interface GetOrdersRequest {
-  status: 'active' | 'done';
-  symbol?: string;
-  side: 'buy' | 'sell';
-  type: 'limit' | 'market' | 'limit_stop' | 'market_stop';
-  startAt?: number;
-  endAt?: number;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-export interface GetStopOrdersRequest {
-  symbol?: string;
-  side?: 'buy' | 'sell';
-  type?: 'limit' | 'market';
-  startAt?: number;
-  endAt?: number;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-// Note: Either orderIdsList or clientOidsList must be provided, but not both.
-// When both are provided, orderIdsList takes precedence.
-export interface BatchCancelOrdersRequest {
-  orderIdsList?: string[];
-  clientOidsList?: {
-    symbol: string;
-    clientOid: string;
-  }[];
-}
-⋮----
-/**
- *
- * Futures Fills
- *
- */
-⋮----
-export interface AccountFillsRequest {
-  orderId?: string;
-  symbol?: string;
-  side?: 'buy' | 'sell';
-  type?: 'limit' | 'market' | 'limit_stop' | 'market_stop';
-  startAt?: number;
-  endAt?: number;
-  currentPage?: number;
-  pageSize?: number;
-  tradeTypes?: string;
-}
-⋮----
-/**
- *
- * Futures Positions
- *
- */
-⋮----
-export interface MaxOpenSizeRequest {
-  symbol: string;
-  price: string;
-  leverage: number;
-}
-⋮----
-/**
- *
- * Futures risk limit
- *
- */
-⋮----
-/**
- *
- * Futures funding fees
- *
- */
-⋮----
-export interface GetFundingRatesRequest {
-  symbol: string;
-  from: number;
-  to: number;
-}
-⋮----
-export interface GetFundingHistoryRequest {
-  symbol: string;
-  from?: number;
-  to?: number;
-  reverse?: boolean;
-  offset?: number;
-  forward?: boolean;
-  maxCount?: number;
-}
-⋮----
-/**
- *
- * Futures Copy Trading
- *
- */
-⋮----
-export interface CopyTradeOrderRequest {
-  clientOid: string;
-  side: 'buy' | 'sell';
-  symbol: string;
-  type: 'limit' | 'market';
-  leverage?: number;
-  remark?: string;
-  stop?: 'up' | 'down';
-  stopPriceType?: 'TP' | 'MP' | 'IP';
-  stopPrice?: string;
-  reduceOnly?: boolean;
-  closeOrder?: boolean;
-  forceHold?: boolean;
-  marginMode?: 'ISOLATED' | 'CROSS';
-  price?: string;
-  size: number;
-  timeInForce?: 'GTC' | 'IOC';
-  postOnly?: boolean;
-  hidden?: boolean;
-  iceberg?: boolean;
-  visibleSize?: string;
-}
-⋮----
-export interface CopyTradeSLTPOrderRequest extends CopyTradeOrderRequest {
-  triggerStopUpPrice?: string; // Take profit price
-  triggerStopDownPrice?: string; // Stop loss price
-  stopPriceType?: 'TP' | 'MP' | 'IP';
-}
-⋮----
-triggerStopUpPrice?: string; // Take profit price
-triggerStopDownPrice?: string; // Stop loss price
 
 ================
 File: src/types/response/spot-funding.ts
@@ -6999,6 +7006,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
     - [Private WebSocket Streams](#private-websocket-streams)
 - [Customise Logging](#customise-logging)
 - [LLMs & AI](#use-with-llms--ai)
+- [Used By](#used-by)
 - [Contributions & Thanks](#contributions--thanks)
 
 ## Installation
@@ -7268,6 +7276,12 @@ const ws = new WebsocketClient(
 This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
 
 This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+## Used By
+
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/kucoin-api/image)](https://github.com/tiagosiebler/kucoin-api/network/dependents)
 
 ---
 
@@ -11259,7 +11273,7 @@ File: package.json
 ================
 {
   "name": "kucoin-api",
-  "version": "2.1.19",
+  "version": "2.1.20",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
@@ -11287,9 +11301,9 @@ File: package.json
     "Jerko J (https://github.com/JJ-Cro)"
   ],
   "dependencies": {
-    "axios": "^1.7.4",
+    "axios": "^1.10.0",
     "isomorphic-ws": "^4.0.1",
-    "nanoid": "^3.3.7",
+    "nanoid": "^3.3.11",
     "ws": "^7.4.0"
   },
   "devDependencies": {
