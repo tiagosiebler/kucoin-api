@@ -3992,176 +3992,6 @@ File: .eslintrc.cjs
 // 'no-unused-vars': ['warn'],
 
 ================
-File: src/lib/BaseRestClient.ts
-================
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-import https from 'https';
-⋮----
-import { neverGuard } from './misc-util.js';
-import {
-  APIIDFutures,
-  APIIDFuturesSign,
-  APIIDMain,
-  APIIDMainSign,
-  getRestBaseUrl,
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-  serializeParams,
-} from './requestUtils.js';
-import { signMessage } from './webCryptoAPI.js';
-⋮----
-interface SignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign?: T & { sign: string };
-  serializedParams: string;
-  sign: string;
-  queryParamsWithSign: string;
-  timestamp: number;
-  recvWindow: number;
-}
-⋮----
-interface UnsignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign: T;
-}
-⋮----
-type SignMethod = 'kucoin';
-⋮----
-// request: {
-//   url: response.config.url,
-//   method: response.config.method,
-//   data: response.config.data,
-//   headers: response.config.headers,
-// },
-⋮----
-export abstract class BaseRestClient
-⋮----
-/** Defines the client type (affecting how requests & signatures behave) */
-abstract getClientType(): RestClientType;
-⋮----
-/**
-   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
-   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
-   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
-   */
-constructor(
-    restClientOptions: RestClientOptions = {},
-    networkOptions: AxiosRequestConfig = {},
-)
-⋮----
-/** Throw errors if any request params are empty */
-⋮----
-/** in ms == 5 minutes by default */
-⋮----
-/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
-⋮----
-// If enabled, configure a https agent with keepAlive enabled
-⋮----
-// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
-⋮----
-// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
-// parameter to define a custom httpsAgent with the desired properties
-⋮----
-// Throw if one of the 3 values is missing, but at least one of them is set
-⋮----
-/**
-   * Generates a timestamp for signing API requests.
-   *
-   * This method can be overridden or customized using `customTimestampFn`
-   * to implement a custom timestamp synchronization mechanism.
-   * If no custom function is provided, it defaults to the current system time.
-   */
-private getSignTimestampMs(): number
-⋮----
-get(endpoint: string, params?: any)
-⋮----
-post(endpoint: string, params?: any)
-⋮----
-getPrivate(endpoint: string, params?: any)
-⋮----
-postPrivate(endpoint: string, params?: any)
-⋮----
-deletePrivate(endpoint: string, params?: any)
-⋮----
-/**
-   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
-   */
-private async _call(
-    method: Method,
-    endpoint: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<any>
-⋮----
-// Sanity check to make sure it's only ever prefixed by one forward slash
-⋮----
-// Build a request and handle signature process
-⋮----
-// Dispatch request
-⋮----
-// Throw if API returns an error (e.g. insufficient balance)
-⋮----
-/**
-   * @private generic handler to parse request exceptions
-   */
-parseException(e: any, requestParams: any): unknown
-⋮----
-// Something happened in setting up the request that triggered an error
-⋮----
-// request made but no response received
-⋮----
-// The request was made and the server responded with a status code
-// that falls out of the range of 2xx
-⋮----
-// console.error('err: ', response?.data);
-⋮----
-// Prevent credentials from leaking into error messages
-⋮----
-/**
-   * @private sign request and set recv window
-   */
-private async signRequest<T extends object | undefined = {}>(
-    data: T,
-    endpoint: string,
-    method: Method,
-    signMethod: SignMethod,
-): Promise<SignedRequest<T>>
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: true,
-  ): Promise<UnsignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: false | undefined,
-  ): Promise<SignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: boolean,
-)
-⋮----
-/** Returns an axios request object. Handles signing process automatically if this is a private API call */
-private async buildRequest(
-    method: Method,
-    endpoint: string,
-    url: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<AxiosRequestConfig>
-
-================
 File: src/lib/BaseWSClient.ts
 ================
 import EventEmitter from 'events';
@@ -5542,371 +5372,174 @@ export interface LendingRedemption {
 }
 
 ================
-File: README.md
+File: src/lib/BaseRestClient.ts
 ================
-# Node.js & JavaScript SDK for Kucoin REST APIs & Websockets
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/kucoin-api">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
-      <img alt="SDK Logo" src="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
-    </picture>
-  </a>
-</p>
-
-[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
-[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
-[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
-[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
-[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
-[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
-
-[1]: https://www.npmjs.com/package/kucoin-api
-
-Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
-
-- Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
-- Complete integration with all Kucoin REST APIs and WebSockets.
-  - Dedicated clients for Spot, Futures, and Broker operations
-  - Unified WebSocket client for all markets
-- Complete TypeScript support (with type declarations for most API requests & responses).
-  - Strongly typed requests and responses.
-  - Automated end-to-end tests ensuring reliability.
-- Actively maintained with a modern, promise-driven interface.
-- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
-  - Event driven messaging.
-  - Smart WebSocket persistence with automatic reconnection handling.
-  - Emit `reconnected` event when dropped connection is restored.
-  - Support for both public and private WebSocket streams.
-- Browser-friendly HMAC signature mechanism.
-- Automatically supports both ESM and CJS projects.
-- Heavy automated end-to-end testing with real API calls.
-- Proxy support via axios integration.
-- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Examples](#examples)
-- [Issues & Discussion](#issues--discussion)
-- [Related Projects](#related-projects)
-- [Documentation](#documentation)
-- [Structure](#structure)
-- [Usage](#usage)
-  - [REST API Clients](#rest-api)
-    - [Spot & Margin Trading](#spot--margin-trading)
-    - [Futures Trading](#futures-trading)
-    - [Broker Operations](#broker-operations)
-  - [WebSocket Client](#websockets)
-    - [Public WebSocket Streams](#public-websocket-streams)
-    - [Private WebSocket Streams](#private-websocket-streams)
-- [Customise Logging](#customise-logging)
-- [LLMs & AI](#use-with-llms--ai)
-- [Contributions & Thanks](#contributions--thanks)
-
-## Installation
-
-`npm install --save kucoin-api`
-
-## Examples
-
-Refer to the [examples](./examples) folder for implementation demos.
-
-## Issues & Discussion
-
-- Issues? Check the [issues tab](https://github.com/tiagosiebler/kucoin-api/issues).
-- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
-- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
-
-<!-- template_related_projects -->
-
-## Related projects
-
-Check out my related JavaScript/TypeScript/Node.js projects:
-
-- Try my REST API & WebSocket SDKs:
-  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
-  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
-  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
-  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
-  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
-  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
-  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
-  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
-- Try my misc utilities:
-  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
-  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
-- Check out my examples:
-  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-  <!-- template_related_projects_end -->
-
-## Documentation
-
-Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation, or check the type definition in each class within this repository.
-
-### API Documentation Links
-
-- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
-
-### SDK Documentation & Guides
-
-- Node.js Quick Start Guides
-  - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
-  - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
-- [Futures Node.js Kucoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
-- [REST Endpoint Function List](./docs/endpointFunctionList.md)
-
-## Structure
-
-This project uses typescript. Resources are stored in 2 key structures:
-
-- [src](./src) - the whole connector written in typescript
-- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
-
----
-
-# Usage
-
-Create API credentials on Kucoin's website:
-
-- [Kucoin API Key Management](https://www.kucoin.com/account/api)
-
-## REST API
-
-The SDK provides dedicated REST clients for different trading products:
-
-- **SpotClient** - for spot trading and margin operations
-- **FuturesClient** - for futures trading operations
-- **BrokerClient** - for broker and sub-account management
-
-### Spot & Margin Trading
-
-To use Kucoin's Spot and Margin APIs, import (or require) the `SpotClient`:
-
-```javascript
-const { SpotClient, FuturesClient } = require('kucoin-api');
-
-const client = new SpotClient({
-  apiKey: 'apiKeyHere',
-  apiSecret: 'apiSecretHere',
-  apiPassphrase: 'apiPassPhraseHere',
-});
-
-try {
-  const spotBuyResult = await client.submitHFOrder({
-    clientOid: client.generateNewOrderID(),
-    side: 'buy',
-    type: 'market',
-    symbol: 'BTC-USDT',
-    size: '0.00001',
-  });
-  console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
-
-  const spotSellResult = await client.submitHFOrder({
-    clientOid: client.generateNewOrderID(),
-    side: 'sell',
-    type: 'market',
-    symbol: 'BTC-USDT',
-    size: '0.00001',
-  });
-  console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
-} catch (e) {
-  console.error(`Req error: `, e);
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
+import https from 'https';
+⋮----
+import { neverGuard } from './misc-util.js';
+import {
+  APIIDFutures,
+  APIIDFuturesSign,
+  APIIDMain,
+  APIIDMainSign,
+  getRestBaseUrl,
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+  serializeParams,
+} from './requestUtils.js';
+import { signMessage } from './webCryptoAPI.js';
+⋮----
+interface SignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign?: T & { sign: string };
+  serializedParams: string;
+  sign: string;
+  queryParamsWithSign: string;
+  timestamp: number;
+  recvWindow: number;
 }
-```
-
-See [SpotClient](./src/SpotClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
-
-### Futures Trading
-
-Use the `FuturesClient` for futures trading operations. See [FuturesClient](./src/FuturesClient.ts) for complete API coverage.
-
-### Broker Operations
-
-Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
-
-## WebSockets
-
-All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams with automatic connection management and reconnection.
-
-Key WebSocket features:
-
-- Event driven messaging
-- Smart WebSocket persistence with automatic reconnection
-- Heartbeat mechanisms to detect disconnections
-- Automatic resubscription after reconnection
-- Support for both public and private WebSocket streams
-- Unified client for spot and futures markets
-
-### Public WebSocket Streams
-
-For public market data, API credentials are not required:
-
-All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
-
-Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
-
-Data events are emitted from the WebsocketClient via the `update` event, see example below:
-
-```javascript
-const { WebsocketClient } = require('kucoin-api');
-
-const client = new WebsocketClient();
-
-client.on('open', (data) => {
-  console.log('open: ', data?.wsKey);
-});
-
-// Data received
-client.on('update', (data) => {
-  console.info('data received: ', JSON.stringify(data));
-});
-
-// Something happened, attempting to reconenct
-client.on('reconnect', (data) => {
-  console.log('reconnect: ', data);
-});
-
-// Reconnect successful
-client.on('reconnected', (data) => {
-  console.log('reconnected: ', data);
-});
-
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-client.on('close', (data) => {
-  console.error('close: ', data);
-});
-
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-client.on('response', (data) => {
-  console.info('response: ', data);
-  // throw new Error('res?');
-});
-
-client.on('exception', (data) => {
-  console.error('exception: ', {
-    msg: data.msg,
-    errno: data.errno,
-    code: data.code,
-    syscall: data.syscall,
-    hostname: data.hostname,
-  });
-});
-
-try {
-  // Optional: await a connection to be ready before subscribing (this is not necessary)
-  // await client.connect('futuresPublicV1');
-
-  /**
-   * Examples for public futures websocket topics (that don't require authentication).
-   *
-   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
+⋮----
+interface UnsignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign: T;
+}
+⋮----
+type SignMethod = 'kucoin';
+⋮----
+// request: {
+//   url: response.config.url,
+//   method: response.config.method,
+//   data: response.config.data,
+//   headers: response.config.headers,
+// },
+⋮----
+export abstract class BaseRestClient
+⋮----
+/** Defines the client type (affecting how requests & signatures behave) */
+abstract getClientType(): RestClientType;
+⋮----
+/**
+   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
+   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
+   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
    */
-  client.subscribe(
-    [
-      '/contractMarket/tickerV2:XBTUSDM',
-      '/contractMarket/ticker:XBTUSDM',
-      '/contractMarket/level2:XBTUSDM',
-      '/contractMarket/execution:XBTUSDM',
-      '/contractMarket/level2Depth5:XBTUSDM',
-      '/contractMarket/level2Depth50:XBTUSDM',
-      '/contractMarket/limitCandle:XBTUSDTM_1hour',
-      '/contract/instrument:XBTUSDM',
-      '/contract/announcement',
-      '/contractMarket/snapshot:XBTUSDM',
-    ],
-    'futuresPublicV1',
-  );
-} catch (e) {
-  console.error(`Subscribe exception: `, e);
-}
-```
-
-### Private WebSocket Streams
-
-For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
-
-See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
-
----
-
-## Customise Logging
-
-Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
-
-```javascript
-const { WebsocketClient, DefaultLogger } = require('kucoin-api');
-
-// E.g. customise logging for only the trace level:
-const logger = {
-  // Inherit existing logger methods, using an object spread
-  ...DefaultLogger,
-  // Define a custom trace function to override only that function
-  trace: (...params) => {
-    if (
-      [
-        'Sending ping',
-        // 'Sending upstream ws message: ',
-        'Received pong',
-      ].includes(params[0])
-    ) {
-      return;
-    }
-    console.log('trace', JSON.stringify(params, null, 2));
-  },
-};
-
-const ws = new WebsocketClient(
-  {
-    apiKey: 'apiKeyHere',
-    apiSecret: 'apiSecretHere',
-    apiPassphrase: 'apiPassPhraseHere',
-  },
-  logger,
-);
-```
-
-## Use with LLMs & AI
-
-This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
-
-This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
-
----
-
-<!-- template_contributions -->
-
-### Contributions & Thanks
-
-Have my projects helped you? Share the love, there are many ways you can show your thanks:
-
-- Star & share my projects.
-- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
-- Have an interesting project? Get in touch & invite me to it.
-- Or buy me all the coffee:
-  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
-
-<!---
-old ones:
-  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
-  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
-  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
-  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
--->
-<!-- template_contributions_end -->
-
-### Contributions & Pull Requests
-
-Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
-
-<!-- template_star_history -->
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
-
-<!-- template_star_history_end -->
+constructor(
+    restClientOptions: RestClientOptions = {},
+    networkOptions: AxiosRequestConfig = {},
+)
+⋮----
+/** Throw errors if any request params are empty */
+⋮----
+/** in ms == 5 minutes by default */
+⋮----
+/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
+⋮----
+// If enabled, configure a https agent with keepAlive enabled
+⋮----
+// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
+⋮----
+// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
+// parameter to define a custom httpsAgent with the desired properties
+⋮----
+// Throw if one of the 3 values is missing, but at least one of them is set
+⋮----
+/**
+   * Generates a timestamp for signing API requests.
+   *
+   * This method can be overridden or customized using `customTimestampFn`
+   * to implement a custom timestamp synchronization mechanism.
+   * If no custom function is provided, it defaults to the current system time.
+   */
+private getSignTimestampMs(): number
+⋮----
+get(endpoint: string, params?: any)
+⋮----
+post(endpoint: string, params?: any)
+⋮----
+getPrivate(endpoint: string, params?: any)
+⋮----
+postPrivate(endpoint: string, params?: any)
+⋮----
+deletePrivate(endpoint: string, params?: any)
+⋮----
+/**
+   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
+   */
+private async _call(
+    method: Method,
+    endpoint: string,
+    params?: any,
+    isPublicApi?: boolean,
+): Promise<any>
+⋮----
+// Sanity check to make sure it's only ever prefixed by one forward slash
+⋮----
+// Build a request and handle signature process
+⋮----
+// Dispatch request
+⋮----
+// Throw if API returns an error (e.g. insufficient balance)
+⋮----
+/**
+   * @private generic handler to parse request exceptions
+   */
+parseException(e: any, requestParams: any): unknown
+⋮----
+// Something happened in setting up the request that triggered an error
+⋮----
+// request made but no response received
+⋮----
+// The request was made and the server responded with a status code
+// that falls out of the range of 2xx
+⋮----
+// console.error('err: ', response?.data);
+⋮----
+// Prevent credentials from leaking into error messages
+⋮----
+/**
+   * @private sign request and set recv window
+   */
+private async signRequest<T extends object | undefined = {}>(
+    data: T,
+    endpoint: string,
+    method: Method,
+    signMethod: SignMethod,
+): Promise<SignedRequest<T>>
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: true,
+  ): Promise<UnsignedRequest<TParams>>;
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: false | undefined,
+  ): Promise<SignedRequest<TParams>>;
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: boolean,
+)
+⋮----
+/** Returns an axios request object. Handles signing process automatically if this is a private API call */
+private async buildRequest(
+    method: Method,
+    endpoint: string,
+    url: string,
+    params?: any,
+    isPublicApi?: boolean,
+): Promise<AxiosRequestConfig>
 
 ================
 File: src/types/response/spot-trading.ts
@@ -6762,254 +6395,6 @@ protected async getWsOperationEventsForTopics(
 protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object>
 
 ================
-File: src/types/response/spot-funding.ts
-================
-/**
- *
- ***********
- * Funding
- ***********
- *
- */
-⋮----
-export interface MarginAccountBalance {
-  currency: string;
-  totalBalance: string;
-  availableBalance: string;
-  holdBalance: string;
-  liability: string;
-  maxBorrowSize: string;
-}
-⋮----
-export interface MarginAccountDetail {
-  currency: string;
-  total: string;
-  available: string;
-  hold: string;
-  liability: string;
-  liabilityPrincipal: string;
-  liabilityInterest: string;
-  maxBorrowSize: string;
-  borrowEnabled: boolean;
-  transferInEnabled: boolean;
-}
-⋮----
-export interface MarginBalance {
-  totalAssetOfQuoteCurrency: string;
-  totalLiabilityOfQuoteCurrency: string;
-  debtRatio: string;
-  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
-  accounts: MarginAccountDetail[];
-}
-export interface IsolatedMarginAssetDetail {
-  symbol: string;
-  debtRatio: string;
-  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
-  baseAsset: MarginAccountDetail;
-  quoteAsset: MarginAccountDetail;
-}
-⋮----
-export interface IsolatedMarginBalance {
-  totalAssetOfQuoteCurrency: string;
-  totalLiabilityOfQuoteCurrency: string;
-  timestamp: number;
-  assets: IsolatedMarginAssetDetail[];
-}
-⋮----
-/**
- *
- * Deposit
- *
- */
-⋮----
-export interface DepositAddress {
-  address: string;
-  memo: string;
-  chain: string;
-}
-⋮----
-export type DepositAddressV2 = DepositAddress & {
-  contractAddress: string;
-};
-⋮----
-export interface DepositAddressV3 {
-  address: string;
-  memo: string;
-  chainId: string;
-  to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
-  expirationDate: number;
-  currency: string;
-  contractAddress: string;
-  chainName: string;
-}
-⋮----
-to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
-⋮----
-export interface HistoricalDepositItem {
-  currency: string;
-  createAt: number;
-  amount: string;
-  walletTxId: string;
-  isInner: boolean;
-  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-}
-export interface DepositItem {
-  currency?: string;
-  chain?: string;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  address?: string;
-  memo?: string;
-  isInner?: boolean;
-  amount?: string;
-  fee?: string;
-  walletTxId?: string | null;
-  createdAt?: number;
-  updatedAt?: number;
-  remark?: string;
-  arrears?: boolean;
-}
-⋮----
-export interface Deposits {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: DepositItem[];
-}
-⋮----
-export interface V1HistoricalDeposits {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: HistoricalDepositItem[];
-}
-⋮----
-export interface CreateDepositAddressV3Response {
-  address: string;
-  memo: string | null;
-  chainName: string;
-  chainId: string;
-  to: string;
-  currency: string;
-  expirationDate?: string;
-}
-⋮----
-/**
- *
- * Withdrawals
- *
- */
-⋮----
-interface DetailedWithdrawal {
-  id: string;
-  address: string;
-  memo: string;
-  currency: string;
-  chain: string;
-  amount: string;
-  fee: string;
-  walletTxId: string;
-  isInner: boolean;
-  status: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
-  remark: string;
-  createdAt: number;
-  updatedAt: number;
-}
-⋮----
-interface HistoricalWithdrawal {
-  currency: string;
-  createAt: number;
-  amount: string;
-  address: string;
-  walletTxId: string;
-  isInner: boolean;
-  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-}
-⋮----
-export interface Withdrawals {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: DetailedWithdrawal[];
-}
-⋮----
-export interface HistoricalWithdrawalsV1 {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: HistoricalWithdrawal[];
-}
-⋮----
-export interface WithdrawalQuotas {
-  currency: string;
-  limitBTCAmount: string;
-  usedBTCAmount: string;
-  quotaCurrency: string;
-  limitQuotaCurrencyAmount: string;
-  usedQuotaCurrencyAmount: string;
-  remainAmount: string;
-  availableAmount: string;
-  withdrawMinFee: string;
-  innerWithdrawMinFee: string;
-  withdrawMinSize: string;
-  isWithdrawEnabled: boolean;
-  precision: number;
-  chain: string;
-  reason: string | null;
-  lockedAmount: string;
-}
-⋮----
-export interface WithdrawalById {
-  id: string;
-  uid: number;
-  currency: string;
-  chainId: string;
-  chainName: string;
-  currencyName: string;
-  status: string;
-  failureReason: string;
-  failureReasonMsg: string | null;
-  address: string;
-  memo: string;
-  isInner: boolean;
-  amount: string;
-  fee: string;
-  walletTxId: string | null;
-  addressRemark: string | null;
-  remark: string;
-  createdAt: number;
-  cancelType: string;
-  taxes: string | null;
-  taxDescription: string | null;
-  returnStatus: string;
-  returnAmount: string | null;
-  returnCurrency: string;
-}
-⋮----
-/**
- *
- * Transfer
- *
- */
-⋮----
-export interface TransferableFunds {
-  currency: string; // Currency
-  balance: string; // Total funds in an account.
-  available: string; // Funds available to withdraw or trade.
-  holds: string; // Funds on hold (not available for use).
-  transferable: string; // Funds available to transfer.
-}
-⋮----
-currency: string; // Currency
-balance: string; // Total funds in an account.
-available: string; // Funds available to withdraw or trade.
-holds: string; // Funds on hold (not available for use).
-transferable: string; // Funds available to transfer.
-
-================
 File: src/types/request/futures.types.ts
 ================
 /**
@@ -7303,6 +6688,621 @@ export interface CopyTradeSLTPOrderRequest extends CopyTradeOrderRequest {
 ⋮----
 triggerStopUpPrice?: string; // Take profit price
 triggerStopDownPrice?: string; // Stop loss price
+
+================
+File: src/types/response/spot-funding.ts
+================
+/**
+ *
+ ***********
+ * Funding
+ ***********
+ *
+ */
+⋮----
+export interface MarginAccountBalance {
+  currency: string;
+  totalBalance: string;
+  availableBalance: string;
+  holdBalance: string;
+  liability: string;
+  maxBorrowSize: string;
+}
+⋮----
+export interface MarginAccountDetail {
+  currency: string;
+  total: string;
+  available: string;
+  hold: string;
+  liability: string;
+  liabilityPrincipal: string;
+  liabilityInterest: string;
+  maxBorrowSize: string;
+  borrowEnabled: boolean;
+  transferInEnabled: boolean;
+}
+⋮----
+export interface MarginBalance {
+  totalAssetOfQuoteCurrency: string;
+  totalLiabilityOfQuoteCurrency: string;
+  debtRatio: string;
+  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
+  accounts: MarginAccountDetail[];
+}
+export interface IsolatedMarginAssetDetail {
+  symbol: string;
+  debtRatio: string;
+  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
+  baseAsset: MarginAccountDetail;
+  quoteAsset: MarginAccountDetail;
+}
+⋮----
+export interface IsolatedMarginBalance {
+  totalAssetOfQuoteCurrency: string;
+  totalLiabilityOfQuoteCurrency: string;
+  timestamp: number;
+  assets: IsolatedMarginAssetDetail[];
+}
+⋮----
+/**
+ *
+ * Deposit
+ *
+ */
+⋮----
+export interface DepositAddress {
+  address: string;
+  memo: string;
+  chain: string;
+}
+⋮----
+export type DepositAddressV2 = DepositAddress & {
+  contractAddress: string;
+};
+⋮----
+export interface DepositAddressV3 {
+  address: string;
+  memo: string;
+  chainId: string;
+  to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
+  expirationDate: number;
+  currency: string;
+  contractAddress: string;
+  chainName: string;
+}
+⋮----
+to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
+⋮----
+export interface HistoricalDepositItem {
+  currency: string;
+  createAt: number;
+  amount: string;
+  walletTxId: string;
+  isInner: boolean;
+  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+}
+export interface DepositItem {
+  currency?: string;
+  chain?: string;
+  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  address?: string;
+  memo?: string;
+  isInner?: boolean;
+  amount?: string;
+  fee?: string;
+  walletTxId?: string | null;
+  createdAt?: number;
+  updatedAt?: number;
+  remark?: string;
+  arrears?: boolean;
+}
+⋮----
+export interface Deposits {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: DepositItem[];
+}
+⋮----
+export interface V1HistoricalDeposits {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: HistoricalDepositItem[];
+}
+⋮----
+export interface CreateDepositAddressV3Response {
+  address: string;
+  memo: string | null;
+  chainName: string;
+  chainId: string;
+  to: string;
+  currency: string;
+  expirationDate?: string;
+}
+⋮----
+/**
+ *
+ * Withdrawals
+ *
+ */
+⋮----
+interface DetailedWithdrawal {
+  id: string;
+  address: string;
+  memo: string;
+  currency: string;
+  chain: string;
+  amount: string;
+  fee: string;
+  walletTxId: string;
+  isInner: boolean;
+  status: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
+  remark: string;
+  createdAt: number;
+  updatedAt: number;
+}
+⋮----
+interface HistoricalWithdrawal {
+  currency: string;
+  createAt: number;
+  amount: string;
+  address: string;
+  walletTxId: string;
+  isInner: boolean;
+  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+}
+⋮----
+export interface Withdrawals {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: DetailedWithdrawal[];
+}
+⋮----
+export interface HistoricalWithdrawalsV1 {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: HistoricalWithdrawal[];
+}
+⋮----
+export interface WithdrawalQuotas {
+  currency: string;
+  limitBTCAmount: string;
+  usedBTCAmount: string;
+  quotaCurrency: string;
+  limitQuotaCurrencyAmount: string;
+  usedQuotaCurrencyAmount: string;
+  remainAmount: string;
+  availableAmount: string;
+  withdrawMinFee: string;
+  innerWithdrawMinFee: string;
+  withdrawMinSize: string;
+  isWithdrawEnabled: boolean;
+  precision: number;
+  chain: string;
+  reason: string | null;
+  lockedAmount: string;
+}
+⋮----
+export interface WithdrawalById {
+  id: string;
+  uid: number;
+  currency: string;
+  chainId: string;
+  chainName: string;
+  currencyName: string;
+  status: string;
+  failureReason: string;
+  failureReasonMsg: string | null;
+  address: string;
+  memo: string;
+  isInner: boolean;
+  amount: string;
+  fee: string;
+  walletTxId: string | null;
+  addressRemark: string | null;
+  remark: string;
+  createdAt: number;
+  cancelType: string;
+  taxes: string | null;
+  taxDescription: string | null;
+  returnStatus: string;
+  returnAmount: string | null;
+  returnCurrency: string;
+}
+⋮----
+/**
+ *
+ * Transfer
+ *
+ */
+⋮----
+export interface TransferableFunds {
+  currency: string; // Currency
+  balance: string; // Total funds in an account.
+  available: string; // Funds available to withdraw or trade.
+  holds: string; // Funds on hold (not available for use).
+  transferable: string; // Funds available to transfer.
+}
+⋮----
+currency: string; // Currency
+balance: string; // Total funds in an account.
+available: string; // Funds available to withdraw or trade.
+holds: string; // Funds on hold (not available for use).
+transferable: string; // Funds available to transfer.
+
+================
+File: README.md
+================
+# Node.js & JavaScript SDK for Kucoin REST APIs & Websockets
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/kucoin-api">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </picture>
+  </a>
+</p>
+
+[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
+[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
+[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+
+[1]: https://www.npmjs.com/package/kucoin-api
+
+Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
+
+- Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
+- Complete integration with all Kucoin REST APIs and WebSockets.
+  - Dedicated REST clients for Spot, Futures, and Broker operations
+  - Unified WebSocket client for all markets
+- Complete TypeScript support (with type declarations for most API requests & responses).
+  - Strongly typed requests and responses.
+  - Automated end-to-end tests ensuring reliability.
+- Actively maintained with a modern, promise-driven interface.
+- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
+  - Event driven messaging.
+  - Smart WebSocket persistence with automatic reconnection handling.
+  - Emit `reconnected` event when dropped connection is restored.
+  - Support for both public and private WebSocket streams.
+- Browser-friendly HMAC signature mechanism.
+- Automatically supports both ESM and CJS projects.
+- Heavy automated end-to-end testing with real API calls.
+- Proxy support via axios integration.
+- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation](#documentation)
+- [Structure](#structure)
+- [Usage](#usage)
+  - [REST API Clients](#rest-api)
+    - [Spot & Margin Trading](#spot--margin-trading)
+    - [Futures Trading](#futures-trading)
+    - [Broker Operations](#broker-operations)
+  - [WebSocket Client](#websockets)
+    - [Public WebSocket Streams](#public-websocket-streams)
+    - [Private WebSocket Streams](#private-websocket-streams)
+- [Customise Logging](#customise-logging)
+- [LLMs & AI](#use-with-llms--ai)
+- [Contributions & Thanks](#contributions--thanks)
+
+## Installation
+
+`npm install --save kucoin-api`
+
+## Examples
+
+Refer to the [examples](./examples) folder for implementation demos.
+
+## Issues & Discussion
+
+- Issues? Check the [issues tab](https://github.com/tiagosiebler/kucoin-api/issues).
+- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
+
+<!-- template_related_projects -->
+
+## Related projects
+
+Check out my related JavaScript/TypeScript/Node.js projects:
+
+- Try my REST API & WebSocket SDKs:
+  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
+  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
+  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
+  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
+  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
+  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
+  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
+  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
+- Try my misc utilities:
+  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
+  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
+- Check out my examples:
+  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
+  <!-- template_related_projects_end -->
+
+## Documentation
+
+Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation, or check the type definition in each class within this repository.
+
+### API Documentation Links
+
+- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
+
+### SDK Documentation & Guides
+
+- Node.js Quick Start Guides
+  - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
+  - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
+- [Futures Node.js Kucoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
+- [REST Endpoint Function List](./docs/endpointFunctionList.md)
+
+## Structure
+
+This project uses typescript. Resources are stored in 2 key structures:
+
+- [src](./src) - the whole connector written in typescript
+- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
+
+---
+
+# Usage
+
+Create API credentials on Kucoin's website:
+
+- [Kucoin API Key Management](https://www.kucoin.com/account/api)
+
+## REST API
+
+The SDK provides dedicated REST clients for different trading products:
+
+- **SpotClient** - for spot trading and margin operations
+- **FuturesClient** - for futures trading operations
+- **BrokerClient** - for broker and sub-account management
+
+### Spot & Margin Trading
+
+To use Kucoin's Spot and Margin APIs, import (or require) the `SpotClient`:
+
+```javascript
+const { SpotClient, FuturesClient } = require('kucoin-api');
+
+const client = new SpotClient({
+  apiKey: 'apiKeyHere',
+  apiSecret: 'apiSecretHere',
+  apiPassphrase: 'apiPassPhraseHere',
+});
+
+try {
+  const spotBuyResult = await client.submitHFOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'buy',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
+  });
+  console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
+
+  const spotSellResult = await client.submitHFOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'sell',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
+  });
+  console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
+} catch (e) {
+  console.error(`Req error: `, e);
+}
+```
+
+See [SpotClient](./src/SpotClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
+
+### Futures Trading
+
+Use the `FuturesClient` for futures trading operations. See [FuturesClient](./src/FuturesClient.ts) for complete API coverage.
+
+### Broker Operations
+
+Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
+
+## WebSockets
+
+All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams with automatic connection management and reconnection.
+
+Key WebSocket features:
+
+- Event driven messaging
+- Smart WebSocket persistence with automatic reconnection
+- Heartbeat mechanisms to detect disconnections
+- Automatic resubscription after reconnection
+- Support for both public and private WebSocket streams
+- Unified client for spot and futures markets
+
+### Public WebSocket Streams
+
+For public market data, API credentials are not required:
+
+All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
+
+Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
+
+Data events are emitted from the WebsocketClient via the `update` event, see example below:
+
+```javascript
+const { WebsocketClient } = require('kucoin-api');
+
+const client = new WebsocketClient();
+
+client.on('open', (data) => {
+  console.log('open: ', data?.wsKey);
+});
+
+// Data received
+client.on('update', (data) => {
+  console.info('data received: ', JSON.stringify(data));
+});
+
+// Something happened, attempting to reconenct
+client.on('reconnect', (data) => {
+  console.log('reconnect: ', data);
+});
+
+// Reconnect successful
+client.on('reconnected', (data) => {
+  console.log('reconnected: ', data);
+});
+
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+client.on('close', (data) => {
+  console.error('close: ', data);
+});
+
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+client.on('response', (data) => {
+  console.info('response: ', data);
+  // throw new Error('res?');
+});
+
+client.on('exception', (data) => {
+  console.error('exception: ', {
+    msg: data.msg,
+    errno: data.errno,
+    code: data.code,
+    syscall: data.syscall,
+    hostname: data.hostname,
+  });
+});
+
+try {
+  // Optional: await a connection to be ready before subscribing (this is not necessary)
+  // await client.connect('futuresPublicV1');
+
+  /**
+   * Examples for public futures websocket topics (that don't require authentication).
+   *
+   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
+   */
+  client.subscribe(
+    [
+      '/contractMarket/tickerV2:XBTUSDM',
+      '/contractMarket/ticker:XBTUSDM',
+      '/contractMarket/level2:XBTUSDM',
+      '/contractMarket/execution:XBTUSDM',
+      '/contractMarket/level2Depth5:XBTUSDM',
+      '/contractMarket/level2Depth50:XBTUSDM',
+      '/contractMarket/limitCandle:XBTUSDTM_1hour',
+      '/contract/instrument:XBTUSDM',
+      '/contract/announcement',
+      '/contractMarket/snapshot:XBTUSDM',
+    ],
+    'futuresPublicV1',
+  );
+} catch (e) {
+  console.error(`Subscribe exception: `, e);
+}
+```
+
+### Private WebSocket Streams
+
+For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
+
+See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
+
+---
+
+## Customise Logging
+
+Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
+
+```javascript
+const { WebsocketClient, DefaultLogger } = require('kucoin-api');
+
+// E.g. customise logging for only the trace level:
+const logger = {
+  // Inherit existing logger methods, using an object spread
+  ...DefaultLogger,
+  // Define a custom trace function to override only that function
+  trace: (...params) => {
+    if (
+      [
+        'Sending ping',
+        // 'Sending upstream ws message: ',
+        'Received pong',
+      ].includes(params[0])
+    ) {
+      return;
+    }
+    console.log('trace', JSON.stringify(params, null, 2));
+  },
+};
+
+const ws = new WebsocketClient(
+  {
+    apiKey: 'apiKeyHere',
+    apiSecret: 'apiSecretHere',
+    apiPassphrase: 'apiPassPhraseHere',
+  },
+  logger,
+);
+```
+
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+<!-- template_contributions -->
+
+### Contributions & Thanks
+
+Have my projects helped you? Share the love, there are many ways you can show your thanks:
+
+- Star & share my projects.
+- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
+- Have an interesting project? Get in touch & invite me to it.
+- Or buy me all the coffee:
+  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+
+<!---
+old ones:
+  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
+  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
+  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
+  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
+-->
+<!-- template_contributions_end -->
+
+### Contributions & Pull Requests
+
+Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+<!-- template_star_history -->
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
+
+<!-- template_star_history_end -->
 
 ================
 File: src/types/response/futures.types.ts
@@ -8023,6 +8023,15 @@ export interface CrossMarginRiskLimit {
   currency: string;
 }
 ⋮----
+export interface CrossMarginRequirement {
+  symbol: string;
+  imr: string;
+  mmr: string;
+  size: number;
+  positionValue: string;
+  price: string;
+}
+⋮----
 /**
  *
  * Futures risk limit
@@ -8211,6 +8220,7 @@ import {
   BatchCancelOrderResult,
   BatchMarginModeUpdateResponse,
   CopyTradePosition,
+  CrossMarginRequirement,
   CrossMarginRiskLimit,
   FullOrderBookDetail,
   FuturesAccountFundingRateHistory,
@@ -8768,6 +8778,16 @@ withdrawMargin(params: {
     symbol: string;
     withdrawAmount: string;
 }): Promise<APISuccessResponse<string>>
+⋮----
+/**
+   * Get Cross Margin Requirement
+   * This endpoint supports querying the cross margin requirements of a symbol by position value.
+   */
+getCrossMarginRequirement(params: {
+    symbol: string;
+    positionValue: string;
+    leverage?: string;
+}): Promise<APISuccessResponse<CrossMarginRequirement>>
 ⋮----
 /**
    * Get Isolated Margin Risk Limit
@@ -11239,7 +11259,7 @@ File: package.json
 ================
 {
   "name": "kucoin-api",
-  "version": "2.1.16",
+  "version": "2.1.19",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
