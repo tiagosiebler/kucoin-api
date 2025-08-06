@@ -57,6 +57,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
     - [Private WebSocket Streams](#private-websocket-streams)
 - [Customise Logging](#customise-logging)
 - [LLMs & AI](#use-with-llms--ai)
+- [Used By](#used-by)
 - [Contributions & Thanks](#contributions--thanks)
 
 ## Installation
@@ -326,6 +327,12 @@ const ws = new WebsocketClient(
 This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
 
 This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+## Used By
+
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/kucoin-api/image)](https://github.com/tiagosiebler/kucoin-api/network/dependents)
 
 ---
 

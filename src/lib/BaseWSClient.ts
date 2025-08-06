@@ -7,6 +7,7 @@ import {
 } from '../types/websockets/client.js';
 import { WsOperation } from '../types/websockets/requests.js';
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
 import { DefaultLogger } from './websocket/logger.js';
 import {
   isMessageEvent,
@@ -129,6 +130,16 @@ export abstract class BaseWebsocketClient<
       reauthWSAPIOnReconnect: true,
       ...options,
     };
+
+    // Check Web Crypto API support when credentials are provided and no custom sign function is used
+    if (
+      this.options.apiKey &&
+      this.options.apiSecret &&
+      this.options.apiPassphrase &&
+      !this.options.customSignMessageFn
+    ) {
+      checkWebCryptoAPISupported();
+    }
   }
 
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;

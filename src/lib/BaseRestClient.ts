@@ -13,7 +13,7 @@ import {
   RestClientType,
   serializeParams,
 } from './requestUtils.js';
-import { signMessage } from './webCryptoAPI.js';
+import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
 
 const MISSING_API_KEYS_ERROR =
   'API Key, Secret & API Passphrase are ALL required to use the authenticated REST client';
@@ -146,6 +146,11 @@ export abstract class BaseRestClient {
     this.apiKey = this.options.apiKey;
     this.apiSecret = this.options.apiSecret;
     this.apiPassphrase = this.options.apiPassphrase;
+
+    // Check Web Crypto API support when credentials are provided
+    if (this.apiKey && this.apiSecret && this.apiPassphrase) {
+      checkWebCryptoAPISupported();
+    }
 
     // Throw if one of the 3 values is missing, but at least one of them is set
     const credentials = [this.apiKey, this.apiSecret, this.apiPassphrase];
