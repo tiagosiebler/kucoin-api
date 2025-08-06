@@ -531,6 +531,15 @@ export interface CrossMarginRiskLimit {
   currency: string;
 }
 
+export interface CrossMarginRequirement {
+  symbol: string;
+  imr: string;
+  mmr: string;
+  size: number;
+  positionValue: string;
+  price: string;
+}
+
 /**
  *
  * Futures risk limit

@@ -1,6 +1,6 @@
 {
   "name": "kucoin-api",
-  "version": "2.1.17",
+  "version": "2.1.19",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",

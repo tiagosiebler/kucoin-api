@@ -440,7 +440,7 @@ export abstract class BaseRestClient {
       'SHA-256',
     );
 
-    if (method === 'GET') {
+    if (method === 'GET' || method === 'DELETE') {
       return {
         ...options,
         headers: {
