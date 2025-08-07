@@ -33,21 +33,6 @@ export type WsTopicRequestOrStringTopic<
   TWSPayload = any,
 > = WsTopicRequest<TWSTopic, TWSPayload> | string;
 
-export interface MessageEventLike {
-  target: WebSocket;
-  type: 'message';
-  data: string;
-}
-
-export function isMessageEvent(msg: unknown): msg is MessageEventLike {
-  if (typeof msg !== 'object' || !msg) {
-    return false;
-  }
-
-  const message = msg as MessageEventLike;
-  return message['type'] === 'message' && typeof message['data'] === 'string';
-}
-
 /**
  * #305: ws.terminate() is undefined in browsers.
  * This only works in node.js, not in browsers.

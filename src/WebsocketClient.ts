@@ -3,7 +3,6 @@ import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
-  MessageEventLike,
   WS_KEY_MAP,
   WsKey,
   WsTopicRequest,
@@ -12,10 +11,8 @@ import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
 import { SpotClient } from './SpotClient.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import { WsConnectionInfo } from './types/response/ws.js';
-import {
-  WsOperation,
-  WsRequestOperation,
-} from './types/websockets/requests.js';
+import { WsOperation, WsRequestOperation } from './types/websockets/ws-api.js';
+import { MessageEventLike } from './types/websockets/ws-events.js';
 import { WsMarket } from './types/websockets/ws-general.js';
 import {
   WsAPITopicRequestParamMap,
@@ -479,7 +476,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   }
 
   // Not used for kucoin - auth is part of the WS URL
-  protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
-    return { wsKey };
+  protected async getWsAuthRequestEvent(): Promise<object | void> {
+    return;
   }
 }

@@ -64,6 +64,11 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
   authPrivateConnectionsOnConnect: boolean;
   authPrivateRequests: boolean;
   reauthWSAPIOnReconnect: boolean;
+
+  /**
+   * Whether to use native WebSocket ping/pong frames for heartbeats
+   */
+  useNativeHeartbeats: boolean;
 }
 
 export type WsMarket = 'spot' | 'futures';
