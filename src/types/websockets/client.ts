@@ -34,6 +34,7 @@ export interface WSClientConfigurableOptions {
   };
 
   wsUrl?: string;
+
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *

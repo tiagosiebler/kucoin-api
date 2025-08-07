@@ -13,7 +13,12 @@ import {
   RestClientType,
   serializeParams,
 } from './requestUtils.js';
-import { checkWebCryptoAPISupported, signMessage } from './webCryptoAPI.js';
+import {
+  checkWebCryptoAPISupported,
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './webCryptoAPI.js';
 
 const MISSING_API_KEYS_ERROR =
   'API Key, Secret & API Passphrase are ALL required to use the authenticated REST client';
@@ -283,6 +288,18 @@ export abstract class BaseRestClient {
     };
   }
 
+  private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method: SignEncodeMethod,
+    algorithm: SignAlgorithm,
+  ): Promise<string> {
+    if (typeof this.options.customSignMessageFn === 'function') {
+      return this.options.customSignMessageFn(paramsStr, secret);
+    }
+    return await signMessage(paramsStr, secret, method, algorithm);
+  }
+
   /**
    * @private sign request and set recv window
    */
@@ -325,7 +342,7 @@ export abstract class BaseRestClient {
 
       const paramsStr = `${timestamp}${method}/${endpoint}${signRequestParams}`;
 
-      res.sign = await signMessage(
+      res.sign = await this.signMessage(
         paramsStr,
         this.apiSecret,
         'base64',
@@ -338,7 +355,7 @@ export abstract class BaseRestClient {
 
     console.error(
       new Date(),
-      neverGuard(signMethod, `Unhandled sign method: "${signMessage}"`),
+      neverGuard(signMethod, `Unhandled sign method: "${signMethod}"`),
     );
 
     return res;
@@ -432,13 +449,13 @@ export abstract class BaseRestClient {
         ? APIIDMainSign
         : APIIDFuturesSign;
 
-    const partnerSignResult = await signMessage(
+    const partnerSignResult = await this.signMessage(
       partnerSignParam,
       partnerSign,
       'base64',
       'SHA-256',
     );
-    const signedPassphrase = await signMessage(
+    const signedPassphrase = await this.signMessage(
       this.apiPassphrase!,
       this.apiSecret,
       'base64',
