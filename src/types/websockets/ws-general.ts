@@ -67,3 +67,5 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
 }
 
 export type WsMarket = 'spot' | 'futures';
+
+export type WsEventInternalSrc = 'event' | 'function';
