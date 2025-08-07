@@ -9,20 +9,38 @@ import {
 } from './WsStore.types.js';
 
 /**
- * Simple comparison of two objects, only checks 1-level deep (nested objects won't match)
+ * Simple comparison of two objects, recursive for nested objects. Adoped from OKX SDK.
  */
-export function isDeepObjectMatch(object1: unknown, object2: unknown): boolean {
-  if (typeof object1 === 'string' && typeof object2 === 'string') {
-    return object1 === object2;
+export function isDeepObjectMatch(object1: any, object2: any): boolean {
+  if (typeof object2 !== typeof object1) {
+    return false;
   }
 
-  if (typeof object1 !== 'object' || typeof object2 !== 'object') {
+  const keys1 = Object.keys(object1).sort();
+  const keys2 = Object.keys(object2).sort();
+
+  const hasSameKeyCount = keys1.length === keys2.length;
+  if (!hasSameKeyCount) {
+    // console.log('not same key count', { keys1, keys2 });
+    // not the same amount of keys or keys don't match
+    return false;
+  }
+
+  const hasSameKeyNames = keys1.every((val, i) => val === keys2[i]);
+  if (!hasSameKeyNames) {
+    // console.log('not same key names: ', { keys1, keys2 });
     return false;
   }
 
   for (const key in object1) {
-    const value1 = (object1 as any)[key];
-    const value2 = (object2 as any)[key];
+    const value1 = object1[key];
+    const value2 = object2[key];
+
+    if (typeof value1 === 'object' && typeof value2 === 'object') {
+      if (!isDeepObjectMatch(value1, value2)) {
+        return false;
+      }
+    }
 
     if (value1 !== value2) {
       return false;
