@@ -1,6 +1,6 @@
 import { createHmac } from 'crypto';
 
-import { DefaultLogger, SpotClient, WebsocketClient } from '../src//index.js';
+import { DefaultLogger, SpotClient, WebsocketClient } from '../../src/index.js';
 
 // or
 // import { createHmac } from 'crypto';

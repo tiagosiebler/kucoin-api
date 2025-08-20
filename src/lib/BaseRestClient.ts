@@ -95,6 +95,8 @@ export abstract class BaseRestClient {
 
   private apiPassphrase: string | undefined;
 
+  private apiAccessToken: string | undefined;
+
   /** Defines the client type (affecting how requests & signatures behave) */
   abstract getClientType(): RestClientType;
 
@@ -151,6 +153,7 @@ export abstract class BaseRestClient {
     this.apiKey = this.options.apiKey;
     this.apiSecret = this.options.apiSecret;
     this.apiPassphrase = this.options.apiPassphrase;
+    this.apiAccessToken = this.options.apiAccessToken;
 
     // Check Web Crypto API support when credentials are provided
     if (this.apiKey && this.apiSecret && this.apiPassphrase) {
@@ -179,6 +182,21 @@ export abstract class BaseRestClient {
       return this.options.customTimestampFn();
     }
     return Date.now();
+  }
+
+  private hasValidCredentials() {
+    const hasAll3APICredentials =
+      this.apiKey && this.apiSecret && this.apiPassphrase;
+
+    return this.hasAccessToken() || hasAll3APICredentials;
+  }
+
+  setAccessToken(newAccessToken: string) {
+    this.apiAccessToken = newAccessToken;
+  }
+
+  hasAccessToken(): boolean {
+    return !!this.apiAccessToken;
   }
 
   get(endpoint: string, params?: any) {
@@ -322,7 +340,7 @@ export abstract class BaseRestClient {
       queryParamsWithSign: '',
     };
 
-    if (!this.apiKey || !this.apiSecret) {
+    if (!this.hasValidCredentials()) {
       return res;
     }
 
@@ -342,12 +360,15 @@ export abstract class BaseRestClient {
 
       const paramsStr = `${timestamp}${method}/${endpoint}${signRequestParams}`;
 
-      res.sign = await this.signMessage(
-        paramsStr,
-        this.apiSecret,
-        'base64',
-        'SHA-256',
-      );
+      // Only sign when no access token is provided
+      if (!this.hasAccessToken()) {
+        res.sign = await this.signMessage(
+          paramsStr,
+          this.apiSecret!,
+          'base64',
+          'SHA-256',
+        );
+      }
 
       res.queryParamsWithSign = signRequestParams;
       return res;
@@ -391,7 +412,7 @@ export abstract class BaseRestClient {
       };
     }
 
-    if (!this.apiKey || !this.apiSecret || !this.apiPassphrase) {
+    if (!this.hasValidCredentials()) {
       throw new Error(MISSING_API_KEYS_ERROR);
     }
 
@@ -444,6 +465,7 @@ export abstract class BaseRestClient {
     };
 
     const partnerSignParam = `${authHeaders['KC-API-TIMESTAMP']}${authHeaders['KC-API-PARTNER']}${authHeaders['KC-API-KEY']}`;
+
     const partnerSign =
       this.getClientType() === REST_CLIENT_TYPE_ENUM.main
         ? APIIDMainSign
@@ -462,15 +484,31 @@ export abstract class BaseRestClient {
       'SHA-256',
     );
 
+    let signHeaders: Record<string, string> = {};
+
+    // Support for Authorization header, if provided:
+    // https://github.com/tiagosiebler/kucoin-api/issues/2
+    // Use restClient.setAccessToken(newToken), if you need to store a new access token
+    if (this.apiAccessToken) {
+      signHeaders = {
+        Authorization: this.apiAccessToken,
+        'KC-API-PARTNER-SIGN': partnerSignResult,
+      };
+    } else {
+      signHeaders = {
+        'KC-API-SIGN': signResult.sign,
+        'KC-API-PARTNER-SIGN': partnerSignResult,
+        'KC-API-PASSPHRASE': signedPassphrase,
+      };
+    }
+
     if (method === 'GET' || method === 'DELETE') {
       return {
         ...options,
         headers: {
           ...authHeaders,
           ...options.headers,
-          'KC-API-SIGN': signResult.sign,
-          'KC-API-PARTNER-SIGN': partnerSignResult,
-          'KC-API-PASSPHRASE': signedPassphrase,
+          ...signHeaders,
         },
         url: options.url + signResult.queryParamsWithSign,
       };
@@ -481,9 +519,7 @@ export abstract class BaseRestClient {
       headers: {
         ...authHeaders,
         ...options.headers,
-        'KC-API-SIGN': signResult.sign,
-        'KC-API-PARTNER-SIGN': partnerSignResult,
-        'KC-API-PASSPHRASE': signedPassphrase,
+        ...signHeaders,
       },
       data: params,
     };

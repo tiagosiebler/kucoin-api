@@ -29,6 +29,12 @@ export interface RestClientOptions {
   /** Your API passphrase (can be anything) that you set when creating this API key (NOT your account password) */
   apiPassphrase?: string;
 
+  /**
+   * Use access token instead of sign, if this is provided.
+   * For guidance refer to: https://github.com/tiagosiebler/kucoin-api/issues/2
+   */
+  apiAccessToken?: string;
+
   /** The API key version. Defaults to "2" right now. You can see this in your API management page */
   apiKeyVersion?: number | string;
 
