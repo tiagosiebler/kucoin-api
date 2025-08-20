@@ -488,8 +488,14 @@ export abstract class BaseWebsocketClient<
         throw e;
       }
     } catch (err) {
-      this.parseWsError('Connection failed', err, wsKey);
-      this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
+      const canRetry = this.parseWsError('Connection failed', err, wsKey);
+      if (canRetry) {
+        this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
+      } else {
+        this.logger.info(
+          'Preventing retry due to error type to prevent deadlock',
+        );
+      }
 
       if (throwOnError) {
         throw err;
@@ -527,16 +533,19 @@ export abstract class BaseWebsocketClient<
     return ws;
   }
 
-  private parseWsError(context: string, error: any, wsKey: TWSKey) {
+  private parseWsError(context: string, error: any, wsKey: TWSKey): boolean {
     if (this.wsStore.isConnectionAttemptInProgress(wsKey)) {
       this.setWsState(wsKey, WsConnectionStateEnum.ERROR);
     }
+
+    // Allow retry by default (in some places that call this). Prevent deadloop in hard failure (401)
+    let canRetry = true;
+
     if (!error.message) {
       this.logger.error(`${context} due to unexpected error: `, error);
       this.emit('response', { ...error, wsKey });
       this.emit('exception', { ...error, wsKey });
-
-      return;
+      return canRetry;
     }
 
     switch (error.message) {
@@ -545,6 +554,7 @@ export abstract class BaseWebsocketClient<
           ...WS_LOGGER_CATEGORY,
           wsKey,
         });
+        canRetry = false;
         break;
 
       default:
@@ -560,7 +570,17 @@ export abstract class BaseWebsocketClient<
               connectionState: this.wsStore.getConnectionState(wsKey),
             },
           );
+          canRetry = true;
+
           break;
+        }
+
+        if (error?.code === 401) {
+          this.logger.error(`${context} due to 401 authorization failure.`, {
+            ...WS_LOGGER_CATEGORY,
+            wsKey,
+          });
+          canRetry = false;
         }
 
         this.logger.error(
@@ -574,6 +594,8 @@ export abstract class BaseWebsocketClient<
 
     this.emit('response', { ...error, wsKey });
     this.emit('exception', { ...error, wsKey });
+
+    return canRetry;
   }
 
   /** Get a signature, build the auth request and send it */
