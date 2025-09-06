@@ -279,6 +279,7 @@ export interface HFOrder {
   tax: string;
   createdAt: number;
   lastUpdatedAt: number;
+  cancelReason: number;
 }
 
 /**

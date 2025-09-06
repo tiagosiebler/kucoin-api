@@ -54,3 +54,20 @@ export interface AffiliateInvitees {
   totalPage: number; // Total number of pages
   items: AffiliateInviteeItem[]; // Array of invited user items
 }
+
+export interface AffiliateTransactionItem {
+  uid: string; // The uid of the invitee
+  tradeTime: number; // Trade time (13-digit timestamp)
+  tradeType: 'SPOT' | 'FEATURE'; // Trade type
+  tradeCurrency: string; // Trade currency
+  tradeAmount: string; // Trade amount
+  tradeAmountU: string; // Trade amount transfer to U(USDT or usdt)
+  feeU: string; // Fee transfer to U(USDT or usdt)
+  commission: string; // Trade commission
+  currency: 'USDT' | 'USDC'; // Transaction volume or amount converted to U
+}
+
+export interface AffiliateTransaction {
+  items: AffiliateTransactionItem[]; // Array of transaction items
+  lastId: string; // The offset ID for pagination
+}
