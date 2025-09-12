@@ -25,3 +25,13 @@ export interface GetAffiliateInviteesRequest {
   page?: number; // optional - Page number >= 1, default: 1
   pageSize?: number; // optional - Max number of records per page >= 1, <= 500, default: 10
 }
+
+export interface GetAffiliateTransactionRequest {
+  uid?: string; // optional - The uid of the invitee
+  tradeType?: 'SPOT' | 'FEATURE'; // optional - Trade type
+  tradeStartAt: number; // required - Transaction start time (13-digit timestamp)
+  tradeEndAt: number; // required - Transaction end time (13-digit timestamp)
+  lastId?: number; // optional - The offset ID of the query
+  direction?: 'PRE' | 'NEXT'; // optional - Page direction, default: 'NEXT'
+  pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
+}
