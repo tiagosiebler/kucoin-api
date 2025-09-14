@@ -714,6 +714,18 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
+   * Switch Position Mode
+   * This endpoint can switch the position mode of the current symbol.
+   */
+  updatePositionMode(params: { positionMode: '0' | '1' }): Promise<
+    APISuccessResponse<{
+      positionMode: '0' | '1';
+    }>
+  > {
+    return this.postPrivate('api/v2/position/switchPositionMode', params);
+  }
+
+  /**
    *
    * REST - Futures Trading - Funding Fees
    *
