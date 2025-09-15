@@ -242,6 +242,7 @@ export type FuturesKline = [
   number, // Highest price
   number, // Lowest price
   number, // Close price
+  number, // Trading volume(lots)
   number, // Trading volume
 ];
 

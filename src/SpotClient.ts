@@ -21,6 +21,7 @@ import {
   GetAffiliateCommissionRequest,
   GetAffiliateInviteesRequest,
   GetAffiliateTradeHistoryRequest,
+  GetAffiliateTransactionRequest,
 } from './types/request/spot-affiliate.js';
 import {
   AddConvertLimitOrderRequest,
@@ -57,10 +58,21 @@ import {
   SubmitWithdrawV3Request,
 } from './types/request/spot-funding.js';
 import {
+  BatchCancelMarginOcoOrdersRequest,
+  BatchCancelMarginStopOrdersRequest,
+  CancelMarginOcoOrderByClientOidRequest,
+  CancelMarginOcoOrderByOrderIdRequest,
+  CancelMarginStopOrderByClientOidRequest,
+  GetBorrowInterestRateRequest,
   GetHFMarginFilledRequest,
   getHFMarginFillsRequest,
   GetLendingRedemptionOrdersV3Request,
   GetLendingSubscriptionOrdersV3Request,
+  GetMarginOcoOrderByClientOidRequest,
+  GetMarginOcoOrderDetailByOrderIdRequest,
+  GetMarginStopOrderByClientOidRequest,
+  GetMarginStopOrderByOrderIdRequest,
+  GetMarginStopOrdersListRequest,
   HFMarginRequestOrder,
   InitiateLendingRedemptionV3Request,
   InitiateLendingSubscriptionV3Request,
@@ -71,7 +83,9 @@ import {
   MarginRiskLimitRequest,
   ModifyLendingSubscriptionOrdersV3Request,
   SubmitHFMarginOrderRequest,
+  SubmitMarginOcoOrderRequest,
   SubmitMarginOrderRequest,
+  SubmitMarginStopOrderRequest,
 } from './types/request/spot-margin-trading.js';
 import { GetAnnouncementsRequest } from './types/request/spot-misc.js';
 import {
@@ -117,6 +131,7 @@ import {
   AffiliateCommissionItem,
   AffiliateInvitees,
   AffiliateTradeHistory,
+  AffiliateTransaction,
 } from './types/response/spot-affiliate.js';
 import {
   ConvertCurrencies,
@@ -157,6 +172,8 @@ import {
   Withdrawals,
 } from './types/response/spot-funding.js';
 import {
+  BorrowInterestRate,
+  CancelMarginOrdersResponse,
   HFMarginOrder,
   HFMarginTransactionRecord,
   IsolatedMarginAccountInfo,
@@ -169,9 +186,15 @@ import {
   MarginInterestRecords,
   MarginLevTokenInfo,
   MarginMarkPrice,
+  MarginOcoOrderDetails,
+  MarginOcoOrderItem,
+  MarginOcoOrderResponse,
   MarginOrderV3,
   MarginRepayHistoryV3,
   MarginRiskLimit,
+  MarginStopOrderItem,
+  MarginStopOrderResponse,
+  MarginStopOrdersList,
   MarginSubmitOrderV3Response,
   SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
@@ -1673,10 +1696,178 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * Add Margin Stop Order
+   *
+   * Place stop order to the margin trading system. The maximum untriggered stop orders for a single trading pair in one account is 20.
+   */
+  addMarginStopOrder(
+    params: SubmitMarginStopOrderRequest,
+  ): Promise<APISuccessResponse<MarginStopOrderResponse>> {
+    return this.postPrivate('api/v3/hf/margin/stop-order', params);
+  }
+
+  /**
+   * Cancel Margin Stop Order By OrderId
+   *
+   * Request via this endpoint the cancellation of a single stop order previously placed.
+   */
+  cancelMarginStopOrderByOrderId(params: {
+    orderId: string;
+  }): Promise<APISuccessResponse<CancelMarginOrdersResponse>> {
+    return this.deletePrivate(
+      `api/v3/hf/margin/stop-order/cancel-by-id?orderId=${params.orderId}`,
+    );
+  }
+
+  /**
+   * Cancel Margin Stop Order By ClientOid
+   *
+   * This endpoint can be used to cancel a stop order by clientOid.
+   */
+  cancelMarginStopOrderByClientOid(
+    params: CancelMarginStopOrderByClientOidRequest,
+  ): Promise<APISuccessResponse<CancelMarginOrdersResponse>> {
+    return this.deletePrivate(
+      'api/v3/hf/margin/stop-order/cancel-by-clientOid',
+      params,
+    );
+  }
+
+  /**
+   * Batch Cancel Margin Stop Orders
+   *
+   * Request via this interface to cancel a batch of stop orders.
+   */
+  batchCancelMarginStopOrder(
+    params: BatchCancelMarginStopOrdersRequest,
+  ): Promise<APISuccessResponse<CancelMarginOrdersResponse>> {
+    return this.deletePrivate('api/v3/hf/margin/stop-order/cancel', params);
+  }
+
+  /**
+   * Get Margin Stop Orders List
+   *
+   * Request via this endpoint to get your current untriggered stop order list.
+   */
+  getMarginStopOrdersList(
+    params?: GetMarginStopOrdersListRequest,
+  ): Promise<APISuccessResponse<MarginStopOrdersList>> {
+    return this.getPrivate('api/v3/hf/margin/stop-orders', params);
+  }
+
+  /**
+   * Get Margin Stop Order By OrderId
+   *
+   * Request via this interface to get a stop order information via the order ID.
+   */
+  getMarginStopOrderByOrderId(
+    params: GetMarginStopOrderByOrderIdRequest,
+  ): Promise<APISuccessResponse<MarginStopOrderItem>> {
+    return this.getPrivate(
+      `api/v3/hf/margin/stop-order/orderId?orderId=${params.orderId}`,
+    );
+  }
+
+  /**
+   * Get Margin Stop Order By ClientOid
+   *
+   * Request via this interface to get a stop order information via the clientOid.
+   */
+  getMarginStopOrderByClientOid(
+    params: GetMarginStopOrderByClientOidRequest,
+  ): Promise<APISuccessResponse<MarginStopOrderItem>> {
+    return this.getPrivate('api/v3/hf/margin/stop-order/clientOid', params);
+  }
+
+  /**
+   * Add Margin OCO Order
+   *
+   * Place OCO order to the Margin trading system
+   */
+  addMarginOcoOrder(
+    params: SubmitMarginOcoOrderRequest,
+  ): Promise<APISuccessResponse<MarginOcoOrderResponse>> {
+    return this.postPrivate('api/v3/hf/margin/oco-order', params);
+  }
+
+  /**
+   * Cancel Margin OCO Order By OrderId
+   *
+   * Request via this endpoint the cancellation of a single OCO order previously placed.
+   */
+  cancelMarginOcoOrderByOrderId(
+    params: CancelMarginOcoOrderByOrderIdRequest,
+  ): Promise<APISuccessResponse<CancelMarginOrdersResponse>> {
+    return this.deletePrivate(
+      `api/v3/hf/margin/oco-order/cancel-by-id?orderId=${params.orderId}`,
+    );
+  }
+
+  /**
+   * Cancel Margin OCO Order By ClientOid
+   *
+   * Request via this interface to cancel a stop order via the clientOid.
+   */
+  cancelMarginOcoOrderByClientOid(
+    params: CancelMarginOcoOrderByClientOidRequest,
+  ): Promise<APISuccessResponse<CancelMarginOrdersResponse>> {
+    return this.deletePrivate(
+      'api/v3/hf/margin/oco-order/cancel-by-clientOid',
+      params,
+    );
+  }
+
+  /**
+   * Batch Cancel Margin OCO Orders
+   *
+   * This interface can batch cancel OCO orders through orderIds.
+   */
+  batchCancelMarginOcoOrders(
+    params?: BatchCancelMarginOcoOrdersRequest,
+  ): Promise<APISuccessResponse<CancelMarginOrdersResponse>> {
+    return this.deletePrivate('api/v3/hf/margin/oco-order/cancel', params);
+  }
+
+  /**
+   * Get Margin OCO Order By ClientOid
+   *
+   * Request via this interface to get a oco order information via the client order ID.
+   */
+  getMarginOcoOrderByClientOid(
+    params: GetMarginOcoOrderByClientOidRequest,
+  ): Promise<APISuccessResponse<MarginOcoOrderItem>> {
+    return this.getPrivate('api/v3/hf/margin/oco-order/clientOid', params);
+  }
+
+  /**
+   * Get Margin OCO Order Detail By OrderId
+   *
+   * Request via this interface to get a oco order detail via the order ID.
+   */
+  getMarginOcoOrderDetailByOrderId(
+    params: GetMarginOcoOrderDetailByOrderIdRequest,
+  ): Promise<APISuccessResponse<MarginOcoOrderDetails>> {
+    return this.getPrivate(
+      `api/v3/hf/margin/oco-order/detail/orderId?orderId=${params.orderId}`,
+    );
+  }
+
+  /**
    *
    * REST - MARGIN TRADING - Debit
    *
    */
+
+  /**
+   * Get Borrow Interest Rate
+   *
+   * Query the borrowing interest rate through this interface.
+   */
+  getBorrowInterestRate(
+    params?: GetBorrowInterestRateRequest,
+  ): Promise<APISuccessResponse<BorrowInterestRate>> {
+    return this.getPrivate('api/v3/margin/borrowRate', params);
+  }
 
   /**
    * Borrow
@@ -2188,14 +2379,14 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Get Trade History
+   * Get Invited
    *
-   * Trade history information can be obtained at this endpoint.
+   * Affiliate user invited information can be obtained at this endpoint.
    */
-  getAffiliateTradeHistory(
-    params: GetAffiliateTradeHistoryRequest,
-  ): Promise<APISuccessResponse<AffiliateTradeHistory>> {
-    return this.getPrivate('api/v2/affiliate/queryTransactionByUid', params);
+  getAffiliateInvitees(
+    params?: GetAffiliateInviteesRequest,
+  ): Promise<APISuccessResponse<AffiliateInvitees>> {
+    return this.getPrivate('api/v2/affiliate/queryInvitees', params);
   }
 
   /**
@@ -2210,14 +2401,25 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * Get Invited
+   * Get Trade History
    *
-   * Affiliate user invited information can be obtained at this endpoint.
+   * Trade history information can be obtained at this endpoint.
    */
-  getAffiliateInvitees(
-    params?: GetAffiliateInviteesRequest,
-  ): Promise<APISuccessResponse<AffiliateInvitees>> {
-    return this.getPrivate('api/v2/affiliate/queryInvitees', params);
+  getAffiliateTradeHistory(
+    params: GetAffiliateTradeHistoryRequest,
+  ): Promise<APISuccessResponse<AffiliateTradeHistory>> {
+    return this.getPrivate('api/v2/affiliate/queryTransactionByUid', params);
+  }
+
+  /**
+   * Get Transaction
+   *
+   * Transaction information can be obtained at this endpoint.
+   */
+  getAffiliateTransaction(
+    params: GetAffiliateTransactionRequest,
+  ): Promise<APISuccessResponse<AffiliateTransaction>> {
+    return this.getPrivate('api/v2/affiliate/queryTransactionByTime', params);
   }
 
   /**

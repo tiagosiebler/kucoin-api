@@ -1654,231 +1654,6 @@ File: src/lib/misc-util.ts
 export function neverGuard(x: never, msg: string): Error
 
 ================
-File: src/lib/webCryptoAPI.ts
-================
-import { neverGuard } from './misc-util.js';
-⋮----
-function bufferToB64(buffer: ArrayBuffer): string
-⋮----
-export type SignEncodeMethod = 'hex' | 'base64';
-export type SignAlgorithm = 'SHA-256' | 'SHA-512';
-⋮----
-/**
- * Similar to node crypto's `createHash()` function
- */
-export async function hashMessage(
-  message: string,
-  method: SignEncodeMethod,
-  algorithm: SignAlgorithm,
-): Promise<string>
-⋮----
-/**
- * Sign a message, with a secret, using the Web Crypto API
- */
-export async function signMessage(
-  message: string,
-  secret: string,
-  method: SignEncodeMethod,
-  algorithm: SignAlgorithm,
-): Promise<string>
-⋮----
-export function checkWebCryptoAPISupported()
-
-================
-File: src/types/request/spot-margin-trading.ts
-================
-/**
- *
- ***********
- * Margin Trading
- ***********
- *
- */
-⋮----
-/**
- *
- * Margin HF trade
- *
- */
-⋮----
-export interface SubmitHFMarginOrderRequest {
-  clientOid: string;
-  side: 'buy' | 'sell';
-  symbol: string;
-  type?: 'limit' | 'market';
-  stp?: 'CN' | 'CO' | 'CB' | 'DC';
-  isIsolated?: boolean;
-  autoBorrow?: boolean;
-  autoRepay?: boolean;
-  price?: string;
-  size?: string;
-  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-  cancelAfter?: number;
-  postOnly?: boolean;
-  hidden?: boolean;
-  iceberg?: boolean;
-  visibleSize?: string;
-  funds?: string;
-}
-⋮----
-export interface HFMarginRequestOrder {
-  symbol: string;
-  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-}
-⋮----
-export interface GetHFMarginFilledRequest {
-  symbol: string;
-  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  side?: 'buy' | 'sell';
-  type?: 'limit' | 'market';
-  startAt?: number;
-  endAt?: number;
-  lastId?: number;
-  limit?: number;
-}
-⋮----
-export interface getHFMarginFillsRequest {
-  orderId?: string;
-  symbol: string;
-  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
-  side?: 'buy' | 'sell';
-  type?: 'limit' | 'market';
-  startAt?: number;
-  endAt?: number;
-  lastId?: number;
-  limit?: number;
-}
-⋮----
-/**
- *
- * Orders
- *
- */
-⋮----
-export interface SubmitMarginOrderRequest {
-  clientOid: string;
-  side: 'buy' | 'sell';
-  symbol: string;
-  type?: 'limit' | 'market';
-  remark?: string;
-  stp?: 'CN' | 'CO' | 'CB' | 'DC';
-  marginModel?: 'cross' | 'isolated';
-  autoBorrow?: boolean;
-  autoRepay?: boolean;
-  price: string;
-  size?: string;
-  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
-  cancelAfter?: number;
-  postOnly?: boolean;
-  hidden?: boolean;
-  iceberg?: boolean;
-  visibleSize?: string;
-  funds?: string;
-}
-⋮----
-/**
- *
- * Margin info
- *
- */
-⋮----
-export interface MarginRiskLimitRequest {
-  isIsolated: boolean;
-  symbol?: string;
-  currency?: string;
-}
-⋮----
-/**
- *
- * Isolated Margin
- *
- */
-⋮----
-/**
- *
- * Margin trading(v3)
- *
- */
-⋮----
-export interface MarginBorrowV3Request {
-  isIsolated?: boolean;
-  symbol?: string;
-  currency: string;
-  size: number;
-  timeInForce: 'IOC' | 'FOK';
-  isHf: boolean;
-}
-⋮----
-export interface MarginRepayV3Request {
-  isIsolated?: boolean;
-  symbol?: string;
-  currency: string;
-  size: number;
-  isHf: boolean;
-}
-⋮----
-export interface MarginHistoryV3Request {
-  currency: string;
-  isIsolated?: boolean;
-  symbol?: string;
-  orderNo?: string;
-  startTime?: number;
-  endTime?: number;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-export interface MarginInterestRecordsRequest {
-  isIsolated?: boolean;
-  symbol?: string;
-  currency?: string;
-  startTime?: number;
-  endTime?: number;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-/**
- *
- * Lending market(v3)
- *
- */
-⋮----
-export interface InitiateLendingSubscriptionV3Request {
-  currency: string;
-  size: string;
-  interestRate: string;
-}
-⋮----
-export interface InitiateLendingRedemptionV3Request {
-  currency: string;
-  size: string;
-  purchaseOrderNo: string;
-}
-⋮----
-export interface ModifyLendingSubscriptionOrdersV3Request {
-  currency: string;
-  purchaseOrderNo: string;
-  interestRate: string;
-}
-⋮----
-export interface GetLendingRedemptionOrdersV3Request {
-  currency: string;
-  redeemOrderNo?: string;
-  status: 'DONE' | 'PENDING';
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-export interface GetLendingSubscriptionOrdersV3Request {
-  currency: string;
-  purchaseOrderNo?: string;
-  status: 'DONE' | 'PENDING';
-  currentPage?: number;
-  pageSize?: number;
-}
-
-================
 File: src/types/request/spot-misc.ts
 ================
 export interface GetAnnouncementsRequest {
@@ -2469,6 +2244,37 @@ deleteTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs)
 // Check if we're subscribed to a topic like this
 
 ================
+File: src/lib/webCryptoAPI.ts
+================
+import { neverGuard } from './misc-util.js';
+⋮----
+function bufferToB64(buffer: ArrayBuffer): string
+⋮----
+export type SignEncodeMethod = 'hex' | 'base64';
+export type SignAlgorithm = 'SHA-256' | 'SHA-512';
+⋮----
+/**
+ * Similar to node crypto's `createHash()` function
+ */
+export async function hashMessage(
+  message: string,
+  method: SignEncodeMethod,
+  algorithm: SignAlgorithm,
+): Promise<string>
+⋮----
+/**
+ * Sign a message, with a secret, using the Web Crypto API
+ */
+export async function signMessage(
+  message: string,
+  secret: string,
+  method: SignEncodeMethod,
+  algorithm: SignAlgorithm,
+): Promise<string>
+⋮----
+export function checkWebCryptoAPISupported()
+
+================
 File: src/types/request/broker.types.ts
 ================
 export interface GetBrokerInfoRequest {
@@ -2532,59 +2338,6 @@ export interface GetBrokerDepositListRequest {
   endTimestamp?: number;
   limit?: number;
 }
-
-================
-File: src/types/request/spot-affiliate.ts
-================
-export interface GetAffiliateTradeHistoryRequest {
-  uid: string; // required - Invitee's UID
-  tradeType?: 'SPOT' | 'FEATURE'; // optional - Trading type
-  tradeStartAt?: number; // optional - Trade start time (13-digit timestamp)
-  tradeEndAt?: number; // optional - Trade end time (13-digit timestamp)
-  page?: number; // optional - Page number >= 1, default: 1
-  pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
-}
-⋮----
-uid: string; // required - Invitee's UID
-tradeType?: 'SPOT' | 'FEATURE'; // optional - Trading type
-tradeStartAt?: number; // optional - Trade start time (13-digit timestamp)
-tradeEndAt?: number; // optional - Trade end time (13-digit timestamp)
-page?: number; // optional - Page number >= 1, default: 1
-pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
-⋮----
-export interface GetAffiliateCommissionRequest {
-  siteType?: 'all'; // optional - The source site of the commission, default: "all"
-  rebateType?: 0 | 1 | 2; // optional - Rebate type, default: 0
-  rebateStartAt?: number; // optional - Start time for commission issuance (13-digit timestamp)
-  rebateEndAt?: number; // optional - End time for commission issuance (13-digit timestamp)
-  page?: number; // optional - Page number >= 1, default: 1
-  pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
-}
-⋮----
-siteType?: 'all'; // optional - The source site of the commission, default: "all"
-rebateType?: 0 | 1 | 2; // optional - Rebate type, default: 0
-rebateStartAt?: number; // optional - Start time for commission issuance (13-digit timestamp)
-rebateEndAt?: number; // optional - End time for commission issuance (13-digit timestamp)
-page?: number; // optional - Page number >= 1, default: 1
-pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
-⋮----
-export interface GetAffiliateInviteesRequest {
-  userType?: '1' | '2' | '3'; // optional - User Type
-  referralCode?: string; // optional - Which referral code the user registered with
-  uid?: string; // optional - UID(s) of the users, can pass multiple separated by commas
-  registrationStartAt?: number; // optional - Registration start timestamp
-  registrationEndAt?: number; // optional - Registration end timestamp
-  page?: number; // optional - Page number >= 1, default: 1
-  pageSize?: number; // optional - Max number of records per page >= 1, <= 500, default: 10
-}
-⋮----
-userType?: '1' | '2' | '3'; // optional - User Type
-referralCode?: string; // optional - Which referral code the user registered with
-uid?: string; // optional - UID(s) of the users, can pass multiple separated by commas
-registrationStartAt?: number; // optional - Registration start timestamp
-registrationEndAt?: number; // optional - Registration end timestamp
-page?: number; // optional - Page number >= 1, default: 1
-pageSize?: number; // optional - Max number of records per page >= 1, <= 500, default: 10
 
 ================
 File: src/types/request/spot-convert.ts
@@ -2773,6 +2526,368 @@ currentPage?: number; // optional - Current Page, default: 1
 pageSize?: number; // optional - Page Size >= 10, <= 500, default: 15
 
 ================
+File: src/types/request/spot-margin-trading.ts
+================
+/**
+ *
+ ***********
+ * Margin Trading
+ ***********
+ *
+ */
+⋮----
+/**
+ *
+ * Margin HF trade
+ *
+ */
+⋮----
+export interface SubmitHFMarginOrderRequest {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  type?: 'limit' | 'market';
+  stp?: 'CN' | 'CO' | 'CB' | 'DC';
+  isIsolated?: boolean;
+  autoBorrow?: boolean;
+  autoRepay?: boolean;
+  price?: string;
+  size?: string;
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+  cancelAfter?: number;
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+  funds?: string;
+}
+⋮----
+export interface HFMarginRequestOrder {
+  symbol: string;
+  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+}
+⋮----
+export interface GetHFMarginFilledRequest {
+  symbol: string;
+  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  side?: 'buy' | 'sell';
+  type?: 'limit' | 'market';
+  startAt?: number;
+  endAt?: number;
+  lastId?: number;
+  limit?: number;
+}
+⋮----
+export interface getHFMarginFillsRequest {
+  orderId?: string;
+  symbol: string;
+  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE';
+  side?: 'buy' | 'sell';
+  type?: 'limit' | 'market';
+  startAt?: number;
+  endAt?: number;
+  lastId?: number;
+  limit?: number;
+}
+⋮----
+/**
+ *
+ * Orders
+ *
+ */
+⋮----
+export interface SubmitMarginOrderRequest {
+  clientOid: string;
+  side: 'buy' | 'sell';
+  symbol: string;
+  type?: 'limit' | 'market';
+  remark?: string;
+  stp?: 'CN' | 'CO' | 'CB' | 'DC';
+  marginModel?: 'cross' | 'isolated';
+  autoBorrow?: boolean;
+  autoRepay?: boolean;
+  price: string;
+  size?: string;
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK';
+  cancelAfter?: number;
+  postOnly?: boolean;
+  hidden?: boolean;
+  iceberg?: boolean;
+  visibleSize?: string;
+  funds?: string;
+}
+⋮----
+/**
+ *
+ * Margin info
+ *
+ */
+⋮----
+export interface MarginRiskLimitRequest {
+  isIsolated: boolean;
+  symbol?: string;
+  currency?: string;
+}
+⋮----
+/**
+ *
+ * Isolated Margin
+ *
+ */
+⋮----
+/**
+ *
+ * Margin trading(v3)
+ *
+ */
+⋮----
+export interface MarginBorrowV3Request {
+  isIsolated?: boolean;
+  symbol?: string;
+  currency: string;
+  size: number;
+  timeInForce: 'IOC' | 'FOK';
+  isHf: boolean;
+}
+⋮----
+export interface MarginRepayV3Request {
+  isIsolated?: boolean;
+  symbol?: string;
+  currency: string;
+  size: number;
+  isHf: boolean;
+}
+⋮----
+export interface MarginHistoryV3Request {
+  currency: string;
+  isIsolated?: boolean;
+  symbol?: string;
+  orderNo?: string;
+  startTime?: number;
+  endTime?: number;
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+export interface MarginInterestRecordsRequest {
+  isIsolated?: boolean;
+  symbol?: string;
+  currency?: string;
+  startTime?: number;
+  endTime?: number;
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+/**
+ *
+ * Lending market(v3)
+ *
+ */
+⋮----
+export interface InitiateLendingSubscriptionV3Request {
+  currency: string;
+  size: string;
+  interestRate: string;
+}
+⋮----
+export interface InitiateLendingRedemptionV3Request {
+  currency: string;
+  size: string;
+  purchaseOrderNo: string;
+}
+⋮----
+export interface ModifyLendingSubscriptionOrdersV3Request {
+  currency: string;
+  purchaseOrderNo: string;
+  interestRate: string;
+}
+⋮----
+export interface GetLendingRedemptionOrdersV3Request {
+  currency: string;
+  redeemOrderNo?: string;
+  status: 'DONE' | 'PENDING';
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+export interface GetLendingSubscriptionOrdersV3Request {
+  currency: string;
+  purchaseOrderNo?: string;
+  status: 'DONE' | 'PENDING';
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+export interface GetBorrowInterestRateRequest {
+  vipLevel?: number; // optional - If empty, default to current user vip level (0-12)
+  currency?: string; // optional - Supports multiple currencies (up to 50), comma-separated
+}
+⋮----
+vipLevel?: number; // optional - If empty, default to current user vip level (0-12)
+currency?: string; // optional - Supports multiple currencies (up to 50), comma-separated
+⋮----
+/**
+ * Margin Stop Order Requests
+ */
+export interface SubmitMarginStopOrderRequest {
+  clientOid: string; // Client Order ID
+  side: 'buy' | 'sell'; // Order side
+  symbol: string; // Trading symbol
+  type?: 'limit' | 'market'; // Order type, default: limit
+  remark?: string; // Order note, max 100 characters
+  stop?: string; // Stop condition, default: loss
+  stopPrice: string; // Trigger price (required)
+  stp?: 'DC' | 'CO' | 'CN' | 'CB'; // Self Trade Prevention
+  isIsolated: boolean; // True - isolated margin; false - cross margin
+  autoRepay: boolean; // AutoPay for borrowed assets
+  autoBorrow: boolean; // Auto borrow for insufficient balance
+  price?: string; // Order price (required for limit orders)
+  size?: string; // Order quantity (required for limit orders)
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+  cancelAfter?: number; // Cancel after n seconds (GTT strategy)
+  postOnly?: boolean; // Passive order labels
+  hidden?: boolean; // Hidden order
+  iceberg?: boolean; // Iceberg order
+  visibleSize?: string; // Visible size for iceberg orders
+  funds?: string; // Order funds (for market orders)
+}
+⋮----
+clientOid: string; // Client Order ID
+side: 'buy' | 'sell'; // Order side
+symbol: string; // Trading symbol
+type?: 'limit' | 'market'; // Order type, default: limit
+remark?: string; // Order note, max 100 characters
+stop?: string; // Stop condition, default: loss
+stopPrice: string; // Trigger price (required)
+stp?: 'DC' | 'CO' | 'CN' | 'CB'; // Self Trade Prevention
+isIsolated: boolean; // True - isolated margin; false - cross margin
+autoRepay: boolean; // AutoPay for borrowed assets
+autoBorrow: boolean; // Auto borrow for insufficient balance
+price?: string; // Order price (required for limit orders)
+size?: string; // Order quantity (required for limit orders)
+timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+cancelAfter?: number; // Cancel after n seconds (GTT strategy)
+postOnly?: boolean; // Passive order labels
+hidden?: boolean; // Hidden order
+iceberg?: boolean; // Iceberg order
+visibleSize?: string; // Visible size for iceberg orders
+funds?: string; // Order funds (for market orders)
+⋮----
+export interface CancelMarginStopOrderByClientOidRequest {
+  clientOid: string; // Client order ID
+}
+⋮----
+clientOid: string; // Client order ID
+⋮----
+export interface BatchCancelMarginStopOrdersRequest {
+  symbol?: string; // Trading symbol
+  tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Margin type (required)
+  orderIds?: string; // Comma separated order IDs
+}
+⋮----
+symbol?: string; // Trading symbol
+tradeType: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Margin type (required)
+orderIds?: string; // Comma separated order IDs
+⋮----
+export interface GetMarginStopOrdersListRequest {
+  symbol?: string; // Trading symbol
+  side?: string; // Order side (buy/sell)
+  type?: 'limit' | 'market' | 'limit_stop' | 'market_stop'; // Order type
+  tradeType?: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Margin type
+  startAt?: number; // Start time (millisecond)
+  endAt?: number; // End time (millisecond)
+  currentPage?: number; // Current page (>=1, default: 1)
+  orderIds?: string; // Comma separated order IDs
+  pageSize?: number; // Page size (>=10, <=500, default: 50)
+  stop?: 'stop' | 'oco'; // Order type
+}
+⋮----
+symbol?: string; // Trading symbol
+side?: string; // Order side (buy/sell)
+type?: 'limit' | 'market' | 'limit_stop' | 'market_stop'; // Order type
+tradeType?: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Margin type
+startAt?: number; // Start time (millisecond)
+endAt?: number; // End time (millisecond)
+currentPage?: number; // Current page (>=1, default: 1)
+orderIds?: string; // Comma separated order IDs
+pageSize?: number; // Page size (>=10, <=500, default: 50)
+stop?: 'stop' | 'oco'; // Order type
+⋮----
+export interface GetMarginStopOrderByOrderIdRequest {
+  orderId: string; // Order ID
+}
+⋮----
+orderId: string; // Order ID
+⋮----
+export interface GetMarginStopOrderByClientOidRequest {
+  clientOid: string; // Client order ID
+}
+⋮----
+clientOid: string; // Client order ID
+⋮----
+/**
+ * Margin OCO Order Requests
+ */
+export interface SubmitMarginOcoOrderRequest {
+  symbol: string; // Trading symbol (required)
+  side: 'buy' | 'sell'; // Order side (required)
+  price: string; // Order price (required)
+  size: string; // Order quantity (required)
+  stopPrice: string; // Trigger price (required)
+  limitPrice: string; // Limit order price after trigger (required)
+  clientOid: string; // Client Order ID (required)
+  isIsolated: boolean; // true - isolated, false - cross (required)
+  autoRepay?: boolean; // Auto repay
+  autoBorrow?: boolean; // Auto borrow
+}
+⋮----
+symbol: string; // Trading symbol (required)
+side: 'buy' | 'sell'; // Order side (required)
+price: string; // Order price (required)
+size: string; // Order quantity (required)
+stopPrice: string; // Trigger price (required)
+limitPrice: string; // Limit order price after trigger (required)
+clientOid: string; // Client Order ID (required)
+isIsolated: boolean; // true - isolated, false - cross (required)
+autoRepay?: boolean; // Auto repay
+autoBorrow?: boolean; // Auto borrow
+⋮----
+export interface CancelMarginOcoOrderByOrderIdRequest {
+  orderId: string; // Order ID
+}
+⋮----
+orderId: string; // Order ID
+⋮----
+export interface CancelMarginOcoOrderByClientOidRequest {
+  clientOid: string; // Client order ID
+}
+⋮----
+clientOid: string; // Client order ID
+⋮----
+export interface BatchCancelMarginOcoOrdersRequest {
+  orderIds?: string; // Comma separated order IDs
+  symbol?: string; // Trading symbol
+  tradeType?: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Margin type
+}
+⋮----
+orderIds?: string; // Comma separated order IDs
+symbol?: string; // Trading symbol
+tradeType?: 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Margin type
+⋮----
+export interface GetMarginOcoOrderByClientOidRequest {
+  clientOid: string; // Client order ID
+}
+⋮----
+clientOid: string; // Client order ID
+⋮----
+export interface GetMarginOcoOrderDetailByOrderIdRequest {
+  orderId: string; // Order ID
+}
+⋮----
+orderId: string; // Order ID
+
+================
 File: src/types/response/broker.types.ts
 ================
 export interface BrokerInfo {
@@ -2887,113 +3002,6 @@ export interface BrokerWithdrawalRecord {
   createdAt: number;
   updatedAt: number;
 }
-
-================
-File: src/types/response/spot-affiliate.ts
-================
-export interface AffiliateTradeHistoryItem {
-  tradeTime: number; // Trade time (13-digit timestamp)
-  tradeType: string; // Trading type (e.g., "SPOT")
-  tradeCurrency: string; // Trade currency
-  tradeAmount: string; // Trade amount
-  tradeAmountU: string; // Trade amount in USDT
-  feeU: string; // Fee in USDT
-  commission: string; // Commission
-  currency: string; // Currency (e.g., "USDT")
-}
-⋮----
-tradeTime: number; // Trade time (13-digit timestamp)
-tradeType: string; // Trading type (e.g., "SPOT")
-tradeCurrency: string; // Trade currency
-tradeAmount: string; // Trade amount
-tradeAmountU: string; // Trade amount in USDT
-feeU: string; // Fee in USDT
-commission: string; // Commission
-currency: string; // Currency (e.g., "USDT")
-⋮----
-export interface AffiliateTradeHistory {
-  currentPage: number; // Current page number
-  pageSize: number; // Page size
-  totalNum: number; // Total number of records
-  totalPage: number; // Total number of pages
-  items: AffiliateTradeHistoryItem[]; // Array of trade history items
-}
-⋮----
-currentPage: number; // Current page number
-pageSize: number; // Page size
-totalNum: number; // Total number of records
-totalPage: number; // Total number of pages
-items: AffiliateTradeHistoryItem[]; // Array of trade history items
-⋮----
-export interface AffiliateCommissionItem {
-  siteType: string; // Source site of the commission
-  rebateType: 1 | 2; // Rebate type
-  payoutTime: number; // Commission payout time (T+1 settlement), 13-digit timestamp (UTC+8)
-  periodStartTime: number; // Start time of commission calculation period, 13-digit timestamp
-  periodEndTime: number; // End time of commission calculation period, 13-digit timestamp
-  status: 1 | 2 | 3 | 4; // Payout status
-  takerVolume: string; // Invitee's taker trading volume
-  makerVolume: string; // Invitee's maker trading volume
-  commission: string; // Total rebate contributed by the invitee
-  currency: string; // Denomination unit for trading volume/amount (USDT or USDC)
-}
-⋮----
-siteType: string; // Source site of the commission
-rebateType: 1 | 2; // Rebate type
-payoutTime: number; // Commission payout time (T+1 settlement), 13-digit timestamp (UTC+8)
-periodStartTime: number; // Start time of commission calculation period, 13-digit timestamp
-periodEndTime: number; // End time of commission calculation period, 13-digit timestamp
-status: 1 | 2 | 3 | 4; // Payout status
-takerVolume: string; // Invitee's taker trading volume
-makerVolume: string; // Invitee's maker trading volume
-commission: string; // Total rebate contributed by the invitee
-currency: string; // Denomination unit for trading volume/amount (USDT or USDC)
-⋮----
-export interface AffiliateInviteeItem {
-  uid: string; // UID of the invitee
-  nickName: string; // Nickname (partially hidden)
-  referralCode: string; // Referral code used for registration
-  country: string; // Country
-  registrationTime: number; // Registration time (13-digit timestamp)
-  completedKyc: boolean; // Whether KYC is completed
-  completedFirstDeposit: boolean; // Whether first deposit is completed
-  completedFirstTrade: boolean; // Whether first trade is completed
-  past7dFees: string; // Fees in the past 7 days
-  past7dCommission: string; // Commission in the past 7 days
-  totalCommission: string; // Total commission
-  myCommissionRate: string; // My commission rate (percentage)
-  cashbackRate: string; // Cashback rate (percentage)
-  currency: string; // Currency (e.g., "USDT")
-}
-⋮----
-uid: string; // UID of the invitee
-nickName: string; // Nickname (partially hidden)
-referralCode: string; // Referral code used for registration
-country: string; // Country
-registrationTime: number; // Registration time (13-digit timestamp)
-completedKyc: boolean; // Whether KYC is completed
-completedFirstDeposit: boolean; // Whether first deposit is completed
-completedFirstTrade: boolean; // Whether first trade is completed
-past7dFees: string; // Fees in the past 7 days
-past7dCommission: string; // Commission in the past 7 days
-totalCommission: string; // Total commission
-myCommissionRate: string; // My commission rate (percentage)
-cashbackRate: string; // Cashback rate (percentage)
-currency: string; // Currency (e.g., "USDT")
-⋮----
-export interface AffiliateInvitees {
-  currentPage: number; // Current page number
-  pageSize: number; // Page size
-  totalNum: number; // Total number of records
-  totalPage: number; // Total number of pages
-  items: AffiliateInviteeItem[]; // Array of invited user items
-}
-⋮----
-currentPage: number; // Current page number
-pageSize: number; // Page size
-totalNum: number; // Total number of records
-totalPage: number; // Total number of pages
-items: AffiliateInviteeItem[]; // Array of invited user items
 
 ================
 File: src/types/response/spot-convert.ts
@@ -3459,389 +3467,6 @@ File: tsconfig.json
 }
 
 ================
-File: src/lib/BaseWSClient.ts
-================
-import EventEmitter from 'events';
-import WebSocket from 'isomorphic-ws';
-⋮----
-import {
-  WebsocketClientOptions,
-  WSClientConfigurableOptions,
-} from '../types/websockets/client.js';
-import { WsOperation } from '../types/websockets/requests.js';
-import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
-import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
-import { DefaultLogger } from './websocket/logger.js';
-import {
-  isMessageEvent,
-  MessageEventLike,
-  safeTerminateWs,
-  WsTopicRequest,
-  WsTopicRequestOrStringTopic,
-} from './websocket/websocket-util.js';
-import { WsStore } from './websocket/WsStore.js';
-import {
-  WSConnectedResult,
-  WsConnectionStateEnum,
-} from './websocket/WsStore.types.js';
-⋮----
-interface WSClientEventMap<WsKey extends string> {
-  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Reconnecting a dropped connection */
-  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Connection closed */
-  close: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Received reply to websocket command (e.g. after subscribing to topics) */
-  response: (response: any & { wsKey: WsKey }) => void;
-  /** Received data for topic */
-  update: (response: any & { wsKey: WsKey }) => void;
-  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-  exception: (response: any & { wsKey: WsKey }) => void;
-  error: (response: any & { wsKey: WsKey }) => void;
-  /** Confirmation that a connection successfully authenticated */
-  authenticated: (event: { wsKey: WsKey; event: any }) => void;
-}
-⋮----
-/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-⋮----
-/** Reconnecting a dropped connection */
-⋮----
-/** Successfully reconnected a connection that dropped */
-⋮----
-/** Connection closed */
-⋮----
-/** Received reply to websocket command (e.g. after subscribing to topics) */
-⋮----
-/** Received data for topic */
-⋮----
-/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-⋮----
-/** Confirmation that a connection successfully authenticated */
-⋮----
-export interface EmittableEvent<TEvent = any> {
-  eventType:
-    | 'response'
-    | 'update'
-    | 'exception'
-    | 'authenticated'
-    | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
-  event: TEvent;
-}
-⋮----
-| 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
-⋮----
-// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
-export interface BaseWebsocketClient<TWSKey extends string> {
-  on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-
-  emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-}
-⋮----
-on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-⋮----
-emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-⋮----
-/**
- * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
- *
- * This method normalises topics into objects (object has topic name + optional params).
- */
-function getNormalisedTopicRequests(
-  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-): WsTopicRequest<string>[]
-⋮----
-// passed as string, convert to object
-⋮----
-// already a normalised object, thanks to user
-⋮----
-type WSTopic = string;
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export abstract class BaseWebsocketClient<
-TWSKey extends string,
-⋮----
-constructor(
-    options?: WSClientConfigurableOptions,
-    logger?: typeof DefaultLogger,
-)
-⋮----
-// Requires a confirmation "response" from the ws connection before assuming it is ready
-⋮----
-// Automatically auth after opening a connection?
-⋮----
-// Automatically include auth/sign with every WS request
-⋮----
-// Automatically re-auth WS API, if we were auth'd before and get reconnected
-⋮----
-// Check Web Crypto API support when credentials are provided and no custom sign function is used
-⋮----
-protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract isWsPong(data: any): boolean;
-⋮----
-protected abstract isWsPing(data: any): boolean;
-⋮----
-protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
-⋮----
-protected abstract isPrivateTopicRequest(
-    request: WsTopicRequest<WSTopic>,
-    wsKey: TWSKey,
-  ): boolean;
-⋮----
-/**
-   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
-   */
-protected abstract getWsOperationEventsForTopics(
-    topics: WsTopicRequest<WSTopic>[],
-    wsKey: TWSKey,
-    operation: WsOperation,
-  ): Promise<string[]>;
-⋮----
-protected abstract getPrivateWSKeys(): TWSKey[];
-⋮----
-protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
-⋮----
-protected abstract getMaxTopicsPerSubscribeEvent(
-    wsKey: TWSKey,
-  ): number | null;
-⋮----
-/**
-   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
-   */
-protected abstract resolveEmittableEvents(
-    wsKey: TWSKey,
-    event: MessageEventLike,
-  ): EmittableEvent[];
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-protected abstract connectAll(): Promise<(WSConnectedResult | undefined)[]>;
-⋮----
-protected isPrivateWsKey(wsKey: TWSKey): boolean
-⋮----
-/** Returns auto-incrementing request ID, used to track promise references for async requests */
-protected getNewRequestId(): string
-⋮----
-protected abstract sendWSAPIRequest(
-    wsKey: TWSKey,
-    channel: WSTopic,
-    params?: any,
-  ): Promise<unknown>;
-⋮----
-protected abstract sendWSAPIRequest(
-    wsKey: TWSKey,
-    channel: WSTopic,
-    params: any,
-  ): Promise<unknown>;
-⋮----
-/**
-   * Subscribe to one or more topics on a WS connection (identified by WS Key).
-   *
-   * - Topics are automatically cached
-   * - Connections are automatically opened, if not yet connected
-   * - Authentication is automatically handled
-   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
-   *
-   * @param wsTopicRequests array of topics to subscribe to
-   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
-   */
-public subscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<WSTopic>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
-⋮----
-/**
-       * Are we in the process of connection? Nothing to send yet.
-       */
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't request topics yet.
-       *
-       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-protected unsubscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// If not connected, don't need to do anything.
-// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't need to do anything.
-       * We don't subscribe to topics until auth is complete anyway.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-/**
-   * Splits topic requests into two groups, public & private topic requests
-   */
-private sortTopicRequestsIntoPublicPrivate(
-    wsTopicRequests: WsTopicRequest<string>[],
-    wsKey: TWSKey,
-):
-⋮----
-/** Get the WsStore that tracks websockets & topics */
-public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
-⋮----
-public close(wsKey: TWSKey, force?: boolean)
-⋮----
-public closeAll(force?: boolean)
-⋮----
-public isConnected(wsKey: TWSKey): boolean
-⋮----
-/**
-   * Request connection to a specific websocket, instead of waiting for automatic connection.
-   */
-public async connect(wsKey: TWSKey): Promise<WSConnectedResult | undefined>
-⋮----
-private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
-⋮----
-private parseWsError(context: string, error: any, wsKey: TWSKey)
-⋮----
-/** Get a signature, build the auth request and send it */
-private async sendAuthRequest(wsKey: TWSKey): Promise<void>
-⋮----
-private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
-⋮----
-private ping(wsKey: TWSKey)
-⋮----
-private clearTimers(wsKey: TWSKey)
-⋮----
-// Send a ping at intervals
-private clearPingTimer(wsKey: TWSKey)
-⋮----
-// Expect a pong within a time limit
-private clearPongTimer(wsKey: TWSKey)
-⋮----
-// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
-⋮----
-// this.logger.trace(`No active pong timer for "${wsKey}"`);
-⋮----
-/**
-   * Simply builds and sends subscribe events for a list of topics for a ws key
-   *
-   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
-   */
-private async requestSubscribeTopics(
-    wsKey: TWSKey,
-    topics: WsTopicRequest<string>[],
-)
-⋮----
-// Automatically splits requests into smaller batches, if needed
-⋮----
-`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
-⋮----
-// this.logger.trace(`Sending batch via message: "${wsMessage}"`);
-⋮----
-/**
-   * Simply builds and sends unsubscribe events for a list of topics for a ws key
-   *
-   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
-   */
-private async requestUnsubscribeTopics(
-    wsKey: TWSKey,
-    wsTopicRequests: WsTopicRequest<string>[],
-)
-⋮----
-/**
-   * Try sending a string event on a WS connection (identified by the WS Key)
-   */
-public tryWsSend(wsKey: TWSKey, wsMessage: string)
-⋮----
-private async onWsOpen(event: any, wsKey: TWSKey)
-⋮----
-/**
-   * Called automatically once a connection is ready.
-   * - Some exchanges are ready immediately after the connections open.
-   * - Some exchanges send an event to confirm the connection is ready for us.
-   *
-   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
-   */
-private async onWsReadyForEvents(wsKey: TWSKey)
-⋮----
-// Resolve & cleanup deferred "connection attempt in progress" promise
-⋮----
-// Remove before resolving, in case there's more requests queued
-⋮----
-// Some websockets require an auth packet to be sent after opening the connection
-⋮----
-// Reconnect to topics known before it connected
-⋮----
-// Request sub to public topics, if any
-⋮----
-// Request sub to private topics, if auth on connect isn't needed
-⋮----
-/**
-   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
-   *
-   * Only used for exchanges that require auth before sending private topic subscription requests
-   */
-private onWsAuthenticated(
-    wsKey: TWSKey,
-    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
-)
-⋮----
-private onWsMessage(event: unknown, wsKey: TWSKey, ws: WebSocket)
-⋮----
-// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
-⋮----
-// console.log(`raw event: `, { data, dataType, emittableEvents });
-⋮----
-private onWsClose(event: unknown, wsKey: TWSKey)
-⋮----
-// clean up any pending promises for this connection
-⋮----
-// clean up any pending promises for this connection
-⋮----
-private getWs(wsKey: TWSKey)
-⋮----
-private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
-⋮----
-/**
-   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
-   */
-protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
-⋮----
-// Already in progress? Await shared promise and retry
-⋮----
-// Start connection, it should automatically store/return a promise.
-
-================
 File: src/types/request/spot-account.ts
 ================
 export interface GetBalancesRequest {
@@ -3928,6 +3553,77 @@ export interface DeleteSubAccountAPIRequest {
   passphrase: string;
   subName: string;
 }
+
+================
+File: src/types/request/spot-affiliate.ts
+================
+export interface GetAffiliateTradeHistoryRequest {
+  uid: string; // required - Invitee's UID
+  tradeType?: 'SPOT' | 'FEATURE'; // optional - Trading type
+  tradeStartAt?: number; // optional - Trade start time (13-digit timestamp)
+  tradeEndAt?: number; // optional - Trade end time (13-digit timestamp)
+  page?: number; // optional - Page number >= 1, default: 1
+  pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
+}
+⋮----
+uid: string; // required - Invitee's UID
+tradeType?: 'SPOT' | 'FEATURE'; // optional - Trading type
+tradeStartAt?: number; // optional - Trade start time (13-digit timestamp)
+tradeEndAt?: number; // optional - Trade end time (13-digit timestamp)
+page?: number; // optional - Page number >= 1, default: 1
+pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
+⋮----
+export interface GetAffiliateCommissionRequest {
+  siteType?: 'all'; // optional - The source site of the commission, default: "all"
+  rebateType?: 0 | 1 | 2; // optional - Rebate type, default: 0
+  rebateStartAt?: number; // optional - Start time for commission issuance (13-digit timestamp)
+  rebateEndAt?: number; // optional - End time for commission issuance (13-digit timestamp)
+  page?: number; // optional - Page number >= 1, default: 1
+  pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
+}
+⋮----
+siteType?: 'all'; // optional - The source site of the commission, default: "all"
+rebateType?: 0 | 1 | 2; // optional - Rebate type, default: 0
+rebateStartAt?: number; // optional - Start time for commission issuance (13-digit timestamp)
+rebateEndAt?: number; // optional - End time for commission issuance (13-digit timestamp)
+page?: number; // optional - Page number >= 1, default: 1
+pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
+⋮----
+export interface GetAffiliateInviteesRequest {
+  userType?: '1' | '2' | '3'; // optional - User Type
+  referralCode?: string; // optional - Which referral code the user registered with
+  uid?: string; // optional - UID(s) of the users, can pass multiple separated by commas
+  registrationStartAt?: number; // optional - Registration start timestamp
+  registrationEndAt?: number; // optional - Registration end timestamp
+  page?: number; // optional - Page number >= 1, default: 1
+  pageSize?: number; // optional - Max number of records per page >= 1, <= 500, default: 10
+}
+⋮----
+userType?: '1' | '2' | '3'; // optional - User Type
+referralCode?: string; // optional - Which referral code the user registered with
+uid?: string; // optional - UID(s) of the users, can pass multiple separated by commas
+registrationStartAt?: number; // optional - Registration start timestamp
+registrationEndAt?: number; // optional - Registration end timestamp
+page?: number; // optional - Page number >= 1, default: 1
+pageSize?: number; // optional - Max number of records per page >= 1, <= 500, default: 10
+⋮----
+export interface GetAffiliateTransactionRequest {
+  uid?: string; // optional - The uid of the invitee
+  tradeType?: 'SPOT' | 'FEATURE'; // optional - Trade type
+  tradeStartAt: number; // required - Transaction start time (13-digit timestamp)
+  tradeEndAt: number; // required - Transaction end time (13-digit timestamp)
+  lastId?: number; // optional - The offset ID of the query
+  direction?: 'PRE' | 'NEXT'; // optional - Page direction, default: 'NEXT'
+  pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
+}
+⋮----
+uid?: string; // optional - The uid of the invitee
+tradeType?: 'SPOT' | 'FEATURE'; // optional - Trade type
+tradeStartAt: number; // required - Transaction start time (13-digit timestamp)
+tradeEndAt: number; // required - Transaction end time (13-digit timestamp)
+lastId?: number; // optional - The offset ID of the query
+direction?: 'PRE' | 'NEXT'; // optional - Page direction, default: 'NEXT'
+pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
 
 ================
 File: src/types/request/spot-funding.ts
@@ -4337,6 +4033,143 @@ export interface DeleteSubAccountAPI {
 }
 
 ================
+File: src/types/response/spot-affiliate.ts
+================
+export interface AffiliateTradeHistoryItem {
+  tradeTime: number; // Trade time (13-digit timestamp)
+  tradeType: string; // Trading type (e.g., "SPOT")
+  tradeCurrency: string; // Trade currency
+  tradeAmount: string; // Trade amount
+  tradeAmountU: string; // Trade amount in USDT
+  feeU: string; // Fee in USDT
+  commission: string; // Commission
+  currency: string; // Currency (e.g., "USDT")
+}
+⋮----
+tradeTime: number; // Trade time (13-digit timestamp)
+tradeType: string; // Trading type (e.g., "SPOT")
+tradeCurrency: string; // Trade currency
+tradeAmount: string; // Trade amount
+tradeAmountU: string; // Trade amount in USDT
+feeU: string; // Fee in USDT
+commission: string; // Commission
+currency: string; // Currency (e.g., "USDT")
+⋮----
+export interface AffiliateTradeHistory {
+  currentPage: number; // Current page number
+  pageSize: number; // Page size
+  totalNum: number; // Total number of records
+  totalPage: number; // Total number of pages
+  items: AffiliateTradeHistoryItem[]; // Array of trade history items
+}
+⋮----
+currentPage: number; // Current page number
+pageSize: number; // Page size
+totalNum: number; // Total number of records
+totalPage: number; // Total number of pages
+items: AffiliateTradeHistoryItem[]; // Array of trade history items
+⋮----
+export interface AffiliateCommissionItem {
+  siteType: string; // Source site of the commission
+  rebateType: 1 | 2; // Rebate type
+  payoutTime: number; // Commission payout time (T+1 settlement), 13-digit timestamp (UTC+8)
+  periodStartTime: number; // Start time of commission calculation period, 13-digit timestamp
+  periodEndTime: number; // End time of commission calculation period, 13-digit timestamp
+  status: 1 | 2 | 3 | 4; // Payout status
+  takerVolume: string; // Invitee's taker trading volume
+  makerVolume: string; // Invitee's maker trading volume
+  commission: string; // Total rebate contributed by the invitee
+  currency: string; // Denomination unit for trading volume/amount (USDT or USDC)
+}
+⋮----
+siteType: string; // Source site of the commission
+rebateType: 1 | 2; // Rebate type
+payoutTime: number; // Commission payout time (T+1 settlement), 13-digit timestamp (UTC+8)
+periodStartTime: number; // Start time of commission calculation period, 13-digit timestamp
+periodEndTime: number; // End time of commission calculation period, 13-digit timestamp
+status: 1 | 2 | 3 | 4; // Payout status
+takerVolume: string; // Invitee's taker trading volume
+makerVolume: string; // Invitee's maker trading volume
+commission: string; // Total rebate contributed by the invitee
+currency: string; // Denomination unit for trading volume/amount (USDT or USDC)
+⋮----
+export interface AffiliateInviteeItem {
+  uid: string; // UID of the invitee
+  nickName: string; // Nickname (partially hidden)
+  referralCode: string; // Referral code used for registration
+  country: string; // Country
+  registrationTime: number; // Registration time (13-digit timestamp)
+  completedKyc: boolean; // Whether KYC is completed
+  completedFirstDeposit: boolean; // Whether first deposit is completed
+  completedFirstTrade: boolean; // Whether first trade is completed
+  past7dFees: string; // Fees in the past 7 days
+  past7dCommission: string; // Commission in the past 7 days
+  totalCommission: string; // Total commission
+  myCommissionRate: string; // My commission rate (percentage)
+  cashbackRate: string; // Cashback rate (percentage)
+  currency: string; // Currency (e.g., "USDT")
+}
+⋮----
+uid: string; // UID of the invitee
+nickName: string; // Nickname (partially hidden)
+referralCode: string; // Referral code used for registration
+country: string; // Country
+registrationTime: number; // Registration time (13-digit timestamp)
+completedKyc: boolean; // Whether KYC is completed
+completedFirstDeposit: boolean; // Whether first deposit is completed
+completedFirstTrade: boolean; // Whether first trade is completed
+past7dFees: string; // Fees in the past 7 days
+past7dCommission: string; // Commission in the past 7 days
+totalCommission: string; // Total commission
+myCommissionRate: string; // My commission rate (percentage)
+cashbackRate: string; // Cashback rate (percentage)
+currency: string; // Currency (e.g., "USDT")
+⋮----
+export interface AffiliateInvitees {
+  currentPage: number; // Current page number
+  pageSize: number; // Page size
+  totalNum: number; // Total number of records
+  totalPage: number; // Total number of pages
+  items: AffiliateInviteeItem[]; // Array of invited user items
+}
+⋮----
+currentPage: number; // Current page number
+pageSize: number; // Page size
+totalNum: number; // Total number of records
+totalPage: number; // Total number of pages
+items: AffiliateInviteeItem[]; // Array of invited user items
+⋮----
+export interface AffiliateTransactionItem {
+  uid: string; // The uid of the invitee
+  tradeTime: number; // Trade time (13-digit timestamp)
+  tradeType: 'SPOT' | 'FEATURE'; // Trade type
+  tradeCurrency: string; // Trade currency
+  tradeAmount: string; // Trade amount
+  tradeAmountU: string; // Trade amount transfer to U(USDT or usdt)
+  feeU: string; // Fee transfer to U(USDT or usdt)
+  commission: string; // Trade commission
+  currency: 'USDT' | 'USDC'; // Transaction volume or amount converted to U
+}
+⋮----
+uid: string; // The uid of the invitee
+tradeTime: number; // Trade time (13-digit timestamp)
+tradeType: 'SPOT' | 'FEATURE'; // Trade type
+tradeCurrency: string; // Trade currency
+tradeAmount: string; // Trade amount
+tradeAmountU: string; // Trade amount transfer to U(USDT or usdt)
+feeU: string; // Fee transfer to U(USDT or usdt)
+commission: string; // Trade commission
+currency: 'USDT' | 'USDC'; // Transaction volume or amount converted to U
+⋮----
+export interface AffiliateTransaction {
+  items: AffiliateTransactionItem[]; // Array of transaction items
+  lastId: string; // The offset ID for pagination
+}
+⋮----
+items: AffiliateTransactionItem[]; // Array of transaction items
+lastId: string; // The offset ID for pagination
+
+================
 File: src/BrokerClient.ts
 ================
 import { BaseRestClient } from './lib/BaseRestClient.js';
@@ -4558,6 +4391,389 @@ getBrokerRebate(params: {
 File: .eslintrc.cjs
 ================
 // 'no-unused-vars': ['warn'],
+
+================
+File: src/lib/BaseWSClient.ts
+================
+import EventEmitter from 'events';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import {
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+} from '../types/websockets/client.js';
+import { WsOperation } from '../types/websockets/requests.js';
+import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
+import { DefaultLogger } from './websocket/logger.js';
+import {
+  isMessageEvent,
+  MessageEventLike,
+  safeTerminateWs,
+  WsTopicRequest,
+  WsTopicRequestOrStringTopic,
+} from './websocket/websocket-util.js';
+import { WsStore } from './websocket/WsStore.js';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './websocket/WsStore.types.js';
+⋮----
+interface WSClientEventMap<WsKey extends string> {
+  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+  open: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Reconnecting a dropped connection */
+  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Successfully reconnected a connection that dropped */
+  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Connection closed */
+  close: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Received reply to websocket command (e.g. after subscribing to topics) */
+  response: (response: any & { wsKey: WsKey }) => void;
+  /** Received data for topic */
+  update: (response: any & { wsKey: WsKey }) => void;
+  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+  exception: (response: any & { wsKey: WsKey }) => void;
+  error: (response: any & { wsKey: WsKey }) => void;
+  /** Confirmation that a connection successfully authenticated */
+  authenticated: (event: { wsKey: WsKey; event: any }) => void;
+}
+⋮----
+/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+⋮----
+/** Reconnecting a dropped connection */
+⋮----
+/** Successfully reconnected a connection that dropped */
+⋮----
+/** Connection closed */
+⋮----
+/** Received reply to websocket command (e.g. after subscribing to topics) */
+⋮----
+/** Received data for topic */
+⋮----
+/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+⋮----
+/** Confirmation that a connection successfully authenticated */
+⋮----
+export interface EmittableEvent<TEvent = any> {
+  eventType:
+    | 'response'
+    | 'update'
+    | 'exception'
+    | 'authenticated'
+    | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
+  event: TEvent;
+}
+⋮----
+| 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
+⋮----
+// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
+export interface BaseWebsocketClient<TWSKey extends string> {
+  on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+
+  emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+}
+⋮----
+on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+⋮----
+emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+⋮----
+/**
+ * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
+ *
+ * This method normalises topics into objects (object has topic name + optional params).
+ */
+function getNormalisedTopicRequests(
+  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+): WsTopicRequest<string>[]
+⋮----
+// passed as string, convert to object
+⋮----
+// already a normalised object, thanks to user
+⋮----
+type WSTopic = string;
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export abstract class BaseWebsocketClient<
+TWSKey extends string,
+⋮----
+constructor(
+    options?: WSClientConfigurableOptions,
+    logger?: typeof DefaultLogger,
+)
+⋮----
+// Requires a confirmation "response" from the ws connection before assuming it is ready
+⋮----
+// Automatically auth after opening a connection?
+⋮----
+// Automatically include auth/sign with every WS request
+⋮----
+// Automatically re-auth WS API, if we were auth'd before and get reconnected
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
+⋮----
+protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract isWsPong(data: any): boolean;
+⋮----
+protected abstract isWsPing(data: any): boolean;
+⋮----
+protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
+⋮----
+protected abstract isPrivateTopicRequest(
+    request: WsTopicRequest<WSTopic>,
+    wsKey: TWSKey,
+  ): boolean;
+⋮----
+/**
+   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
+   */
+protected abstract getWsOperationEventsForTopics(
+    topics: WsTopicRequest<WSTopic>[],
+    wsKey: TWSKey,
+    operation: WsOperation,
+  ): Promise<string[]>;
+⋮----
+protected abstract getPrivateWSKeys(): TWSKey[];
+⋮----
+protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
+⋮----
+protected abstract getMaxTopicsPerSubscribeEvent(
+    wsKey: TWSKey,
+  ): number | null;
+⋮----
+/**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+protected abstract resolveEmittableEvents(
+    wsKey: TWSKey,
+    event: MessageEventLike,
+  ): EmittableEvent[];
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+protected abstract connectAll(): Promise<(WSConnectedResult | undefined)[]>;
+⋮----
+protected isPrivateWsKey(wsKey: TWSKey): boolean
+⋮----
+/** Returns auto-incrementing request ID, used to track promise references for async requests */
+protected getNewRequestId(): string
+⋮----
+protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: WSTopic,
+    params?: any,
+  ): Promise<unknown>;
+⋮----
+protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: WSTopic,
+    params: any,
+  ): Promise<unknown>;
+⋮----
+/**
+   * Subscribe to one or more topics on a WS connection (identified by WS Key).
+   *
+   * - Topics are automatically cached
+   * - Connections are automatically opened, if not yet connected
+   * - Authentication is automatically handled
+   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
+   *
+   * @param wsTopicRequests array of topics to subscribe to
+   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
+   */
+public subscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<WSTopic>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+⋮----
+// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
+⋮----
+/**
+       * Are we in the process of connection? Nothing to send yet.
+       */
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't request topics yet.
+       *
+       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+protected unsubscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// If not connected, don't need to do anything.
+// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't need to do anything.
+       * We don't subscribe to topics until auth is complete anyway.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+/**
+   * Splits topic requests into two groups, public & private topic requests
+   */
+private sortTopicRequestsIntoPublicPrivate(
+    wsTopicRequests: WsTopicRequest<string>[],
+    wsKey: TWSKey,
+):
+⋮----
+/** Get the WsStore that tracks websockets & topics */
+public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
+⋮----
+public close(wsKey: TWSKey, force?: boolean)
+⋮----
+public closeAll(force?: boolean)
+⋮----
+public isConnected(wsKey: TWSKey): boolean
+⋮----
+/**
+   * Request connection to a specific websocket, instead of waiting for automatic connection.
+   */
+public async connect(wsKey: TWSKey): Promise<WSConnectedResult | undefined>
+⋮----
+private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
+⋮----
+private parseWsError(context: string, error: any, wsKey: TWSKey)
+⋮----
+/** Get a signature, build the auth request and send it */
+private async sendAuthRequest(wsKey: TWSKey): Promise<void>
+⋮----
+private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
+⋮----
+private ping(wsKey: TWSKey)
+⋮----
+private clearTimers(wsKey: TWSKey)
+⋮----
+// Send a ping at intervals
+private clearPingTimer(wsKey: TWSKey)
+⋮----
+// Expect a pong within a time limit
+private clearPongTimer(wsKey: TWSKey)
+⋮----
+// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
+⋮----
+// this.logger.trace(`No active pong timer for "${wsKey}"`);
+⋮----
+/**
+   * Simply builds and sends subscribe events for a list of topics for a ws key
+   *
+   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
+   */
+private async requestSubscribeTopics(
+    wsKey: TWSKey,
+    topics: WsTopicRequest<string>[],
+)
+⋮----
+// Automatically splits requests into smaller batches, if needed
+⋮----
+`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
+⋮----
+// this.logger.trace(`Sending batch via message: "${wsMessage}"`);
+⋮----
+/**
+   * Simply builds and sends unsubscribe events for a list of topics for a ws key
+   *
+   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
+   */
+private async requestUnsubscribeTopics(
+    wsKey: TWSKey,
+    wsTopicRequests: WsTopicRequest<string>[],
+)
+⋮----
+/**
+   * Try sending a string event on a WS connection (identified by the WS Key)
+   */
+public tryWsSend(wsKey: TWSKey, wsMessage: string)
+⋮----
+private async onWsOpen(event: any, wsKey: TWSKey)
+⋮----
+/**
+   * Called automatically once a connection is ready.
+   * - Some exchanges are ready immediately after the connections open.
+   * - Some exchanges send an event to confirm the connection is ready for us.
+   *
+   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
+   */
+private async onWsReadyForEvents(wsKey: TWSKey)
+⋮----
+// Resolve & cleanup deferred "connection attempt in progress" promise
+⋮----
+// Remove before resolving, in case there's more requests queued
+⋮----
+// Some websockets require an auth packet to be sent after opening the connection
+⋮----
+// Reconnect to topics known before it connected
+⋮----
+// Request sub to public topics, if any
+⋮----
+// Request sub to private topics, if auth on connect isn't needed
+⋮----
+/**
+   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
+   *
+   * Only used for exchanges that require auth before sending private topic subscription requests
+   */
+private onWsAuthenticated(
+    wsKey: TWSKey,
+    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
+)
+⋮----
+private onWsMessage(event: unknown, wsKey: TWSKey, ws: WebSocket)
+⋮----
+// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
+⋮----
+// console.log(`raw event: `, { data, dataType, emittableEvents });
+⋮----
+private onWsClose(event: unknown, wsKey: TWSKey)
+⋮----
+// clean up any pending promises for this connection
+⋮----
+// clean up any pending promises for this connection
+⋮----
+private getWs(wsKey: TWSKey)
+⋮----
+private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
+⋮----
+/**
+   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
+   */
+protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// Start connection, it should automatically store/return a promise.
 
 ================
 File: src/lib/requestUtils.ts
@@ -5244,6 +5460,354 @@ export interface GetOCOOrdersRequest {
 }
 
 ================
+File: src/types/websockets/client.ts
+================
+import { AxiosRequestConfig } from 'axios';
+⋮----
+import { RestClientOptions } from '../../lib/requestUtils.js';
+⋮----
+/** General configuration for the WebsocketClient */
+export interface WSClientConfigurableOptions {
+  /** Your API key */
+  apiKey?: string;
+
+  /** Your API secret */
+  apiSecret?: string;
+
+  /** Your API passphrase (can be anything) that you included when creating this API key */
+  apiPassphrase?: string;
+
+  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+  recvWindow?: number;
+
+  /** How often to check if the connection is alive */
+  pingInterval?: number;
+
+  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+  pongTimeout?: number;
+
+  /** Delay in milliseconds before respawning the connection */
+  reconnectTimeout?: number;
+
+  restOptions?: RestClientOptions;
+  requestOptions?: AxiosRequestConfig;
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  };
+
+  wsUrl?: string;
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+
+  /**
+   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
+   */
+  reauthWSAPIOnReconnect?: boolean;
+}
+⋮----
+/** Your API key */
+⋮----
+/** Your API secret */
+⋮----
+/** Your API passphrase (can be anything) that you included when creating this API key */
+⋮----
+/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+⋮----
+/** How often to check if the connection is alive */
+⋮----
+/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+⋮----
+/** Delay in milliseconds before respawning the connection */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+⋮----
+/**
+   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
+   */
+⋮----
+/**
+ * WS configuration that's always defined, regardless of user configuration
+ * (usually comes from defaults if there's no user-provided values)
+ */
+export interface WebsocketClientOptions extends WSClientConfigurableOptions {
+  pingInterval: number;
+  pongTimeout: number;
+  reconnectTimeout: number;
+  recvWindow: number;
+  /**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+  requireConnectionReadyConfirmation: boolean;
+  authPrivateConnectionsOnConnect: boolean;
+  authPrivateRequests: boolean;
+  reauthWSAPIOnReconnect: boolean;
+}
+⋮----
+/**
+   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+   */
+⋮----
+export type WsMarket = 'spot' | 'futures';
+
+================
+File: src/types/response/spot-funding.ts
+================
+/**
+ *
+ ***********
+ * Funding
+ ***********
+ *
+ */
+⋮----
+export interface MarginAccountBalance {
+  currency: string;
+  totalBalance: string;
+  availableBalance: string;
+  holdBalance: string;
+  liability: string;
+  maxBorrowSize: string;
+}
+⋮----
+export interface MarginAccountDetail {
+  currency: string;
+  total: string;
+  available: string;
+  hold: string;
+  liability: string;
+  liabilityPrincipal: string;
+  liabilityInterest: string;
+  maxBorrowSize: string;
+  borrowEnabled: boolean;
+  transferInEnabled: boolean;
+}
+⋮----
+export interface MarginBalance {
+  totalAssetOfQuoteCurrency: string;
+  totalLiabilityOfQuoteCurrency: string;
+  debtRatio: string;
+  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
+  accounts: MarginAccountDetail[];
+}
+export interface IsolatedMarginAssetDetail {
+  symbol: string;
+  debtRatio: string;
+  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
+  baseAsset: MarginAccountDetail;
+  quoteAsset: MarginAccountDetail;
+}
+⋮----
+export interface IsolatedMarginBalance {
+  totalAssetOfQuoteCurrency: string;
+  totalLiabilityOfQuoteCurrency: string;
+  timestamp: number;
+  assets: IsolatedMarginAssetDetail[];
+}
+⋮----
+/**
+ *
+ * Deposit
+ *
+ */
+⋮----
+export interface DepositAddress {
+  address: string;
+  memo: string;
+  chain: string;
+}
+⋮----
+export type DepositAddressV2 = DepositAddress & {
+  contractAddress: string;
+};
+⋮----
+export interface DepositAddressV3 {
+  address: string;
+  memo: string;
+  chainId: string;
+  to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
+  expirationDate: number;
+  currency: string;
+  contractAddress: string;
+  chainName: string;
+}
+⋮----
+to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
+⋮----
+export interface HistoricalDepositItem {
+  currency: string;
+  createAt: number;
+  amount: string;
+  walletTxId: string;
+  isInner: boolean;
+  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+}
+export interface DepositItem {
+  currency?: string;
+  chain?: string;
+  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  address?: string;
+  memo?: string;
+  isInner?: boolean;
+  amount?: string;
+  fee?: string;
+  walletTxId?: string | null;
+  createdAt?: number;
+  updatedAt?: number;
+  remark?: string;
+  arrears?: boolean;
+}
+⋮----
+export interface Deposits {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: DepositItem[];
+}
+⋮----
+export interface V1HistoricalDeposits {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: HistoricalDepositItem[];
+}
+⋮----
+export interface CreateDepositAddressV3Response {
+  address: string;
+  memo: string | null;
+  chainName: string;
+  chainId: string;
+  to: string;
+  currency: string;
+  expirationDate?: string;
+}
+⋮----
+/**
+ *
+ * Withdrawals
+ *
+ */
+⋮----
+interface DetailedWithdrawal {
+  id: string;
+  address: string;
+  memo: string;
+  currency: string;
+  chain: string;
+  amount: string;
+  fee: string;
+  walletTxId: string;
+  isInner: boolean;
+  status: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
+  remark: string;
+  createdAt: number;
+  updatedAt: number;
+}
+⋮----
+interface HistoricalWithdrawal {
+  currency: string;
+  createAt: number;
+  amount: string;
+  address: string;
+  walletTxId: string;
+  isInner: boolean;
+  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+}
+⋮----
+export interface Withdrawals {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: DetailedWithdrawal[];
+}
+⋮----
+export interface HistoricalWithdrawalsV1 {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: HistoricalWithdrawal[];
+}
+⋮----
+export interface WithdrawalQuotas {
+  currency: string;
+  limitBTCAmount: string;
+  usedBTCAmount: string;
+  quotaCurrency: string;
+  limitQuotaCurrencyAmount: string;
+  usedQuotaCurrencyAmount: string;
+  remainAmount: string;
+  availableAmount: string;
+  withdrawMinFee: string;
+  innerWithdrawMinFee: string;
+  withdrawMinSize: string;
+  isWithdrawEnabled: boolean;
+  precision: number;
+  chain: string;
+  reason: string | null;
+  lockedAmount: string;
+}
+⋮----
+export interface WithdrawalById {
+  id: string;
+  uid: number;
+  currency: string;
+  chainId: string;
+  chainName: string;
+  currencyName: string;
+  status: string;
+  failureReason: string;
+  failureReasonMsg: string | null;
+  address: string;
+  memo: string;
+  isInner: boolean;
+  amount: string;
+  fee: string;
+  walletTxId: string | null;
+  addressRemark: string | null;
+  remark: string;
+  createdAt: number;
+  cancelType: string;
+  taxes: string | null;
+  taxDescription: string | null;
+  returnStatus: string;
+  returnAmount: string | null;
+  returnCurrency: string;
+}
+⋮----
+/**
+ *
+ * Transfer
+ *
+ */
+⋮----
+export interface TransferableFunds {
+  currency: string; // Currency
+  balance: string; // Total funds in an account.
+  available: string; // Funds available to withdraw or trade.
+  holds: string; // Funds on hold (not available for use).
+  transferable: string; // Funds available to transfer.
+}
+⋮----
+currency: string; // Currency
+balance: string; // Total funds in an account.
+available: string; // Funds available to withdraw or trade.
+holds: string; // Funds on hold (not available for use).
+transferable: string; // Funds available to transfer.
+
+================
 File: src/types/response/spot-margin-trading.ts
 ================
 /**
@@ -5298,6 +5862,7 @@ export interface HFMarginOrder {
   active: boolean;
   createdAt: number;
   lastUpdatedAt: number;
+  cancelReason?: number;
 }
 ⋮----
 /** @deprecated not used anymore **/
@@ -5670,106 +6235,378 @@ export interface LendingRedemption {
   totalPage: number;
   items: LendingOrder[];
 }
-
-================
-File: src/types/websockets/client.ts
-================
-import { AxiosRequestConfig } from 'axios';
 ⋮----
-import { RestClientOptions } from '../../lib/requestUtils.js';
-⋮----
-/** General configuration for the WebsocketClient */
-export interface WSClientConfigurableOptions {
-  /** Your API key */
-  apiKey?: string;
-
-  /** Your API secret */
-  apiSecret?: string;
-
-  /** Your API passphrase (can be anything) that you included when creating this API key */
-  apiPassphrase?: string;
-
-  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-  recvWindow?: number;
-
-  /** How often to check if the connection is alive */
-  pingInterval?: number;
-
-  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-  pongTimeout?: number;
-
-  /** Delay in milliseconds before respawning the connection */
-  reconnectTimeout?: number;
-
-  restOptions?: RestClientOptions;
-  requestOptions?: AxiosRequestConfig;
-
-  wsOptions?: {
-    protocols?: string[];
-    agent?: any;
-  };
-
-  wsUrl?: string;
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
-
-  /**
-   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
-   */
-  reauthWSAPIOnReconnect?: boolean;
+export interface BorrowInterestRateItem {
+  currency: string; // Currency
+  hourlyBorrowRate: string; // Hourly borrow rate
+  annualizedBorrowRate: string; // Annualized borrow rate
 }
 ⋮----
-/** Your API key */
+currency: string; // Currency
+hourlyBorrowRate: string; // Hourly borrow rate
+annualizedBorrowRate: string; // Annualized borrow rate
 ⋮----
-/** Your API secret */
+export interface BorrowInterestRate {
+  vipLevel: number; // The VIP level (0-12)
+  items: BorrowInterestRateItem[]; // Array of currency borrow rates
+}
 ⋮----
-/** Your API passphrase (can be anything) that you included when creating this API key */
-⋮----
-/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-⋮----
-/** How often to check if the connection is alive */
-⋮----
-/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-⋮----
-/** Delay in milliseconds before respawning the connection */
+vipLevel: number; // The VIP level (0-12)
+items: BorrowInterestRateItem[]; // Array of currency borrow rates
 ⋮----
 /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-⋮----
-/**
-   * If you authenticated the WS API before, automatically try to re-authenticate the WS API if you're disconnected/reconnected for any reason.
-   */
-⋮----
-/**
- * WS configuration that's always defined, regardless of user configuration
- * (usually comes from defaults if there's no user-provided values)
+ * Margin Stop Order Response Types
  */
-export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  pingInterval: number;
-  pongTimeout: number;
-  reconnectTimeout: number;
-  recvWindow: number;
-  /**
-   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
-   */
-  requireConnectionReadyConfirmation: boolean;
-  authPrivateConnectionsOnConnect: boolean;
-  authPrivateRequests: boolean;
-  reauthWSAPIOnReconnect: boolean;
+export interface MarginStopOrderResponse {
+  orderId: string; // The unique order ID generated by the trading system
+  clientOid: string; // The user self-defined order ID
 }
 ⋮----
+orderId: string; // The unique order ID generated by the trading system
+clientOid: string; // The user self-defined order ID
+⋮----
+export interface CancelMarginOrdersResponse {
+  cancelledOrderIds: string[]; // Array of cancelled order IDs
+}
+⋮----
+cancelledOrderIds: string[]; // Array of cancelled order IDs
+⋮----
+export interface MarginStopOrderItem {
+  id?: string; // Order ID
+  symbol?: string; // Symbol name
+  userId?: string; // User ID
+  status?: 'NEW' | 'TRIGGERED'; // Order status
+  type?: 'limit' | 'market'; // Order type
+  side?: 'buy' | 'sell'; // Transaction direction
+  price?: string; // Order price
+  size?: string; // Order quantity
+  funds?: string | null; // Order funds
+  stp?: string | null; // Self Trade Prevention
+  timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+  cancelAfter?: number; // Cancel after seconds
+  postOnly?: boolean; // Post only
+  hidden?: boolean; // Hidden order
+  iceberg?: boolean; // Iceberg order
+  visibleSize?: string | null; // Visible size for iceberg orders
+  channel?: string; // Order source
+  clientOid?: string; // Client order ID
+  remark?: string | null; // Remarks
+  tags?: string | null; // Tag order source
+  relatedNo?: string | null; // Related number
+  orderTime?: number; // Order time (nanoseconds)
+  domainId?: string; // Domain ID
+  tradeSource?: 'USER' | 'MARGIN_SYSTEM'; // Trade source
+  tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Trade type
+  feeCurrency?: string; // Fee currency
+  takerFeeRate?: string; // Taker fee rate
+  makerFeeRate?: string; // Maker fee rate
+  createdAt?: number; // Order creation time
+  stop?: 'loss' | 'entry'; // Stop order type
+  stopTriggerTime?: number | null; // Stop trigger time
+  stopPrice?: string; // Stop price
+  limitPrice?: string | null; // Limit price
+  pop?: string | null; // POP
+  activateCondition?: string | null; // Activate condition
+}
+⋮----
+id?: string; // Order ID
+symbol?: string; // Symbol name
+userId?: string; // User ID
+status?: 'NEW' | 'TRIGGERED'; // Order status
+type?: 'limit' | 'market'; // Order type
+side?: 'buy' | 'sell'; // Transaction direction
+price?: string; // Order price
+size?: string; // Order quantity
+funds?: string | null; // Order funds
+stp?: string | null; // Self Trade Prevention
+timeInForce?: 'GTC' | 'GTT' | 'IOC' | 'FOK'; // Time in force
+cancelAfter?: number; // Cancel after seconds
+postOnly?: boolean; // Post only
+hidden?: boolean; // Hidden order
+iceberg?: boolean; // Iceberg order
+visibleSize?: string | null; // Visible size for iceberg orders
+channel?: string; // Order source
+clientOid?: string; // Client order ID
+remark?: string | null; // Remarks
+tags?: string | null; // Tag order source
+relatedNo?: string | null; // Related number
+orderTime?: number; // Order time (nanoseconds)
+domainId?: string; // Domain ID
+tradeSource?: 'USER' | 'MARGIN_SYSTEM'; // Trade source
+tradeType?: 'TRADE' | 'MARGIN_TRADE' | 'MARGIN_ISOLATED_TRADE'; // Trade type
+feeCurrency?: string; // Fee currency
+takerFeeRate?: string; // Taker fee rate
+makerFeeRate?: string; // Maker fee rate
+createdAt?: number; // Order creation time
+stop?: 'loss' | 'entry'; // Stop order type
+stopTriggerTime?: number | null; // Stop trigger time
+stopPrice?: string; // Stop price
+limitPrice?: string | null; // Limit price
+pop?: string | null; // POP
+activateCondition?: string | null; // Activate condition
+⋮----
+export interface MarginStopOrdersList {
+  currentPage: number; // Current page
+  pageSize: number; // Page size
+  totalNum: number; // Total number of stop orders
+  totalPage: number; // Total pages
+  items: MarginStopOrderItem[]; // Array of stop orders
+}
+⋮----
+currentPage: number; // Current page
+pageSize: number; // Page size
+totalNum: number; // Total number of stop orders
+totalPage: number; // Total pages
+items: MarginStopOrderItem[]; // Array of stop orders
+⋮----
 /**
-   * If true, require a "receipt" that the connection is ready for use (e.g. a specific event type)
+ * Margin OCO Order Response Types
+ */
+export interface MarginOcoOrderResponse {
+  orderId: string; // The unique order ID generated by the trading system
+}
+⋮----
+orderId: string; // The unique order ID generated by the trading system
+⋮----
+export interface MarginOcoOrderItem {
+  orderId: string; // Order ID
+  symbol: string; // Symbol
+  clientOid: string; // Client Order ID
+  orderTime: number; // Order placement time (milliseconds)
+  status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
+}
+⋮----
+orderId: string; // Order ID
+symbol: string; // Symbol
+clientOid: string; // Client Order ID
+orderTime: number; // Order placement time (milliseconds)
+status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
+⋮----
+export interface MarginOcoOrderSubOrder {
+  id: string; // Sub-order ID
+  symbol: string; // Symbol of the sub-order
+  side: 'buy' | 'sell'; // Side of the sub-order
+  price: string; // Price of the sub-order
+  stopPrice: string; // Stop price of the sub-order
+  size: string; // Size of the sub-order
+  status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Status of the sub-order
+}
+⋮----
+id: string; // Sub-order ID
+symbol: string; // Symbol of the sub-order
+side: 'buy' | 'sell'; // Side of the sub-order
+price: string; // Price of the sub-order
+stopPrice: string; // Stop price of the sub-order
+size: string; // Size of the sub-order
+status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Status of the sub-order
+⋮----
+export interface MarginOcoOrderDetails {
+  orderId: string; // Order ID
+  symbol: string; // Symbol
+  clientOid: string; // Client Order ID
+  orderTime: number; // Order placement time (milliseconds)
+  status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
+  orders: MarginOcoOrderSubOrder[]; // Sub-orders array
+}
+⋮----
+orderId: string; // Order ID
+symbol: string; // Symbol
+clientOid: string; // Client Order ID
+orderTime: number; // Order placement time (milliseconds)
+status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
+orders: MarginOcoOrderSubOrder[]; // Sub-orders array
+
+================
+File: src/index.ts
+================
+
+
+================
+File: src/WebsocketClient.ts
+================
+import { FuturesClient } from './FuturesClient.js';
+import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
+import { neverGuard } from './lib/misc-util.js';
+import { RestClientOptions } from './lib/requestUtils.js';
+import {
+  MessageEventLike,
+  WS_KEY_MAP,
+  WsKey,
+  WsTopicRequest,
+} from './lib/websocket/websocket-util.js';
+import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
+import { SpotClient } from './SpotClient.js';
+import { APISuccessResponse } from './types/response/shared.types.js';
+import { WsConnectionInfo } from './types/response/ws.js';
+import { WsMarket } from './types/websockets/client.js';
+import {
+  WsOperation,
+  WsRequestOperation,
+} from './types/websockets/requests.js';
+import {
+  WsAPITopicRequestParamMap,
+  WsAPITopicResponseMap,
+  WsAPIWsKeyTopicMap,
+} from './types/websockets/wsAPI.js';
+⋮----
+function getRandomInt(max: number)
+⋮----
+/** Any WS keys in this list will trigger auth on connect, if credentials are available */
+⋮----
+/** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
+⋮----
+/**
+ * WS topics are always a string for this exchange. Some exchanges use complex objects.
+ */
+type WsTopic = string;
+⋮----
+export class WebsocketClient extends BaseWebsocketClient<WsKey>
+⋮----
+private getRESTClient(wsKey: WsKey): SpotClient | FuturesClient
+⋮----
+const getClientType = (wsKey: WsKey): 'spot' | 'futures' | null =>
+⋮----
+private getRestClientOptions(): RestClientOptions
+⋮----
+private async getWSConnectionInfo(
+    wsKey: WsKey,
+): Promise<APISuccessResponse<WsConnectionInfo>>
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+public connectAll(): Promise<(WSConnectedResult | undefined)[]>
+⋮----
+/**
+   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
+   * Objects should be formatted as {topic: string, params: object}.
+   *
+   * - Subscriptions are automatically routed to the correct websocket connection.
+   * - Authentication/connection is automatic.
+   * - Resubscribe after network issues is automatic.
+   *
+   * Call `unsubscribe(topics)` to remove topics
+   */
+public subscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+)
+⋮----
+/**
+   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
+   *
+   * - Requests are automatically routed to the correct websocket connection.
+   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
+   */
+public unsubscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+)
+⋮----
+/**
+   * Not supported by Kucoin, do not use
    */
 ⋮----
-export type WsMarket = 'spot' | 'futures';
+// This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
+async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+    TWSAPIResponse extends
+      | WsAPITopicResponseMap[TWSChannel]
+      | object = WsAPITopicResponseMap[TWSChannel],
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    ...params: TWSParams extends undefined ? [] : [TWSParams]
+  ): Promise<TWSAPIResponse>;
+⋮----
+async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    params?: TWSParams,
+): Promise<undefined>
+⋮----
+/**
+   *
+   * Internal methods
+   *
+   */
+⋮----
+/**
+   * Whatever url this method returns, it's connected to as-is!
+   *
+   * If a token or anything else is needed in the URL, this is a good place to add it.
+   */
+protected async getWsUrl(wsKey: WsKey): Promise<string>
+⋮----
+protected sendPingEvent(wsKey: WsKey)
+⋮----
+protected sendPongEvent(wsKey: WsKey)
+⋮----
+// Send a protocol layer pong
+⋮----
+// Not really used for kucoin - they don't send pings
+protected isWsPing(msg: any): boolean
+⋮----
+protected isWsPong(msg: any): boolean
+⋮----
+// this.logger.info(`Not a pong: `, msg);
+⋮----
+protected resolveEmittableEvents(
+    wsKey: WsKey,
+    event: MessageEventLike,
+): EmittableEvent[]
+⋮----
+// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
+⋮----
+// Request/reply pattern for authentication success
+⋮----
+/**
+   * Determines if a topic is for a private channel, using a hardcoded list of strings
+   */
+protected isPrivateTopicRequest(
+    request: WsTopicRequest<string>,
+    wsKey: WsKey,
+): boolean
+⋮----
+protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey
+⋮----
+protected getWsMarketForWsKey(key: WsKey): WsMarket
+⋮----
+protected getPrivateWSKeys(): WsKey[]
+⋮----
+/** Force subscription requests to be sent in smaller batches, if a number is returned */
+protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null
+⋮----
+// Return a number if there's a limit on the number of sub topics per rq
+// Always 1 at a time for this exchange
+⋮----
+/**
+   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
+   */
+protected async getWsOperationEventsForTopics(
+    topicRequests: WsTopicRequest<string>[],
+    wsKey: WsKey,
+    operation: WsOperation,
+): Promise<string[]>
+⋮----
+// Operations structured in a way that this exchange understands
+⋮----
+// Events that are ready to send (usually stringified JSON)
+⋮----
+// Not used for kucoin - auth is part of the WS URL
+protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object>
 
 ================
 File: src/lib/BaseRestClient.ts
@@ -6275,6 +7112,7 @@ export interface HFOrder {
   tax: string;
   createdAt: number;
   lastUpdatedAt: number;
+  cancelReason: number;
 }
 ⋮----
 /**
@@ -6503,820 +7341,6 @@ export interface OCOOrders {
   totalPage: number;
   items: OCOOrderListItem[];
 }
-
-================
-File: src/index.ts
-================
-
-
-================
-File: src/WebsocketClient.ts
-================
-import { FuturesClient } from './FuturesClient.js';
-import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
-import { neverGuard } from './lib/misc-util.js';
-import { RestClientOptions } from './lib/requestUtils.js';
-import {
-  MessageEventLike,
-  WS_KEY_MAP,
-  WsKey,
-  WsTopicRequest,
-} from './lib/websocket/websocket-util.js';
-import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
-import { SpotClient } from './SpotClient.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
-import { WsConnectionInfo } from './types/response/ws.js';
-import { WsMarket } from './types/websockets/client.js';
-import {
-  WsOperation,
-  WsRequestOperation,
-} from './types/websockets/requests.js';
-import {
-  WsAPITopicRequestParamMap,
-  WsAPITopicResponseMap,
-  WsAPIWsKeyTopicMap,
-} from './types/websockets/wsAPI.js';
-⋮----
-function getRandomInt(max: number)
-⋮----
-/** Any WS keys in this list will trigger auth on connect, if credentials are available */
-⋮----
-/** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
-⋮----
-/**
- * WS topics are always a string for this exchange. Some exchanges use complex objects.
- */
-type WsTopic = string;
-⋮----
-export class WebsocketClient extends BaseWebsocketClient<WsKey>
-⋮----
-private getRESTClient(wsKey: WsKey): SpotClient | FuturesClient
-⋮----
-const getClientType = (wsKey: WsKey): 'spot' | 'futures' | null =>
-⋮----
-private getRestClientOptions(): RestClientOptions
-⋮----
-private async getWSConnectionInfo(
-    wsKey: WsKey,
-): Promise<APISuccessResponse<WsConnectionInfo>>
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-public connectAll(): Promise<(WSConnectedResult | undefined)[]>
-⋮----
-/**
-   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
-   * Objects should be formatted as {topic: string, params: object}.
-   *
-   * - Subscriptions are automatically routed to the correct websocket connection.
-   * - Authentication/connection is automatic.
-   * - Resubscribe after network issues is automatic.
-   *
-   * Call `unsubscribe(topics)` to remove topics
-   */
-public subscribe(
-    requests:
-      | (WsTopicRequest<WsTopic> | WsTopic)
-      | (WsTopicRequest<WsTopic> | WsTopic)[],
-    wsKey: WsKey,
-)
-⋮----
-/**
-   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
-   *
-   * - Requests are automatically routed to the correct websocket connection.
-   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
-   */
-public unsubscribe(
-    requests:
-      | (WsTopicRequest<WsTopic> | WsTopic)
-      | (WsTopicRequest<WsTopic> | WsTopic)[],
-    wsKey: WsKey,
-)
-⋮----
-/**
-   * Not supported by Kucoin, do not use
-   */
-⋮----
-// This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
-async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
-    TWSAPIResponse extends
-      | WsAPITopicResponseMap[TWSChannel]
-      | object = WsAPITopicResponseMap[TWSChannel],
-  >(
-    wsKey: TWSKey,
-    channel: TWSChannel,
-    ...params: TWSParams extends undefined ? [] : [TWSParams]
-  ): Promise<TWSAPIResponse>;
-⋮----
-async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
-  >(
-    wsKey: TWSKey,
-    channel: TWSChannel,
-    params?: TWSParams,
-): Promise<undefined>
-⋮----
-/**
-   *
-   * Internal methods
-   *
-   */
-⋮----
-/**
-   * Whatever url this method returns, it's connected to as-is!
-   *
-   * If a token or anything else is needed in the URL, this is a good place to add it.
-   */
-protected async getWsUrl(wsKey: WsKey): Promise<string>
-⋮----
-protected sendPingEvent(wsKey: WsKey)
-⋮----
-protected sendPongEvent(wsKey: WsKey)
-⋮----
-// Send a protocol layer pong
-⋮----
-// Not really used for kucoin - they don't send pings
-protected isWsPing(msg: any): boolean
-⋮----
-protected isWsPong(msg: any): boolean
-⋮----
-// this.logger.info(`Not a pong: `, msg);
-⋮----
-protected resolveEmittableEvents(
-    wsKey: WsKey,
-    event: MessageEventLike,
-): EmittableEvent[]
-⋮----
-// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
-⋮----
-// Request/reply pattern for authentication success
-⋮----
-/**
-   * Determines if a topic is for a private channel, using a hardcoded list of strings
-   */
-protected isPrivateTopicRequest(
-    request: WsTopicRequest<string>,
-    wsKey: WsKey,
-): boolean
-⋮----
-protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey
-⋮----
-protected getWsMarketForWsKey(key: WsKey): WsMarket
-⋮----
-protected getPrivateWSKeys(): WsKey[]
-⋮----
-/** Force subscription requests to be sent in smaller batches, if a number is returned */
-protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null
-⋮----
-// Return a number if there's a limit on the number of sub topics per rq
-// Always 1 at a time for this exchange
-⋮----
-/**
-   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
-   */
-protected async getWsOperationEventsForTopics(
-    topicRequests: WsTopicRequest<string>[],
-    wsKey: WsKey,
-    operation: WsOperation,
-): Promise<string[]>
-⋮----
-// Operations structured in a way that this exchange understands
-⋮----
-// Events that are ready to send (usually stringified JSON)
-⋮----
-// Not used for kucoin - auth is part of the WS URL
-protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object>
-
-================
-File: src/types/response/spot-funding.ts
-================
-/**
- *
- ***********
- * Funding
- ***********
- *
- */
-⋮----
-export interface MarginAccountBalance {
-  currency: string;
-  totalBalance: string;
-  availableBalance: string;
-  holdBalance: string;
-  liability: string;
-  maxBorrowSize: string;
-}
-⋮----
-export interface MarginAccountDetail {
-  currency: string;
-  total: string;
-  available: string;
-  hold: string;
-  liability: string;
-  liabilityPrincipal: string;
-  liabilityInterest: string;
-  maxBorrowSize: string;
-  borrowEnabled: boolean;
-  transferInEnabled: boolean;
-}
-⋮----
-export interface MarginBalance {
-  totalAssetOfQuoteCurrency: string;
-  totalLiabilityOfQuoteCurrency: string;
-  debtRatio: string;
-  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
-  accounts: MarginAccountDetail[];
-}
-export interface IsolatedMarginAssetDetail {
-  symbol: string;
-  debtRatio: string;
-  status: 'EFFECTIVE' | 'BANKRUPTCY' | 'LIQUIDATION' | 'REPAY' | 'BORROW';
-  baseAsset: MarginAccountDetail;
-  quoteAsset: MarginAccountDetail;
-}
-⋮----
-export interface IsolatedMarginBalance {
-  totalAssetOfQuoteCurrency: string;
-  totalLiabilityOfQuoteCurrency: string;
-  timestamp: number;
-  assets: IsolatedMarginAssetDetail[];
-}
-⋮----
-/**
- *
- * Deposit
- *
- */
-⋮----
-export interface DepositAddress {
-  address: string;
-  memo: string;
-  chain: string;
-}
-⋮----
-export type DepositAddressV2 = DepositAddress & {
-  contractAddress: string;
-};
-⋮----
-export interface DepositAddressV3 {
-  address: string;
-  memo: string;
-  chainId: string;
-  to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
-  expirationDate: number;
-  currency: string;
-  contractAddress: string;
-  chainName: string;
-}
-⋮----
-to: 'MAIN' | 'TRADE'; // main (funding account), trade (spot trading account)
-⋮----
-export interface HistoricalDepositItem {
-  currency: string;
-  createAt: number;
-  amount: string;
-  walletTxId: string;
-  isInner: boolean;
-  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-}
-export interface DepositItem {
-  currency?: string;
-  chain?: string;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  address?: string;
-  memo?: string;
-  isInner?: boolean;
-  amount?: string;
-  fee?: string;
-  walletTxId?: string | null;
-  createdAt?: number;
-  updatedAt?: number;
-  remark?: string;
-  arrears?: boolean;
-}
-⋮----
-export interface Deposits {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: DepositItem[];
-}
-⋮----
-export interface V1HistoricalDeposits {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: HistoricalDepositItem[];
-}
-⋮----
-export interface CreateDepositAddressV3Response {
-  address: string;
-  memo: string | null;
-  chainName: string;
-  chainId: string;
-  to: string;
-  currency: string;
-  expirationDate?: string;
-}
-⋮----
-/**
- *
- * Withdrawals
- *
- */
-⋮----
-interface DetailedWithdrawal {
-  id: string;
-  address: string;
-  memo: string;
-  currency: string;
-  chain: string;
-  amount: string;
-  fee: string;
-  walletTxId: string;
-  isInner: boolean;
-  status: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
-  remark: string;
-  createdAt: number;
-  updatedAt: number;
-}
-⋮----
-interface HistoricalWithdrawal {
-  currency: string;
-  createAt: number;
-  amount: string;
-  address: string;
-  walletTxId: string;
-  isInner: boolean;
-  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-}
-⋮----
-export interface Withdrawals {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: DetailedWithdrawal[];
-}
-⋮----
-export interface HistoricalWithdrawalsV1 {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: HistoricalWithdrawal[];
-}
-⋮----
-export interface WithdrawalQuotas {
-  currency: string;
-  limitBTCAmount: string;
-  usedBTCAmount: string;
-  quotaCurrency: string;
-  limitQuotaCurrencyAmount: string;
-  usedQuotaCurrencyAmount: string;
-  remainAmount: string;
-  availableAmount: string;
-  withdrawMinFee: string;
-  innerWithdrawMinFee: string;
-  withdrawMinSize: string;
-  isWithdrawEnabled: boolean;
-  precision: number;
-  chain: string;
-  reason: string | null;
-  lockedAmount: string;
-}
-⋮----
-export interface WithdrawalById {
-  id: string;
-  uid: number;
-  currency: string;
-  chainId: string;
-  chainName: string;
-  currencyName: string;
-  status: string;
-  failureReason: string;
-  failureReasonMsg: string | null;
-  address: string;
-  memo: string;
-  isInner: boolean;
-  amount: string;
-  fee: string;
-  walletTxId: string | null;
-  addressRemark: string | null;
-  remark: string;
-  createdAt: number;
-  cancelType: string;
-  taxes: string | null;
-  taxDescription: string | null;
-  returnStatus: string;
-  returnAmount: string | null;
-  returnCurrency: string;
-}
-⋮----
-/**
- *
- * Transfer
- *
- */
-⋮----
-export interface TransferableFunds {
-  currency: string; // Currency
-  balance: string; // Total funds in an account.
-  available: string; // Funds available to withdraw or trade.
-  holds: string; // Funds on hold (not available for use).
-  transferable: string; // Funds available to transfer.
-}
-⋮----
-currency: string; // Currency
-balance: string; // Total funds in an account.
-available: string; // Funds available to withdraw or trade.
-holds: string; // Funds on hold (not available for use).
-transferable: string; // Funds available to transfer.
-
-================
-File: README.md
-================
-# Node.js & JavaScript SDK for Kucoin REST APIs & Websockets
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/kucoin-api">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
-      <img alt="SDK Logo" src="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
-    </picture>
-  </a>
-</p>
-
-[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
-[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
-[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
-[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
-[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
-[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
-
-[1]: https://www.npmjs.com/package/kucoin-api
-
-Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
-
-- Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
-- Complete integration with all Kucoin REST APIs and WebSockets.
-  - Dedicated REST clients for Spot, Futures, and Broker operations
-  - Unified WebSocket client for all markets
-- Complete TypeScript support (with type declarations for most API requests & responses).
-  - Strongly typed requests and responses.
-  - Automated end-to-end tests ensuring reliability.
-- Actively maintained with a modern, promise-driven interface.
-- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
-  - Event driven messaging.
-  - Smart WebSocket persistence with automatic reconnection handling.
-  - Emit `reconnected` event when dropped connection is restored.
-  - Support for both public and private WebSocket streams.
-- Browser-friendly HMAC signature mechanism.
-- Automatically supports both ESM and CJS projects.
-- Heavy automated end-to-end testing with real API calls.
-- Proxy support via axios integration.
-- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Examples](#examples)
-- [Issues & Discussion](#issues--discussion)
-- [Related Projects](#related-projects)
-- [Documentation](#documentation)
-- [Structure](#structure)
-- [Usage](#usage)
-  - [REST API Clients](#rest-api)
-    - [Spot & Margin Trading](#spot--margin-trading)
-    - [Futures Trading](#futures-trading)
-    - [Broker Operations](#broker-operations)
-  - [WebSocket Client](#websockets)
-    - [Public WebSocket Streams](#public-websocket-streams)
-    - [Private WebSocket Streams](#private-websocket-streams)
-- [Customise Logging](#customise-logging)
-- [LLMs & AI](#use-with-llms--ai)
-- [Used By](#used-by)
-- [Contributions & Thanks](#contributions--thanks)
-
-## Installation
-
-`npm install --save kucoin-api`
-
-## Examples
-
-Refer to the [examples](./examples) folder for implementation demos.
-
-## Issues & Discussion
-
-- Issues? Check the [issues tab](https://github.com/tiagosiebler/kucoin-api/issues).
-- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
-- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
-
-<!-- template_related_projects -->
-
-## Related projects
-
-Check out my related JavaScript/TypeScript/Node.js projects:
-
-- Try my REST API & WebSocket SDKs:
-  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
-  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
-  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
-  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
-  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
-  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
-  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
-  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
-- Try my misc utilities:
-  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
-  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
-- Check out my examples:
-  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-  <!-- template_related_projects_end -->
-
-## Documentation
-
-Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation, or check the type definition in each class within this repository.
-
-### API Documentation Links
-
-- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
-
-### SDK Documentation & Guides
-
-- Node.js Quick Start Guides
-  - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
-  - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
-- [Futures Node.js Kucoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
-- [REST Endpoint Function List](./docs/endpointFunctionList.md)
-
-## Structure
-
-This project uses typescript. Resources are stored in 2 key structures:
-
-- [src](./src) - the whole connector written in typescript
-- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
-
----
-
-# Usage
-
-Create API credentials on Kucoin's website:
-
-- [Kucoin API Key Management](https://www.kucoin.com/account/api)
-
-## REST API
-
-The SDK provides dedicated REST clients for different trading products:
-
-- **SpotClient** - for spot trading and margin operations
-- **FuturesClient** - for futures trading operations
-- **BrokerClient** - for broker and sub-account management
-
-### Spot & Margin Trading
-
-To use Kucoin's Spot and Margin APIs, import (or require) the `SpotClient`:
-
-```javascript
-const { SpotClient, FuturesClient } = require('kucoin-api');
-
-const client = new SpotClient({
-  apiKey: 'apiKeyHere',
-  apiSecret: 'apiSecretHere',
-  apiPassphrase: 'apiPassPhraseHere',
-});
-
-try {
-  const spotBuyResult = await client.submitHFOrder({
-    clientOid: client.generateNewOrderID(),
-    side: 'buy',
-    type: 'market',
-    symbol: 'BTC-USDT',
-    size: '0.00001',
-  });
-  console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
-
-  const spotSellResult = await client.submitHFOrder({
-    clientOid: client.generateNewOrderID(),
-    side: 'sell',
-    type: 'market',
-    symbol: 'BTC-USDT',
-    size: '0.00001',
-  });
-  console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
-} catch (e) {
-  console.error(`Req error: `, e);
-}
-```
-
-See [SpotClient](./src/SpotClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
-
-### Futures Trading
-
-Use the `FuturesClient` for futures trading operations. See [FuturesClient](./src/FuturesClient.ts) for complete API coverage.
-
-### Broker Operations
-
-Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
-
-## WebSockets
-
-All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams with automatic connection management and reconnection.
-
-Key WebSocket features:
-
-- Event driven messaging
-- Smart WebSocket persistence with automatic reconnection
-- Heartbeat mechanisms to detect disconnections
-- Automatic resubscription after reconnection
-- Support for both public and private WebSocket streams
-- Unified client for spot and futures markets
-
-### Public WebSocket Streams
-
-For public market data, API credentials are not required:
-
-All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
-
-Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
-
-Data events are emitted from the WebsocketClient via the `update` event, see example below:
-
-```javascript
-const { WebsocketClient } = require('kucoin-api');
-
-const client = new WebsocketClient();
-
-client.on('open', (data) => {
-  console.log('open: ', data?.wsKey);
-});
-
-// Data received
-client.on('update', (data) => {
-  console.info('data received: ', JSON.stringify(data));
-});
-
-// Something happened, attempting to reconenct
-client.on('reconnect', (data) => {
-  console.log('reconnect: ', data);
-});
-
-// Reconnect successful
-client.on('reconnected', (data) => {
-  console.log('reconnected: ', data);
-});
-
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-client.on('close', (data) => {
-  console.error('close: ', data);
-});
-
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-client.on('response', (data) => {
-  console.info('response: ', data);
-  // throw new Error('res?');
-});
-
-client.on('exception', (data) => {
-  console.error('exception: ', {
-    msg: data.msg,
-    errno: data.errno,
-    code: data.code,
-    syscall: data.syscall,
-    hostname: data.hostname,
-  });
-});
-
-try {
-  // Optional: await a connection to be ready before subscribing (this is not necessary)
-  // await client.connect('futuresPublicV1');
-
-  /**
-   * Examples for public futures websocket topics (that don't require authentication).
-   *
-   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
-   */
-  client.subscribe(
-    [
-      '/contractMarket/tickerV2:XBTUSDM',
-      '/contractMarket/ticker:XBTUSDM',
-      '/contractMarket/level2:XBTUSDM',
-      '/contractMarket/execution:XBTUSDM',
-      '/contractMarket/level2Depth5:XBTUSDM',
-      '/contractMarket/level2Depth50:XBTUSDM',
-      '/contractMarket/limitCandle:XBTUSDTM_1hour',
-      '/contract/instrument:XBTUSDM',
-      '/contract/announcement',
-      '/contractMarket/snapshot:XBTUSDM',
-    ],
-    'futuresPublicV1',
-  );
-} catch (e) {
-  console.error(`Subscribe exception: `, e);
-}
-```
-
-### Private WebSocket Streams
-
-For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
-
-See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
-
----
-
-## Customise Logging
-
-Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
-
-```javascript
-const { WebsocketClient, DefaultLogger } = require('kucoin-api');
-
-// E.g. customise logging for only the trace level:
-const logger = {
-  // Inherit existing logger methods, using an object spread
-  ...DefaultLogger,
-  // Define a custom trace function to override only that function
-  trace: (...params) => {
-    if (
-      [
-        'Sending ping',
-        // 'Sending upstream ws message: ',
-        'Received pong',
-      ].includes(params[0])
-    ) {
-      return;
-    }
-    console.log('trace', JSON.stringify(params, null, 2));
-  },
-};
-
-const ws = new WebsocketClient(
-  {
-    apiKey: 'apiKeyHere',
-    apiSecret: 'apiSecretHere',
-    apiPassphrase: 'apiPassPhraseHere',
-  },
-  logger,
-);
-```
-
-## Use with LLMs & AI
-
-This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
-
-This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
-
----
-
-## Used By
-
-[![Repository Users Preview Image](https://dependents.info/tiagosiebler/kucoin-api/image)](https://github.com/tiagosiebler/kucoin-api/network/dependents)
-
----
-
-<!-- template_contributions -->
-
-### Contributions & Thanks
-
-Have my projects helped you? Share the love, there are many ways you can show your thanks:
-
-- Star & share my projects.
-- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
-- Have an interesting project? Get in touch & invite me to it.
-- Or buy me all the coffee:
-  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
-
-<!---
-old ones:
-  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
-  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
-  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
-  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
--->
-<!-- template_contributions_end -->
-
-### Contributions & Pull Requests
-
-Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
-
-<!-- template_star_history -->
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
-
-<!-- template_star_history_end -->
 
 ================
 File: src/types/response/futures.types.ts
@@ -7666,6 +7690,7 @@ export type FuturesKline = [
   number, // Highest price
   number, // Lowest price
   number, // Close price
+  number, // Trading volume(lots)
   number, // Trading volume
 ];
 ⋮----
@@ -7674,6 +7699,7 @@ number, // Entry price
 number, // Highest price
 number, // Lowest price
 number, // Close price
+number, // Trading volume(lots)
 number, // Trading volume
 ⋮----
 export interface InterestRateItem {
@@ -8198,6 +8224,380 @@ export interface CopyTradePosition {
   bankruptPrice: string;
   settleCurrency: string;
 }
+
+================
+File: README.md
+================
+# Node.js & JavaScript SDK for Kucoin REST APIs & Websockets
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/kucoin-api">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </picture>
+  </a>
+</p>
+
+[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
+[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
+[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+
+[1]: https://www.npmjs.com/package/kucoin-api
+
+Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
+
+- Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
+- Complete integration with all Kucoin REST APIs and WebSockets.
+  - Dedicated REST clients for Spot, Futures, and Broker operations
+  - Unified WebSocket client for all markets
+- Complete TypeScript support (with type declarations for most API requests & responses).
+  - Strongly typed requests and responses.
+  - Automated end-to-end tests ensuring reliability.
+- Actively maintained with a modern, promise-driven interface.
+- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
+  - Event driven messaging.
+  - Smart WebSocket persistence with automatic reconnection handling.
+  - Emit `reconnected` event when dropped connection is restored.
+  - Support for both public and private WebSocket streams.
+- Browser-friendly HMAC signature mechanism.
+- Automatically supports both ESM and CJS projects.
+- Heavy automated end-to-end testing with real API calls.
+- Proxy support via axios integration.
+- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation](#documentation)
+- [Structure](#structure)
+- [Usage](#usage)
+  - [REST API Clients](#rest-api)
+    - [Spot & Margin Trading](#spot--margin-trading)
+    - [Futures Trading](#futures-trading)
+    - [Broker Operations](#broker-operations)
+  - [WebSocket Client](#websockets)
+    - [Public WebSocket Streams](#public-websocket-streams)
+    - [Private WebSocket Streams](#private-websocket-streams)
+- [Customise Logging](#customise-logging)
+- [LLMs & AI](#use-with-llms--ai)
+- [Used By](#used-by)
+- [Contributions & Thanks](#contributions--thanks)
+
+## Installation
+
+`npm install --save kucoin-api`
+
+## Examples
+
+Refer to the [examples](./examples) folder for implementation demos.
+
+## Issues & Discussion
+
+- Issues? Check the [issues tab](https://github.com/tiagosiebler/kucoin-api/issues).
+- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
+
+<!-- template_related_projects -->
+
+## Related projects
+
+Check out my related JavaScript/TypeScript/Node.js projects:
+
+- Try my REST API & WebSocket SDKs:
+  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
+  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
+  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
+  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
+  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
+  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
+  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
+  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
+- Try my misc utilities:
+  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
+  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
+- Check out my examples:
+  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
+  <!-- template_related_projects_end -->
+
+## Documentation
+
+Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation, or check the type definition in each class within this repository.
+
+### API Documentation Links
+
+- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
+
+### SDK Documentation & Guides
+
+- Node.js Quick Start Guides
+  - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
+  - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
+- [Futures Node.js Kucoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
+- [REST Endpoint Function List](./docs/endpointFunctionList.md)
+
+## Structure
+
+This project uses typescript. Resources are stored in 2 key structures:
+
+- [src](./src) - the whole connector written in typescript
+- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
+
+---
+
+# Usage
+
+Create API credentials on Kucoin's website:
+
+- [Kucoin API Key Management](https://www.kucoin.com/account/api)
+
+## REST API
+
+The SDK provides dedicated REST clients for different trading products:
+
+- **SpotClient** - for spot trading and margin operations
+- **FuturesClient** - for futures trading operations
+- **BrokerClient** - for broker and sub-account management
+
+### Spot & Margin Trading
+
+To use Kucoin's Spot and Margin APIs, import (or require) the `SpotClient`:
+
+```javascript
+const { SpotClient, FuturesClient } = require('kucoin-api');
+
+const client = new SpotClient({
+  apiKey: 'apiKeyHere',
+  apiSecret: 'apiSecretHere',
+  apiPassphrase: 'apiPassPhraseHere',
+});
+
+try {
+  const spotBuyResult = await client.submitHFOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'buy',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
+  });
+  console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
+
+  const spotSellResult = await client.submitHFOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'sell',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
+  });
+  console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
+} catch (e) {
+  console.error(`Req error: `, e);
+}
+```
+
+See [SpotClient](./src/SpotClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
+
+### Futures Trading
+
+Use the `FuturesClient` for futures trading operations. See [FuturesClient](./src/FuturesClient.ts) for complete API coverage.
+
+### Broker Operations
+
+Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
+
+## WebSockets
+
+All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams with automatic connection management and reconnection.
+
+Key WebSocket features:
+
+- Event driven messaging
+- Smart WebSocket persistence with automatic reconnection
+- Heartbeat mechanisms to detect disconnections
+- Automatic resubscription after reconnection
+- Support for both public and private WebSocket streams
+- Unified client for spot and futures markets
+
+### Public WebSocket Streams
+
+For public market data, API credentials are not required:
+
+All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
+
+Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
+
+Data events are emitted from the WebsocketClient via the `update` event, see example below:
+
+```javascript
+const { WebsocketClient } = require('kucoin-api');
+
+const client = new WebsocketClient();
+
+client.on('open', (data) => {
+  console.log('open: ', data?.wsKey);
+});
+
+// Data received
+client.on('update', (data) => {
+  console.info('data received: ', JSON.stringify(data));
+});
+
+// Something happened, attempting to reconenct
+client.on('reconnect', (data) => {
+  console.log('reconnect: ', data);
+});
+
+// Reconnect successful
+client.on('reconnected', (data) => {
+  console.log('reconnected: ', data);
+});
+
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+client.on('close', (data) => {
+  console.error('close: ', data);
+});
+
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+client.on('response', (data) => {
+  console.info('response: ', data);
+  // throw new Error('res?');
+});
+
+client.on('exception', (data) => {
+  console.error('exception: ', {
+    msg: data.msg,
+    errno: data.errno,
+    code: data.code,
+    syscall: data.syscall,
+    hostname: data.hostname,
+  });
+});
+
+try {
+  // Optional: await a connection to be ready before subscribing (this is not necessary)
+  // await client.connect('futuresPublicV1');
+
+  /**
+   * Examples for public futures websocket topics (that don't require authentication).
+   *
+   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
+   */
+  client.subscribe(
+    [
+      '/contractMarket/tickerV2:XBTUSDM',
+      '/contractMarket/ticker:XBTUSDM',
+      '/contractMarket/level2:XBTUSDM',
+      '/contractMarket/execution:XBTUSDM',
+      '/contractMarket/level2Depth5:XBTUSDM',
+      '/contractMarket/level2Depth50:XBTUSDM',
+      '/contractMarket/limitCandle:XBTUSDTM_1hour',
+      '/contract/instrument:XBTUSDM',
+      '/contract/announcement',
+      '/contractMarket/snapshot:XBTUSDM',
+    ],
+    'futuresPublicV1',
+  );
+} catch (e) {
+  console.error(`Subscribe exception: `, e);
+}
+```
+
+### Private WebSocket Streams
+
+For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
+
+See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
+
+---
+
+## Customise Logging
+
+Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
+
+```javascript
+const { WebsocketClient, DefaultLogger } = require('kucoin-api');
+
+// E.g. customise logging for only the trace level:
+const logger = {
+  // Inherit existing logger methods, using an object spread
+  ...DefaultLogger,
+  // Define a custom trace function to override only that function
+  trace: (...params) => {
+    if (
+      [
+        'Sending ping',
+        // 'Sending upstream ws message: ',
+        'Received pong',
+      ].includes(params[0])
+    ) {
+      return;
+    }
+    console.log('trace', JSON.stringify(params, null, 2));
+  },
+};
+
+const ws = new WebsocketClient(
+  {
+    apiKey: 'apiKeyHere',
+    apiSecret: 'apiSecretHere',
+    apiPassphrase: 'apiPassPhraseHere',
+  },
+  logger,
+);
+```
+
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+## Used By
+
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/kucoin-api/image)](https://github.com/tiagosiebler/kucoin-api/network/dependents)
+
+---
+
+<!-- template_contributions -->
+
+### Contributions & Thanks
+
+Have my projects helped you? Share the love, there are many ways you can show your thanks:
+
+- Star & share my projects.
+- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
+- Have an interesting project? Get in touch & invite me to it.
+- Or buy me all the coffee:
+  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+
+<!---
+old ones:
+  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
+  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
+  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
+  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
+-->
+<!-- template_contributions_end -->
+
+### Contributions & Pull Requests
+
+Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+<!-- template_star_history -->
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
+
+<!-- template_star_history_end -->
 
 ================
 File: src/FuturesClient.ts
@@ -8821,6 +9221,17 @@ updateRiskLimitLevel(params: {
 }): Promise<boolean>
 ⋮----
 /**
+   * Switch Position Mode
+   * This endpoint can switch the position mode of the current symbol.
+   */
+updatePositionMode(params: { positionMode: '0' | '1' }): Promise<
+    APISuccessResponse<{
+      positionMode: '0' | '1';
+    }>
+  > {
+    return this.postPrivate('api/v2/position/switchPositionMode', params);
+⋮----
+/**
    *
    * REST - Futures Trading - Funding Fees
    *
@@ -9080,6 +9491,7 @@ import {
   GetAffiliateCommissionRequest,
   GetAffiliateInviteesRequest,
   GetAffiliateTradeHistoryRequest,
+  GetAffiliateTransactionRequest,
 } from './types/request/spot-affiliate.js';
 import {
   AddConvertLimitOrderRequest,
@@ -9116,10 +9528,21 @@ import {
   SubmitWithdrawV3Request,
 } from './types/request/spot-funding.js';
 import {
+  BatchCancelMarginOcoOrdersRequest,
+  BatchCancelMarginStopOrdersRequest,
+  CancelMarginOcoOrderByClientOidRequest,
+  CancelMarginOcoOrderByOrderIdRequest,
+  CancelMarginStopOrderByClientOidRequest,
+  GetBorrowInterestRateRequest,
   GetHFMarginFilledRequest,
   getHFMarginFillsRequest,
   GetLendingRedemptionOrdersV3Request,
   GetLendingSubscriptionOrdersV3Request,
+  GetMarginOcoOrderByClientOidRequest,
+  GetMarginOcoOrderDetailByOrderIdRequest,
+  GetMarginStopOrderByClientOidRequest,
+  GetMarginStopOrderByOrderIdRequest,
+  GetMarginStopOrdersListRequest,
   HFMarginRequestOrder,
   InitiateLendingRedemptionV3Request,
   InitiateLendingSubscriptionV3Request,
@@ -9130,7 +9553,9 @@ import {
   MarginRiskLimitRequest,
   ModifyLendingSubscriptionOrdersV3Request,
   SubmitHFMarginOrderRequest,
+  SubmitMarginOcoOrderRequest,
   SubmitMarginOrderRequest,
+  SubmitMarginStopOrderRequest,
 } from './types/request/spot-margin-trading.js';
 import { GetAnnouncementsRequest } from './types/request/spot-misc.js';
 import {
@@ -9176,6 +9601,7 @@ import {
   AffiliateCommissionItem,
   AffiliateInvitees,
   AffiliateTradeHistory,
+  AffiliateTransaction,
 } from './types/response/spot-affiliate.js';
 import {
   ConvertCurrencies,
@@ -9216,6 +9642,8 @@ import {
   Withdrawals,
 } from './types/response/spot-funding.js';
 import {
+  BorrowInterestRate,
+  CancelMarginOrdersResponse,
   HFMarginOrder,
   HFMarginTransactionRecord,
   IsolatedMarginAccountInfo,
@@ -9228,9 +9656,15 @@ import {
   MarginInterestRecords,
   MarginLevTokenInfo,
   MarginMarkPrice,
+  MarginOcoOrderDetails,
+  MarginOcoOrderItem,
+  MarginOcoOrderResponse,
   MarginOrderV3,
   MarginRepayHistoryV3,
   MarginRiskLimit,
+  MarginStopOrderItem,
+  MarginStopOrderResponse,
+  MarginStopOrdersList,
   MarginSubmitOrderV3Response,
   SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
@@ -10485,10 +10919,136 @@ getHFMarginOrderByClientOid(params: {
 }): Promise<APISuccessResponse<HFMarginOrder>>
 ⋮----
 /**
+   * Add Margin Stop Order
+   *
+   * Place stop order to the margin trading system. The maximum untriggered stop orders for a single trading pair in one account is 20.
+   */
+addMarginStopOrder(
+    params: SubmitMarginStopOrderRequest,
+): Promise<APISuccessResponse<MarginStopOrderResponse>>
+⋮----
+/**
+   * Cancel Margin Stop Order By OrderId
+   *
+   * Request via this endpoint the cancellation of a single stop order previously placed.
+   */
+cancelMarginStopOrderByOrderId(params: {
+    orderId: string;
+}): Promise<APISuccessResponse<CancelMarginOrdersResponse>>
+⋮----
+/**
+   * Cancel Margin Stop Order By ClientOid
+   *
+   * This endpoint can be used to cancel a stop order by clientOid.
+   */
+cancelMarginStopOrderByClientOid(
+    params: CancelMarginStopOrderByClientOidRequest,
+): Promise<APISuccessResponse<CancelMarginOrdersResponse>>
+⋮----
+/**
+   * Batch Cancel Margin Stop Orders
+   *
+   * Request via this interface to cancel a batch of stop orders.
+   */
+batchCancelMarginStopOrder(
+    params: BatchCancelMarginStopOrdersRequest,
+): Promise<APISuccessResponse<CancelMarginOrdersResponse>>
+⋮----
+/**
+   * Get Margin Stop Orders List
+   *
+   * Request via this endpoint to get your current untriggered stop order list.
+   */
+getMarginStopOrdersList(
+    params?: GetMarginStopOrdersListRequest,
+): Promise<APISuccessResponse<MarginStopOrdersList>>
+⋮----
+/**
+   * Get Margin Stop Order By OrderId
+   *
+   * Request via this interface to get a stop order information via the order ID.
+   */
+getMarginStopOrderByOrderId(
+    params: GetMarginStopOrderByOrderIdRequest,
+): Promise<APISuccessResponse<MarginStopOrderItem>>
+⋮----
+/**
+   * Get Margin Stop Order By ClientOid
+   *
+   * Request via this interface to get a stop order information via the clientOid.
+   */
+getMarginStopOrderByClientOid(
+    params: GetMarginStopOrderByClientOidRequest,
+): Promise<APISuccessResponse<MarginStopOrderItem>>
+⋮----
+/**
+   * Add Margin OCO Order
+   *
+   * Place OCO order to the Margin trading system
+   */
+addMarginOcoOrder(
+    params: SubmitMarginOcoOrderRequest,
+): Promise<APISuccessResponse<MarginOcoOrderResponse>>
+⋮----
+/**
+   * Cancel Margin OCO Order By OrderId
+   *
+   * Request via this endpoint the cancellation of a single OCO order previously placed.
+   */
+cancelMarginOcoOrderByOrderId(
+    params: CancelMarginOcoOrderByOrderIdRequest,
+): Promise<APISuccessResponse<CancelMarginOrdersResponse>>
+⋮----
+/**
+   * Cancel Margin OCO Order By ClientOid
+   *
+   * Request via this interface to cancel a stop order via the clientOid.
+   */
+cancelMarginOcoOrderByClientOid(
+    params: CancelMarginOcoOrderByClientOidRequest,
+): Promise<APISuccessResponse<CancelMarginOrdersResponse>>
+⋮----
+/**
+   * Batch Cancel Margin OCO Orders
+   *
+   * This interface can batch cancel OCO orders through orderIds.
+   */
+batchCancelMarginOcoOrders(
+    params?: BatchCancelMarginOcoOrdersRequest,
+): Promise<APISuccessResponse<CancelMarginOrdersResponse>>
+⋮----
+/**
+   * Get Margin OCO Order By ClientOid
+   *
+   * Request via this interface to get a oco order information via the client order ID.
+   */
+getMarginOcoOrderByClientOid(
+    params: GetMarginOcoOrderByClientOidRequest,
+): Promise<APISuccessResponse<MarginOcoOrderItem>>
+⋮----
+/**
+   * Get Margin OCO Order Detail By OrderId
+   *
+   * Request via this interface to get a oco order detail via the order ID.
+   */
+getMarginOcoOrderDetailByOrderId(
+    params: GetMarginOcoOrderDetailByOrderIdRequest,
+): Promise<APISuccessResponse<MarginOcoOrderDetails>>
+⋮----
+/**
    *
    * REST - MARGIN TRADING - Debit
    *
    */
+⋮----
+/**
+   * Get Borrow Interest Rate
+   *
+   * Query the borrowing interest rate through this interface.
+   */
+getBorrowInterestRate(
+    params?: GetBorrowInterestRateRequest,
+): Promise<APISuccessResponse<BorrowInterestRate>>
 ⋮----
 /**
    * Borrow
@@ -10924,13 +11484,13 @@ getOtcLoanAccounts(): Promise<APISuccessResponse<OtcLoanAccount[]>>
 getAffiliateUserRebateInfo(): Promise<APISuccessResponse<any>>
 ⋮----
 /**
-   * Get Trade History
+   * Get Invited
    *
-   * Trade history information can be obtained at this endpoint.
+   * Affiliate user invited information can be obtained at this endpoint.
    */
-getAffiliateTradeHistory(
-    params: GetAffiliateTradeHistoryRequest,
-): Promise<APISuccessResponse<AffiliateTradeHistory>>
+getAffiliateInvitees(
+    params?: GetAffiliateInviteesRequest,
+): Promise<APISuccessResponse<AffiliateInvitees>>
 ⋮----
 /**
    * Get Commission
@@ -10942,13 +11502,22 @@ getAffiliateCommission(
 ): Promise<APISuccessResponse<AffiliateCommissionItem[]>>
 ⋮----
 /**
-   * Get Invited
+   * Get Trade History
    *
-   * Affiliate user invited information can be obtained at this endpoint.
+   * Trade history information can be obtained at this endpoint.
    */
-getAffiliateInvitees(
-    params?: GetAffiliateInviteesRequest,
-): Promise<APISuccessResponse<AffiliateInvitees>>
+getAffiliateTradeHistory(
+    params: GetAffiliateTradeHistoryRequest,
+): Promise<APISuccessResponse<AffiliateTradeHistory>>
+⋮----
+/**
+   * Get Transaction
+   *
+   * Transaction information can be obtained at this endpoint.
+   */
+getAffiliateTransaction(
+    params: GetAffiliateTransactionRequest,
+): Promise<APISuccessResponse<AffiliateTransaction>>
 ⋮----
 /**
    *
@@ -11273,7 +11842,7 @@ File: package.json
 ================
 {
   "name": "kucoin-api",
-  "version": "2.1.20",
+  "version": "2.1.23",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
@@ -11357,6 +11926,7 @@ File: package.json
   },
   "homepage": "https://github.com/tiagosiebler/kucoin-api#readme"
 }
+
 
 
 
