@@ -23,7 +23,7 @@ import {
 const MISSING_API_KEYS_ERROR =
   'API Key, Secret & API Passphrase are ALL required to use the authenticated REST client';
 
-interface SignedRequest<T extends object | undefined = {}> {
+export interface SignedRequest<T extends object | undefined = {}> {
   originalParams: T;
   paramsWithSign?: T & { sign: string };
   serializedParams: string;

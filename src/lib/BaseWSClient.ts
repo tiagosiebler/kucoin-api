@@ -74,6 +74,7 @@ export interface EmittableEvent<TEvent = any> {
     | 'response'
     | 'update'
     | 'exception'
+    | 'connectionReadyForAuth' // tied to specific events we need to wait for, before we can begin post-connect auth
     | 'authenticated'
     | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
   event: TEvent;
@@ -226,7 +227,8 @@ export abstract class BaseWebsocketClient<
 
   protected abstract getWsAuthRequestEvent(
     wsKey: TWSKey,
-  ): Promise<object | void>;
+    eventToAuth?: object,
+  ): Promise<object | string | 'waitForEvent' | void>;
 
   protected abstract isPrivateTopicRequest(
     request: WsTopicRequest<WSTopic>,
@@ -272,11 +274,11 @@ export abstract class BaseWebsocketClient<
     return `${++this.wsApiRequestId}`;
   }
 
-  protected abstract sendWSAPIRequest(
-    wsKey: TWSKey,
-    operation: string,
-    params?: any,
-  ): Promise<unknown>;
+  // protected abstract sendWSAPIRequest(
+  //   wsKey: TWSKey,
+  //   operation: string,
+  //   params?: any,
+  // ): Promise<unknown>;
 
   /**
    * Subscribe to one or more topics on a WS connection (identified by WS Key).
@@ -599,17 +601,21 @@ export abstract class BaseWebsocketClient<
   }
 
   /** Get a signature, build the auth request and send it */
-  private async sendAuthRequest(wsKey: TWSKey): Promise<unknown> {
+  private async sendAuthRequest(
+    wsKey: TWSKey,
+    eventToAuth?: object,
+  ): Promise<unknown> {
     try {
       this.logger.trace('Sending auth request...', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
+        eventToAuth,
       });
 
       await this.assertIsConnected(wsKey);
 
       // If not required, this won't return anything
-      const request = await this.getWsAuthRequestEvent(wsKey);
+      const request = await this.getWsAuthRequestEvent(wsKey, eventToAuth);
       if (!request) {
         // Short-circuit this for the next time it's called
         const wsState = this.wsStore.get(wsKey, true);
@@ -621,7 +627,14 @@ export abstract class BaseWebsocketClient<
         this.wsStore.createAuthenticationInProgressPromise(wsKey, false);
       }
 
-      this.tryWsSend(wsKey, JSON.stringify(request));
+      if (request === 'waitForEvent') {
+        return this.wsStore.getAuthenticationInProgressPromise(wsKey)?.promise;
+      }
+
+      this.tryWsSend(
+        wsKey,
+        typeof request === 'string' ? request : JSON.stringify(request),
+      );
 
       return this.wsStore.getAuthenticationInProgressPromise(wsKey)?.promise;
     } catch (e) {
@@ -1092,6 +1105,18 @@ export abstract class BaseWebsocketClient<
             });
             this.emit(emittable.eventType, emittableFinalEvent);
             this.onWsAuthenticated(wsKey, emittable.event);
+            continue;
+          }
+
+          if (emittable.eventType === 'connectionReadyForAuth') {
+            this.logger.trace(
+              'Ready for auth - requesting auth submission...',
+              {
+                ...WS_LOGGER_CATEGORY,
+                wsKey,
+              },
+            );
+            this.sendAuthRequest(wsKey, emittable.event);
             continue;
           }
 

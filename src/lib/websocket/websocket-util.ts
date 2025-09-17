@@ -1,15 +1,22 @@
 import WebSocket from 'isomorphic-ws';
 
+import { WsRequestOperationKucoin } from '../../types/websockets/ws-api.js';
+
 /** Should be one WS key per unique URL */
 export const WS_KEY_MAP = {
   spotPublicV1: 'spotPublicV1',
   spotPrivateV1: 'spotPrivateV1',
   futuresPublicV1: 'futuresPublicV1',
   futuresPrivateV1: 'futuresPrivateV1',
+  wsApiSpotV1: 'wsApiSpotV1',
+  wsApiFuturesV1: 'wsApiFuturesV1',
 } as const;
 
 /** This is used to differentiate between each of the available websocket streams */
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
+export type WSAPIWsKey =
+  | typeof WS_KEY_MAP.wsApiFuturesV1
+  | typeof WS_KEY_MAP.wsApiSpotV1;
 
 /**
  * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
@@ -53,4 +60,24 @@ export function safeTerminateWs(
   }
 
   return false;
+}
+
+/**
+ * WS API promises are stored using a primary key. This key is constructed using
+ * properties found in every request & reply.
+ *
+ * The counterpart to this is in resolveEmittableEvents
+ */
+export function getPromiseRefForWSAPIRequest(
+  wsKey: WsKey,
+  requestEvent: WsRequestOperationKucoin<string>,
+): string {
+  const promiseRef = [wsKey, requestEvent.id].join('_');
+  return promiseRef;
+}
+
+export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
+  return (
+    wsKey === WS_KEY_MAP.wsApiFuturesV1 || wsKey === WS_KEY_MAP.wsApiSpotV1
+  );
 }

@@ -1,8 +1,24 @@
 import { FuturesClient } from './FuturesClient.js';
+import { SignedRequest } from './lib/BaseRestClient.js';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
-import { RestClientOptions } from './lib/requestUtils.js';
 import {
+  APIIDFutures,
+  APIIDFuturesSign,
+  APIIDMain,
+  APIIDMainSign,
+  RestClientOptions,
+  serializeParams,
+} from './lib/requestUtils.js';
+import {
+  hashMessage,
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './lib/webCryptoAPI.js';
+import {
+  getPromiseRefForWSAPIRequest,
+  isWSAPIWsKey,
   WS_KEY_MAP,
   WsKey,
   WsTopicRequest,
@@ -11,20 +27,29 @@ import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
 import { SpotClient } from './SpotClient.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import { WsConnectionInfo } from './types/response/ws.js';
-import { WsOperation, WsRequestOperation } from './types/websockets/ws-api.js';
-import { MessageEventLike } from './types/websockets/ws-events.js';
-import { WsMarket } from './types/websockets/ws-general.js';
 import {
+  Exact,
+  WSAPIAuthenticationRequestFromServer,
   WsAPITopicRequestParamMap,
   WsAPITopicResponseMap,
   WsAPIWsKeyTopicMap,
-} from './types/websockets/wsAPI.js';
+  WsOperation,
+  WsRequestOperation,
+  WsRequestOperationKucoin,
+} from './types/websockets/ws-api.js';
+import { MessageEventLike } from './types/websockets/ws-events.js';
+import { WsMarket } from './types/websockets/ws-general.js';
 
 function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
 }
 
 export const WS_LOGGER_CATEGORY = { category: 'kucoin-ws' };
+
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
 
 /** Any WS keys in this list will trigger auth on connect, if credentials are available */
 const PRIVATE_WS_KEYS: WsKey[] = [
@@ -93,11 +118,23 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   ): Promise<APISuccessResponse<WsConnectionInfo>> {
     const restClient = this.getRESTClient(wsKey);
 
-    if (wsKey === 'spotPrivateV1' || wsKey === 'futuresPrivateV1') {
+    if (PRIVATE_WS_KEYS.includes(wsKey)) {
       return restClient.getPrivateWSConnectionToken();
     }
 
     return restClient.getPublicWSConnectionToken();
+  }
+
+  private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method: SignEncodeMethod,
+    algorithm: SignAlgorithm,
+  ): Promise<string> {
+    if (typeof this.options.customSignMessageFn === 'function') {
+      return this.options.customSignMessageFn(paramsStr, secret);
+    }
+    return await signMessage(paramsStr, secret, method, algorithm);
   }
 
   /**
@@ -165,36 +202,127 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    */
 
   // This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
-  async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
-    TWSAPIResponse extends
-      | WsAPITopicResponseMap[TWSChannel]
-      | object = WsAPITopicResponseMap[TWSChannel],
-  >(
-    wsKey: TWSKey,
-    channel: TWSChannel,
-    ...params: TWSParams extends undefined ? [] : [TWSParams]
-  ): Promise<TWSAPIResponse>;
+  // async sendWSAPIRequest<
+  //   TWSKey extends keyof WsAPIWsKeyTopicMap,
+  //   TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+  //   TWSParams extends
+  //     WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+  //   TWSAPIResponse extends
+  //     | WsAPITopicResponseMap[TWSChannel]
+  //     | object = WsAPITopicResponseMap[TWSChannel],
+  // >(
+  //   wsKey: TWSKey,
+  //   channel: TWSChannel,
+  //   ...params: TWSParams extends undefined ? [] : [TWSParams]
+  // ): Promise<TWSAPIResponse>;
 
   async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
+    // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
+    TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
+    TWSAPIResponse extends
+      WsAPITopicResponseMap[TWSOperation] = WsAPITopicResponseMap[TWSOperation],
   >(
     wsKey: TWSKey,
-    channel: TWSChannel,
-    params?: TWSParams,
-  ): Promise<undefined> {
+    operation: TWSOperation,
+    params?: TWSParams & { signRequest?: boolean },
+    requestFlags?: WSAPIRequestFlags,
+  ): Promise<TWSAPIResponse> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`, {
-      channel,
+      operation,
       params,
     });
 
-    return;
+    /**
+     * Base Info:
+     * - https://www.kucoin.com/docs-new/websocket-api/base-info/introduction
+     *
+     * Add/Cancel API info:
+     * - https://www.kucoin.com/docs-new/3470133w0
+     **/
+
+    this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
+    const timestampBeforeAuth = Date.now();
+    await this.assertIsConnected(wsKey);
+    this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
+
+    // This should give a session ID. something like this: {"sessionId":"92f2aec4-d87e-47cc-917d-4e7c93911bdc", "timestamp": 1742175983882}
+    // Use the API-Secret to encrypt the pre-hash JSON string response above with SHA256 HMAC. Send it to the server for authentication. Upon successful authentication, the server will return a welcome message:
+
+    // Some commands don't require authentication.
+    if (requestFlags?.authIsOptional !== true) {
+      this.logger.trace(
+        'sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...',
+      );
+      await this.assertIsAuthenticated(wsKey);
+      this.logger.trace(
+        'sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok',
+      );
+    }
+
+    // Should receive something like this after auth is success: {"sessionId":"92f2aec4-d87e-47cc-917d-4e7c93911bdc", "data": "welcome", "pingInterval": 18000, "pingTimeout": 10000}
+
+    const timestampAfterAuth = Date.now();
+
+    const request: WsRequestOperationKucoin<string> = {
+      id: this.getNewRequestId(),
+      op: operation,
+      args: {
+        ...params,
+      },
+    };
+
+    // Sign, if needed
+    const signedEvent = await this.signWSAPIRequest(request);
+
+    // Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
+    const promiseRef = getPromiseRefForWSAPIRequest(wsKey, signedEvent);
+
+    const deferredPromise = this.getWsStore().createDeferredPromise<
+      TWSAPIResponse & { request: any }
+    >(wsKey, promiseRef, false);
+
+    // Enrich returned promise with request context for easier debugging
+    deferredPromise.promise
+      ?.then((res) => {
+        if (!Array.isArray(res)) {
+          res.request = {
+            wsKey,
+            ...signedEvent,
+          };
+        }
+
+        return res;
+      })
+      .catch((e) => {
+        if (typeof e === 'string') {
+          this.logger.error('unexpcted string', { e });
+          return e;
+        }
+        e.request = {
+          wsKey,
+          operation,
+          params: signedEvent.args,
+        };
+        // throw e;
+        return e;
+      });
+
+    this.logger.trace(
+      `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
+    );
+
+    // Send event.
+    const throwExceptions = true;
+    this.tryWsSend(wsKey, JSON.stringify(signedEvent), throwExceptions);
+
+    this.logger.trace(
+      `sendWSAPIRequest(): sent "${operation}" event with promiseRef(${promiseRef})`,
+    );
+
+    // Return deferred promise, so caller can await this call
+    return deferredPromise.promise!;
   }
 
   /**
@@ -202,6 +330,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * Internal methods
    *
    */
+
+  private async signWSAPIRequest<TRequestParams extends string = string>(
+    requestEvent: WsRequestOperationKucoin<TRequestParams>,
+  ): Promise<WsRequestOperationKucoin<TRequestParams>> {
+    return requestEvent;
+  }
 
   /**
    * Whatever url this method returns, it's connected to as-is!
@@ -213,33 +347,118 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       return this.options.wsUrl;
     }
 
-    const connectionInfo = await this.getWSConnectionInfo(wsKey);
-    this.logger.trace('getWSConnectionInfo', {
-      wsKey,
-      ...connectionInfo,
-    });
+    switch (wsKey) {
+      case WS_KEY_MAP.spotPublicV1:
+      case WS_KEY_MAP.spotPrivateV1:
+      case WS_KEY_MAP.futuresPublicV1:
+      case WS_KEY_MAP.futuresPrivateV1: {
+        // These WS URLs are dynamically fetched via the REST API, as per API spec
+        const connectionInfo = await this.getWSConnectionInfo(wsKey);
+        this.logger.trace('getWSConnectionInfo', {
+          wsKey,
+          ...connectionInfo,
+        });
 
-    const server = connectionInfo.data.instanceServers[0];
-    if (!server) {
-      this.logger.error(
-        'No servers returned by connection info response?',
-        JSON.stringify(
-          {
-            wsKey,
-            connectionInfo,
-          },
-          null,
-          2,
-        ),
-      );
-      throw new Error('No servers returned by connection info response?');
+        const server = connectionInfo.data.instanceServers[0];
+        if (!server) {
+          this.logger.error(
+            'No servers returned by connection info response?',
+            JSON.stringify(
+              {
+                wsKey,
+                connectionInfo,
+              },
+              null,
+              2,
+            ),
+          );
+          throw new Error('No servers returned by connection info response?');
+        }
+
+        const connectionUrl = `${server.endpoint}?token=${connectionInfo.data.token}`;
+        return connectionUrl;
+      }
+
+      case WS_KEY_MAP.wsApiSpotV1:
+      case WS_KEY_MAP.wsApiFuturesV1: {
+        // WS API URL works differently: https://www.kucoin.com/docs-new/3470133w0
+        // wss://wsapi.kucoin.com/v1/private?apikey=xxx&sign=xxx&passphrase=xxx&timestamp=xxx
+
+        const WS_API_ENDPOINT = 'v1/private';
+        const WS_API_BASE_URL = 'wss://wsapi.kucoin.com/';
+
+        const isSpotWsKey = wsKey === WS_KEY_MAP.wsApiSpotV1;
+
+        // ws_url = f"{url}/v1/private?{url_path}&sign={sign_value}&passphrase={passphrase_sign}"
+
+        const queryString = {
+          apikey: this.options.apiKey,
+          timestamp: Date.now(),
+          sign: '',
+          passphrase: '',
+          partner: isSpotWsKey ? APIIDMain : APIIDFutures,
+          partner_sign: '',
+        };
+        // original = f"{apikey}{timestamp}"
+        const paramsStr = `${queryString.apikey}${queryString.timestamp}`;
+
+        queryString.passphrase = await this.signMessage(
+          this.options.apiPassphrase!,
+          this.options.apiSecret!,
+          'base64',
+          'SHA-256',
+        );
+
+        queryString.sign = await this.signMessage(
+          paramsStr,
+          this.options.apiSecret!,
+          'base64',
+          'SHA-256',
+        );
+
+        const partnerSignParam = `${queryString.timestamp}${queryString.partner}${queryString.apikey}`;
+
+        queryString.partner_sign = await this.signMessage(
+          partnerSignParam,
+          isSpotWsKey ? APIIDMainSign : APIIDFuturesSign,
+          'base64',
+          'SHA-256',
+        );
+
+        const strictParamValidation = false;
+        const encodeQueryStringValues = true;
+
+        const finalQueryString = serializeParams(
+          queryString,
+          strictParamValidation,
+          encodeQueryStringValues,
+          '?',
+        );
+
+        const finalUrl = WS_API_BASE_URL + WS_API_ENDPOINT + finalQueryString;
+
+        // console.log('signParams: ', {
+        //   paramsStr,
+        //   partnerSignParam,
+        //   queryString,
+        //   finalUrl,
+        // });
+
+        return finalUrl;
+      }
+      default: {
+        throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}} in getWsUrl()`);
+      }
     }
-
-    const connectionUrl = `${server.endpoint}?token=${connectionInfo.data.token}`;
-    return connectionUrl;
   }
 
   protected sendPingEvent(wsKey: WsKey) {
+    if (isWSAPIWsKey(wsKey)) {
+      return this.tryWsSend(
+        wsKey,
+        `{"id": "ping-${this.getNewRequestId()}", "op": "ping", "timestamp": "${Date.now()}"}`,
+      );
+    }
     return this.tryWsSend(wsKey, `{ "id": "${Date.now()}", "type": "ping" }`);
   }
 
@@ -297,11 +516,30 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     try {
       const parsed = JSON.parse(event.data);
 
+      const isForWSAPIWsKey = isWSAPIWsKey(wsKey);
+
       const responseEvents = ['subscribe', 'unsubscribe', 'ack'];
       const authenticatedEvents = ['login', 'access'];
       const connectionReadyEvents = ['welcome'];
 
       const eventType = parsed.event || parsed.type;
+
+      const traceEmittable = false;
+      if (traceEmittable) {
+        this.logger.info('resolveEmittableEvents', {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+          parsedEvent: JSON.stringify(event),
+          parsedEventData: JSON.stringify(parsed),
+          eventType,
+          properties: {
+            parsedEventId: parsed?.id,
+            parsedEventErrorCode: parsed?.code,
+          },
+          // parsed: JSON.stringify(parsed, null, 2),
+        });
+      }
+
       if (typeof eventType === 'string') {
         if (parsed.success === false) {
           results.push({
@@ -312,12 +550,18 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         }
 
         if (connectionReadyEvents.includes(eventType)) {
-          return [
-            {
-              eventType: 'connectionReady',
-              event: parsed,
-            },
-          ];
+          results.push({
+            eventType: 'connectionReady',
+            event: parsed,
+          });
+
+          // if (isWSAPIWsKey) {
+          //   results.push({
+          //     eventType: 'connectionReadyForAuth',
+          //     event: parsed,
+          //   });
+          // }
+          return results;
         }
 
         // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
@@ -353,6 +597,132 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         });
 
         return results;
+      }
+
+      if (!eventType) {
+        // WS API response!
+        // const parsed = {
+        //   pingInterval: 18000,
+        //   sessionId: '3ba36e48-2fda-4101-afda-87a4ced36a72',
+        //   pingTimeout: 10000,
+        //   data: 'welcome',
+        // };
+
+        if (isForWSAPIWsKey) {
+          const isWSAPIResponse = typeof parsed.op === 'string';
+          if (isWSAPIResponse) {
+            // const example = {
+            //   eventType: undefined,
+            //   parsed: {
+            //     msg: 'Please check the param of your request: clientOid or orderId is required',
+            //     code: '400102',
+            //     op: 'spot.cancel',
+            //     id: '1',
+            //     outTime: 1758117125136,
+            //     inTime: 1758117125136,
+            //   },
+            // };
+
+            const parsedEventErrorCode = Number(parsed.code);
+            const parsedEventId = parsed.id;
+
+            const isError =
+              typeof parsedEventErrorCode === 'number' &&
+              parsedEventErrorCode !== 0;
+
+            // This is the counterpart to getPromiseRefForWSAPIRequest
+            const promiseRef = [wsKey, parsedEventId].join('_');
+
+            if (!parsedEventId) {
+              this.logger.error(
+                'WS API response is missing reqId - promisified workflow could get stuck. If this happens, please get in touch with steps to reproduce. Trace:',
+                {
+                  wsKey,
+                  promiseRef,
+                  parsedEvent: parsed,
+                },
+              );
+            }
+
+            // WS API Exception
+            if (isError) {
+              try {
+                this.getWsStore().rejectDeferredPromise(
+                  wsKey,
+                  promiseRef,
+                  {
+                    wsKey,
+                    ...parsed,
+                  },
+                  true,
+                );
+              } catch (e) {
+                this.logger.error('Exception trying to reject WSAPI promise', {
+                  wsKey,
+                  promiseRef,
+                  parsedEvent: parsed,
+                  e,
+                });
+              }
+
+              results.push({
+                eventType: 'exception',
+                event: parsed,
+                isWSAPIResponse: isWSAPIResponse,
+              });
+              return results;
+            }
+
+            // WS API Success
+            try {
+              this.getWsStore().resolveDeferredPromise(
+                wsKey,
+                promiseRef,
+                {
+                  wsKey,
+                  ...parsed,
+                },
+                true,
+              );
+            } catch (e) {
+              this.logger.error('Exception trying to resolve WSAPI promise', {
+                wsKey,
+                promiseRef,
+                parsedEvent: parsed,
+                e,
+              });
+            }
+
+            results.push({
+              eventType: 'response',
+              event: {
+                ...parsed,
+              },
+              isWSAPIResponse: isWSAPIResponse,
+            });
+
+            return results;
+          }
+
+          if (parsed.sessionId && parsed.data === 'welcome') {
+            results.push({
+              eventType: 'authenticated',
+              event: parsed,
+            });
+            return results;
+          }
+          if (parsed.sessionId && parsed.timestamp) {
+            results.push({
+              eventType: 'connectionReady',
+              event: parsed,
+            });
+            results.push({
+              eventType: 'connectionReadyForAuth',
+              event: parsed,
+            });
+            return results;
+          }
+        }
       }
 
       this.logger.error(
@@ -405,13 +775,19 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
   protected getWsMarketForWsKey(key: WsKey): WsMarket {
     switch (key) {
-      case 'futuresPrivateV1':
-      case 'futuresPublicV1': {
+      case WS_KEY_MAP.futuresPrivateV1:
+      case WS_KEY_MAP.futuresPublicV1: {
         return 'futures';
       }
-      case 'spotPrivateV1':
-      case 'spotPublicV1': {
+      case WS_KEY_MAP.spotPrivateV1:
+      case WS_KEY_MAP.spotPublicV1: {
         return 'spot';
+      }
+      case WS_KEY_MAP.wsApiSpotV1: {
+        return 'spot';
+      }
+      case WS_KEY_MAP.wsApiFuturesV1: {
+        return 'futures';
       }
       default: {
         throw neverGuard(key, `Unhandled ws key "${key}"`);
@@ -426,10 +802,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
   protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
     switch (wsKey) {
-      case 'futuresPrivateV1':
-      case 'futuresPublicV1':
-      case 'spotPrivateV1':
-      case 'spotPublicV1': {
+      case WS_KEY_MAP.futuresPrivateV1:
+      case WS_KEY_MAP.futuresPublicV1:
+      case WS_KEY_MAP.spotPrivateV1:
+      case WS_KEY_MAP.spotPublicV1:
+      case WS_KEY_MAP.wsApiSpotV1:
+      case WS_KEY_MAP.wsApiFuturesV1: {
         // Return a number if there's a limit on the number of sub topics per rq
         // Always 1 at a time for this exchange
         return 1;
@@ -475,8 +853,37 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     return operationEvents.map((event) => JSON.stringify(event));
   }
 
-  // Not used for kucoin - auth is part of the WS URL
-  protected async getWsAuthRequestEvent(): Promise<object | void> {
+  protected async getWsAuthRequestEvent(
+    wsKey: WsKey,
+    eventToAuth?: WSAPIAuthenticationRequestFromServer,
+  ): Promise<object | string | 'waitForEvent' | void> {
+    // Send anything for WS API
+    if (isWSAPIWsKey(wsKey)) {
+      if (eventToAuth) {
+        const eventToAuthAsString = JSON.stringify(eventToAuth);
+
+        this.logger.trace(
+          `getWsAuthRequestEvent(${wsKey}): responding to WS API auth handshake...`,
+          {
+            eventToAuth,
+          },
+        );
+
+        const sessionInfo = await this.signMessage(
+          eventToAuthAsString,
+          this.options.apiSecret!,
+          'base64',
+          'SHA-256',
+        );
+
+        return sessionInfo;
+      }
+
+      // Don't send anything, don't resolve auth promise. Wait for auth handshake from server
+      return 'waitForEvent';
+    }
+
+    // Don't send anything for all other WS connections, since they auth as part of the connection (not after connect). Returning an empty value here will short-circuit the assertIsAuthenticated workflow.
     return;
   }
 }
