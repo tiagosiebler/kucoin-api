@@ -197,23 +197,19 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
   }
 
-  /**
-   * Not supported by Kucoin, do not use
-   */
-
   // This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
   // async sendWSAPIRequest<
   //   TWSKey extends keyof WsAPIWsKeyTopicMap,
-  //   TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-  //   TWSParams extends
-  //     WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+  //   TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
+  //   TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
   //   TWSAPIResponse extends
-  //     | WsAPITopicResponseMap[TWSChannel]
-  //     | object = WsAPITopicResponseMap[TWSChannel],
+  //     WsAPITopicResponseMap[TWSOperation] = WsAPITopicResponseMap[TWSOperation],
   // >(
   //   wsKey: TWSKey,
-  //   channel: TWSChannel,
-  //   ...params: TWSParams extends undefined ? [] : [TWSParams]
+  //   operation: TWSOperation,
+  //   ...params: TWSParams extends undefined
+  //     ? []
+  //     : [TWSParams & { signRequest?: boolean }]
   // ): Promise<TWSAPIResponse>;
 
   async sendWSAPIRequest<
@@ -226,7 +222,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
-    params?: TWSParams & { signRequest?: boolean },
+    params: TWSParams & { signRequest?: boolean },
     requestFlags?: WSAPIRequestFlags,
   ): Promise<TWSAPIResponse> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`, {

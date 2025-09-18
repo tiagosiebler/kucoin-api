@@ -1,4 +1,16 @@
 import { WS_KEY_MAP, WsKey } from '../../lib/websocket/websocket-util.js';
+import { BatchCancelOrdersRequest, Order } from '../request/futures.types.js';
+import { SubmitHFMarginOrderRequest } from '../request/spot-margin-trading.js';
+import {
+  ModifyHFOrderRequest,
+  SubmitHFOrderRequest,
+  SubmitOrderRequest,
+} from '../request/spot-trading.js';
+import {
+  BatchCancelOrderResult,
+  SubmitMultipleOrdersFuturesResponse,
+} from '../response/futures.types.js';
+import { MarginSubmitOrderV3Response } from '../response/spot-margin-trading.js';
 
 export type WsOperation =
   | 'subscribe'
@@ -53,12 +65,22 @@ export interface WsRequestOperationKucoin<
   args?: (TWSTopic | string | number)[] | TWSParams; // Business parameters, same as RestAPI
 }
 
-export interface WSAPIResponse<TResponseData extends object = object> {
+export interface WSAPIResponse<
+  TResponseData extends object = object,
+  TWSAPIOperation = WsAPIOperation,
+> {
   /** Auto-generated */
   id: string;
 
-  status: number;
-  result: TResponseData;
+  op: TWSAPIOperation;
+
+  msg?: string;
+  code: '200000' | string;
+
+  data: TResponseData;
+  inTime: number; //Gateway in time(ms)
+  outTime: number; //Gateway out time(ms)
+  rateLimit?: { limit: number; reset: number; remaining: number };
 
   wsKey: WsKey;
   isWSAPIResponse: boolean;
@@ -69,6 +91,16 @@ export interface WSAPIResponse<TResponseData extends object = object> {
 export interface WsAPIWsKeyTopicMap {
   [WS_KEY_MAP.wsApiSpotV1]: WsAPIOperation;
   [WS_KEY_MAP.wsApiFuturesV1]: WsAPIOperation;
+}
+
+export type WSAPICancelOrderRequest = { symbol: string } & (
+  | { orderId: string }
+  | { clientOid: string }
+);
+
+export interface WSAPIOrderResponse {
+  orderId: string;
+  clientOid: string;
 }
 
 export interface WsAPITopicRequestParamMap {
@@ -82,17 +114,17 @@ export interface WsAPITopicRequestParamMap {
 
   ping: void;
 
-  'spot.order': void;
-  'spot.modify': void;
-  'spot.cancel': void;
-  'spot.sync_order': void;
-  'spot.sync_cancel': void;
-  'margin.order': void;
-  'margin.cancel': void;
-  'futures.order': void;
-  'futures.cancel': void;
-  'futures.multi_order': void;
-  'futures.multi_cancel': void;
+  'spot.order': SubmitHFOrderRequest;
+  'margin.order': SubmitHFMarginOrderRequest;
+  'futures.order': Order;
+  'spot.cancel': WSAPICancelOrderRequest;
+  'margin.cancel': WSAPICancelOrderRequest;
+  'futures.cancel': { orderId: string } | { clientOid: string; symbol: string };
+  'futures.multi_cancel': BatchCancelOrdersRequest;
+  'futures.multi_order': Order[];
+  'spot.sync_order': SubmitHFOrderRequest;
+  'spot.modify': ModifyHFOrderRequest;
+  'spot.sync_cancel': WSAPICancelOrderRequest;
 }
 
 export interface WsAPITopicResponseMap {
@@ -105,6 +137,21 @@ export interface WsAPITopicResponseMap {
   request: never;
 
   ping: unknown;
+
+  'spot.order': WSAPIOrderResponse;
+  'margin.order': MarginSubmitOrderV3Response;
+  'futures.order': WSAPIOrderResponse;
+  'spot.cancel': WSAPIOrderResponse;
+  'margin.cancel': WSAPIOrderResponse;
+  'futures.cancel': WSAPIOrderResponse;
+  'futures.multi_cancel': BatchCancelOrderResult[];
+  'futures.multi_order': SubmitMultipleOrdersFuturesResponse[];
+  'spot.sync_order': WSAPIOrderResponse;
+  'spot.modify': {
+    newOrderId: string;
+    clientOid: string;
+  };
+  'spot.sync_cancel': WSAPIOrderResponse;
 }
 
 export interface WSAPIAuthenticationRequestFromServer {
