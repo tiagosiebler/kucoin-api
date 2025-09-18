@@ -1,18 +1,30 @@
 import { DefaultLogger } from './lib/websocket/logger.js';
+import { WS_KEY_MAP, WSAPIWsKey } from './lib/websocket/websocket-util.js';
 import {
-  isWSAPIWsKey,
-  WS_KEY_MAP,
-  WSAPIWsKey,
-  WsKey,
-} from './lib/websocket/websocket-util.js';
-import { SubmitHFOrderRequest } from './types/request/spot-trading.js';
+  BatchCancelOrdersRequest,
+  Order,
+} from './types/request/futures.types.js';
+import { SubmitHFMarginOrderRequest } from './types/request/spot-margin-trading.js';
+import {
+  ModifyHFOrderRequest,
+  SubmitHFOrderRequest,
+} from './types/request/spot-trading.js';
+import {
+  BatchCancelOrderResult,
+  SubmitMultipleOrdersFuturesResponse,
+} from './types/response/futures.types.js';
+import { MarginSubmitOrderV3Response } from './types/response/spot-margin-trading.js';
+import {
+  SubmitHFOrderSyncResponse,
+  SyncCancelHFOrderResponse,
+} from './types/response/spot-trading.js';
 import {
   WSAPICancelOrderRequest,
   WSAPIOrderResponse,
   WSAPIResponse,
 } from './types/websockets/ws-api.js';
 import { WSClientConfigurableOptions } from './types/websockets/ws-general.js';
-import { WebsocketClient, WS_LOGGER_CATEGORY } from './WebsocketClient.js';
+import { WebsocketClient } from './WebsocketClient.js';
 
 /**
  * Configurable options specific to only the REST-like WebsocketAPIClient
@@ -80,6 +92,148 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.wsApiSpotV1,
       'spot.order',
+      params,
+    );
+  }
+
+  /**
+   * Modify a spot order
+   */
+  modifySpotOrder(
+    params: ModifyHFOrderRequest,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<{ newOrderId: string; clientOid: string }>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiSpotV1,
+      'spot.modify',
+      params,
+    );
+  }
+
+  /**
+   * Cancel a spot order
+   */
+  cancelSpotOrder(
+    params: WSAPICancelOrderRequest,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIOrderResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiSpotV1,
+      'spot.cancel',
+      params,
+    );
+  }
+
+  /**
+   * Submit a sync spot order
+   */
+  submitSyncSpotOrder(
+    params: SubmitHFOrderRequest,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<SubmitHFOrderSyncResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiSpotV1,
+      'spot.sync_order',
+      params,
+    );
+  }
+
+  /**
+   * Cancel a sync spot order
+   */
+  cancelSyncSpotOrder(
+    params: WSAPICancelOrderRequest,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<SyncCancelHFOrderResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiSpotV1,
+      'spot.sync_cancel',
+      params,
+    );
+  }
+
+  /**
+   * Submit a margin order
+   */
+  submitMarginOrder(
+    params: SubmitHFMarginOrderRequest,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<MarginSubmitOrderV3Response>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiSpotV1,
+      'margin.order',
+      params,
+    );
+  }
+
+  /**
+   * Cancel a margin order
+   */
+  cancelMarginOrder(
+    params: WSAPICancelOrderRequest,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIOrderResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiSpotV1,
+      'margin.cancel',
+      params,
+    );
+  }
+
+  /**
+   * Submit a futures order
+   */
+  submitFuturesOrder(
+    params: Order,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIOrderResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiFuturesV1,
+      'futures.order',
+      params,
+    );
+  }
+
+  /**
+   * Cancel a futures order
+   */
+  cancelFuturesOrder(
+    params: { orderId: string } | { clientOid: string; symbol: string },
+    wsKey?: WSAPIWsKey,
+  ): Promise<
+    WSAPIResponse<{ cancelledOrderIds: string[] } | { clientOid: string }>
+  > {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiFuturesV1,
+      'futures.cancel',
+      params,
+    );
+  }
+
+  /**
+   * Submit multiple futures orders
+   */
+  submitMultipleFuturesOrders(
+    params: Order[],
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<SubmitMultipleOrdersFuturesResponse[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiFuturesV1,
+      'futures.multi_order',
+      params,
+    );
+  }
+
+  /**
+   * Cancel multiple futures orders
+   */
+  cancelMultipleFuturesOrders(
+    params: BatchCancelOrdersRequest,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<BatchCancelOrderResult[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiFuturesV1,
+      'futures.multi_cancel',
       params,
     );
   }
