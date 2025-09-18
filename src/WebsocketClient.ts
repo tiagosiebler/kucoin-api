@@ -624,7 +624,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
             const isError =
               typeof parsedEventErrorCode === 'number' &&
-              parsedEventErrorCode !== 0;
+              parsedEventErrorCode !== 0 &&
+              parsedEventErrorCode !== 200000;
 
             // This is the counterpart to getPromiseRefForWSAPIRequest
             const promiseRef = [wsKey, parsedEventId].join('_');

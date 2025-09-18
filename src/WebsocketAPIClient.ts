@@ -76,7 +76,7 @@ export class WebsocketAPIClient {
   submitNewSpotOrder(
     params: SubmitHFOrderRequest,
     wsKey?: WSAPIWsKey,
-  ): Promise<WSAPIOrderResponse> {
+  ): Promise<WSAPIResponse<WSAPIOrderResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.wsApiSpotV1,
       'spot.order',

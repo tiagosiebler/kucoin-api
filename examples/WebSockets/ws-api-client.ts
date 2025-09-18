@@ -31,9 +31,32 @@ async function main() {
   try {
     const response = await wsClient.submitNewSpotOrder({
       side: 'buy',
-      symbol: 'BTCUSDT',
+      symbol: 'BTC-USDT',
       type: 'market',
+      size: '0.001',
     });
+
+    const response2 = {
+      wsKey: 'wsApiSpotV1',
+      inTime: 1758206953829,
+      outTime: 1758206953862,
+      code: '200000',
+      data: { orderId: '68cc1be9401faa0007a8a046' },
+      id: '1',
+      op: 'spot.order',
+      request: {
+        wsKey: 'wsApiSpotV1',
+        id: '1',
+        op: 'spot.order',
+        args: {
+          side: 'buy',
+          symbol: 'BTC-USDT',
+          type: 'market',
+          size: '0.0001',
+        },
+      },
+    };
+
     console.log('submitNewSpotOrder response: ', response);
   } catch (e) {
     console.log('submitNewSpotOrder error: ', e);

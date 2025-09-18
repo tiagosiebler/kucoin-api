@@ -1,4 +1,8 @@
-import { WS_KEY_MAP, WsKey } from '../../lib/websocket/websocket-util.js';
+import {
+  WS_KEY_MAP,
+  WSAPIWsKey,
+  WsKey,
+} from '../../lib/websocket/websocket-util.js';
 import { BatchCancelOrdersRequest, Order } from '../request/futures.types.js';
 import { SubmitHFMarginOrderRequest } from '../request/spot-margin-trading.js';
 import {
@@ -138,20 +142,20 @@ export interface WsAPITopicResponseMap {
 
   ping: unknown;
 
-  'spot.order': WSAPIOrderResponse;
-  'margin.order': MarginSubmitOrderV3Response;
-  'futures.order': WSAPIOrderResponse;
-  'spot.cancel': WSAPIOrderResponse;
-  'margin.cancel': WSAPIOrderResponse;
-  'futures.cancel': WSAPIOrderResponse;
-  'futures.multi_cancel': BatchCancelOrderResult[];
-  'futures.multi_order': SubmitMultipleOrdersFuturesResponse[];
-  'spot.sync_order': WSAPIOrderResponse;
-  'spot.modify': {
+  'spot.order': WSAPIResponse<WSAPIOrderResponse>;
+  'margin.order': WSAPIResponse<MarginSubmitOrderV3Response>;
+  'futures.order': WSAPIResponse<WSAPIOrderResponse>;
+  'spot.cancel': WSAPIResponse<WSAPIOrderResponse>;
+  'margin.cancel': WSAPIResponse<WSAPIOrderResponse>;
+  'futures.cancel': WSAPIResponse<WSAPIOrderResponse>;
+  'futures.multi_cancel': WSAPIResponse<BatchCancelOrderResult[]>;
+  'futures.multi_order': WSAPIResponse<SubmitMultipleOrdersFuturesResponse[]>;
+  'spot.sync_order': WSAPIResponse<WSAPIOrderResponse>;
+  'spot.modify': WSAPIResponse<{
     newOrderId: string;
     clientOid: string;
-  };
-  'spot.sync_cancel': WSAPIOrderResponse;
+  }>;
+  'spot.sync_cancel': WSAPIResponse<WSAPIOrderResponse>;
 }
 
 export interface WSAPIAuthenticationRequestFromServer {
