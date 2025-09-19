@@ -188,6 +188,7 @@ async function main() {
         price: '1000', // Very low price to avoid accidental execution
         qty: '0.01',
         leverage: 10,
+        positionSide: 'LONG', // Needed if trading hedge/two-way mode. Optional in one-way mode.
       },
       {
         clientOid: 'futures-test-2-' + Date.now(),
@@ -198,6 +199,7 @@ async function main() {
         price: '1010', // Very low price to avoid accidental execution
         qty: '0.01',
         leverage: 10,
+        positionSide: 'LONG',
       },
     ]);
     console.log('Multiple futures orders response:', multiFuturesResponse);

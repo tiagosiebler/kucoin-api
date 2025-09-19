@@ -264,9 +264,11 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     const request: WsRequestOperationKucoin<string> = {
       id: this.getNewRequestId(),
       op: operation,
-      args: {
-        ...params,
-      },
+      args: Array.isArray(params)
+        ? [...params]
+        : {
+            ...params,
+          },
     };
 
     // Sign, if needed
