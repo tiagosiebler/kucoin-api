@@ -3,7 +3,7 @@ import {
   DefaultLogger,
   WebsocketClient,
   WsTopicRequest,
-} from '../src/index.js';
+} from '../../../src/index.js';
 // import { DefaultLogger, WebsocketClient, WsTopicRequest } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
@@ -142,7 +142,7 @@ async function start() {
       'spotPublicV1',
     );
   } catch (e) {
-    console.error(`Subscribe exception: `, e);
+    console.error('Subscribe exception: ', e);
   }
 }
 

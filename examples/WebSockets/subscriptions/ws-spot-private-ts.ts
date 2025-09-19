@@ -1,25 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient } from '../src/index.js';
+import {
+  DefaultLogger,
+  WebsocketClient,
+  WS_KEY_MAP,
+} from '../../../src/index.js';
 // import { DefaultLogger, WebsocketClient } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
   // Optional: inject a custom logger to override internal logging behaviour
-  // const logger: typeof DefaultLogger = {
-  //   ...DefaultLogger,
-  //   trace: (...params) => {
-  //     if (
-  //       [
-  //         'Sending ping',
-  //         // 'Sending upstream ws message: ',
-  //         'Received pong',
-  //       ].includes(params[0])
-  //     ) {
-  //       return;
-  //     }
-  //     console.log('trace', JSON.stringify(params, null, 2));
-  //   },
-  // };
+  const logger: DefaultLogger = {
+    ...DefaultLogger,
+    trace: (...params) => {
+      if (
+        [
+          'Sending ping',
+          // 'Sending upstream ws message: ',
+          'Received pong',
+        ].includes(params[0])
+      ) {
+        return;
+      }
+      console.log('trace', JSON.stringify(params, null, 2));
+    },
+  };
 
   const account = {
     key: process.env.API_KEY || 'keyHere',
@@ -27,7 +31,7 @@ async function start() {
     passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
   };
 
-  console.log(`connecting with `, account);
+  // console.log('connecting with ', account);
   const client = new WebsocketClient(
     {
       apiKey: account.key,
@@ -68,13 +72,7 @@ async function start() {
   });
 
   client.on('exception', (data) => {
-    console.error('exception: ', {
-      msg: data.msg,
-      errno: data.errno,
-      code: data.code,
-      syscall: data.syscall,
-      hostname: data.hostname,
-    });
+    console.error('exception: ', data);
   });
 
   try {
@@ -88,30 +86,39 @@ async function start() {
      * Below are some examples for subscribing to private spot & margin websockets.
      * Note: all "private" websocket topics should use the "spotPrivateV1" wsKey.
      */
-    client.subscribe(
-      [
-        '/market/match:BTC-USDT',
-        '/spotMarket/tradeOrders',
-        '/spotMarket/tradeOrdersV2',
-        '/account/balance',
-        '/spotMarket/advancedOrders',
-      ],
-      'spotPrivateV1',
-    );
+    // client.subscribe(
+    //   [
+    //     // '/market/match:BTC-USDT',
+    //     // '/spotMarket/tradeOrders',
+    //     // '/spotMarket/tradeOrdersV2',
+    //     '/account/balance',
+    //     // '/spotMarket/advancedOrders',
+    //   ],
+    //   'spotPrivateV1',
+    // );
 
-    /**
-     * Other margin websocket topics, which also use the "spotPrivateV1" WsKey:
-     */
-    client.subscribe(
-      [
-        '/margin/position',
-        '/margin/isolatedPosition:BTC-USDT',
-        '/spotMarket/advancedOrders',
-      ],
-      'spotPrivateV1',
+    // /**
+    //  * Other margin websocket topics, which also use the "spotPrivateV1" WsKey:
+    //  */
+    // client.subscribe(
+    //   [
+    //     '/margin/position',
+    //     '/margin/isolatedPosition:BTC-USDT',
+    //     '/spotMarket/advancedOrders',
+    //   ],
+    //   'spotPrivateV1',
+    // );
+
+    // const res = await client.sendWSAPIRequest(WS_KEY_MAP.wsApiSpotV1, 'ping');
+
+    const res = await client.sendWSAPIRequest(
+      WS_KEY_MAP.wsApiSpotV1,
+      'spot.cancel',
+      { clientOid: 'asdfasf', symbol: 'adsfasf' },
     );
+    console.log('ws api res: ', res);
   } catch (e) {
-    console.error(`Subscribe exception: `, e);
+    console.error('ws api exception: ', e);
   }
 }
 
