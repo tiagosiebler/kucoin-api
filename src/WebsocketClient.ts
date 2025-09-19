@@ -525,12 +525,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
             event: parsed,
           });
 
-          // if (isWSAPIWsKey) {
-          //   results.push({
-          //     eventType: 'connectionReadyForAuth',
-          //     event: parsed,
-          //   });
-          // }
           return results;
         }
 
@@ -570,29 +564,9 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       }
 
       if (!eventType) {
-        // WS API response!
-        // const parsed = {
-        //   pingInterval: 18000,
-        //   sessionId: '3ba36e48-2fda-4101-afda-87a4ced36a72',
-        //   pingTimeout: 10000,
-        //   data: 'welcome',
-        // };
-
         if (isForWSAPIWsKey) {
           const isWSAPIResponse = typeof parsed.op === 'string';
           if (isWSAPIResponse) {
-            // const example = {
-            //   eventType: undefined,
-            //   parsed: {
-            //     msg: 'Please check the param of your request: clientOid or orderId is required',
-            //     code: '400102',
-            //     op: 'spot.cancel',
-            //     id: '1',
-            //     outTime: 1758117125136,
-            //     inTime: 1758117125136,
-            //   },
-            // };
-
             const parsedEventErrorCode = Number(parsed.code);
             const parsedEventId = parsed.id;
 
