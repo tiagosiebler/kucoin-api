@@ -2,7 +2,6 @@
  * KuCoin WebSocket API Client - Complete Example
  *
  * This example demonstrates all available WebSocket API operations:
- * - Ping (health check)
  * - Spot trading: submit, modify, cancel, sync operations
  * - Margin trading: submit and cancel orders
  * - Futures trading: submit, cancel, batch operations
@@ -43,14 +42,11 @@ async function main() {
     customLogger,
   );
 
-  // Optional, attach basic event handlers, so nothing is left unhandled
-  // attachEventHandlers(wsClient.getWSClient());
-
   // Example usage for each WebSocket API operation
   console.log('Starting WebSocket API examples...\n');
 
-  // 2. Submit Spot Order
-  /* try {
+  // 1. Submit Spot Order
+  try {
     console.log('\n2. Testing submitNewSpotOrder...');
     const spotOrderResponse = await wsClient.submitNewSpotOrder({
       side: 'buy',
@@ -62,10 +58,10 @@ async function main() {
     console.log('Spot order response:', spotOrderResponse);
   } catch (e) {
     console.log('Spot order error:', e);
-  } */
+  }
 
-  // 3. Submit Sync Spot Order
-  /* try {
+  // 2. Submit Sync Spot Order
+  try {
     console.log('\n3. Testing submitSyncSpotOrder...');
     const syncSpotOrderResponse = await wsClient.submitSyncSpotOrder({
       side: 'buy',
@@ -77,10 +73,10 @@ async function main() {
     console.log('Sync spot order response:', syncSpotOrderResponse);
   } catch (e) {
     console.log('Sync spot order error:', e);
-  }  */
+  }
 
-  // 4. Modify Spot Order (requires existing order ID)
-  /* try {
+  // 3. Modify Spot Order (requires existing order ID)
+  try {
     console.log('\n4. Testing modifySpotOrder...');
     const modifyResponse = await wsClient.modifySpotOrder({
       symbol: 'BTC-USDT',
@@ -90,10 +86,10 @@ async function main() {
     console.log('Modify spot order response:', modifyResponse);
   } catch (e) {
     console.log('Modify spot order error:', e);
-  }  */
+  }
 
-  // 5. Cancel Spot Order
-  /* try {
+  // 4. Cancel Spot Order
+  try {
     console.log('\n5. Testing cancelSpotOrder...');
     const cancelSpotResponse = await wsClient.cancelSpotOrder({
       symbol: 'BTC-USDT',
@@ -102,10 +98,10 @@ async function main() {
     console.log('Cancel spot order response:', cancelSpotResponse);
   } catch (e) {
     console.log('Cancel spot order error:', e);
-  } */
+  }
 
-  // 6. Cancel Sync Spot Order
-  /* try {
+  // 5. Cancel Sync Spot Order
+  try {
     console.log('\n6. Testing cancelSyncSpotOrder...');
     const cancelSyncResponse = await wsClient.cancelSyncSpotOrder({
       symbol: 'BTC-USDT',
@@ -114,9 +110,9 @@ async function main() {
     console.log('Cancel sync spot order response:', cancelSyncResponse);
   } catch (e) {
     console.log('Cancel sync spot order error:', e);
-  } */
+  }
 
-  /* // 7. Submit Margin Order
+  // 6. Submit Margin Order
   try {
     console.log('\n7. Testing submitMarginOrder...');
     const marginOrderResponse = await wsClient.submitMarginOrder({
@@ -131,9 +127,9 @@ async function main() {
     console.log('Margin order response:', marginOrderResponse);
   } catch (e) {
     console.log('Margin order error:', e);
-  } */
+  }
 
-  /* // 8. Cancel Margin Order
+  // 7. Cancel Margin Order
   try {
     console.log('\n8. Testing cancelMarginOrder...');
     const cancelMarginResponse = await wsClient.cancelMarginOrder({
@@ -143,10 +139,10 @@ async function main() {
     console.log('Cancel margin order response:', cancelMarginResponse);
   } catch (e) {
     console.log('Cancel margin order error:', e);
-  } */
+  }
 
-  // 9. Submit Futures Order
-  /* try {
+  // 8. Submit Futures Order
+  try {
     console.log('\n9. Testing submitFuturesOrder...');
     const futuresOrderResponse = await wsClient.submitFuturesOrder({
       clientOid: 'futures-test-' + Date.now(),
@@ -157,14 +153,15 @@ async function main() {
       price: '1000', // Very low price to avoid accidental execution
       qty: '0.01',
       leverage: 10,
+      positionSide: 'LONG', // needed if trading two-way (hedge) position mode
     });
     console.log('Futures order response:', futuresOrderResponse);
   } catch (e) {
     console.log('Futures order error:', e);
-  } */
+  }
 
-  // 10. Cancel Futures Order
-  /* try {
+  // 9. Cancel Futures Order
+  try {
     console.log('\n10. Testing cancelFuturesOrder...');
     const cancelFuturesResponse = await wsClient.cancelFuturesOrder({
       symbol: 'XBTUSDTM',
@@ -173,9 +170,9 @@ async function main() {
     console.log('Cancel futures order response:', cancelFuturesResponse);
   } catch (e) {
     console.log('Cancel futures order error:', e);
-  } */
+  }
 
-  // 11. Submit Multiple Futures Orders
+  // 10. Submit Multiple Futures Orders
   try {
     console.log('\n11. Testing submitMultipleFuturesOrders...');
     const multiFuturesResponse = await wsClient.submitMultipleFuturesOrders([
@@ -207,7 +204,7 @@ async function main() {
     console.log('Multiple futures orders error:', e);
   }
 
-  /* // 12. Cancel Multiple Futures Orders
+  // 11. Cancel Multiple Futures Orders
   try {
     console.log('\n12. Testing cancelMultipleFuturesOrders...');
     const cancelMultiFuturesResponse =
@@ -220,9 +217,10 @@ async function main() {
     );
   } catch (e) {
     console.log('Cancel multiple futures orders error:', e);
-  } */
+  }
 
   console.log('\nCompleted all WebSocket API examples!');
+  process.exit(1);
 }
 
 // Start executing the example workflow
