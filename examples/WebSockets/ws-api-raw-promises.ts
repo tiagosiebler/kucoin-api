@@ -7,18 +7,19 @@ async function start() {
   // Optional: inject a custom logger to override internal logging behaviour
   const logger: DefaultLogger = {
     ...DefaultLogger,
-    trace: (...params) => {
-      if (
-        [
-          'Sending ping',
-          // 'Sending upstream ws message: ',
-          'Received pong',
-        ].includes(params[0])
-      ) {
-        return;
-      }
-      console.log('trace', JSON.stringify(params, null, 2));
-    },
+    // Uncomment the below callback to introduce filtered trace logging in the WebsocketClient.
+    // trace: (...params) => {
+    //   if (
+    //     [
+    //       'Sending ping',
+    //       // 'Sending upstream ws message: ',
+    //       'Received pong',
+    //     ].includes(params[0])
+    //   ) {
+    //     return;
+    //   }
+    //   console.log('trace', JSON.stringify(params, null, 2));
+    // },
   };
 
   const account = {
@@ -70,13 +71,26 @@ async function start() {
     console.error('exception: ', data);
   });
 
+  /**
+   *
+   * Raw events can be routed via the sendWSAPIRequest in the WebsocketClient, as shown below.
+   * However, for a simpler integration, it is recommended to use the WebsocketAPIClient. The
+   * WebsocketAPIClient class is a wrapper around sendWSAPIRequest, with clear functions, typed
+   * requests and typed responses. The simpler WSAPIClient interface behaves much like a REST API
+   * wrapper, but all calls are routed via the WebSocket API.
+   *
+   * For a clearer example, refer to the "ws-api-client.ts" example found in this folder.
+   */
   try {
     const res = await client.sendWSAPIRequest(
       WS_KEY_MAP.wsApiSpotV1,
-      'spot.cancel',
+      'spot.order',
       {
-        clientOid: 'asdfasf',
-        symbol: 'adsfasf',
+        side: 'buy',
+        symbol: 'BTC-USDT',
+        type: 'limit',
+        price: '20000', // Very low price to avoid accidental execution
+        size: '0.0001',
       },
     );
     console.log('ws api res: ', res);

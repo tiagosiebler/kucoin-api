@@ -256,6 +256,10 @@ export class WebsocketAPIClient {
    *
    */
 
+  public connectWSAPI(wsKey: WSAPIWsKey) {
+    return this.getWSClient().assertIsAuthenticated(wsKey);
+  }
+
   private setupDefaultEventListeners() {
     if (this.options.attachEventListeners) {
       /**
