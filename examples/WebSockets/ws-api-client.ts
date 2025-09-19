@@ -22,7 +22,7 @@ async function main() {
   const customLogger = {
     ...DefaultLogger,
     // For a more detailed view of the WebsocketClient, enable the `trace` level by uncommenting the below line:
-    trace: (...params) => console.log(new Date(), 'trace', ...params),
+    // trace: (...params) => console.log(new Date(), 'trace', ...params),
   };
 
   const account = {
