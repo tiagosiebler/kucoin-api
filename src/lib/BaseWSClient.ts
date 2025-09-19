@@ -1229,18 +1229,18 @@ export abstract class BaseWebsocketClient<
 
     // Already in progress? Await shared promise and retry
     if (inProgressPromise) {
-      this.logger.trace('assertIsConnected(): awaiting...');
+      // this.logger.trace('assertIsConnected(): awaiting...');
       await inProgressPromise.promise;
-      this.logger.trace('assertIsConnected(): awaiting...connected!');
+      // this.logger.trace('assertIsConnected(): awaiting...connected!');
       return;
     }
 
     // Start connection, it should automatically store/return a promise.
-    this.logger.trace('assertIsConnected(): connecting...');
+    // this.logger.trace('assertIsConnected(): connecting...');
 
     await this.connect(wsKey);
 
-    this.logger.trace('assertIsConnected(): connecting...newly connected!');
+    // this.logger.trace('assertIsConnected(): connecting...newly connected!');
   }
 
   /**
@@ -1253,7 +1253,7 @@ export abstract class BaseWebsocketClient<
     );
 
     if (!isConnected) {
-      this.logger.trace('assertIsAuthenticated(): connecting...');
+      // this.logger.trace('assertIsAuthenticated(): connecting...');
       await this.assertIsConnected(wsKey);
     }
 
@@ -1262,9 +1262,9 @@ export abstract class BaseWebsocketClient<
 
     // Already in progress? Await shared promise and retry
     if (inProgressPromise) {
-      this.logger.trace('assertIsAuthenticated(): awaiting...');
+      // this.logger.trace('assertIsAuthenticated(): awaiting...');
       await inProgressPromise.promise;
-      this.logger.trace('assertIsAuthenticated(): authenticated!');
+      // this.logger.trace('assertIsAuthenticated(): authenticated!');
       return;
     }
 
@@ -1275,10 +1275,10 @@ export abstract class BaseWebsocketClient<
     }
 
     // Start authentication, it should automatically store/return a promise.
-    this.logger.trace('assertIsAuthenticated(): authenticating...');
+    // this.logger.trace('assertIsAuthenticated(): authenticating...');
 
     await this.sendAuthRequest(wsKey);
 
-    this.logger.trace('assertIsAuthenticated(): newly authenticated!');
+    // this.logger.trace('assertIsAuthenticated(): newly authenticated!');
   }
 }

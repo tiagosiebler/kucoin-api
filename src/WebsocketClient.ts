@@ -197,21 +197,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
   }
 
-  // This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
-  // async sendWSAPIRequest<
-  //   TWSKey extends keyof WsAPIWsKeyTopicMap,
-  //   TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
-  //   TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
-  //   TWSAPIResponse extends
-  //     WsAPITopicResponseMap[TWSOperation] = WsAPITopicResponseMap[TWSOperation],
-  // >(
-  //   wsKey: TWSKey,
-  //   operation: TWSOperation,
-  //   ...params: TWSParams extends undefined
-  //     ? []
-  //     : [TWSParams & { signRequest?: boolean }]
-  // ): Promise<TWSAPIResponse>;
-
   async sendWSAPIRequest<
     TWSKey extends keyof WsAPIWsKeyTopicMap,
     TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
@@ -225,11 +210,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     params: TWSParams & { signRequest?: boolean },
     requestFlags?: WSAPIRequestFlags,
   ): Promise<TWSAPIResponse> {
-    this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`, {
-      operation,
-      params,
-    });
-
     /**
      * Base Info:
      * - https://www.kucoin.com/docs-new/websocket-api/base-info/introduction
@@ -238,28 +218,20 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
      * - https://www.kucoin.com/docs-new/3470133w0
      **/
 
-    this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
-    const timestampBeforeAuth = Date.now();
+    // this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
     await this.assertIsConnected(wsKey);
-    this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
-
-    // This should give a session ID. something like this: {"sessionId":"92f2aec4-d87e-47cc-917d-4e7c93911bdc", "timestamp": 1742175983882}
-    // Use the API-Secret to encrypt the pre-hash JSON string response above with SHA256 HMAC. Send it to the server for authentication. Upon successful authentication, the server will return a welcome message:
+    // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
 
     // Some commands don't require authentication.
     if (requestFlags?.authIsOptional !== true) {
-      this.logger.trace(
-        'sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...',
-      );
+      // this.logger.trace(
+      //   'sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...',
+      // );
       await this.assertIsAuthenticated(wsKey);
-      this.logger.trace(
-        'sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok',
-      );
+      // this.logger.trace(
+      //   'sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok',
+      // );
     }
-
-    // Should receive something like this after auth is success: {"sessionId":"92f2aec4-d87e-47cc-917d-4e7c93911bdc", "data": "welcome", "pingInterval": 18000, "pingTimeout": 10000}
-
-    const timestampAfterAuth = Date.now();
 
     const request: WsRequestOperationKucoin<string> = {
       id: this.getNewRequestId(),
