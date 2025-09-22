@@ -1,6 +1,6 @@
 {
   "name": "kucoin-api",
-  "version": "2.1.23",
+  "version": "2.2.0",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
@@ -29,14 +29,14 @@
   ],
   "dependencies": {
     "axios": "^1.10.0",
-    "isomorphic-ws": "^4.0.1",
+    "isomorphic-ws": "^5.0.0",
     "nanoid": "^3.3.11",
-    "ws": "^7.4.0"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^22.11.6",
-    "@types/ws": "^8.5.10",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^8.29.0",
@@ -56,6 +56,8 @@
     "kucoin nodejs",
     "kucoin javascript",
     "kucoin typescript",
+    "kucoin websocket api",
+    "kucoin websocket api javascript",
     "algo trading",
     "api",
     "websocket",

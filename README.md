@@ -1,4 +1,11 @@
-# Node.js & JavaScript SDK for Kucoin REST APIs & Websockets
+# Node.js & JavaScript SDK for Kucoin REST APIs, Websockets & WebSocket API
+
+[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
+[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
+[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
@@ -9,13 +16,6 @@
   </a>
 </p>
 
-[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
-[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
-[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
-[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
-[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
-[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
-
 [1]: https://www.npmjs.com/package/kucoin-api
 
 Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
@@ -24,6 +24,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
 - Complete integration with all Kucoin REST APIs and WebSockets.
   - Dedicated REST clients for Spot, Futures, and Broker operations
   - Unified WebSocket client for all markets
+  - Dedicated WebSocket API client, to trade on the WebSocket API without the complexity of WebSockets.
 - Complete TypeScript support (with type declarations for most API requests & responses).
   - Strongly typed requests and responses.
   - Automated end-to-end tests ensuring reliability.
@@ -33,6 +34,9 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
   - Smart WebSocket persistence with automatic reconnection handling.
   - Emit `reconnected` event when dropped connection is restored.
   - Support for both public and private WebSocket streams.
+- Supports WebSocket API on all available product groups, including Spot & Futures:
+  - Use the WebsocketClient's event-driven `sendWSAPIRequest()` method, or;
+  - Use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/WebSockets/ws-api-client.ts](./examples/WebSockets/ws-api-client.ts) for a demonstration.
 - Browser-friendly HMAC signature mechanism.
 - Automatically supports both ESM and CJS projects.
 - Heavy automated end-to-end testing with real API calls.
@@ -52,9 +56,13 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
     - [Spot & Margin Trading](#spot--margin-trading)
     - [Futures Trading](#futures-trading)
     - [Broker Operations](#broker-operations)
-  - [WebSocket Client](#websockets)
-    - [Public WebSocket Streams](#public-websocket-streams)
-    - [Private WebSocket Streams](#private-websocket-streams)
+  - [WebSockets](#websockets)
+    - [WebSocket Consumers](#websocket-consumers)
+      - [Public WebSocket Streams](#public-websocket-streams)
+      - [Private WebSocket Streams](#private-websocket-streams)
+    - [WebSocket API](#websocket-api)
+      - [Event Driven API](#event-driven-api)
+      - [Promise Driven API](#async-await-api)
 - [Customise Logging](#customise-logging)
 - [LLMs & AI](#use-with-llms--ai)
 - [Used By](#used-by)
@@ -194,7 +202,11 @@ Key WebSocket features:
 - Support for both public and private WebSocket streams
 - Unified client for spot and futures markets
 
-### Public WebSocket Streams
+### WebSocket Consumers
+
+All websockets are accessible via the shared `WebsocketClient`. As before, API credentials are optional unless the user data stream is required.
+
+#### Public WebSocket Streams
 
 For public market data, API credentials are not required:
 
@@ -278,11 +290,96 @@ try {
 }
 ```
 
-### Private WebSocket Streams
+#### Private WebSocket Streams
 
 For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
 
 See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
+
+### WebSocket API
+
+Kucoin also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API. There are two key ways of interacting with the WebSocket API. The existing WebsocketClient allows raw event routing via the awaitable sendWSAPIRequest() method, or for a much simpler & convenient interface, use the promise-driven API. The surface feels like a REST API, but routing is automatically routed via a dedicated WebSocket connection.
+
+#### Event Driven API
+
+The WebSocket API is available in the [WebsocketClient](./src/websocket-client.ts) via the `sendWSAPIRequest(wsKey, command, commandParameters)` method.
+
+Each call to this method is wrapped in a promise, which you can async await for a response, or handle it in a raw event-driven design.
+
+#### Promise Driven API
+
+The WebSocket API is also available in a promise-wrapped REST-like format. Either, as above, await any calls to `sendWSAPIRequest(...)`, or directly use the convenient WebsocketAPIClient. This class is very similar to existing REST API classes (such as the MainClient or USDMClient).
+
+It provides one function per endpoint, feels like a REST API and will automatically route your request via an automatically persisted, authenticated and health-checked WebSocket API connection.
+
+Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets. For more detailed demonstration, take a look at the [examples/WebSockets/ws-api-client.ts](./examples/WebSockets//ws-api-client.ts) example:
+
+```typescript
+import { DefaultLogger, WebsocketAPIClient } from 'kucoin-api';
+
+// or, if you prefer `require()`:
+// const { DefaultLogger, WebsocketAPIClient } = require('kucoin-api');
+
+const customLogger = {
+  ...DefaultLogger,
+  // For a more detailed view of the WebsocketClient, enable the `trace` level by uncommenting the below line:
+  // trace: (...params) => console.log(new Date(), 'trace', ...params),
+};
+
+const account = {
+  key: process.env.API_KEY || 'keyHere',
+  secret: process.env.API_SECRET || 'secretHere',
+  passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
+};
+
+const wsClient = new WebsocketAPIClient(
+  {
+    apiKey: account.key,
+    apiSecret: account.secret,
+    apiPassphrase: account.passphrase,
+
+    // If you want your own event handlers instead of the default ones with logs, disable this setting and see the `attachEventHandlers` example below:
+    // attachEventListeners: false
+  },
+  // customLogger, // optional: uncomment this to inject a custom logger
+);
+
+// Make WebSocket API calls, very similar to a REST API:
+
+wsClient
+  .submitNewSpotOrder({
+    side: 'buy',
+    symbol: 'BTC-USDT',
+    type: 'limit',
+    price: '150000',
+    size: '0.0001',
+  })
+  .then((syncSpotOrderResponse) => {
+    console.log('Sync spot order response:', syncSpotOrderResponse);
+  })
+  .catch((e) => {
+    console.log('Sync spot order error:', e);
+  });
+
+wsClient
+  .submitFuturesOrder({
+    clientOid: 'futures-test-' + Date.now(),
+    side: 'buy',
+    symbol: 'XBTUSDTM',
+    marginMode: 'CROSS',
+    type: 'limit',
+    price: '1000',
+    qty: '0.01',
+    leverage: 10,
+    positionSide: 'LONG', // needed if trading two-way (hedge) position mode
+  })
+  .then((futuresOrderResponse) => {
+    console.log('Futures order response:', futuresOrderResponse);
+  })
+  .catch((e) => {
+    console.log('Futures order error:', e);
+  });
+```
 
 ---
 
@@ -301,8 +398,8 @@ const logger = {
   trace: (...params) => {
     if (
       [
+        // Selectively prevent some traces from logging
         'Sending ping',
-        // 'Sending upstream ws message: ',
         'Received pong',
       ].includes(params[0])
     ) {

@@ -21,6 +21,7 @@ All REST clients are in the [src](/src) folder. For usage examples, make sure to
 List of clients:
 - [SpotClient](#SpotClientts)
 - [FuturesClient](#FuturesClientts)
+- [WebsocketAPIClient](#WebsocketAPIClientts)
 
 
 If anything is missing or wrong, please open an issue or let us know in our [Node.js Traders](https://t.me/nodetraders) telegram group!
@@ -324,3 +325,21 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [submitTransferIn()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L982) | :closed_lock_with_key:  | POST | `api/v1/transfer-in` |
 | [getTransfers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L993) | :closed_lock_with_key:  | GET | `api/v1/transfer-list` |
 | [updateAutoDepositStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1008) | :closed_lock_with_key:  | POST | `api/v1/position/margin/auto-deposit-status` |
+
+# WebsocketAPIClient.ts
+
+This table includes all endpoints from the official Exchange API docs and corresponding SDK functions for each endpoint that are found in [WebsocketAPIClient.ts](/src/WebsocketAPIClient.ts). 
+
+| Function | AUTH | HTTP Method | Endpoint |
+| -------- | :------: | :------: | -------- |
+| [submitNewSpotOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L88) | :closed_lock_with_key:  | WS | `spot.order` |
+| [modifySpotOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L102) | :closed_lock_with_key:  | WS | `spot.modify` |
+| [cancelSpotOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L116) | :closed_lock_with_key:  | WS | `spot.cancel` |
+| [submitSyncSpotOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L130) | :closed_lock_with_key:  | WS | `spot.sync_order` |
+| [cancelSyncSpotOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L144) | :closed_lock_with_key:  | WS | `spot.sync_cancel` |
+| [submitMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L158) | :closed_lock_with_key:  | WS | `margin.order` |
+| [cancelMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L172) | :closed_lock_with_key:  | WS | `margin.cancel` |
+| [submitFuturesOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L186) | :closed_lock_with_key:  | WS | `futures.order` |
+| [cancelFuturesOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L200) | :closed_lock_with_key:  | WS | `futures.cancel` |
+| [submitMultipleFuturesOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L216) | :closed_lock_with_key:  | WS | `futures.multi_order` |
+| [cancelMultipleFuturesOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/WebsocketAPIClient.ts#L230) | :closed_lock_with_key:  | WS | `futures.multi_cancel` |

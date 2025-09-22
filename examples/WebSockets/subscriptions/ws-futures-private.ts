@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient } from '../src/index.js';
+import { DefaultLogger, WebsocketClient } from '../../../src/index.js';
 // import { DefaultLogger, WebsocketClient } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
-  // Optional: inject a custom logger to override internal logging behaviour
+  // Optional: inject and customise a logger for more control over internal logging
   // const logger: typeof DefaultLogger = {
   //   ...DefaultLogger,
   //   trace: (...params) => {
@@ -27,7 +27,7 @@ async function start() {
     passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
   };
 
-  console.log(`connecting with `, account);
+  console.log('connecting with ', account);
   const client = new WebsocketClient(
     {
       apiKey: account.key,
@@ -79,39 +79,28 @@ async function start() {
 
   try {
     // Optional: await a connection to be ready before subscribing (this is not necessary)
-    // await client.connect('spotPrivateV1');
+    // await client.connect('futuresPrivateV1');
     // console.log('connected');
 
     /**
      * For more detailed usage info, refer to the ws-spot-public.ts example.
      *
-     * Below are some examples for subscribing to private spot & margin websockets.
-     * Note: all "private" websocket topics should use the "spotPrivateV1" wsKey.
+     * Below are some examples for subscribing to private futures websockets.
+     * Note: all "private" websocket topics should use the "futuresPrivateV1" wsKey.
      */
     client.subscribe(
       [
-        '/market/match:BTC-USDT',
-        '/spotMarket/tradeOrders',
-        '/spotMarket/tradeOrdersV2',
-        '/account/balance',
-        '/spotMarket/advancedOrders',
+        '/contractMarket/tradeOrders:XBTUSDM',
+        '/contractMarket/tradeOrders',
+        '/contractMarket/advancedOrders',
+        '/contractAccount/wallet',
+        '/contract/position:XBTUSDM',
+        '/contract/positionAll',
       ],
-      'spotPrivateV1',
-    );
-
-    /**
-     * Other margin websocket topics, which also use the "spotPrivateV1" WsKey:
-     */
-    client.subscribe(
-      [
-        '/margin/position',
-        '/margin/isolatedPosition:BTC-USDT',
-        '/spotMarket/advancedOrders',
-      ],
-      'spotPrivateV1',
+      'futuresPrivateV1',
     );
   } catch (e) {
-    console.error(`Subscribe exception: `, e);
+    console.error('Subscribe exception: ', e);
   }
 }
 

@@ -136,6 +136,7 @@ export interface Order {
   hidden?: boolean;
   iceberg?: boolean;
   visibleSize?: string;
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
 }
 
 export interface SLTPOrder {

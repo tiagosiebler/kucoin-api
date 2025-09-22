@@ -29,6 +29,12 @@ export interface RestClientOptions {
   /** Your API passphrase (can be anything) that you set when creating this API key (NOT your account password) */
   apiPassphrase?: string;
 
+  /**
+   * Use access token instead of sign, if this is provided.
+   * For guidance refer to: https://github.com/tiagosiebler/kucoin-api/issues/2
+   */
+  apiAccessToken?: string;
+
   /** The API key version. Defaults to "2" right now. You can see this in your API management page */
   apiKeyVersion?: number | string;
 
@@ -57,6 +63,13 @@ export interface RestClientOptions {
    * Default: 1000 (defaults comes from https agent)
    */
   keepAliveMsecs?: number;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
 }
 
 export function serializeParams<T extends Record<string, any> | undefined = {}>(

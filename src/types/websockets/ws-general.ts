@@ -34,6 +34,7 @@ export interface WSClientConfigurableOptions {
   };
 
   wsUrl?: string;
+
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *
@@ -63,6 +64,13 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
   authPrivateConnectionsOnConnect: boolean;
   authPrivateRequests: boolean;
   reauthWSAPIOnReconnect: boolean;
+
+  /**
+   * Whether to use native WebSocket ping/pong frames for heartbeats
+   */
+  useNativeHeartbeats: boolean;
 }
 
 export type WsMarket = 'spot' | 'futures';
+
+export type WsEventInternalSrc = 'event' | 'function';

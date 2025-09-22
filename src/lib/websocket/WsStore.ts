@@ -9,20 +9,38 @@ import {
 } from './WsStore.types.js';
 
 /**
- * Simple comparison of two objects, only checks 1-level deep (nested objects won't match)
+ * Simple comparison of two objects, recursive for nested objects. Adoped from OKX SDK.
  */
-export function isDeepObjectMatch(object1: unknown, object2: unknown): boolean {
-  if (typeof object1 === 'string' && typeof object2 === 'string') {
-    return object1 === object2;
+export function isDeepObjectMatch(object1: any, object2: any): boolean {
+  if (typeof object2 !== typeof object1) {
+    return false;
   }
 
-  if (typeof object1 !== 'object' || typeof object2 !== 'object') {
+  const keys1 = Object.keys(object1).sort();
+  const keys2 = Object.keys(object2).sort();
+
+  const hasSameKeyCount = keys1.length === keys2.length;
+  if (!hasSameKeyCount) {
+    // console.log('not same key count', { keys1, keys2 });
+    // not the same amount of keys or keys don't match
+    return false;
+  }
+
+  const hasSameKeyNames = keys1.every((val, i) => val === keys2[i]);
+  if (!hasSameKeyNames) {
+    // console.log('not same key names: ', { keys1, keys2 });
     return false;
   }
 
   for (const key in object1) {
-    const value1 = (object1 as any)[key];
-    const value2 = (object2 as any)[key];
+    const value1 = object1[key];
+    const value2 = object2[key];
+
+    if (typeof value1 === 'object' && typeof value2 === 'object') {
+      if (!isDeepObjectMatch(value1, value2)) {
+        return false;
+      }
+    }
 
     if (value1 !== value2) {
       return false;
@@ -33,6 +51,7 @@ export function isDeepObjectMatch(object1: unknown, object2: unknown): boolean {
 
 const DEFERRED_PROMISE_REF = {
   CONNECTION_IN_PROGRESS: 'CONNECTION_IN_PROGRESS',
+  AUTHENTICATION_IN_PROGRESS: 'AUTHENTICATION_IN_PROGRESS',
 } as const;
 
 type DeferredPromiseRef =
@@ -45,9 +64,9 @@ export class WsStore<
   private wsState: Record<string, WsStoredState<TWSTopicSubscribeEventArgs>> =
     {};
 
-  private logger: typeof DefaultLogger;
+  private logger: DefaultLogger;
 
-  constructor(logger: typeof DefaultLogger) {
+  constructor(logger: DefaultLogger) {
     this.logger = logger || DefaultLogger;
   }
 
@@ -129,6 +148,10 @@ export class WsStore<
     return wsConnection;
   }
 
+  /**
+   * deferred promises
+   */
+
   getDeferredPromise<TSuccessResult = any>(
     wsKey: WsKey,
     promiseRef: string | DeferredPromiseRef,
@@ -201,9 +224,20 @@ export class WsStore<
     removeAfter: boolean,
   ): void {
     const promise = this.getDeferredPromise(wsKey, promiseRef);
+
     if (promise?.reject) {
-      promise.reject(value);
+      this.logger.trace(
+        `rejectDeferredPromise(): rejecting ${wsKey}/${promiseRef}`,
+        value,
+      );
+
+      if (typeof value === 'string') {
+        promise.reject(new Error(value));
+      } else {
+        promise.reject(value);
+      }
     }
+
     if (removeAfter) {
       this.removeDeferredPromise(wsKey, promiseRef);
     }
@@ -245,6 +279,9 @@ export class WsStore<
       }
 
       try {
+        this.logger.trace(
+          `rejectAllDeferredPromises(): rejecting ${wsKey}/${promiseRef}/${reason}`,
+        );
         this.rejectDeferredPromise(wsKey, promiseRef, reason, true);
       } catch (e) {
         this.logger.error(
@@ -265,6 +302,15 @@ export class WsStore<
     );
   }
 
+  getAuthenticationInProgressPromise(
+    wsKey: WsKey,
+  ): DeferredPromise<WSConnectedResult & { event: any }> | undefined {
+    return this.getDeferredPromise(
+      wsKey,
+      DEFERRED_PROMISE_REF.AUTHENTICATION_IN_PROGRESS,
+    );
+  }
+
   /**
    * Create a deferred promise designed to track a connection attempt in progress.
    *
@@ -281,11 +327,29 @@ export class WsStore<
     );
   }
 
+  createAuthenticationInProgressPromise(
+    wsKey: WsKey,
+    throwIfExists: boolean,
+  ): DeferredPromise<WSConnectedResult & { event: any }> {
+    return this.createDeferredPromise(
+      wsKey,
+      DEFERRED_PROMISE_REF.AUTHENTICATION_IN_PROGRESS,
+      throwIfExists,
+    );
+  }
+
   /** Remove promise designed to track a connection attempt in progress */
   removeConnectingInProgressPromise(wsKey: WsKey): void {
     return this.removeDeferredPromise(
       wsKey,
       DEFERRED_PROMISE_REF.CONNECTION_IN_PROGRESS,
+    );
+  }
+
+  removeAuthenticationInProgressPromise(wsKey: WsKey): void {
+    return this.removeDeferredPromise(
+      wsKey,
+      DEFERRED_PROMISE_REF.AUTHENTICATION_IN_PROGRESS,
     );
   }
 
@@ -304,8 +368,8 @@ export class WsStore<
   }
 
   setConnectionState(key: WsKey, state: WsConnectionStateEnum) {
-    // console.log(new Date(), `setConnectionState(${key}, ${state})`);
     this.get(key, true).connectionState = state;
+    this.get(key, true).connectionStateChangedAt = new Date();
   }
 
   isConnectionState(key: WsKey, state: WsConnectionStateEnum): boolean {
@@ -322,6 +386,22 @@ export class WsStore<
       this.isConnectionState(key, WsConnectionStateEnum.CONNECTING) ||
       this.isConnectionState(key, WsConnectionStateEnum.RECONNECTING);
 
+    if (isConnectionInProgress) {
+      const wsState = this.get(key, true);
+      const stateLastChangedAt = wsState?.connectionStateChangedAt;
+      const stateChangedAtTimestamp = stateLastChangedAt?.getTime();
+      if (stateChangedAtTimestamp) {
+        const timestampNow = new Date().getTime();
+        const stateChangedTimeAgo = timestampNow - stateChangedAtTimestamp;
+        const stateChangeTimeout = 15000; // allow a max 15 second timeout since the last state change before assuming stuck;
+        if (stateChangedTimeAgo >= stateChangeTimeout) {
+          const msg = 'State change timed out, reconnect workflow stuck?';
+          this.logger.error(msg, { key, wsState });
+          this.setConnectionState(key, WsConnectionStateEnum.ERROR);
+        }
+      }
+    }
+
     return isConnectionInProgress;
   }
 
@@ -331,15 +411,20 @@ export class WsStore<
     return this.get(key, true).subscribedTopics;
   }
 
+  getTopicsAsArray(key: WsKey): TWSTopicSubscribeEventArgs[] {
+    return [...this.getTopics(key).values()];
+  }
+
   getTopicsByKey(): Record<string, Set<TWSTopicSubscribeEventArgs>> {
-    const result: any = {};
+    const result: Record<string, Set<TWSTopicSubscribeEventArgs>> = {};
+
     for (const refKey in this.wsState) {
       result[refKey] = this.getTopics(refKey as WsKey);
     }
+
     return result;
   }
 
-  // Since topics are objects we can't rely on the set to detect duplicates
   /**
    * Find matching "topic" request from the store
    * @param key
@@ -347,20 +432,16 @@ export class WsStore<
    * @returns
    */
   getMatchingTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs) {
-    // if (typeof topic === 'string') {
-    //   return this.getMatchingTopic(key, { channel: topic });
-    // }
-
     const allTopics = this.getTopics(key).values();
     for (const storedTopic of allTopics) {
-      if (isDeepObjectMatch(topic, storedTopic)) {
+      const matchesStoredTopic = isDeepObjectMatch(topic, storedTopic);
+      if (matchesStoredTopic) {
         return storedTopic;
       }
     }
   }
 
   addTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs) {
-    // console.log(`wsStore.addTopic(${key}, ${topic})`);
     // Check for duplicate topic. If already tracked, don't store this one
     const existingTopic = this.getMatchingTopic(key, topic);
     if (existingTopic) {
