@@ -347,12 +347,12 @@ const wsClient = new WebsocketAPIClient(
 // Make WebSocket API calls, very similar to a REST API:
 
 wsClient
-  .submitSyncSpotOrder({
+  .submitNewSpotOrder({
     side: 'buy',
     symbol: 'BTC-USDT',
     type: 'limit',
-    price: '1000', // Very high price to avoid accidental execution
-    size: '0.01',
+    price: '150000',
+    size: '0.0001',
   })
   .then((syncSpotOrderResponse) => {
     console.log('Sync spot order response:', syncSpotOrderResponse);
@@ -368,7 +368,7 @@ wsClient
     symbol: 'XBTUSDTM',
     marginMode: 'CROSS',
     type: 'limit',
-    price: '1000', // Very low price to avoid accidental execution
+    price: '1000',
     qty: '0.01',
     leverage: 10,
     positionSide: 'LONG', // needed if trading two-way (hedge) position mode
@@ -398,8 +398,8 @@ const logger = {
   trace: (...params) => {
     if (
       [
+        // Selectively prevent some traces from logging
         'Sending ping',
-        // 'Sending upstream ws message: ',
         'Received pong',
       ].includes(params[0])
     ) {
