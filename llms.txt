@@ -93,6 +93,7 @@ src/
       spot-margin-trading.ts
       spot-misc.ts
       spot-trading.ts
+      uta-types.ts
     response/
       broker.types.ts
       futures.types.ts
@@ -106,6 +107,7 @@ src/
       spot-misc.ts
       spot-trading.ts
       spot-vip.ts
+      uta-types.ts
       ws.ts
     websockets/
       ws-api.ts
@@ -115,6 +117,7 @@ src/
   FuturesClient.ts
   index.ts
   SpotClient.ts
+  UnifiedAPIClient.ts
   WebsocketAPIClient.ts
   WebsocketClient.ts
 .eslintrc.cjs
@@ -1337,6 +1340,116 @@ export interface GetAnnouncementsRequest {
 }
 
 ================
+File: src/types/request/uta-types.ts
+================
+/**
+ * Unified Trading Account Request Types
+ */
+⋮----
+export interface GetAnnouncementsRequestUTA {
+  language?:
+    | 'zh_HK'
+    | 'ja_JP'
+    | 'ko_KR'
+    | 'en_US'
+    | 'pl_PL'
+    | 'es_ES'
+    | 'fr_FR'
+    | 'ar_AE'
+    | 'it_IT'
+    | 'id_ID'
+    | 'nl_NL'
+    | 'pt_PT'
+    | 'vi_VN'
+    | 'de_DE'
+    | 'tr_TR'
+    | 'ms_MY'
+    | 'ru_RU'
+    | 'th_TH'
+    | 'hi_IN'
+    | 'bn_BD'
+    | 'fil_PH'
+    | 'ur_PK';
+  type?:
+    | 'latest-announcements'
+    | 'activities'
+    | 'product-updates'
+    | 'vip'
+    | 'maintenance-updates'
+    | 'delistings'
+    | 'others'
+    | 'api-campaigns'
+    | 'new-listings'
+    | 'futures-announcements';
+  pageNumber?: number;
+  pageSize?: number;
+  startTime?: number;
+  endTime?: number;
+}
+⋮----
+export interface GetCurrencyRequestUTA {
+  currency?: string;
+  chain?: string;
+}
+⋮----
+export interface GetSymbolRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  symbol?: string;
+}
+⋮----
+export interface GetTickerRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol?: string;
+}
+⋮----
+export interface GetTradesRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol: string;
+}
+⋮----
+export interface GetOrderBookRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol: string;
+  limit: '20' | '50' | '100' | 'FULL';
+}
+⋮----
+export interface GetKlinesRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol: string;
+  interval:
+    | '1min'
+    | '3min'
+    | '5min'
+    | '15min'
+    | '30min'
+    | '1hour'
+    | '2hour'
+    | '4hour'
+    | '6hour'
+    | '8hour'
+    | '12hour'
+    | '1day'
+    | '1week'
+    | '1month';
+  startAt?: number;
+  endAt?: number;
+}
+⋮----
+export interface GetCurrentFundingRateRequestUTA {
+  symbol: string;
+}
+⋮----
+export interface GetHistoryFundingRateRequestUTA {
+  symbol: string;
+  startAt: number;
+  endAt: number;
+}
+⋮----
+export interface GetServiceStatusRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+}
+
+================
 File: src/types/response/shared.types.ts
 ================
 export interface APISuccessResponse<TData> {
@@ -1378,6 +1491,202 @@ export interface Announcements {
 }
 
 ================
+File: src/types/response/uta-types.ts
+================
+/**
+ * Unified Trading Account Response Types
+ */
+⋮----
+export interface AnnouncementItemUTA {
+  id: number;
+  title: string;
+  type: string[];
+  description: string;
+  releaseTime: number;
+  language: string;
+  url: string;
+}
+⋮----
+export interface GetAnnouncementsResponseUTA {
+  totalNumber: number;
+  totalPage: number;
+  pageNumber: number;
+  pageSize: number;
+  list: AnnouncementItemUTA[];
+}
+⋮----
+export interface CurrencyChainUTA {
+  chainName: string;
+  minWithdrawSize: string | null;
+  minDepositSize: string | null;
+  withdrawFeeRate: string;
+  minWithdrawFee: string;
+  isWithdrawEnabled: boolean;
+  isDepositEnabled: boolean;
+  confirms: number;
+  preConfirms: number;
+  contractAddress: string;
+  withdrawPrecision: number;
+  maxWithdrawSize: string | null;
+  maxDepositSize: string | null;
+  needTag: boolean;
+  chainId: string;
+}
+⋮----
+export interface GetCurrencyResponseUTA {
+  currency: string;
+  name: string;
+  fullName: string;
+  precision: number;
+  confirms: number | null;
+  contractAddress: string | null;
+  isMarginEnabled: boolean;
+  isDebitEnabled: boolean;
+  list: CurrencyChainUTA[];
+}
+⋮----
+export interface SymbolUTA {
+  symbol: string;
+  name?: string;
+  baseCurrency: string;
+  quoteCurrency: string;
+  market?: string;
+  minBaseOrderSize?: string;
+  minQuoteOrderSize?: string;
+  maxBaseOrderSize?: string | number;
+  maxQuoteOrderSize?: string;
+  baseOrderStep?: string;
+  quoteOrderStep?: string;
+  tickSize?: string | number;
+  feeCurrency?: string;
+  tradingStatus?: string;
+  marginMode?: string;
+  priceLimitRatio?: string;
+  feeCategory?: number;
+  makerFeeCoefficient?: string;
+  takerFeeCoefficient?: string;
+  st?: boolean;
+  settlementCurrency?: string;
+  contractType?: string;
+  isInverse?: boolean;
+  launchTime?: number;
+  expiryTime?: number | null;
+  settlementTime?: number | null;
+  maxPrice?: string | number;
+  lotSize?: string | number;
+  unitSize?: string | number;
+  makerFeeRate?: string | number;
+  takerFeeRate?: string | number;
+  settlementFeeRate?: string | number | null;
+  maxLeverage?: number;
+  indexSourceExchanges?: string[];
+  k?: string | number;
+  m?: string | number;
+  f?: string | number;
+  mmrLimit?: string | number;
+  mmrLevConstant?: string | number;
+  alertRiskRatio?: string;
+  liquidationRiskRatio?: string;
+  baseBorrowEnable?: boolean | string;
+  quoteBorrowEnable?: boolean | string;
+  baseTransferInEnable?: boolean | string;
+  quoteTransferInEnable?: boolean | string;
+}
+⋮----
+export interface GetSymbolResponseUTA {
+  tradeType: string;
+  list: SymbolUTA[];
+}
+⋮----
+export interface TickerUTA {
+  symbol: string;
+  name?: string;
+  bestBidPrice: string;
+  bestBidSize: string;
+  bestAskPrice: string;
+  bestAskSize: string;
+  high: string;
+  low: string;
+  baseVolume: string;
+  quoteVolume: string;
+  lastPrice: string;
+  open: string;
+  size: string;
+}
+⋮----
+export interface GetTickerResponseUTA {
+  tradeType: string;
+  ts: number;
+  list: TickerUTA[];
+}
+⋮----
+export interface TradeUTA {
+  sequence: string;
+  tradeId: string;
+  price: string;
+  size: string;
+  side: 'buy' | 'sell';
+  ts: number;
+}
+⋮----
+export interface GetTradesResponseUTA {
+  tradeType: string;
+  list: TradeUTA[];
+}
+⋮----
+export interface OrderBookLevelUTA {
+  price: string;
+  size: string;
+}
+⋮----
+export interface GetOrderBookResponseUTA {
+  tradeType: string;
+  symbol: string;
+  sequence: string;
+  bids: OrderBookLevelUTA[];
+  asks: OrderBookLevelUTA[];
+}
+⋮----
+export interface GetKlinesResponseUTA {
+  tradeType: string;
+  symbol: string;
+  list: string[][]; // [time, open, close, high, low, volume, turnover]
+}
+⋮----
+list: string[][]; // [time, open, close, high, low, volume, turnover]
+⋮----
+export interface GetCurrentFundingRateResponseUTA {
+  symbol: string;
+  nextFundingRate: number;
+  fundingTime: number;
+  fundingRateCap: number;
+  fundingRateFloor: number;
+}
+⋮----
+export interface FundingRateHistoryItemUTA {
+  fundingRate: number;
+  ts: number;
+}
+⋮----
+export interface GetHistoryFundingRateResponseUTA {
+  symbol: string;
+  list: FundingRateHistoryItemUTA[];
+}
+⋮----
+export interface GetCrossMarginConfigResponseUTA {
+  maxLeverage: number;
+  alertRiskRatio: string;
+  liquidationRiskRatio: string;
+  currencyList: string[];
+}
+⋮----
+export interface GetServiceStatusResponseUTA {
+  tradeType: string;
+  serverStatus: 'open' | 'close' | 'cancelonly';
+  msg: string;
+}
+
+================
 File: src/types/response/ws.ts
 ================
 export interface WsServerInfo {
@@ -1392,6 +1701,155 @@ export interface WsConnectionInfo {
   token: string;
   instanceServers: WsServerInfo[];
 }
+
+================
+File: src/UnifiedAPIClient.ts
+================
+import { AxiosRequestConfig } from 'axios';
+⋮----
+import { BaseRestClient } from './lib/BaseRestClient.js';
+import {
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+} from './lib/requestUtils.js';
+import {
+  GetAnnouncementsRequestUTA,
+  GetCurrencyRequestUTA,
+  GetCurrentFundingRateRequestUTA,
+  GetHistoryFundingRateRequestUTA,
+  GetKlinesRequestUTA,
+  GetOrderBookRequestUTA,
+  GetServiceStatusRequestUTA,
+  GetSymbolRequestUTA,
+  GetTickerRequestUTA,
+  GetTradesRequestUTA,
+} from './types/request/uta-types.js';
+import { APISuccessResponse } from './types/response/shared.types.js';
+import {
+  GetAnnouncementsResponseUTA,
+  GetCrossMarginConfigResponseUTA,
+  GetCurrencyResponseUTA,
+  GetCurrentFundingRateResponseUTA,
+  GetHistoryFundingRateResponseUTA,
+  GetKlinesResponseUTA,
+  GetOrderBookResponseUTA,
+  GetServiceStatusResponseUTA,
+  GetSymbolResponseUTA,
+  GetTickerResponseUTA,
+  GetTradesResponseUTA,
+} from './types/response/uta-types.js';
+⋮----
+/**
+ * Unified Trading Account Client
+ *
+ * This client provides access to the Unified Trading Account API endpoints
+ * that unify market data access across Spot, Futures, and Margin trading.
+ */
+export class UnifiedAPIClient extends BaseRestClient
+⋮----
+constructor(
+    restClientOptions: RestClientOptions = {},
+    requestOptions: AxiosRequestConfig = {},
+)
+⋮----
+getClientType(): RestClientType
+⋮----
+/**
+   *
+   * REST - Unified Trading Account - Market Data
+   *
+   */
+⋮----
+/**
+   * Get Announcements
+   * This interface can obtain the latest news announcements, and the default
+   * page search is for announcements within a month.
+   */
+getAnnouncements(
+    params?: GetAnnouncementsRequestUTA,
+): Promise<APISuccessResponse<GetAnnouncementsResponseUTA>>
+⋮----
+/**
+   * Get Currency
+   * Request the currency details of a specified currency via this endpoint.
+   */
+getCurrency(
+    params?: GetCurrencyRequestUTA,
+): Promise<APISuccessResponse<GetCurrencyResponseUTA>>
+⋮----
+/**
+   * Get Symbol
+   * Request a list of available currency pairs for trading via this endpoint.
+   */
+getSymbol(
+    params: GetSymbolRequestUTA,
+): Promise<APISuccessResponse<GetSymbolResponseUTA>>
+⋮----
+/**
+   * Get Ticker
+   * Request market tickers for the trading pairs in the market (including 24h volume).
+   */
+getTicker(
+    params: GetTickerRequestUTA,
+): Promise<APISuccessResponse<GetTickerResponseUTA>>
+⋮----
+/**
+   * Get Trades
+   * Request via this endpoint to get the latest 100 public trades of the specified symbol.
+   */
+getTrades(
+    params: GetTradesRequestUTA,
+): Promise<APISuccessResponse<GetTradesResponseUTA>>
+⋮----
+/**
+   * Get OrderBook
+   * Query order book depth information (aggregated by price).
+   */
+getOrderBook(
+    params: GetOrderBookRequestUTA,
+): Promise<APISuccessResponse<GetOrderBookResponseUTA>>
+⋮----
+/**
+   * Get Klines
+   * Get the Kline of the symbol. Data are returned in grouped buckets based on requested type.
+   */
+getKlines(
+    params: GetKlinesRequestUTA,
+): Promise<APISuccessResponse<GetKlinesResponseUTA>>
+⋮----
+/**
+   * Get Current Funding Rate
+   * Get current Futures funding fee rate.
+   */
+getCurrentFundingRate(
+    params: GetCurrentFundingRateRequestUTA,
+): Promise<APISuccessResponse<GetCurrentFundingRateResponseUTA>>
+⋮----
+/**
+   * Get History Funding Rate
+   * Query the Futures funding rate at each settlement time point within a certain time range.
+   */
+getHistoryFundingRate(
+    params: GetHistoryFundingRateRequestUTA,
+): Promise<APISuccessResponse<GetHistoryFundingRateResponseUTA>>
+⋮----
+/**
+   * Get Cross Margin Config
+   * Request the configure info of the 'spot cross margin' via this endpoint.
+   */
+getCrossMarginConfig(): Promise<
+    APISuccessResponse<GetCrossMarginConfigResponseUTA>
+  > {
+    return this.get('api/ua/v1/market/cross-config');
+⋮----
+/**
+   * Get Service Status
+   * Get the service status.
+   */
+getServiceStatus(
+    params: GetServiceStatusRequestUTA,
+): Promise<APISuccessResponse<GetServiceStatusResponseUTA>>
 
 ================
 File: .prettierrc
@@ -6680,6 +7138,8 @@ File: src/lib/requestUtils.ts
 ⋮----
 /** Broker */
 ⋮----
+/** Unified Trading Account */
+⋮----
 export type RestClientType =
   (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
 ⋮----
@@ -6843,6 +7303,7 @@ import {
   FuturesRiskLimit,
   FuturesSubAccount,
   FuturesSymbolInfo,
+  GetPositionModeResponse,
   IndexListItem,
   InterestRateItem,
   MarketTradeDetail,
@@ -7294,8 +7755,17 @@ getMaxOpenSize(
 /**
    * Get Position Details
    * Get the position details of a specified position.
+   * @deprecated Use getPositionV2 instead
    */
 getPosition(params: {
+    symbol: string;
+}): Promise<APISuccessResponse<FuturesPosition>>
+⋮----
+/**
+   * Get Position Details
+   * Get the position details of a specified position.
+   */
+getPositionV2(params: {
     symbol: string;
 }): Promise<APISuccessResponse<FuturesPosition>>
 ⋮----
@@ -7409,6 +7879,12 @@ updateRiskLimitLevel(params: {
     symbol: string;
     level: number;
 }): Promise<boolean>
+⋮----
+/**
+   * Get Position Mode
+   * This interface can query the position mode of this account.
+   */
+getPositionMode(): Promise<APISuccessResponse<GetPositionModeResponse>>
 ⋮----
 /**
    * Switch Position Mode
@@ -7593,11 +8069,23 @@ updateCopyTradeAutoDepositStatus(params: {
    * Get download link for broker rebate orders
    *
    * trade type 1 = spot, trade type 2 = futures
+   * @deprecated Use getBrokerRebateOrderDownloadLinkV2 instead
    */
 getBrokerRebateOrderDownloadLink(params: {
     begin: string;
     end: string;
     tradeType: 1 | 2;
+}): Promise<APISuccessResponse<any>>
+⋮----
+/**
+   * Get download link for broker rebate orders
+   *
+   * trade type SPOT = spot, FUTURE = futures
+   */
+getBrokerRebateOrderDownloadLinkV2(params: {
+    begin: string;
+    end: string;
+    tradeType: 'SPOT' | 'FUTURE';
 }): Promise<APISuccessResponse<any>>
 ⋮----
 /**
@@ -8432,6 +8920,12 @@ export interface BatchMarginModeUpdateResponse {
   }[];
 }
 ⋮----
+export interface GetPositionModeResponse {
+  positionMode: 0 | 1; // 0 = one-way mode, 1 = hedge mode
+}
+⋮----
+positionMode: 0 | 1; // 0 = one-way mode, 1 = hedge mode
+⋮----
 export interface MaxOpenSize {
   symbol: string;
   maxBuyOpenSize: number;
@@ -9004,477 +9498,6 @@ orderIdsList: ['order-id-1', 'order-id-2'], // Replace with actual order IDs
 // Start executing the example workflow
 
 ================
-File: README.md
-================
-# Node.js & JavaScript SDK for Kucoin REST APIs, Websockets & WebSocket API
-
-[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
-[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
-[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
-[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
-[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
-[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/kucoin-api">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
-      <img alt="SDK Logo" src="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
-    </picture>
-  </a>
-</p>
-
-[1]: https://www.npmjs.com/package/kucoin-api
-
-Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
-
-- Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
-- Complete integration with all Kucoin REST APIs and WebSockets.
-  - Dedicated REST clients for Spot, Futures, and Broker operations
-  - Unified WebSocket client for all markets
-  - Dedicated WebSocket API client, to trade on the WebSocket API without the complexity of WebSockets.
-- Complete TypeScript support (with type declarations for most API requests & responses).
-  - Strongly typed requests and responses.
-  - Automated end-to-end tests ensuring reliability.
-- Actively maintained with a modern, promise-driven interface.
-- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
-  - Event driven messaging.
-  - Smart WebSocket persistence with automatic reconnection handling.
-  - Emit `reconnected` event when dropped connection is restored.
-  - Support for both public and private WebSocket streams.
-- Supports WebSocket API on all available product groups, including Spot & Futures:
-  - Use the WebsocketClient's event-driven `sendWSAPIRequest()` method, or;
-  - Use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/WebSockets/ws-api-client.ts](./examples/WebSockets/ws-api-client.ts) for a demonstration.
-- Browser-friendly HMAC signature mechanism.
-- Automatically supports both ESM and CJS projects.
-- Heavy automated end-to-end testing with real API calls.
-- Proxy support via axios integration.
-- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Examples](#examples)
-- [Issues & Discussion](#issues--discussion)
-- [Related Projects](#related-projects)
-- [Documentation](#documentation)
-- [Structure](#structure)
-- [Usage](#usage)
-  - [REST API Clients](#rest-api)
-    - [Spot & Margin Trading](#spot--margin-trading)
-    - [Futures Trading](#futures-trading)
-    - [Broker Operations](#broker-operations)
-  - [WebSockets](#websockets)
-    - [WebSocket Consumers](#websocket-consumers)
-      - [Public WebSocket Streams](#public-websocket-streams)
-      - [Private WebSocket Streams](#private-websocket-streams)
-    - [WebSocket API](#websocket-api)
-      - [Event Driven API](#event-driven-api)
-      - [Promise Driven API](#async-await-api)
-- [Customise Logging](#customise-logging)
-- [LLMs & AI](#use-with-llms--ai)
-- [Used By](#used-by)
-- [Contributions & Thanks](#contributions--thanks)
-
-## Installation
-
-`npm install --save kucoin-api`
-
-## Examples
-
-Refer to the [examples](./examples) folder for implementation demos.
-
-## Issues & Discussion
-
-- Issues? Check the [issues tab](https://github.com/tiagosiebler/kucoin-api/issues).
-- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
-- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
-
-<!-- template_related_projects -->
-
-## Related projects
-
-Check out my related JavaScript/TypeScript/Node.js projects:
-
-- Try my REST API & WebSocket SDKs:
-  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
-  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
-  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
-  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
-  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
-  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
-  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
-  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
-- Try my misc utilities:
-  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
-  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
-- Check out my examples:
-  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-  <!-- template_related_projects_end -->
-
-## Documentation
-
-Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation, or check the type definition in each class within this repository.
-
-### API Documentation Links
-
-- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
-
-### SDK Documentation & Guides
-
-- Node.js Quick Start Guides
-  - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
-  - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
-- [Futures Node.js Kucoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
-- [REST Endpoint Function List](./docs/endpointFunctionList.md)
-
-## Structure
-
-This project uses typescript. Resources are stored in 2 key structures:
-
-- [src](./src) - the whole connector written in typescript
-- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
-
----
-
-# Usage
-
-Create API credentials on Kucoin's website:
-
-- [Kucoin API Key Management](https://www.kucoin.com/account/api)
-
-## REST API
-
-The SDK provides dedicated REST clients for different trading products:
-
-- **SpotClient** - for spot trading and margin operations
-- **FuturesClient** - for futures trading operations
-- **BrokerClient** - for broker and sub-account management
-
-### Spot & Margin Trading
-
-To use Kucoin's Spot and Margin APIs, import (or require) the `SpotClient`:
-
-```javascript
-const { SpotClient, FuturesClient } = require('kucoin-api');
-
-const client = new SpotClient({
-  apiKey: 'apiKeyHere',
-  apiSecret: 'apiSecretHere',
-  apiPassphrase: 'apiPassPhraseHere',
-});
-
-try {
-  const spotBuyResult = await client.submitHFOrder({
-    clientOid: client.generateNewOrderID(),
-    side: 'buy',
-    type: 'market',
-    symbol: 'BTC-USDT',
-    size: '0.00001',
-  });
-  console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
-
-  const spotSellResult = await client.submitHFOrder({
-    clientOid: client.generateNewOrderID(),
-    side: 'sell',
-    type: 'market',
-    symbol: 'BTC-USDT',
-    size: '0.00001',
-  });
-  console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
-} catch (e) {
-  console.error(`Req error: `, e);
-}
-```
-
-See [SpotClient](./src/SpotClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
-
-### Futures Trading
-
-Use the `FuturesClient` for futures trading operations. See [FuturesClient](./src/FuturesClient.ts) for complete API coverage.
-
-### Broker Operations
-
-Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
-
-## WebSockets
-
-All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams with automatic connection management and reconnection.
-
-Key WebSocket features:
-
-- Event driven messaging
-- Smart WebSocket persistence with automatic reconnection
-- Heartbeat mechanisms to detect disconnections
-- Automatic resubscription after reconnection
-- Support for both public and private WebSocket streams
-- Unified client for spot and futures markets
-
-### WebSocket Consumers
-
-All websockets are accessible via the shared `WebsocketClient`. As before, API credentials are optional unless the user data stream is required.
-
-#### Public WebSocket Streams
-
-For public market data, API credentials are not required:
-
-All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
-
-Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
-
-Data events are emitted from the WebsocketClient via the `update` event, see example below:
-
-```javascript
-const { WebsocketClient } = require('kucoin-api');
-
-const client = new WebsocketClient();
-
-client.on('open', (data) => {
-  console.log('open: ', data?.wsKey);
-});
-
-// Data received
-client.on('update', (data) => {
-  console.info('data received: ', JSON.stringify(data));
-});
-
-// Something happened, attempting to reconenct
-client.on('reconnect', (data) => {
-  console.log('reconnect: ', data);
-});
-
-// Reconnect successful
-client.on('reconnected', (data) => {
-  console.log('reconnected: ', data);
-});
-
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-client.on('close', (data) => {
-  console.error('close: ', data);
-});
-
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-client.on('response', (data) => {
-  console.info('response: ', data);
-  // throw new Error('res?');
-});
-
-client.on('exception', (data) => {
-  console.error('exception: ', {
-    msg: data.msg,
-    errno: data.errno,
-    code: data.code,
-    syscall: data.syscall,
-    hostname: data.hostname,
-  });
-});
-
-try {
-  // Optional: await a connection to be ready before subscribing (this is not necessary)
-  // await client.connect('futuresPublicV1');
-
-  /**
-   * Examples for public futures websocket topics (that don't require authentication).
-   *
-   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
-   */
-  client.subscribe(
-    [
-      '/contractMarket/tickerV2:XBTUSDM',
-      '/contractMarket/ticker:XBTUSDM',
-      '/contractMarket/level2:XBTUSDM',
-      '/contractMarket/execution:XBTUSDM',
-      '/contractMarket/level2Depth5:XBTUSDM',
-      '/contractMarket/level2Depth50:XBTUSDM',
-      '/contractMarket/limitCandle:XBTUSDTM_1hour',
-      '/contract/instrument:XBTUSDM',
-      '/contract/announcement',
-      '/contractMarket/snapshot:XBTUSDM',
-    ],
-    'futuresPublicV1',
-  );
-} catch (e) {
-  console.error(`Subscribe exception: `, e);
-}
-```
-
-#### Private WebSocket Streams
-
-For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
-
-See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
-
-### WebSocket API
-
-Kucoin also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API. There are two key ways of interacting with the WebSocket API. The existing WebsocketClient allows raw event routing via the awaitable sendWSAPIRequest() method, or for a much simpler & convenient interface, use the promise-driven API. The surface feels like a REST API, but routing is automatically routed via a dedicated WebSocket connection.
-
-#### Event Driven API
-
-The WebSocket API is available in the [WebsocketClient](./src/websocket-client.ts) via the `sendWSAPIRequest(wsKey, command, commandParameters)` method.
-
-Each call to this method is wrapped in a promise, which you can async await for a response, or handle it in a raw event-driven design.
-
-#### Promise Driven API
-
-The WebSocket API is also available in a promise-wrapped REST-like format. Either, as above, await any calls to `sendWSAPIRequest(...)`, or directly use the convenient WebsocketAPIClient. This class is very similar to existing REST API classes (such as the MainClient or USDMClient).
-
-It provides one function per endpoint, feels like a REST API and will automatically route your request via an automatically persisted, authenticated and health-checked WebSocket API connection.
-
-Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets. For more detailed demonstration, take a look at the [examples/WebSockets/ws-api-client.ts](./examples/WebSockets//ws-api-client.ts) example:
-
-```typescript
-import { DefaultLogger, WebsocketAPIClient } from 'kucoin-api';
-
-// or, if you prefer `require()`:
-// const { DefaultLogger, WebsocketAPIClient } = require('kucoin-api');
-
-const customLogger = {
-  ...DefaultLogger,
-  // For a more detailed view of the WebsocketClient, enable the `trace` level by uncommenting the below line:
-  // trace: (...params) => console.log(new Date(), 'trace', ...params),
-};
-
-const account = {
-  key: process.env.API_KEY || 'keyHere',
-  secret: process.env.API_SECRET || 'secretHere',
-  passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
-};
-
-const wsClient = new WebsocketAPIClient(
-  {
-    apiKey: account.key,
-    apiSecret: account.secret,
-    apiPassphrase: account.passphrase,
-
-    // If you want your own event handlers instead of the default ones with logs, disable this setting and see the `attachEventHandlers` example below:
-    // attachEventListeners: false
-  },
-  // customLogger, // optional: uncomment this to inject a custom logger
-);
-
-// Make WebSocket API calls, very similar to a REST API:
-
-wsClient
-  .submitSyncSpotOrder({
-    side: 'buy',
-    symbol: 'BTC-USDT',
-    type: 'limit',
-    price: '1000', // Very high price to avoid accidental execution
-    size: '0.01',
-  })
-  .then((syncSpotOrderResponse) => {
-    console.log('Sync spot order response:', syncSpotOrderResponse);
-  })
-  .catch((e) => {
-    console.log('Sync spot order error:', e);
-  });
-
-wsClient
-  .submitFuturesOrder({
-    clientOid: 'futures-test-' + Date.now(),
-    side: 'buy',
-    symbol: 'XBTUSDTM',
-    marginMode: 'CROSS',
-    type: 'limit',
-    price: '1000', // Very low price to avoid accidental execution
-    qty: '0.01',
-    leverage: 10,
-    positionSide: 'LONG', // needed if trading two-way (hedge) position mode
-  })
-  .then((futuresOrderResponse) => {
-    console.log('Futures order response:', futuresOrderResponse);
-  })
-  .catch((e) => {
-    console.log('Futures order error:', e);
-  });
-```
-
----
-
-## Customise Logging
-
-Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
-
-```javascript
-const { WebsocketClient, DefaultLogger } = require('kucoin-api');
-
-// E.g. customise logging for only the trace level:
-const logger = {
-  // Inherit existing logger methods, using an object spread
-  ...DefaultLogger,
-  // Define a custom trace function to override only that function
-  trace: (...params) => {
-    if (
-      [
-        'Sending ping',
-        // 'Sending upstream ws message: ',
-        'Received pong',
-      ].includes(params[0])
-    ) {
-      return;
-    }
-    console.log('trace', JSON.stringify(params, null, 2));
-  },
-};
-
-const ws = new WebsocketClient(
-  {
-    apiKey: 'apiKeyHere',
-    apiSecret: 'apiSecretHere',
-    apiPassphrase: 'apiPassPhraseHere',
-  },
-  logger,
-);
-```
-
-## Use with LLMs & AI
-
-This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
-
-This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
-
----
-
-## Used By
-
-[![Repository Users Preview Image](https://dependents.info/tiagosiebler/kucoin-api/image)](https://github.com/tiagosiebler/kucoin-api/network/dependents)
-
----
-
-<!-- template_contributions -->
-
-### Contributions & Thanks
-
-Have my projects helped you? Share the love, there are many ways you can show your thanks:
-
-- Star & share my projects.
-- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
-- Have an interesting project? Get in touch & invite me to it.
-- Or buy me all the coffee:
-  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
-
-<!---
-old ones:
-  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
-  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
-  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
-  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
--->
-<!-- template_contributions_end -->
-
-### Contributions & Pull Requests
-
-Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
-
-<!-- template_star_history -->
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
-
-<!-- template_star_history_end -->
-
-================
 File: src/lib/BaseRestClient.ts
 ================
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
@@ -9674,6 +9697,483 @@ private async buildRequest(
 File: src/index.ts
 ================
 
+
+================
+File: README.md
+================
+# Node.js & JavaScript SDK for Kucoin REST APIs, Websockets & WebSocket API
+
+[![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
+[![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/kucoin-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
+[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/kucoin-api">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/kucoin-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </picture>
+  </a>
+</p>
+
+[1]: https://www.npmjs.com/package/kucoin-api
+
+Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
+
+- Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
+- Complete integration with all Kucoin REST APIs and WebSockets.
+  - Dedicated REST clients for Spot, Futures, and Broker operations
+  - Unified WebSocket client for all markets
+  - Dedicated WebSocket API client, to trade on the WebSocket API without the complexity of WebSockets.
+- Complete TypeScript support (with type declarations for most API requests & responses).
+  - Strongly typed requests and responses.
+  - Automated end-to-end tests ensuring reliability.
+- Actively maintained with a modern, promise-driven interface.
+- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
+  - Event driven messaging.
+  - Smart WebSocket persistence with automatic reconnection handling.
+  - Emit `reconnected` event when dropped connection is restored.
+  - Support for both public and private WebSocket streams.
+- Supports WebSocket API on all available product groups, including Spot & Futures:
+  - Use the WebsocketClient's event-driven `sendWSAPIRequest()` method, or;
+  - Use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/WebSockets/ws-api-client.ts](./examples/WebSockets/ws-api-client.ts) for a demonstration.
+- Browser-friendly HMAC signature mechanism.
+- Automatically supports both ESM and CJS projects.
+- Heavy automated end-to-end testing with real API calls.
+- Proxy support via axios integration.
+- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation](#documentation)
+- [Structure](#structure)
+- [Usage](#usage)
+  - [REST API Clients](#rest-api)
+    - [Spot & Margin Trading](#spot--margin-trading)
+    - [Futures Trading](#futures-trading)
+    - [Broker Operations](#broker-operations)
+    - [Unified Trading Account API](#unified-trading-account-api)
+  - [WebSockets](#websockets)
+    - [WebSocket Consumers](#websocket-consumers)
+      - [Public WebSocket Streams](#public-websocket-streams)
+      - [Private WebSocket Streams](#private-websocket-streams)
+    - [WebSocket API](#websocket-api)
+      - [Event Driven API](#event-driven-api)
+      - [Promise Driven API](#async-await-api)
+- [Customise Logging](#customise-logging)
+- [LLMs & AI](#use-with-llms--ai)
+- [Used By](#used-by)
+- [Contributions & Thanks](#contributions--thanks)
+
+## Installation
+
+`npm install --save kucoin-api`
+
+## Examples
+
+Refer to the [examples](./examples) folder for implementation demos.
+
+## Issues & Discussion
+
+- Issues? Check the [issues tab](https://github.com/tiagosiebler/kucoin-api/issues).
+- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
+
+<!-- template_related_projects -->
+
+## Related projects
+
+Check out my related JavaScript/TypeScript/Node.js projects:
+
+- Try my REST API & WebSocket SDKs:
+  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
+  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
+  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
+  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
+  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
+  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
+  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
+  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
+- Try my misc utilities:
+  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
+  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
+- Check out my examples:
+  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
+  <!-- template_related_projects_end -->
+
+## Documentation
+
+Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation, or check the type definition in each class within this repository.
+
+### API Documentation Links
+
+- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
+
+### SDK Documentation & Guides
+
+- Node.js Quick Start Guides
+  - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
+  - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
+- [Futures Node.js Kucoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
+- [REST Endpoint Function List](./docs/endpointFunctionList.md)
+
+## Structure
+
+This project uses typescript. Resources are stored in 2 key structures:
+
+- [src](./src) - the whole connector written in typescript
+- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
+
+---
+
+# Usage
+
+Create API credentials on Kucoin's website:
+
+- [Kucoin API Key Management](https://www.kucoin.com/account/api)
+
+## REST API
+
+The SDK provides dedicated REST clients for different trading products:
+
+- **SpotClient** - for spot trading and margin operations
+- **FuturesClient** - for futures trading operations
+- **BrokerClient** - for broker and sub-account management
+- **UnifiedAPIClient** - for unified market data access across all trading products
+
+### Spot & Margin Trading
+
+To use Kucoin's Spot and Margin APIs, import (or require) the `SpotClient`:
+
+```javascript
+const { SpotClient, FuturesClient } = require('kucoin-api');
+
+const client = new SpotClient({
+  apiKey: 'apiKeyHere',
+  apiSecret: 'apiSecretHere',
+  apiPassphrase: 'apiPassPhraseHere',
+});
+
+try {
+  const spotBuyResult = await client.submitHFOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'buy',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
+  });
+  console.log('spotBuy ', JSON.stringify(spotBuyResult, null, 2));
+
+  const spotSellResult = await client.submitHFOrder({
+    clientOid: client.generateNewOrderID(),
+    side: 'sell',
+    type: 'market',
+    symbol: 'BTC-USDT',
+    size: '0.00001',
+  });
+  console.log('spotSellResult ', JSON.stringify(spotSellResult, null, 2));
+} catch (e) {
+  console.error(`Req error: `, e);
+}
+```
+
+See [SpotClient](./src/SpotClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
+
+### Futures Trading
+
+Use the `FuturesClient` for futures trading operations. See [FuturesClient](./src/FuturesClient.ts) for complete API coverage.
+
+### Broker Operations
+
+Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
+
+### Unified Trading Account API
+
+The `UnifiedAPIClient` provides access to KuCoin's Unified Trading Account API endpoints, which offer streamlined market data access across Spot, Futures, and Margin trading products.
+
+## WebSockets
+
+All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles both spot and futures WebSocket streams with automatic connection management and reconnection.
+
+Key WebSocket features:
+
+- Event driven messaging
+- Smart WebSocket persistence with automatic reconnection
+- Heartbeat mechanisms to detect disconnections
+- Automatic resubscription after reconnection
+- Support for both public and private WebSocket streams
+- Unified client for spot and futures markets
+
+### WebSocket Consumers
+
+All websockets are accessible via the shared `WebsocketClient`. As before, API credentials are optional unless the user data stream is required.
+
+#### Public WebSocket Streams
+
+For public market data, API credentials are not required:
+
+All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
+
+Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
+
+Data events are emitted from the WebsocketClient via the `update` event, see example below:
+
+```javascript
+const { WebsocketClient } = require('kucoin-api');
+
+const client = new WebsocketClient();
+
+client.on('open', (data) => {
+  console.log('open: ', data?.wsKey);
+});
+
+// Data received
+client.on('update', (data) => {
+  console.info('data received: ', JSON.stringify(data));
+});
+
+// Something happened, attempting to reconenct
+client.on('reconnect', (data) => {
+  console.log('reconnect: ', data);
+});
+
+// Reconnect successful
+client.on('reconnected', (data) => {
+  console.log('reconnected: ', data);
+});
+
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+client.on('close', (data) => {
+  console.error('close: ', data);
+});
+
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+client.on('response', (data) => {
+  console.info('response: ', data);
+  // throw new Error('res?');
+});
+
+client.on('exception', (data) => {
+  console.error('exception: ', {
+    msg: data.msg,
+    errno: data.errno,
+    code: data.code,
+    syscall: data.syscall,
+    hostname: data.hostname,
+  });
+});
+
+try {
+  // Optional: await a connection to be ready before subscribing (this is not necessary)
+  // await client.connect('futuresPublicV1');
+
+  /**
+   * Examples for public futures websocket topics (that don't require authentication).
+   *
+   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
+   */
+  client.subscribe(
+    [
+      '/contractMarket/tickerV2:XBTUSDM',
+      '/contractMarket/ticker:XBTUSDM',
+      '/contractMarket/level2:XBTUSDM',
+      '/contractMarket/execution:XBTUSDM',
+      '/contractMarket/level2Depth5:XBTUSDM',
+      '/contractMarket/level2Depth50:XBTUSDM',
+      '/contractMarket/limitCandle:XBTUSDTM_1hour',
+      '/contract/instrument:XBTUSDM',
+      '/contract/announcement',
+      '/contractMarket/snapshot:XBTUSDM',
+    ],
+    'futuresPublicV1',
+  );
+} catch (e) {
+  console.error(`Subscribe exception: `, e);
+}
+```
+
+#### Private WebSocket Streams
+
+For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
+
+See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
+
+### WebSocket API
+
+Kucoin also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API. There are two key ways of interacting with the WebSocket API. The existing WebsocketClient allows raw event routing via the awaitable sendWSAPIRequest() method, or for a much simpler & convenient interface, use the promise-driven API. The surface feels like a REST API, but routing is automatically routed via a dedicated WebSocket connection.
+
+#### Event Driven API
+
+The WebSocket API is available in the [WebsocketClient](./src/websocket-client.ts) via the `sendWSAPIRequest(wsKey, command, commandParameters)` method.
+
+Each call to this method is wrapped in a promise, which you can async await for a response, or handle it in a raw event-driven design.
+
+#### Promise Driven API
+
+The WebSocket API is also available in a promise-wrapped REST-like format. Either, as above, await any calls to `sendWSAPIRequest(...)`, or directly use the convenient WebsocketAPIClient. This class is very similar to existing REST API classes (such as the MainClient or USDMClient).
+
+It provides one function per endpoint, feels like a REST API and will automatically route your request via an automatically persisted, authenticated and health-checked WebSocket API connection.
+
+Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets. For more detailed demonstration, take a look at the [examples/WebSockets/ws-api-client.ts](./examples/WebSockets//ws-api-client.ts) example:
+
+```typescript
+import { DefaultLogger, WebsocketAPIClient } from 'kucoin-api';
+
+// or, if you prefer `require()`:
+// const { DefaultLogger, WebsocketAPIClient } = require('kucoin-api');
+
+const customLogger = {
+  ...DefaultLogger,
+  // For a more detailed view of the WebsocketClient, enable the `trace` level by uncommenting the below line:
+  // trace: (...params) => console.log(new Date(), 'trace', ...params),
+};
+
+const account = {
+  key: process.env.API_KEY || 'keyHere',
+  secret: process.env.API_SECRET || 'secretHere',
+  passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
+};
+
+const wsClient = new WebsocketAPIClient(
+  {
+    apiKey: account.key,
+    apiSecret: account.secret,
+    apiPassphrase: account.passphrase,
+
+    // If you want your own event handlers instead of the default ones with logs, disable this setting and see the `attachEventHandlers` example below:
+    // attachEventListeners: false
+  },
+  // customLogger, // optional: uncomment this to inject a custom logger
+);
+
+// Make WebSocket API calls, very similar to a REST API:
+
+wsClient
+  .submitNewSpotOrder({
+    side: 'buy',
+    symbol: 'BTC-USDT',
+    type: 'limit',
+    price: '150000',
+    size: '0.0001',
+  })
+  .then((syncSpotOrderResponse) => {
+    console.log('Sync spot order response:', syncSpotOrderResponse);
+  })
+  .catch((e) => {
+    console.log('Sync spot order error:', e);
+  });
+
+wsClient
+  .submitFuturesOrder({
+    clientOid: 'futures-test-' + Date.now(),
+    side: 'buy',
+    symbol: 'XBTUSDTM',
+    marginMode: 'CROSS',
+    type: 'limit',
+    price: '1000',
+    qty: '0.01',
+    leverage: 10,
+    positionSide: 'LONG', // needed if trading two-way (hedge) position mode
+  })
+  .then((futuresOrderResponse) => {
+    console.log('Futures order response:', futuresOrderResponse);
+  })
+  .catch((e) => {
+    console.log('Futures order error:', e);
+  });
+```
+
+---
+
+## Customise Logging
+
+Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
+
+```javascript
+const { WebsocketClient, DefaultLogger } = require('kucoin-api');
+
+// E.g. customise logging for only the trace level:
+const logger = {
+  // Inherit existing logger methods, using an object spread
+  ...DefaultLogger,
+  // Define a custom trace function to override only that function
+  trace: (...params) => {
+    if (
+      [
+        // Selectively prevent some traces from logging
+        'Sending ping',
+        'Received pong',
+      ].includes(params[0])
+    ) {
+      return;
+    }
+    console.log('trace', JSON.stringify(params, null, 2));
+  },
+};
+
+const ws = new WebsocketClient(
+  {
+    apiKey: 'apiKeyHere',
+    apiSecret: 'apiSecretHere',
+    apiPassphrase: 'apiPassPhraseHere',
+  },
+  logger,
+);
+```
+
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+## Used By
+
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/kucoin-api/image)](https://github.com/tiagosiebler/kucoin-api/network/dependents)
+
+---
+
+<!-- template_contributions -->
+
+### Contributions & Thanks
+
+Have my projects helped you? Share the love, there are many ways you can show your thanks:
+
+- Star & share my projects.
+- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
+- Have an interesting project? Get in touch & invite me to it.
+- Or buy me all the coffee:
+  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+
+<!---
+old ones:
+  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
+  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
+  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
+  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
+-->
+<!-- template_contributions_end -->
+
+### Contributions & Pull Requests
+
+Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+<!-- template_star_history -->
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
+
+<!-- template_star_history_end -->
 
 ================
 File: src/lib/BaseWSClient.ts
@@ -12533,11 +13033,23 @@ getAffiliateTransaction(
    * Get download link for broker rebate orders
    *
    * trade type 1 = spot, trade type 2 = futures
+   * @deprecated Use getBrokerRebateOrderDownloadLinkV2 instead
    */
 getBrokerRebateOrderDownloadLink(params: {
     begin: string;
     end: string;
     tradeType: 1 | 2;
+}): Promise<APISuccessResponse<any>>
+⋮----
+/**
+   * Get download link for broker rebate orders
+   *
+   * trade type SPOT = spot, FUTURE = futures
+   */
+getBrokerRebateOrderDownloadLinkV2(params: {
+    begin: string;
+    end: string;
+    tradeType: 'SPOT' | 'FUTURE';
 }): Promise<APISuccessResponse<any>>
 ⋮----
 /**
@@ -12846,7 +13358,7 @@ File: package.json
 ================
 {
   "name": "kucoin-api",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",

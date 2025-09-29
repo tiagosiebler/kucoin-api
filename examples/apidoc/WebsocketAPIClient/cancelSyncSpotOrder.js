@@ -4,7 +4,7 @@ const { WebsocketAPIClient } = require('kucoin-api');
 // This kucoin API SDK is available on npm via "npm install kucoin-api"
 // WS API ENDPOINT: spot.sync_cancel
 // METHOD: WebSocket API
-// PUBLIC: 'NO'
+// PUBLIC: NO
 
 // Create a WebSocket API client instance
 const client = new WebsocketAPIClient({

@@ -49,6 +49,7 @@ import {
   FuturesRiskLimit,
   FuturesSubAccount,
   FuturesSymbolInfo,
+  GetPositionModeResponse,
   IndexListItem,
   InterestRateItem,
   MarketTradeDetail,
@@ -575,11 +576,22 @@ export class FuturesClient extends BaseRestClient {
   /**
    * Get Position Details
    * Get the position details of a specified position.
+   * @deprecated Use getPositionV2 instead
    */
   getPosition(params: {
     symbol: string;
   }): Promise<APISuccessResponse<FuturesPosition>> {
     return this.getPrivate('api/v1/position', params);
+  }
+
+  /**
+   * Get Position Details
+   * Get the position details of a specified position.
+   */
+  getPositionV2(params: {
+    symbol: string;
+  }): Promise<APISuccessResponse<FuturesPosition>> {
+    return this.getPrivate('api/v2/position', params);
   }
 
   /**
@@ -711,6 +723,14 @@ export class FuturesClient extends BaseRestClient {
     level: number;
   }): Promise<boolean> {
     return this.postPrivate('api/v1/position/risk-limit-level/change', params);
+  }
+
+  /**
+   * Get Position Mode
+   * This interface can query the position mode of this account.
+   */
+  getPositionMode(): Promise<APISuccessResponse<GetPositionModeResponse>> {
+    return this.getPrivate('api/v2/position/getPositionMode');
   }
 
   /**
@@ -936,6 +956,7 @@ export class FuturesClient extends BaseRestClient {
    * Get download link for broker rebate orders
    *
    * trade type 1 = spot, trade type 2 = futures
+   * @deprecated Use getBrokerRebateOrderDownloadLinkV2 instead
    */
   getBrokerRebateOrderDownloadLink(params: {
     begin: string;
@@ -943,6 +964,19 @@ export class FuturesClient extends BaseRestClient {
     tradeType: 1 | 2;
   }): Promise<APISuccessResponse<any>> {
     return this.getPrivate('api/v1/broker/api/rebase/download', params);
+  }
+
+  /**
+   * Get download link for broker rebate orders
+   *
+   * trade type SPOT = spot, FUTURE = futures
+   */
+  getBrokerRebateOrderDownloadLinkV2(params: {
+    begin: string;
+    end: string;
+    tradeType: 'SPOT' | 'FUTURE';
+  }): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v2/broker/api/rebase/download', params);
   }
 
   /**

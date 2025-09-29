@@ -56,6 +56,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
     - [Spot & Margin Trading](#spot--margin-trading)
     - [Futures Trading](#futures-trading)
     - [Broker Operations](#broker-operations)
+    - [Unified Trading Account API](#unified-trading-account-api)
   - [WebSockets](#websockets)
     - [WebSocket Consumers](#websocket-consumers)
       - [Public WebSocket Streams](#public-websocket-streams)
@@ -142,6 +143,7 @@ The SDK provides dedicated REST clients for different trading products:
 - **SpotClient** - for spot trading and margin operations
 - **FuturesClient** - for futures trading operations
 - **BrokerClient** - for broker and sub-account management
+- **UnifiedAPIClient** - for unified market data access across all trading products
 
 ### Spot & Margin Trading
 
@@ -188,6 +190,10 @@ Use the `FuturesClient` for futures trading operations. See [FuturesClient](./sr
 ### Broker Operations
 
 Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
+
+### Unified Trading Account API
+
+The `UnifiedAPIClient` provides access to KuCoin's Unified Trading Account API endpoints, which offer streamlined market data access across Spot, Futures, and Margin trading products.
 
 ## WebSockets
 
