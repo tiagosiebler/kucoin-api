@@ -83,7 +83,7 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Get Symbol
    * Request a list of available currency pairs for trading via this endpoint.
    */
-  getSymbol(
+  getSymbols(
     params: GetSymbolRequestUTA,
   ): Promise<APISuccessResponse<GetSymbolResponseUTA>> {
     return this.get('api/ua/v1/market/instrument', params);
@@ -93,7 +93,7 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Get Ticker
    * Request market tickers for the trading pairs in the market (including 24h volume).
    */
-  getTicker(
+  getTickers(
     params: GetTickerRequestUTA,
   ): Promise<APISuccessResponse<GetTickerResponseUTA>> {
     return this.get('api/ua/v1/market/ticker', params);
