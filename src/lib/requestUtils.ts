@@ -8,6 +8,8 @@ export const REST_CLIENT_TYPE_ENUM = {
   futures: 'futures',
   /** Broker */
   broker: 'broker',
+  /** Unified Trading Account */
+  unifiedTradingAccount: 'unifiedTradingAccount',
 } as const;
 
 export type RestClientType =
@@ -17,6 +19,7 @@ const kucoinURLMap = {
   [REST_CLIENT_TYPE_ENUM.main]: 'https://api.kucoin.com',
   [REST_CLIENT_TYPE_ENUM.futures]: 'https://api-futures.kucoin.com',
   [REST_CLIENT_TYPE_ENUM.broker]: 'https://api-broker.kucoin.com',
+  [REST_CLIENT_TYPE_ENUM.unifiedTradingAccount]: 'https://api.kucoin.com',
 } as const;
 
 export interface RestClientOptions {

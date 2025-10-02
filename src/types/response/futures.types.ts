@@ -424,6 +424,10 @@ export interface BatchMarginModeUpdateResponse {
   }[];
 }
 
+export interface GetPositionModeResponse {
+  positionMode: 0 | 1; // 0 = one-way mode, 1 = hedge mode
+}
+
 export interface MaxOpenSize {
   symbol: string;
   maxBuyOpenSize: number;

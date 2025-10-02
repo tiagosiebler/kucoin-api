@@ -2432,6 +2432,7 @@ export class SpotClient extends BaseRestClient {
    * Get download link for broker rebate orders
    *
    * trade type 1 = spot, trade type 2 = futures
+   * @deprecated Use getBrokerRebateOrderDownloadLinkV2 instead
    */
   getBrokerRebateOrderDownloadLink(params: {
     begin: string;
@@ -2439,6 +2440,19 @@ export class SpotClient extends BaseRestClient {
     tradeType: 1 | 2;
   }): Promise<APISuccessResponse<any>> {
     return this.getPrivate('api/v1/broker/api/rebase/download', params);
+  }
+
+  /**
+   * Get download link for broker rebate orders
+   *
+   * trade type SPOT = spot, FUTURE = futures
+   */
+  getBrokerRebateOrderDownloadLinkV2(params: {
+    begin: string;
+    end: string;
+    tradeType: 'SPOT' | 'FUTURE';
+  }): Promise<APISuccessResponse<any>> {
+    return this.getPrivate('api/v2/broker/api/rebase/download', params);
   }
 
   /**
