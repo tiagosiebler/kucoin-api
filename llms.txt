@@ -125,6 +125,7 @@ src/
 .nvmrc
 .prettierrc
 jest.config.ts
+LICENSE.md
 package.json
 postBuild.sh
 README.md
@@ -1328,6 +1329,342 @@ File: src/lib/misc-util.ts
 export function neverGuard(x: never, msg: string): Error
 
 ================
+File: src/types/request/broker.types.ts
+================
+export interface GetBrokerInfoRequest {
+  begin: string;
+  end: string;
+  tradeType: '1' | '2';
+}
+⋮----
+export interface GetBrokerSubAccountsRequest {
+  uid: string;
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+export type BrokerSubAccountPermission = 'general' | 'spot' | 'futures';
+⋮----
+export interface CreateBrokerSubAccountApiRequest {
+  uid: string;
+  passphrase: string;
+  ipWhitelist: string[];
+  permissions: BrokerSubAccountPermission[];
+  label: string;
+}
+⋮----
+export interface GetBrokerSubAccountApisRequest {
+  uid: string;
+  apiKey?: string;
+}
+⋮----
+export interface UpdateBrokerSubAccountApiRequest {
+  uid: string;
+  apiKey: string;
+  ipWhitelist: string[];
+  permissions: BrokerSubAccountPermission[];
+  label: string;
+}
+⋮----
+export interface DeleteBrokerSubAccountApiRequest {
+  uid: string;
+  apiKey: string;
+}
+⋮----
+export type BrokerTransferDirection = 'OUT' | 'IN';
+export type BrokerAccountType = 'MAIN' | 'TRADE';
+⋮----
+export interface BrokerTransferRequest {
+  currency: string;
+  amount: string;
+  clientOid: string;
+  direction: BrokerTransferDirection;
+  accountType: BrokerAccountType;
+  specialUid: string;
+  specialAccountType: BrokerAccountType;
+}
+⋮----
+export interface GetBrokerDepositListRequest {
+  currency?: string;
+  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  hash?: string;
+  startTimestamp?: number;
+  endTimestamp?: number;
+  limit?: number;
+}
+
+================
+File: src/types/request/spot-account.ts
+================
+export interface GetBalancesRequest {
+  currency?: string;
+  type?: 'main' | 'trade';
+}
+⋮----
+export interface GetSpotTransactionsRequest {
+  currency?: string;
+  direction?: 'in' | 'out';
+  bizType?:
+    | 'DEPOSIT'
+    | 'WITHDRAW'
+    | 'TRANSFER'
+    | 'SUB_TRANSFER'
+    | 'TRADE_EXCHANGE'
+    | 'MARGIN_EXCHANGE'
+    | 'KUCOIN_BONUS'
+    | 'BROKER_TRANSFER'
+    | 'REBATE';
+  startAt?: number;
+  endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+export interface AccountHFTransactionsRequest {
+  currency?: string;
+  direction?: 'in' | 'out';
+  bizType?:
+    | 'TRANSFER'
+    | 'TRADE_EXCHANGE'
+    | 'RETURNED_FEES'
+    | 'DEDUCTION_FEES'
+    | 'OTHER';
+  lastId?: number;
+  limit?: number;
+  startAt?: number;
+  endAt?: number;
+}
+⋮----
+export interface AccountHFMarginTransactionsRequest {
+  currency?: string;
+  direction?: 'in' | 'out';
+  bizType?:
+    | 'TRANSFER'
+    | 'MARGIN_EXCHANGE'
+    | 'ISOLATED_EXCHANGE'
+    | 'LIQUIDATION'
+    | 'ASSERT_RETURN';
+  lastId?: number;
+  limit?: number;
+  startAt?: number;
+  endAt?: number;
+}
+⋮----
+export interface CreateSubAccountRequest {
+  password: string;
+  remarks?: string;
+  subName: string;
+  access: string;
+}
+⋮----
+export interface CreateSubAccountAPIRequest {
+  subName: string;
+  passphrase: string;
+  remark: string;
+  permission?: string;
+  ipWhitelist?: string;
+  expire?: string;
+}
+⋮----
+export interface UpdateSubAccountAPIRequest {
+  subName: string;
+  apiKey: string;
+  passphrase: string;
+  permission?: string;
+  ipWhitelist?: string;
+  expire?: string;
+}
+⋮----
+export interface DeleteSubAccountAPIRequest {
+  apiKey: string;
+  passphrase: string;
+  subName: string;
+}
+
+================
+File: src/types/request/spot-funding.ts
+================
+/**
+ *
+ ***********
+ * Funding
+ ***********
+ *
+ */
+⋮----
+export interface CreateDepositAddressV3Request {
+  currency: string;
+  chain?: string;
+  to?: 'main' | 'trade';
+  amount?: string;
+}
+⋮----
+export interface GetMarginBalanceRequest {
+  quoteCurrency?: string;
+  queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
+}
+⋮----
+export interface GetIsolatedMarginBalanceRequest {
+  symbol?: string;
+  quoteCurrency?: string;
+  queryType?: 'ISOLATED' | 'ISOLATED_V2' | 'ALL';
+}
+⋮----
+/**
+ *
+ * Deposit
+ *
+ */
+⋮----
+export interface GetDepositsRequest {
+  currency?: string;
+  startAt?: number;
+  endAt?: number;
+  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+/**
+ *
+ * Withdrawals
+ *
+ */
+⋮----
+export interface GetWithdrawalsRequest {
+  currency?: string;
+  status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
+  startAt?: number;
+  endAt?: number;
+  currentPage?: number;
+  pageSize?: number;
+}
+⋮----
+export interface ApplyWithdrawRequest {
+  currency: string;
+  address: string;
+  amount: number;
+  memo?: string;
+  isInner?: boolean;
+  remark?: string;
+  chain?: string;
+  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+}
+⋮----
+export interface SubmitWithdrawV3Request {
+  currency: string;
+  toAddress: string;
+  amount: number;
+  memo?: string;
+  isInner?: boolean;
+  remark?: string;
+  chain?: string;
+  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+  withdrawType: 'ADDRESS' | 'UID' | 'MAIL' | 'PHONE';
+}
+⋮----
+/**
+ *
+ * Transfer
+ *
+ */
+⋮----
+export interface GetTransferableRequest {
+  currency: string;
+  type:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'ISOLATED'
+    | 'OPTION'
+    | 'MARGIN_V2'
+    | 'ISOLATED_V2';
+  tag?: string;
+}
+⋮----
+export interface FlexTransferRequest {
+  clientOid: string;
+  currency?: string;
+  amount: string;
+  fromUserId?: string;
+  fromAccountType:
+    | 'MAIN'
+    | 'TRADE'
+    | 'CONTRACT'
+    | 'MARGIN'
+    | 'ISOLATED'
+    | 'TRADE_HF'
+    | 'MARGIN_V2'
+    | 'ISOLATED_V2'
+    | 'OPTION';
+  fromAccountTag?: string;
+  type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
+  toUserId?: string;
+  toAccountType:
+    | 'MAIN'
+    | 'TRADE'
+    | 'CONTRACT'
+    | 'MARGIN'
+    | 'ISOLATED'
+    | 'TRADE_HF'
+    | 'MARGIN_V2'
+    | 'ISOLATED_V2'
+    | 'OPTION';
+  toAccountTag?: string;
+}
+⋮----
+export interface submitTransferMasterSubRequest {
+  clientOid: string;
+  currency: string;
+  amount: string;
+  direction: 'OUT' | 'IN';
+  accountType?:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'CONTRACT'
+    | 'OPTION';
+  subAccountType?:
+    | 'MAIN'
+    | 'TRADE'
+    | 'TRADE_HF'
+    | 'MARGIN'
+    | 'CONTRACT'
+    | 'OPTION';
+  subUserId: string;
+}
+⋮----
+export interface InnerTransferRequest {
+  clientOid: string;
+  currency: string;
+  from:
+    | 'main'
+    | 'trade'
+    | 'trade_hf'
+    | 'margin'
+    | 'isolated'
+    | 'margin_v2'
+    | 'isolated_v2'
+    | 'contract'
+    | 'option';
+  to:
+    | 'main'
+    | 'trade'
+    | 'trade_hf'
+    | 'margin'
+    | 'isolated'
+    | 'margin_v2'
+    | 'isolated_v2'
+    | 'contract'
+    | 'option';
+  amount: string;
+  fromTag?: string;
+  toTag?: string;
+}
+
+================
 File: src/types/request/spot-misc.ts
 ================
 export interface GetAnnouncementsRequest {
@@ -1340,113 +1677,119 @@ export interface GetAnnouncementsRequest {
 }
 
 ================
-File: src/types/request/uta-types.ts
+File: src/types/response/broker.types.ts
 ================
-/**
- * Unified Trading Account Request Types
- */
-⋮----
-export interface GetAnnouncementsRequestUTA {
-  language?:
-    | 'zh_HK'
-    | 'ja_JP'
-    | 'ko_KR'
-    | 'en_US'
-    | 'pl_PL'
-    | 'es_ES'
-    | 'fr_FR'
-    | 'ar_AE'
-    | 'it_IT'
-    | 'id_ID'
-    | 'nl_NL'
-    | 'pt_PT'
-    | 'vi_VN'
-    | 'de_DE'
-    | 'tr_TR'
-    | 'ms_MY'
-    | 'ru_RU'
-    | 'th_TH'
-    | 'hi_IN'
-    | 'bn_BD'
-    | 'fil_PH'
-    | 'ur_PK';
-  type?:
-    | 'latest-announcements'
-    | 'activities'
-    | 'product-updates'
-    | 'vip'
-    | 'maintenance-updates'
-    | 'delistings'
-    | 'others'
-    | 'api-campaigns'
-    | 'new-listings'
-    | 'futures-announcements';
-  pageNumber?: number;
-  pageSize?: number;
-  startTime?: number;
-  endTime?: number;
+export interface BrokerInfo {
+  accountSize: number;
+  maxAccountSize: number | null;
+  level: number;
 }
 ⋮----
-export interface GetCurrencyRequestUTA {
-  currency?: string;
-  chain?: string;
+export interface CreateBrokerSubAccountResponse {
+  accountName: string;
+  uid: string;
+  createdAt: number;
+  level: number;
 }
 ⋮----
-export interface GetSymbolRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
-  symbol?: string;
+export interface BrokerSubAccount {
+  accountName: string;
+  uid: string;
+  createdAt: number;
+  level: number;
 }
 ⋮----
-export interface GetTickerRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES';
-  symbol?: string;
+export interface GetBrokerSubAccountsResponse {
+  currentPage: number;
+  pageSize: number;
+  totalNum: number;
+  totalPage: number;
+  items: BrokerSubAccount[];
 }
 ⋮----
-export interface GetTradesRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES';
-  symbol: string;
+export interface CreateBrokerSubAccountApiResponse {
+  uid: string;
+  label: string;
+  apiKey: string;
+  secretKey: string;
+  apiVersion: number;
+  permissions: string[];
+  ipWhitelist: string[];
+  createdAt: number;
 }
 ⋮----
-export interface GetOrderBookRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES';
-  symbol: string;
-  limit: '20' | '50' | '100' | 'FULL';
+export interface BrokerSubAccountApi {
+  uid: string;
+  label: string;
+  apiKey: string;
+  apiVersion: number;
+  permissions: ('General' | 'Spot' | 'Futures')[];
+  ipWhitelist: string[];
+  createdAt: number;
 }
 ⋮----
-export interface GetKlinesRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES';
-  symbol: string;
-  interval:
-    | '1min'
-    | '3min'
-    | '5min'
-    | '15min'
-    | '30min'
-    | '1hour'
-    | '2hour'
-    | '4hour'
-    | '6hour'
-    | '8hour'
-    | '12hour'
-    | '1day'
-    | '1week'
-    | '1month';
-  startAt?: number;
-  endAt?: number;
+export type BrokerTransferAccountType =
+  | 'MAIN'
+  | 'TRADE'
+  | 'CONTRACT'
+  | 'MARGIN'
+  | 'ISOLATED';
+export type BrokerTransferStatus = 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+⋮----
+export interface BrokerTransferHistory {
+  orderId: string;
+  currency: string;
+  amount: string;
+  fromUid: number;
+  fromAccountType: BrokerTransferAccountType;
+  fromAccountTag: string;
+  toUid: number;
+  toAccountType: BrokerTransferAccountType;
+  toAccountTag: string;
+  status: BrokerTransferStatus;
+  reason: string | null;
+  createdAt: number;
 }
 ⋮----
-export interface GetCurrentFundingRateRequestUTA {
-  symbol: string;
+export interface BrokerDepositRecord {
+  uid: number;
+  hash: string;
+  address: string;
+  memo: string;
+  amount: string;
+  fee: string;
+  currency: string;
+  isInner: boolean;
+  walletTxId: string;
+  status: BrokerTransferStatus;
+  remark: string;
+  chain: string;
+  createdAt: number;
+  updatedAt: number;
 }
 ⋮----
-export interface GetHistoryFundingRateRequestUTA {
-  symbol: string;
-  startAt: number;
-  endAt: number;
-}
+export type BrokerWithdrawalStatus =
+  | 'PROCESSING'
+  | 'WALLET_PROCESSING'
+  | 'REVIEW'
+  | 'SUCCESS'
+  | 'FAILURE';
 ⋮----
-export interface GetServiceStatusRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES';
+export interface BrokerWithdrawalRecord {
+  id: string;
+  chain: string;
+  walletTxId: string;
+  uid: number;
+  amount: string;
+  memo: string;
+  fee: string;
+  address: string;
+  remark: string;
+  isInner: boolean;
+  currency: string;
+  status: BrokerWithdrawalStatus;
+  createdAt: number;
+  updatedAt: number;
 }
 
 ================
@@ -1491,199 +1834,56 @@ export interface Announcements {
 }
 
 ================
-File: src/types/response/uta-types.ts
+File: src/types/response/spot-vip.ts
 ================
 /**
- * Unified Trading Account Response Types
+ *
+ ***********
+ * VIP LENDING
+ ***********
+ *
  */
 ⋮----
-export interface AnnouncementItemUTA {
-  id: number;
-  title: string;
-  type: string[];
-  description: string;
-  releaseTime: number;
-  language: string;
-  url: string;
-}
-⋮----
-export interface GetAnnouncementsResponseUTA {
-  totalNumber: number;
-  totalPage: number;
-  pageNumber: number;
-  pageSize: number;
-  list: AnnouncementItemUTA[];
-}
-⋮----
-export interface CurrencyChainUTA {
-  chainName: string;
-  minWithdrawSize: string | null;
-  minDepositSize: string | null;
-  withdrawFeeRate: string;
-  minWithdrawFee: string;
-  isWithdrawEnabled: boolean;
-  isDepositEnabled: boolean;
-  confirms: number;
-  preConfirms: number;
-  contractAddress: string;
-  withdrawPrecision: number;
-  maxWithdrawSize: string | null;
-  maxDepositSize: string | null;
-  needTag: boolean;
-  chainId: string;
-}
-⋮----
-export interface GetCurrencyResponseUTA {
+export interface DiscountRateConfig {
   currency: string;
-  name: string;
-  fullName: string;
-  precision: number;
-  confirms: number | null;
-  contractAddress: string | null;
-  isMarginEnabled: boolean;
-  isDebitEnabled: boolean;
-  list: CurrencyChainUTA[];
+  usdtLevels: {
+    left: number;
+    right: number;
+    discountRate: string;
+  }[];
 }
 ⋮----
-export interface SymbolUTA {
-  symbol: string;
-  name?: string;
-  baseCurrency: string;
-  quoteCurrency: string;
-  market?: string;
-  minBaseOrderSize?: string;
-  minQuoteOrderSize?: string;
-  maxBaseOrderSize?: string | number;
-  maxQuoteOrderSize?: string;
-  baseOrderStep?: string;
-  quoteOrderStep?: string;
-  tickSize?: string | number;
-  feeCurrency?: string;
-  tradingStatus?: string;
-  marginMode?: string;
-  priceLimitRatio?: string;
-  feeCategory?: number;
-  makerFeeCoefficient?: string;
-  takerFeeCoefficient?: string;
-  st?: boolean;
-  settlementCurrency?: string;
-  contractType?: string;
-  isInverse?: boolean;
-  launchTime?: number;
-  expiryTime?: number | null;
-  settlementTime?: number | null;
-  maxPrice?: string | number;
-  lotSize?: string | number;
-  unitSize?: string | number;
-  makerFeeRate?: string | number;
-  takerFeeRate?: string | number;
-  settlementFeeRate?: string | number | null;
-  maxLeverage?: number;
-  indexSourceExchanges?: string[];
-  k?: string | number;
-  m?: string | number;
-  f?: string | number;
-  mmrLimit?: string | number;
-  mmrLevConstant?: string | number;
-  alertRiskRatio?: string;
-  liquidationRiskRatio?: string;
-  baseBorrowEnable?: boolean | string;
-  quoteBorrowEnable?: boolean | string;
-  baseTransferInEnable?: boolean | string;
-  quoteTransferInEnable?: boolean | string;
+export interface OtcLoan {
+  parentUid: string;
+  orders: {
+    orderId: string;
+    currency: string;
+    principal: string;
+    interest: string;
+  }[];
+  ltv: {
+    transferLtv: string;
+    onlyClosePosLtv: string;
+    delayedLiquidationLtv: string;
+    instantLiquidationLtv: string;
+    currentLtv: string;
+  };
+  totalMarginAmount: string;
+  transferMarginAmount: string;
+  margins: {
+    marginCcy: string;
+    marginQty: string;
+    marginFactor: string;
+  }[];
 }
 ⋮----
-export interface GetSymbolResponseUTA {
-  tradeType: string;
-  list: SymbolUTA[];
-}
-⋮----
-export interface TickerUTA {
-  symbol: string;
-  name?: string;
-  bestBidPrice: string;
-  bestBidSize: string;
-  bestAskPrice: string;
-  bestAskSize: string;
-  high: string;
-  low: string;
-  baseVolume: string;
-  quoteVolume: string;
-  lastPrice: string;
-  open: string;
-  size: string;
-}
-⋮----
-export interface GetTickerResponseUTA {
-  tradeType: string;
-  ts: number;
-  list: TickerUTA[];
-}
-⋮----
-export interface TradeUTA {
-  sequence: string;
-  tradeId: string;
-  price: string;
-  size: string;
-  side: 'buy' | 'sell';
-  ts: number;
-}
-⋮----
-export interface GetTradesResponseUTA {
-  tradeType: string;
-  list: TradeUTA[];
-}
-⋮----
-export interface OrderBookLevelUTA {
-  price: string;
-  size: string;
-}
-⋮----
-export interface GetOrderBookResponseUTA {
-  tradeType: string;
-  symbol: string;
-  sequence: string;
-  bids: OrderBookLevelUTA[];
-  asks: OrderBookLevelUTA[];
-}
-⋮----
-export interface GetKlinesResponseUTA {
-  tradeType: string;
-  symbol: string;
-  list: string[][]; // [time, open, close, high, low, volume, turnover]
-}
-⋮----
-list: string[][]; // [time, open, close, high, low, volume, turnover]
-⋮----
-export interface GetCurrentFundingRateResponseUTA {
-  symbol: string;
-  nextFundingRate: number;
-  fundingTime: number;
-  fundingRateCap: number;
-  fundingRateFloor: number;
-}
-⋮----
-export interface FundingRateHistoryItemUTA {
-  fundingRate: number;
-  ts: number;
-}
-⋮----
-export interface GetHistoryFundingRateResponseUTA {
-  symbol: string;
-  list: FundingRateHistoryItemUTA[];
-}
-⋮----
-export interface GetCrossMarginConfigResponseUTA {
-  maxLeverage: number;
-  alertRiskRatio: string;
-  liquidationRiskRatio: string;
-  currencyList: string[];
-}
-⋮----
-export interface GetServiceStatusResponseUTA {
-  tradeType: string;
-  serverStatus: 'open' | 'close' | 'cancelonly';
-  msg: string;
+export interface OtcLoanAccount {
+  uid: string;
+  marginCcy: string;
+  marginQty: string;
+  marginFactor: string;
+  accountType: 'TRADE' | 'TRADE_HF' | 'CONTRACT';
+  isParent: boolean;
 }
 
 ================
@@ -1703,153 +1903,222 @@ export interface WsConnectionInfo {
 }
 
 ================
-File: src/UnifiedAPIClient.ts
+File: src/BrokerClient.ts
 ================
-import { AxiosRequestConfig } from 'axios';
-⋮----
 import { BaseRestClient } from './lib/BaseRestClient.js';
+import { REST_CLIENT_TYPE_ENUM, RestClientType } from './lib/requestUtils.js';
 import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
+  BrokerTransferRequest,
+  CreateBrokerSubAccountApiRequest,
+  DeleteBrokerSubAccountApiRequest,
+  GetBrokerDepositListRequest,
+  GetBrokerInfoRequest,
+  GetBrokerSubAccountApisRequest,
+  GetBrokerSubAccountsRequest,
+  UpdateBrokerSubAccountApiRequest,
+} from './types/request/broker.types.js';
 import {
-  GetAnnouncementsRequestUTA,
-  GetCurrencyRequestUTA,
-  GetCurrentFundingRateRequestUTA,
-  GetHistoryFundingRateRequestUTA,
-  GetKlinesRequestUTA,
-  GetOrderBookRequestUTA,
-  GetServiceStatusRequestUTA,
-  GetSymbolRequestUTA,
-  GetTickerRequestUTA,
-  GetTradesRequestUTA,
-} from './types/request/uta-types.js';
+  BrokerDepositRecord,
+  BrokerInfo,
+  BrokerSubAccountApi,
+  BrokerTransferHistory,
+  BrokerWithdrawalRecord,
+  CreateBrokerSubAccountApiResponse,
+  CreateBrokerSubAccountResponse,
+  GetBrokerSubAccountsResponse,
+} from './types/response/broker.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
-import {
-  GetAnnouncementsResponseUTA,
-  GetCrossMarginConfigResponseUTA,
-  GetCurrencyResponseUTA,
-  GetCurrentFundingRateResponseUTA,
-  GetHistoryFundingRateResponseUTA,
-  GetKlinesResponseUTA,
-  GetOrderBookResponseUTA,
-  GetServiceStatusResponseUTA,
-  GetSymbolResponseUTA,
-  GetTickerResponseUTA,
-  GetTradesResponseUTA,
-} from './types/response/uta-types.js';
 ⋮----
 /**
- * Unified Trading Account Client
  *
- * This client provides access to the Unified Trading Account API endpoints
- * that unify market data access across Spot, Futures, and Margin trading.
  */
-export class UnifiedAPIClient extends BaseRestClient
-⋮----
-constructor(
-    restClientOptions: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {},
-)
+export class BrokerClient extends BaseRestClient
 ⋮----
 getClientType(): RestClientType
 ⋮----
 /**
+   * Get Broker Info
    *
-   * REST - Unified Trading Account - Market Data
+   * This endpoint supports querying the basic information of the current Broker
+   */
+getBrokerInfo(
+    params: GetBrokerInfoRequest,
+): Promise<APISuccessResponse<BrokerInfo>>
+⋮----
+/**
+   * Add SubAccount
    *
+   * This endpoint supports Broker users to create sub-accounts.
+   * Note that the account name is unique across the exchange.
+   * It is recommended to add a special identifier to prevent name duplication.
    */
+createSubAccount(params: {
+    accountName: string;
+}): Promise<APISuccessResponse<CreateBrokerSubAccountResponse>>
 ⋮----
 /**
-   * Get Announcements
-   * This interface can obtain the latest news announcements, and the default
-   * page search is for announcements within a month.
+   * Get SubAccount
+   *
+   * This interface supports querying sub-accounts created by Broker.
+   * Returns paginated results with default page size of 20 (max 100).
    */
-getAnnouncements(
-    params?: GetAnnouncementsRequestUTA,
-): Promise<APISuccessResponse<GetAnnouncementsResponseUTA>>
+getSubAccounts(
+    params: GetBrokerSubAccountsRequest,
+): Promise<APISuccessResponse<GetBrokerSubAccountsResponse>>
 ⋮----
 /**
-   * Get Currency
-   * Request the currency details of a specified currency via this endpoint.
+   * Add SubAccount API
+   *
+   * This interface supports the creation of Broker sub-account APIKEY.
+   * Supports up to 20 IPs in the whitelist.
+   * Only General, Spot, and Futures permissions can be set.
+   * Label must be between 4 and 32 characters.
    */
-getCurrency(
-    params?: GetCurrencyRequestUTA,
-): Promise<APISuccessResponse<GetCurrencyResponseUTA>>
+createSubAccountApi(
+    params: CreateBrokerSubAccountApiRequest,
+): Promise<APISuccessResponse<CreateBrokerSubAccountApiResponse>>
 ⋮----
 /**
-   * Get Symbol
-   * Request a list of available currency pairs for trading via this endpoint.
+   * Get SubAccount API
+   *
+   * This interface supports querying the Broker's sub-account APIKEYs.
+   * Can optionally filter by specific apiKey.
    */
-getSymbol(
-    params: GetSymbolRequestUTA,
-): Promise<APISuccessResponse<GetSymbolResponseUTA>>
+getSubAccountApis(
+    params: GetBrokerSubAccountApisRequest,
+): Promise<APISuccessResponse<BrokerSubAccountApi[]>>
 ⋮----
 /**
-   * Get Ticker
-   * Request market tickers for the trading pairs in the market (including 24h volume).
+   * Modify SubAccount API
+   *
+   * This interface supports modifying the Broker's sub-account APIKEY.
+   * Supports up to 20 IPs in the whitelist.
+   * Only General, Spot, and Futures permissions can be set.
+   * Label must be between 4 and 32 characters.
    */
-getTicker(
-    params: GetTickerRequestUTA,
-): Promise<APISuccessResponse<GetTickerResponseUTA>>
+updateSubAccountApi(
+    params: UpdateBrokerSubAccountApiRequest,
+): Promise<APISuccessResponse<BrokerSubAccountApi>>
 ⋮----
 /**
-   * Get Trades
-   * Request via this endpoint to get the latest 100 public trades of the specified symbol.
+   * Delete SubAccount API
+   *
+   * This interface supports deleting Broker's sub-account APIKEY.
    */
-getTrades(
-    params: GetTradesRequestUTA,
-): Promise<APISuccessResponse<GetTradesResponseUTA>>
+deleteSubAccountApi(
+    params: DeleteBrokerSubAccountApiRequest,
+): Promise<APISuccessResponse<boolean>>
 ⋮----
 /**
-   * Get OrderBook
-   * Query order book depth information (aggregated by price).
+   * Transfer
+   *
+   * This endpoint supports fund transfer between Broker account and Broker sub-accounts.
+   * Please be aware that withdrawal from sub-account is not directly supported.
+   * Broker has to transfer funds from broker sub-account to broker account to initiate the withdrawals.
+   *
+   * Direction:
+   * - OUT: Broker account is transferred to Broker sub-account
+   * - IN: Broker sub-account is transferred to Broker account
+   *
+   * Account Types:
+   * - MAIN: Funding account
+   * - TRADE: Spot trading account
    */
-getOrderBook(
-    params: GetOrderBookRequestUTA,
-): Promise<APISuccessResponse<GetOrderBookResponseUTA>>
-⋮----
-/**
-   * Get Klines
-   * Get the Kline of the symbol. Data are returned in grouped buckets based on requested type.
-   */
-getKlines(
-    params: GetKlinesRequestUTA,
-): Promise<APISuccessResponse<GetKlinesResponseUTA>>
-⋮----
-/**
-   * Get Current Funding Rate
-   * Get current Futures funding fee rate.
-   */
-getCurrentFundingRate(
-    params: GetCurrentFundingRateRequestUTA,
-): Promise<APISuccessResponse<GetCurrentFundingRateResponseUTA>>
-⋮----
-/**
-   * Get History Funding Rate
-   * Query the Futures funding rate at each settlement time point within a certain time range.
-   */
-getHistoryFundingRate(
-    params: GetHistoryFundingRateRequestUTA,
-): Promise<APISuccessResponse<GetHistoryFundingRateResponseUTA>>
-⋮----
-/**
-   * Get Cross Margin Config
-   * Request the configure info of the 'spot cross margin' via this endpoint.
-   */
-getCrossMarginConfig(): Promise<
-    APISuccessResponse<GetCrossMarginConfigResponseUTA>
+submitTransfer(params: BrokerTransferRequest): Promise<
+    APISuccessResponse<{
+      orderId: string;
+    }>
   > {
-    return this.get('api/ua/v1/market/cross-config');
+    return this.postPrivate('api/v1/broker/nd/transfer', params);
 ⋮----
 /**
-   * Get Service Status
-   * Get the service status.
+   * Get Transfer History
+   *
+   * This endpoint supports querying transfer records of the broker itself and its created sub-accounts.
+   *
+   * Account Types:
+   * - MAIN: Funding account
+   * - TRADE: Spot trading account
+   * - CONTRACT: Contract account
+   * - MARGIN: Margin account
+   * - ISOLATED: Isolated margin account
+   *
+   * Status:
+   * - PROCESSING: Processing
+   * - SUCCESS: Successful
+   * - FAILURE: Failed
    */
-getServiceStatus(
-    params: GetServiceStatusRequestUTA,
-): Promise<APISuccessResponse<GetServiceStatusResponseUTA>>
+getTransferHistory(params: {
+    orderId: string;
+}): Promise<APISuccessResponse<BrokerTransferHistory>>
+⋮----
+/**
+   * Get Deposit List
+   *
+   * This endpoint can obtain the deposit records of each sub-account under the ND Broker.
+   * Default limit is 1000 records (max 1000).
+   * Results are sorted in descending order by default.
+   *
+   * Status:
+   * - PROCESSING: Processing
+   * - SUCCESS: Successful
+   * - FAILURE: Failed
+   */
+getDeposits(
+    params?: GetBrokerDepositListRequest,
+): Promise<APISuccessResponse<BrokerDepositRecord[]>>
+⋮----
+/**
+   * Get Deposit Detail
+   *
+   * This endpoint supports querying the deposit record of sub-accounts created by a Broker
+   * (excluding main account of nd broker).
+   *
+   * Status:
+   * - PROCESSING: Processing
+   * - SUCCESS: Successful
+   * - FAILURE: Failed
+   */
+getDeposit(params: {
+    currency: string;
+    hash: string;
+}): Promise<APISuccessResponse<BrokerDepositRecord>>
+⋮----
+/**
+   * Get Withdrawal Detail
+   *
+   * This endpoint supports querying the withdrawal records of sub-accounts created by a Broker
+   * (excluding main account of nd broker).
+   *
+   * Status:
+   * - PROCESSING: Processing
+   * - WALLET_PROCESSING: Wallet Processing
+   * - REVIEW: Under Review
+   * - SUCCESS: Successful
+   * - FAILURE: Failed
+   */
+getWithdrawal(params: {
+    withdrawalId: string;
+}): Promise<APISuccessResponse<BrokerWithdrawalRecord>>
+⋮----
+/**
+   * Get Broker Rebate
+   *
+   * This interface supports downloading Broker rebate orders.
+   * Returns a URL to download a CSV file containing the rebate data.
+   * The URL is valid for 1 day.
+   * Maximum interval between begin and end dates is 6 months.
+   */
+getBrokerRebate(params: {
+    begin: string;
+    end: string;
+    tradeType: '1' | '2';
+  }): Promise<
+    APISuccessResponse<{
+      url: string;
+    }>
+  > {
+    return this.getPrivate('api/v1/broker/nd/rebase/download', params);
 
 ================
 File: .prettierrc
@@ -2596,159 +2865,6 @@ export async function signMessage(
 export function checkWebCryptoAPISupported()
 
 ================
-File: src/types/request/broker.types.ts
-================
-export interface GetBrokerInfoRequest {
-  begin: string;
-  end: string;
-  tradeType: '1' | '2';
-}
-⋮----
-export interface GetBrokerSubAccountsRequest {
-  uid: string;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-export type BrokerSubAccountPermission = 'general' | 'spot' | 'futures';
-⋮----
-export interface CreateBrokerSubAccountApiRequest {
-  uid: string;
-  passphrase: string;
-  ipWhitelist: string[];
-  permissions: BrokerSubAccountPermission[];
-  label: string;
-}
-⋮----
-export interface GetBrokerSubAccountApisRequest {
-  uid: string;
-  apiKey?: string;
-}
-⋮----
-export interface UpdateBrokerSubAccountApiRequest {
-  uid: string;
-  apiKey: string;
-  ipWhitelist: string[];
-  permissions: BrokerSubAccountPermission[];
-  label: string;
-}
-⋮----
-export interface DeleteBrokerSubAccountApiRequest {
-  uid: string;
-  apiKey: string;
-}
-⋮----
-export type BrokerTransferDirection = 'OUT' | 'IN';
-export type BrokerAccountType = 'MAIN' | 'TRADE';
-⋮----
-export interface BrokerTransferRequest {
-  currency: string;
-  amount: string;
-  clientOid: string;
-  direction: BrokerTransferDirection;
-  accountType: BrokerAccountType;
-  specialUid: string;
-  specialAccountType: BrokerAccountType;
-}
-⋮----
-export interface GetBrokerDepositListRequest {
-  currency?: string;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  hash?: string;
-  startTimestamp?: number;
-  endTimestamp?: number;
-  limit?: number;
-}
-
-================
-File: src/types/request/spot-account.ts
-================
-export interface GetBalancesRequest {
-  currency?: string;
-  type?: 'main' | 'trade';
-}
-⋮----
-export interface GetSpotTransactionsRequest {
-  currency?: string;
-  direction?: 'in' | 'out';
-  bizType?:
-    | 'DEPOSIT'
-    | 'WITHDRAW'
-    | 'TRANSFER'
-    | 'SUB_TRANSFER'
-    | 'TRADE_EXCHANGE'
-    | 'MARGIN_EXCHANGE'
-    | 'KUCOIN_BONUS'
-    | 'BROKER_TRANSFER'
-    | 'REBATE';
-  startAt?: number;
-  endAt?: number;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-export interface AccountHFTransactionsRequest {
-  currency?: string;
-  direction?: 'in' | 'out';
-  bizType?:
-    | 'TRANSFER'
-    | 'TRADE_EXCHANGE'
-    | 'RETURNED_FEES'
-    | 'DEDUCTION_FEES'
-    | 'OTHER';
-  lastId?: number;
-  limit?: number;
-  startAt?: number;
-  endAt?: number;
-}
-⋮----
-export interface AccountHFMarginTransactionsRequest {
-  currency?: string;
-  direction?: 'in' | 'out';
-  bizType?:
-    | 'TRANSFER'
-    | 'MARGIN_EXCHANGE'
-    | 'ISOLATED_EXCHANGE'
-    | 'LIQUIDATION'
-    | 'ASSERT_RETURN';
-  lastId?: number;
-  limit?: number;
-  startAt?: number;
-  endAt?: number;
-}
-⋮----
-export interface CreateSubAccountRequest {
-  password: string;
-  remarks?: string;
-  subName: string;
-  access: string;
-}
-⋮----
-export interface CreateSubAccountAPIRequest {
-  subName: string;
-  passphrase: string;
-  remark: string;
-  permission?: string;
-  ipWhitelist?: string;
-  expire?: string;
-}
-⋮----
-export interface UpdateSubAccountAPIRequest {
-  subName: string;
-  apiKey: string;
-  passphrase: string;
-  permission?: string;
-  ipWhitelist?: string;
-  expire?: string;
-}
-⋮----
-export interface DeleteSubAccountAPIRequest {
-  apiKey: string;
-  passphrase: string;
-  subName: string;
-}
-
-================
 File: src/types/request/spot-convert.ts
 ================
 /**
@@ -2933,189 +3049,6 @@ orderId?: string; // optional - Order Id
 investCurrency?: string; // optional - Investment Currency
 currentPage?: number; // optional - Current Page, default: 1
 pageSize?: number; // optional - Page Size >= 10, <= 500, default: 15
-
-================
-File: src/types/request/spot-funding.ts
-================
-/**
- *
- ***********
- * Funding
- ***********
- *
- */
-⋮----
-export interface CreateDepositAddressV3Request {
-  currency: string;
-  chain?: string;
-  to?: 'main' | 'trade';
-  amount?: string;
-}
-⋮----
-export interface GetMarginBalanceRequest {
-  quoteCurrency?: string;
-  queryType?: 'MARGIN' | 'MARGIN_V2' | 'ALL';
-}
-⋮----
-export interface GetIsolatedMarginBalanceRequest {
-  symbol?: string;
-  quoteCurrency?: string;
-  queryType?: 'ISOLATED' | 'ISOLATED_V2' | 'ALL';
-}
-⋮----
-/**
- *
- * Deposit
- *
- */
-⋮----
-export interface GetDepositsRequest {
-  currency?: string;
-  startAt?: number;
-  endAt?: number;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-/**
- *
- * Withdrawals
- *
- */
-⋮----
-export interface GetWithdrawalsRequest {
-  currency?: string;
-  status?: 'PROCESSING' | 'WALLET_PROCESSING' | 'SUCCESS' | 'FAILURE';
-  startAt?: number;
-  endAt?: number;
-  currentPage?: number;
-  pageSize?: number;
-}
-⋮----
-export interface ApplyWithdrawRequest {
-  currency: string;
-  address: string;
-  amount: number;
-  memo?: string;
-  isInner?: boolean;
-  remark?: string;
-  chain?: string;
-  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
-}
-⋮----
-export interface SubmitWithdrawV3Request {
-  currency: string;
-  toAddress: string;
-  amount: number;
-  memo?: string;
-  isInner?: boolean;
-  remark?: string;
-  chain?: string;
-  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
-  withdrawType: 'ADDRESS' | 'UID' | 'MAIL' | 'PHONE';
-}
-⋮----
-/**
- *
- * Transfer
- *
- */
-⋮----
-export interface GetTransferableRequest {
-  currency: string;
-  type:
-    | 'MAIN'
-    | 'TRADE'
-    | 'TRADE_HF'
-    | 'MARGIN'
-    | 'ISOLATED'
-    | 'OPTION'
-    | 'MARGIN_V2'
-    | 'ISOLATED_V2';
-  tag?: string;
-}
-⋮----
-export interface FlexTransferRequest {
-  clientOid: string;
-  currency?: string;
-  amount: string;
-  fromUserId?: string;
-  fromAccountType:
-    | 'MAIN'
-    | 'TRADE'
-    | 'CONTRACT'
-    | 'MARGIN'
-    | 'ISOLATED'
-    | 'TRADE_HF'
-    | 'MARGIN_V2'
-    | 'ISOLATED_V2'
-    | 'OPTION';
-  fromAccountTag?: string;
-  type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
-  toUserId?: string;
-  toAccountType:
-    | 'MAIN'
-    | 'TRADE'
-    | 'CONTRACT'
-    | 'MARGIN'
-    | 'ISOLATED'
-    | 'TRADE_HF'
-    | 'MARGIN_V2'
-    | 'ISOLATED_V2'
-    | 'OPTION';
-  toAccountTag?: string;
-}
-⋮----
-export interface submitTransferMasterSubRequest {
-  clientOid: string;
-  currency: string;
-  amount: string;
-  direction: 'OUT' | 'IN';
-  accountType?:
-    | 'MAIN'
-    | 'TRADE'
-    | 'TRADE_HF'
-    | 'MARGIN'
-    | 'CONTRACT'
-    | 'OPTION';
-  subAccountType?:
-    | 'MAIN'
-    | 'TRADE'
-    | 'TRADE_HF'
-    | 'MARGIN'
-    | 'CONTRACT'
-    | 'OPTION';
-  subUserId: string;
-}
-⋮----
-export interface InnerTransferRequest {
-  clientOid: string;
-  currency: string;
-  from:
-    | 'main'
-    | 'trade'
-    | 'trade_hf'
-    | 'margin'
-    | 'isolated'
-    | 'margin_v2'
-    | 'isolated_v2'
-    | 'contract'
-    | 'option';
-  to:
-    | 'main'
-    | 'trade'
-    | 'trade_hf'
-    | 'margin'
-    | 'isolated'
-    | 'margin_v2'
-    | 'isolated_v2'
-    | 'contract'
-    | 'option';
-  amount: string;
-  fromTag?: string;
-  toTag?: string;
-}
 
 ================
 File: src/types/request/spot-margin-trading.ts
@@ -3478,6 +3411,15 @@ export interface GetMarginOcoOrderDetailByOrderIdRequest {
 }
 ⋮----
 orderId: string; // Order ID
+⋮----
+/**
+ * Get Margin Collateral Ratio
+ */
+export interface GetMarginCollateralRatioRequest {
+  currencyList?: string; // If not specified, all currencies will be returned. Supports multiple currencies, separated by commas.
+}
+⋮----
+currencyList?: string; // If not specified, all currencies will be returned. Supports multiple currencies, separated by commas.
 
 ================
 File: src/types/request/spot-trading.ts
@@ -3771,119 +3713,113 @@ export interface GetOCOOrdersRequest {
 }
 
 ================
-File: src/types/response/broker.types.ts
+File: src/types/request/uta-types.ts
 ================
-export interface BrokerInfo {
-  accountSize: number;
-  maxAccountSize: number | null;
-  level: number;
+/**
+ * Unified Trading Account Request Types
+ */
+⋮----
+export interface GetAnnouncementsRequestUTA {
+  language?:
+    | 'zh_HK'
+    | 'ja_JP'
+    | 'ko_KR'
+    | 'en_US'
+    | 'pl_PL'
+    | 'es_ES'
+    | 'fr_FR'
+    | 'ar_AE'
+    | 'it_IT'
+    | 'id_ID'
+    | 'nl_NL'
+    | 'pt_PT'
+    | 'vi_VN'
+    | 'de_DE'
+    | 'tr_TR'
+    | 'ms_MY'
+    | 'ru_RU'
+    | 'th_TH'
+    | 'hi_IN'
+    | 'bn_BD'
+    | 'fil_PH'
+    | 'ur_PK';
+  type?:
+    | 'latest-announcements'
+    | 'activities'
+    | 'product-updates'
+    | 'vip'
+    | 'maintenance-updates'
+    | 'delistings'
+    | 'others'
+    | 'api-campaigns'
+    | 'new-listings'
+    | 'futures-announcements';
+  pageNumber?: number;
+  pageSize?: number;
+  startTime?: number;
+  endTime?: number;
 }
 ⋮----
-export interface CreateBrokerSubAccountResponse {
-  accountName: string;
-  uid: string;
-  createdAt: number;
-  level: number;
+export interface GetCurrencyRequestUTA {
+  currency?: string;
+  chain?: string;
 }
 ⋮----
-export interface BrokerSubAccount {
-  accountName: string;
-  uid: string;
-  createdAt: number;
-  level: number;
+export interface GetSymbolRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  symbol?: string;
 }
 ⋮----
-export interface GetBrokerSubAccountsResponse {
-  currentPage: number;
-  pageSize: number;
-  totalNum: number;
-  totalPage: number;
-  items: BrokerSubAccount[];
+export interface GetTickerRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol?: string;
 }
 ⋮----
-export interface CreateBrokerSubAccountApiResponse {
-  uid: string;
-  label: string;
-  apiKey: string;
-  secretKey: string;
-  apiVersion: number;
-  permissions: string[];
-  ipWhitelist: string[];
-  createdAt: number;
+export interface GetTradesRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol: string;
 }
 ⋮----
-export interface BrokerSubAccountApi {
-  uid: string;
-  label: string;
-  apiKey: string;
-  apiVersion: number;
-  permissions: ('General' | 'Spot' | 'Futures')[];
-  ipWhitelist: string[];
-  createdAt: number;
+export interface GetOrderBookRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol: string;
+  limit: '20' | '50' | '100' | 'FULL';
 }
 ⋮----
-export type BrokerTransferAccountType =
-  | 'MAIN'
-  | 'TRADE'
-  | 'CONTRACT'
-  | 'MARGIN'
-  | 'ISOLATED';
-export type BrokerTransferStatus = 'PROCESSING' | 'SUCCESS' | 'FAILURE';
-⋮----
-export interface BrokerTransferHistory {
-  orderId: string;
-  currency: string;
-  amount: string;
-  fromUid: number;
-  fromAccountType: BrokerTransferAccountType;
-  fromAccountTag: string;
-  toUid: number;
-  toAccountType: BrokerTransferAccountType;
-  toAccountTag: string;
-  status: BrokerTransferStatus;
-  reason: string | null;
-  createdAt: number;
+export interface GetKlinesRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
+  symbol: string;
+  interval:
+    | '1min'
+    | '3min'
+    | '5min'
+    | '15min'
+    | '30min'
+    | '1hour'
+    | '2hour'
+    | '4hour'
+    | '6hour'
+    | '8hour'
+    | '12hour'
+    | '1day'
+    | '1week'
+    | '1month';
+  startAt?: number;
+  endAt?: number;
 }
 ⋮----
-export interface BrokerDepositRecord {
-  uid: number;
-  hash: string;
-  address: string;
-  memo: string;
-  amount: string;
-  fee: string;
-  currency: string;
-  isInner: boolean;
-  walletTxId: string;
-  status: BrokerTransferStatus;
-  remark: string;
-  chain: string;
-  createdAt: number;
-  updatedAt: number;
+export interface GetCurrentFundingRateRequestUTA {
+  symbol: string;
 }
 ⋮----
-export type BrokerWithdrawalStatus =
-  | 'PROCESSING'
-  | 'WALLET_PROCESSING'
-  | 'REVIEW'
-  | 'SUCCESS'
-  | 'FAILURE';
+export interface GetHistoryFundingRateRequestUTA {
+  symbol: string;
+  startAt: number;
+  endAt: number;
+}
 ⋮----
-export interface BrokerWithdrawalRecord {
-  id: string;
-  chain: string;
-  walletTxId: string;
-  uid: number;
-  amount: string;
-  memo: string;
-  fee: string;
-  address: string;
-  remark: string;
-  isInner: boolean;
-  currency: string;
-  status: BrokerWithdrawalStatus;
-  createdAt: number;
-  updatedAt: number;
+export interface GetServiceStatusRequestUTA {
+  tradeType: 'SPOT' | 'FUTURES';
 }
 
 ================
@@ -4109,6 +4045,52 @@ export interface DeleteSubAccountAPI {
   subName: string;
   apiKey: string;
 }
+⋮----
+/**
+ * Get KYC Regions Response
+ */
+export interface KYCRegion {
+  code: string; // Two-letter country code
+  enName: string; // English name of the region
+}
+⋮----
+code: string; // Two-letter country code
+enName: string; // English name of the region
+⋮----
+/**
+ * Get API Key Info Response
+ */
+export interface ApiKeyInfo {
+  uid: number; // Account UID
+  parentUid?: number; // Master account UID. Returns empty when called by the master account itself
+  region: string; // KYC region of the account, returns the two-letter country code
+  kycStatus: 0 | 1; // KYC status
+  subName?: string; // Sub-account name (not present for the master account)
+  remark: string; // Remarks
+  apiKey: string; // API key
+  apiVersion: number; // API version
+  permission: string; // Permissions
+  ipWhitelist?: string; // IP whitelist (comma-separated list of allowed IPs)
+  isMaster: boolean; // Indicates whether this is the master account
+  createdAt: number; // API key creation timestamp (Unix milliseconds)
+  expiredAt?: number | null; // API key expiration timestamp (Unix milliseconds). Returns null if no expiration is set
+  thirdPartyApp?: string; // Third-party application name. Returns empty string if not associated with any third-party app
+}
+⋮----
+uid: number; // Account UID
+parentUid?: number; // Master account UID. Returns empty when called by the master account itself
+region: string; // KYC region of the account, returns the two-letter country code
+kycStatus: 0 | 1; // KYC status
+subName?: string; // Sub-account name (not present for the master account)
+remark: string; // Remarks
+apiKey: string; // API key
+apiVersion: number; // API version
+permission: string; // Permissions
+ipWhitelist?: string; // IP whitelist (comma-separated list of allowed IPs)
+isMaster: boolean; // Indicates whether this is the master account
+createdAt: number; // API key creation timestamp (Unix milliseconds)
+expiredAt?: number | null; // API key expiration timestamp (Unix milliseconds). Returns null if no expiration is set
+thirdPartyApp?: string; // Third-party application name. Returns empty string if not associated with any third-party app
 
 ================
 File: src/types/response/spot-convert.ts
@@ -4440,56 +4422,199 @@ totalPage: number; // Total number of pages
 items: StructuredProductOrder[]; // List of structured product holdings
 
 ================
-File: src/types/response/spot-vip.ts
+File: src/types/response/uta-types.ts
 ================
 /**
- *
- ***********
- * VIP LENDING
- ***********
- *
+ * Unified Trading Account Response Types
  */
 ⋮----
-export interface DiscountRateConfig {
+export interface AnnouncementItemUTA {
+  id: number;
+  title: string;
+  type: string[];
+  description: string;
+  releaseTime: number;
+  language: string;
+  url: string;
+}
+⋮----
+export interface GetAnnouncementsResponseUTA {
+  totalNumber: number;
+  totalPage: number;
+  pageNumber: number;
+  pageSize: number;
+  list: AnnouncementItemUTA[];
+}
+⋮----
+export interface CurrencyChainUTA {
+  chainName: string;
+  minWithdrawSize: string | null;
+  minDepositSize: string | null;
+  withdrawFeeRate: string;
+  minWithdrawFee: string;
+  isWithdrawEnabled: boolean;
+  isDepositEnabled: boolean;
+  confirms: number;
+  preConfirms: number;
+  contractAddress: string;
+  withdrawPrecision: number;
+  maxWithdrawSize: string | null;
+  maxDepositSize: string | null;
+  needTag: boolean;
+  chainId: string;
+}
+⋮----
+export interface GetCurrencyResponseUTA {
   currency: string;
-  usdtLevels: {
-    left: number;
-    right: number;
-    discountRate: string;
-  }[];
+  name: string;
+  fullName: string;
+  precision: number;
+  confirms: number | null;
+  contractAddress: string | null;
+  isMarginEnabled: boolean;
+  isDebitEnabled: boolean;
+  list: CurrencyChainUTA[];
 }
 ⋮----
-export interface OtcLoan {
-  parentUid: string;
-  orders: {
-    orderId: string;
-    currency: string;
-    principal: string;
-    interest: string;
-  }[];
-  ltv: {
-    transferLtv: string;
-    onlyClosePosLtv: string;
-    delayedLiquidationLtv: string;
-    instantLiquidationLtv: string;
-    currentLtv: string;
-  };
-  totalMarginAmount: string;
-  transferMarginAmount: string;
-  margins: {
-    marginCcy: string;
-    marginQty: string;
-    marginFactor: string;
-  }[];
+export interface SymbolUTA {
+  symbol: string;
+  name?: string;
+  baseCurrency: string;
+  quoteCurrency: string;
+  market?: string;
+  minBaseOrderSize?: string;
+  minQuoteOrderSize?: string;
+  maxBaseOrderSize?: string | number;
+  maxQuoteOrderSize?: string;
+  baseOrderStep?: string;
+  quoteOrderStep?: string;
+  tickSize?: string | number;
+  feeCurrency?: string;
+  tradingStatus?: string;
+  marginMode?: string;
+  priceLimitRatio?: string;
+  feeCategory?: number;
+  makerFeeCoefficient?: string;
+  takerFeeCoefficient?: string;
+  st?: boolean;
+  settlementCurrency?: string;
+  contractType?: string;
+  isInverse?: boolean;
+  launchTime?: number;
+  expiryTime?: number | null;
+  settlementTime?: number | null;
+  maxPrice?: string | number;
+  lotSize?: string | number;
+  unitSize?: string | number;
+  makerFeeRate?: string | number;
+  takerFeeRate?: string | number;
+  settlementFeeRate?: string | number | null;
+  maxLeverage?: number;
+  indexSourceExchanges?: string[];
+  k?: string | number;
+  m?: string | number;
+  f?: string | number;
+  mmrLimit?: string | number;
+  mmrLevConstant?: string | number;
+  alertRiskRatio?: string;
+  liquidationRiskRatio?: string;
+  baseBorrowEnable?: boolean | string;
+  quoteBorrowEnable?: boolean | string;
+  baseTransferInEnable?: boolean | string;
+  quoteTransferInEnable?: boolean | string;
 }
 ⋮----
-export interface OtcLoanAccount {
-  uid: string;
-  marginCcy: string;
-  marginQty: string;
-  marginFactor: string;
-  accountType: 'TRADE' | 'TRADE_HF' | 'CONTRACT';
-  isParent: boolean;
+export interface GetSymbolResponseUTA {
+  tradeType: string;
+  list: SymbolUTA[];
+}
+⋮----
+export interface TickerUTA {
+  symbol: string;
+  name?: string;
+  bestBidPrice: string;
+  bestBidSize: string;
+  bestAskPrice: string;
+  bestAskSize: string;
+  high: string;
+  low: string;
+  baseVolume: string;
+  quoteVolume: string;
+  lastPrice: string;
+  open: string;
+  size: string;
+}
+⋮----
+export interface GetTickerResponseUTA {
+  tradeType: string;
+  ts: number;
+  list: TickerUTA[];
+}
+⋮----
+export interface TradeUTA {
+  sequence: string;
+  tradeId: string;
+  price: string;
+  size: string;
+  side: 'buy' | 'sell';
+  ts: number;
+}
+⋮----
+export interface GetTradesResponseUTA {
+  tradeType: string;
+  list: TradeUTA[];
+}
+⋮----
+export interface OrderBookLevelUTA {
+  price: string;
+  size: string;
+}
+⋮----
+export interface GetOrderBookResponseUTA {
+  tradeType: string;
+  symbol: string;
+  sequence: string;
+  bids: OrderBookLevelUTA[];
+  asks: OrderBookLevelUTA[];
+}
+⋮----
+export interface GetKlinesResponseUTA {
+  tradeType: string;
+  symbol: string;
+  list: string[][]; // [time, open, close, high, low, volume, turnover]
+}
+⋮----
+list: string[][]; // [time, open, close, high, low, volume, turnover]
+⋮----
+export interface GetCurrentFundingRateResponseUTA {
+  symbol: string;
+  nextFundingRate: number;
+  fundingTime: number;
+  fundingRateCap: number;
+  fundingRateFloor: number;
+}
+⋮----
+export interface FundingRateHistoryItemUTA {
+  fundingRate: number;
+  ts: number;
+}
+⋮----
+export interface GetHistoryFundingRateResponseUTA {
+  symbol: string;
+  list: FundingRateHistoryItemUTA[];
+}
+⋮----
+export interface GetCrossMarginConfigResponseUTA {
+  maxLeverage: number;
+  alertRiskRatio: string;
+  liquidationRiskRatio: string;
+  currencyList: string[];
+}
+⋮----
+export interface GetServiceStatusResponseUTA {
+  tradeType: string;
+  serverStatus: 'open' | 'close' | 'cancelonly';
+  msg: string;
 }
 
 ================
@@ -4532,6 +4657,17 @@ restClientRegex.ts
 File: .nvmrc
 ================
 v22.18.0
+
+================
+File: LICENSE.md
+================
+Copyright 2025 Tiago Siebler
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ================
 File: tsconfig.json
@@ -4904,6 +5040,7 @@ export interface CopyTradeOrderRequest {
   closeOrder?: boolean;
   forceHold?: boolean;
   marginMode?: 'ISOLATED' | 'CROSS';
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   price?: string;
   size: number;
   timeInForce?: 'GTC' | 'IOC';
@@ -4921,6 +5058,40 @@ export interface CopyTradeSLTPOrderRequest extends CopyTradeOrderRequest {
 ⋮----
 triggerStopUpPrice?: string; // Take profit price
 triggerStopDownPrice?: string; // Stop loss price
+⋮----
+/**
+ * Switch Margin Mode (Copy Trading)
+ */
+export interface CopyTradeSwitchMarginModeRequest {
+  symbol: string;
+  marginMode: 'ISOLATED' | 'CROSS';
+}
+⋮----
+/**
+ * Modify Cross Margin Leverage (Copy Trading)
+ */
+export interface CopyTradeChangeCrossMarginLeverageRequest {
+  symbol: string;
+  leverage: string;
+}
+⋮----
+/**
+ * Get Cross Margin Requirement (Copy Trading)
+ */
+export interface CopyTradeGetCrossMarginRequirementRequest {
+  symbol: string;
+  positionValue: string;
+  leverage?: string;
+}
+⋮----
+/**
+ * Switch Position Mode (Copy Trading)
+ */
+export interface CopyTradeSwitchPositionModeRequest {
+  positionMode: '0' | '1'; // 0 = one-way mode, 1 = hedge mode
+}
+⋮----
+positionMode: '0' | '1'; // 0 = one-way mode, 1 = hedge mode
 
 ================
 File: src/types/request/spot-affiliate.ts
@@ -5738,6 +5909,20 @@ clientOid: string; // Client Order ID
 orderTime: number; // Order placement time (milliseconds)
 status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
 orders: MarginOcoOrderSubOrder[]; // Sub-orders array
+⋮----
+/**
+ * Get Margin Collateral Ratio Response
+ */
+export interface MarginCollateralRatioItem {
+  lowerLimit: string;
+  upperLimit: string;
+  collateralRatio: string;
+}
+⋮----
+export interface MarginCollateralRatioData {
+  currencyList: string[];
+  items: MarginCollateralRatioItem[];
+}
 
 ================
 File: src/types/websockets/ws-general.ts
@@ -5852,222 +6037,153 @@ export type WsMarket = 'spot' | 'futures';
 export type WsEventInternalSrc = 'event' | 'function';
 
 ================
-File: src/BrokerClient.ts
+File: src/UnifiedAPIClient.ts
 ================
+import { AxiosRequestConfig } from 'axios';
+⋮----
 import { BaseRestClient } from './lib/BaseRestClient.js';
-import { REST_CLIENT_TYPE_ENUM, RestClientType } from './lib/requestUtils.js';
 import {
-  BrokerTransferRequest,
-  CreateBrokerSubAccountApiRequest,
-  DeleteBrokerSubAccountApiRequest,
-  GetBrokerDepositListRequest,
-  GetBrokerInfoRequest,
-  GetBrokerSubAccountApisRequest,
-  GetBrokerSubAccountsRequest,
-  UpdateBrokerSubAccountApiRequest,
-} from './types/request/broker.types.js';
+  REST_CLIENT_TYPE_ENUM,
+  RestClientOptions,
+  RestClientType,
+} from './lib/requestUtils.js';
 import {
-  BrokerDepositRecord,
-  BrokerInfo,
-  BrokerSubAccountApi,
-  BrokerTransferHistory,
-  BrokerWithdrawalRecord,
-  CreateBrokerSubAccountApiResponse,
-  CreateBrokerSubAccountResponse,
-  GetBrokerSubAccountsResponse,
-} from './types/response/broker.types.js';
+  GetAnnouncementsRequestUTA,
+  GetCurrencyRequestUTA,
+  GetCurrentFundingRateRequestUTA,
+  GetHistoryFundingRateRequestUTA,
+  GetKlinesRequestUTA,
+  GetOrderBookRequestUTA,
+  GetServiceStatusRequestUTA,
+  GetSymbolRequestUTA,
+  GetTickerRequestUTA,
+  GetTradesRequestUTA,
+} from './types/request/uta-types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
+import {
+  GetAnnouncementsResponseUTA,
+  GetCrossMarginConfigResponseUTA,
+  GetCurrencyResponseUTA,
+  GetCurrentFundingRateResponseUTA,
+  GetHistoryFundingRateResponseUTA,
+  GetKlinesResponseUTA,
+  GetOrderBookResponseUTA,
+  GetServiceStatusResponseUTA,
+  GetSymbolResponseUTA,
+  GetTickerResponseUTA,
+  GetTradesResponseUTA,
+} from './types/response/uta-types.js';
 ⋮----
 /**
+ * Unified Trading Account Client
  *
+ * This client provides access to the Unified Trading Account API endpoints
+ * that unify market data access across Spot, Futures, and Margin trading.
  */
-export class BrokerClient extends BaseRestClient
+export class UnifiedAPIClient extends BaseRestClient
+⋮----
+constructor(
+    restClientOptions: RestClientOptions = {},
+    requestOptions: AxiosRequestConfig = {},
+)
 ⋮----
 getClientType(): RestClientType
 ⋮----
 /**
-   * Get Broker Info
    *
-   * This endpoint supports querying the basic information of the current Broker
+   * REST - Unified Trading Account - Market Data
+   *
    */
-getBrokerInfo(
-    params: GetBrokerInfoRequest,
-): Promise<APISuccessResponse<BrokerInfo>>
 ⋮----
 /**
-   * Add SubAccount
-   *
-   * This endpoint supports Broker users to create sub-accounts.
-   * Note that the account name is unique across the exchange.
-   * It is recommended to add a special identifier to prevent name duplication.
+   * Get Announcements
+   * This interface can obtain the latest news announcements, and the default
+   * page search is for announcements within a month.
    */
-createSubAccount(params: {
-    accountName: string;
-}): Promise<APISuccessResponse<CreateBrokerSubAccountResponse>>
+getAnnouncements(
+    params?: GetAnnouncementsRequestUTA,
+): Promise<APISuccessResponse<GetAnnouncementsResponseUTA>>
 ⋮----
 /**
-   * Get SubAccount
-   *
-   * This interface supports querying sub-accounts created by Broker.
-   * Returns paginated results with default page size of 20 (max 100).
+   * Get Currency
+   * Request the currency details of a specified currency via this endpoint.
    */
-getSubAccounts(
-    params: GetBrokerSubAccountsRequest,
-): Promise<APISuccessResponse<GetBrokerSubAccountsResponse>>
+getCurrency(
+    params?: GetCurrencyRequestUTA,
+): Promise<APISuccessResponse<GetCurrencyResponseUTA>>
 ⋮----
 /**
-   * Add SubAccount API
-   *
-   * This interface supports the creation of Broker sub-account APIKEY.
-   * Supports up to 20 IPs in the whitelist.
-   * Only General, Spot, and Futures permissions can be set.
-   * Label must be between 4 and 32 characters.
+   * Get Symbol
+   * Request a list of available currency pairs for trading via this endpoint.
    */
-createSubAccountApi(
-    params: CreateBrokerSubAccountApiRequest,
-): Promise<APISuccessResponse<CreateBrokerSubAccountApiResponse>>
+getSymbols(
+    params: GetSymbolRequestUTA,
+): Promise<APISuccessResponse<GetSymbolResponseUTA>>
 ⋮----
 /**
-   * Get SubAccount API
-   *
-   * This interface supports querying the Broker's sub-account APIKEYs.
-   * Can optionally filter by specific apiKey.
+   * Get Ticker
+   * Request market tickers for the trading pairs in the market (including 24h volume).
    */
-getSubAccountApis(
-    params: GetBrokerSubAccountApisRequest,
-): Promise<APISuccessResponse<BrokerSubAccountApi[]>>
+getTickers(
+    params: GetTickerRequestUTA,
+): Promise<APISuccessResponse<GetTickerResponseUTA>>
 ⋮----
 /**
-   * Modify SubAccount API
-   *
-   * This interface supports modifying the Broker's sub-account APIKEY.
-   * Supports up to 20 IPs in the whitelist.
-   * Only General, Spot, and Futures permissions can be set.
-   * Label must be between 4 and 32 characters.
+   * Get Trades
+   * Request via this endpoint to get the latest 100 public trades of the specified symbol.
    */
-updateSubAccountApi(
-    params: UpdateBrokerSubAccountApiRequest,
-): Promise<APISuccessResponse<BrokerSubAccountApi>>
+getTrades(
+    params: GetTradesRequestUTA,
+): Promise<APISuccessResponse<GetTradesResponseUTA>>
 ⋮----
 /**
-   * Delete SubAccount API
-   *
-   * This interface supports deleting Broker's sub-account APIKEY.
+   * Get OrderBook
+   * Query order book depth information (aggregated by price).
    */
-deleteSubAccountApi(
-    params: DeleteBrokerSubAccountApiRequest,
-): Promise<APISuccessResponse<boolean>>
+getOrderBook(
+    params: GetOrderBookRequestUTA,
+): Promise<APISuccessResponse<GetOrderBookResponseUTA>>
 ⋮----
 /**
-   * Transfer
-   *
-   * This endpoint supports fund transfer between Broker account and Broker sub-accounts.
-   * Please be aware that withdrawal from sub-account is not directly supported.
-   * Broker has to transfer funds from broker sub-account to broker account to initiate the withdrawals.
-   *
-   * Direction:
-   * - OUT: Broker account is transferred to Broker sub-account
-   * - IN: Broker sub-account is transferred to Broker account
-   *
-   * Account Types:
-   * - MAIN: Funding account
-   * - TRADE: Spot trading account
+   * Get Klines
+   * Get the Kline of the symbol. Data are returned in grouped buckets based on requested type.
    */
-submitTransfer(params: BrokerTransferRequest): Promise<
-    APISuccessResponse<{
-      orderId: string;
-    }>
+getKlines(
+    params: GetKlinesRequestUTA,
+): Promise<APISuccessResponse<GetKlinesResponseUTA>>
+⋮----
+/**
+   * Get Current Funding Rate
+   * Get current Futures funding fee rate.
+   */
+getCurrentFundingRate(
+    params: GetCurrentFundingRateRequestUTA,
+): Promise<APISuccessResponse<GetCurrentFundingRateResponseUTA>>
+⋮----
+/**
+   * Get History Funding Rate
+   * Query the Futures funding rate at each settlement time point within a certain time range.
+   */
+getHistoryFundingRate(
+    params: GetHistoryFundingRateRequestUTA,
+): Promise<APISuccessResponse<GetHistoryFundingRateResponseUTA>>
+⋮----
+/**
+   * Get Cross Margin Config
+   * Request the configure info of the 'spot cross margin' via this endpoint.
+   */
+getCrossMarginConfig(): Promise<
+    APISuccessResponse<GetCrossMarginConfigResponseUTA>
   > {
-    return this.postPrivate('api/v1/broker/nd/transfer', params);
+    return this.get('api/ua/v1/market/cross-config');
 ⋮----
 /**
-   * Get Transfer History
-   *
-   * This endpoint supports querying transfer records of the broker itself and its created sub-accounts.
-   *
-   * Account Types:
-   * - MAIN: Funding account
-   * - TRADE: Spot trading account
-   * - CONTRACT: Contract account
-   * - MARGIN: Margin account
-   * - ISOLATED: Isolated margin account
-   *
-   * Status:
-   * - PROCESSING: Processing
-   * - SUCCESS: Successful
-   * - FAILURE: Failed
+   * Get Service Status
+   * Get the service status.
    */
-getTransferHistory(params: {
-    orderId: string;
-}): Promise<APISuccessResponse<BrokerTransferHistory>>
-⋮----
-/**
-   * Get Deposit List
-   *
-   * This endpoint can obtain the deposit records of each sub-account under the ND Broker.
-   * Default limit is 1000 records (max 1000).
-   * Results are sorted in descending order by default.
-   *
-   * Status:
-   * - PROCESSING: Processing
-   * - SUCCESS: Successful
-   * - FAILURE: Failed
-   */
-getDeposits(
-    params?: GetBrokerDepositListRequest,
-): Promise<APISuccessResponse<BrokerDepositRecord[]>>
-⋮----
-/**
-   * Get Deposit Detail
-   *
-   * This endpoint supports querying the deposit record of sub-accounts created by a Broker
-   * (excluding main account of nd broker).
-   *
-   * Status:
-   * - PROCESSING: Processing
-   * - SUCCESS: Successful
-   * - FAILURE: Failed
-   */
-getDeposit(params: {
-    currency: string;
-    hash: string;
-}): Promise<APISuccessResponse<BrokerDepositRecord>>
-⋮----
-/**
-   * Get Withdrawal Detail
-   *
-   * This endpoint supports querying the withdrawal records of sub-accounts created by a Broker
-   * (excluding main account of nd broker).
-   *
-   * Status:
-   * - PROCESSING: Processing
-   * - WALLET_PROCESSING: Wallet Processing
-   * - REVIEW: Under Review
-   * - SUCCESS: Successful
-   * - FAILURE: Failed
-   */
-getWithdrawal(params: {
-    withdrawalId: string;
-}): Promise<APISuccessResponse<BrokerWithdrawalRecord>>
-⋮----
-/**
-   * Get Broker Rebate
-   *
-   * This interface supports downloading Broker rebate orders.
-   * Returns a URL to download a CSV file containing the rebate data.
-   * The URL is valid for 1 day.
-   * Maximum interval between begin and end dates is 6 months.
-   */
-getBrokerRebate(params: {
-    begin: string;
-    end: string;
-    tradeType: '1' | '2';
-  }): Promise<
-    APISuccessResponse<{
-      url: string;
-    }>
-  > {
-    return this.getPrivate('api/v1/broker/nd/rebase/download', params);
+getServiceStatus(
+    params: GetServiceStatusRequestUTA,
+): Promise<APISuccessResponse<GetServiceStatusResponseUTA>>
 
 ================
 File: .eslintrc.cjs
@@ -7250,6 +7366,179 @@ export function getRestBaseUrl(
 ): string
 
 ================
+File: src/types/websockets/ws-api.ts
+================
+import { WS_KEY_MAP, WsKey } from '../../lib/websocket/websocket-util.js';
+import { BatchCancelOrdersRequest, Order } from '../request/futures.types.js';
+import { SubmitHFMarginOrderRequest } from '../request/spot-margin-trading.js';
+import {
+  ModifyHFOrderRequest,
+  SubmitHFOrderRequest,
+} from '../request/spot-trading.js';
+import {
+  BatchCancelOrderResult,
+  SubmitMultipleOrdersFuturesResponse,
+} from '../response/futures.types.js';
+import { MarginSubmitOrderV3Response } from '../response/spot-margin-trading.js';
+import {
+  SubmitHFOrderSyncResponse,
+  SyncCancelHFOrderResponse,
+} from '../response/spot-trading.js';
+⋮----
+export type WsOperation =
+  | 'subscribe'
+  | 'unsubscribe'
+  | 'login'
+  | 'access'
+  | 'request'
+  | 'ping';
+⋮----
+export interface WsRequestOperation<TWSTopic extends string> {
+  id: number;
+  type: WsOperation;
+  topic: TWSTopic;
+  privateChannel: boolean;
+  response: boolean;
+}
+⋮----
+export type Exact<T> = {
+  // This part says: if there's any key that's not in T, it's an error
+  // This conflicts sometimes for some reason...
+  // [K: string]: never;
+} & {
+  [K in keyof T]: T[K];
+};
+⋮----
+// This part says: if there's any key that's not in T, it's an error
+// This conflicts sometimes for some reason...
+// [K: string]: never;
+⋮----
+/**
+ * WS API commands (for sending requests via WS)
+ */
+⋮----
+export type WsAPIOperation = (typeof WS_API_Operations)[number];
+⋮----
+export interface WsRequestOperationKucoin<
+  TWSTopic extends string,
+  TWSParams extends object = any,
+> {
+  id: string;
+  op: WsOperation | WsAPIOperation;
+  args?: (TWSTopic | string | number)[] | TWSParams; // Business parameters, same as RestAPI
+}
+⋮----
+args?: (TWSTopic | string | number)[] | TWSParams; // Business parameters, same as RestAPI
+⋮----
+export interface WSAPIResponse<
+  TResponseData extends object = object,
+  TWSAPIOperation = WsAPIOperation,
+> {
+  /** Auto-generated */
+  id: string;
+
+  op: TWSAPIOperation;
+
+  msg?: string;
+  code: '200000' | string;
+
+  data: TResponseData;
+  inTime: number; //Gateway in time(ms)
+  outTime: number; //Gateway out time(ms)
+  rateLimit?: { limit: number; reset: number; remaining: number };
+
+  wsKey: WsKey;
+  isWSAPIResponse: boolean;
+
+  request?: any;
+}
+⋮----
+/** Auto-generated */
+⋮----
+inTime: number; //Gateway in time(ms)
+outTime: number; //Gateway out time(ms)
+⋮----
+export interface WsAPIWsKeyTopicMap {
+  [WS_KEY_MAP.wsApiSpotV1]: WsAPIOperation;
+  [WS_KEY_MAP.wsApiFuturesV1]: WsAPIOperation;
+}
+⋮----
+export type WSAPICancelOrderRequest = { symbol: string } & (
+  | { orderId: string }
+  | { clientOid: string }
+);
+⋮----
+export interface WSAPIOrderResponse {
+  orderId: string;
+  clientOid: string;
+}
+⋮----
+export interface WsAPITopicRequestParamMap {
+  [key: string]: unknown;
+
+  subscribe: never;
+  unsubscribe: never;
+  login: never;
+  access: never;
+  request: never;
+
+  ping: void;
+
+  'spot.order': SubmitHFOrderRequest;
+  'margin.order': SubmitHFMarginOrderRequest;
+  'futures.order': Order;
+  'spot.cancel': WSAPICancelOrderRequest;
+  'margin.cancel': WSAPICancelOrderRequest;
+  'futures.cancel': { orderId: string } | { clientOid: string; symbol: string };
+  'futures.multi_cancel': BatchCancelOrdersRequest;
+  'futures.multi_order': Order[];
+  'spot.sync_order': SubmitHFOrderRequest;
+  'spot.modify': ModifyHFOrderRequest;
+  'spot.sync_cancel': WSAPICancelOrderRequest;
+}
+⋮----
+export interface WsAPITopicResponseMap {
+  [key: string]: unknown;
+
+  subscribe: never;
+  unsubscribe: never;
+  login: never;
+  access: never;
+  request: never;
+
+  ping: unknown;
+
+  'spot.order': WSAPIResponse<WSAPIOrderResponse>;
+  'margin.order': WSAPIResponse<MarginSubmitOrderV3Response>;
+  'futures.order': WSAPIResponse<WSAPIOrderResponse>;
+  'spot.cancel': WSAPIResponse<WSAPIOrderResponse>;
+  'margin.cancel': WSAPIResponse<WSAPIOrderResponse>;
+  'futures.cancel': WSAPIResponse<
+    { cancelledOrderIds: string[] } | { clientOid: string }
+  >;
+  'futures.multi_cancel': WSAPIResponse<BatchCancelOrderResult[]>;
+  'futures.multi_order': WSAPIResponse<SubmitMultipleOrdersFuturesResponse[]>;
+  'spot.sync_order': WSAPIResponse<SubmitHFOrderSyncResponse>;
+  'spot.modify': WSAPIResponse<{
+    newOrderId: string;
+    clientOid: string;
+  }>;
+  'spot.sync_cancel': WSAPIResponse<SyncCancelHFOrderResponse>;
+}
+⋮----
+export interface WSAPIAuthenticationRequestFromServer {
+  timestamp: number;
+  sessionId: string;
+}
+⋮----
+export interface WSAPIAuthenticationConfirmedFromServer {
+  pingInterval: number;
+  sessionId: string;
+  pingTimeout: number;
+  data: 'welcome';
+}
+
+================
 File: src/FuturesClient.ts
 ================
 import { AxiosRequestConfig } from 'axios';
@@ -7264,8 +7553,12 @@ import {
 import {
   AccountFillsRequest,
   BatchCancelOrdersRequest,
+  CopyTradeChangeCrossMarginLeverageRequest,
+  CopyTradeGetCrossMarginRequirementRequest,
   CopyTradeOrderRequest,
   CopyTradeSLTPOrderRequest,
+  CopyTradeSwitchMarginModeRequest,
+  CopyTradeSwitchPositionModeRequest,
   GetFundingHistoryRequest,
   GetFundingRatesRequest,
   GetInterestRatesRequest,
@@ -7283,7 +7576,10 @@ import {
   AddMargin,
   BatchCancelOrderResult,
   BatchMarginModeUpdateResponse,
+  CopyTradeCrossMarginRequirement,
   CopyTradePosition,
+  CopyTradeSwitchMarginModeResponse,
+  CopyTradeSwitchPositionModeResponse,
   CrossMarginRequirement,
   CrossMarginRiskLimit,
   FullOrderBookDetail,
@@ -7940,8 +8236,9 @@ hasMore: boolean; // Whether there are more pages
    */
 ⋮----
 /**
-   * Add Order
-   * Place order to the futures trading system for copy trading
+   * Add Order (Copy Trading)
+   * Place order to the futures trading system for copy trading.
+   * Max leverage is set to 20x, and marginMode supports both ISOLATED and CROSS.
    */
 submitCopyTradeOrder(params: CopyTradeOrderRequest): Promise<
     APISuccessResponse<{
@@ -7952,9 +8249,10 @@ submitCopyTradeOrder(params: CopyTradeOrderRequest): Promise<
     return this.postPrivate('api/v1/copy-trade/futures/orders', params);
 ⋮----
 /**
-   * Add Order Test
+   * Add Order Test (Copy Trading)
    * Order test endpoint, the request parameters and return parameters of this endpoint are exactly the same as the order endpoint,
    * and can be used to verify whether the signature is correct and other operations.
+   * Max leverage is set to 20x, and marginMode supports both ISOLATED and CROSS.
    */
 submitCopyTradeOrderTest(params: CopyTradeOrderRequest): Promise<
     APISuccessResponse<{
@@ -7965,8 +8263,9 @@ submitCopyTradeOrderTest(params: CopyTradeOrderRequest): Promise<
     return this.postPrivate('api/v1/copy-trade/futures/orders/test', params);
 ⋮----
 /**
-   * Add Take Profit And Stop Loss Order
+   * Add Take Profit And Stop Loss Order (Copy Trading)
    * Place take profit and stop loss order supports both take-profit and stop-loss functions, and other functions are exactly the same as the place order endpoint.
+   * Max leverage is set to 20x, and marginMode supports both ISOLATED and CROSS.
    */
 submitCopyTradeSLTPOrder(params: CopyTradeSLTPOrderRequest): Promise<
     APISuccessResponse<{
@@ -8014,30 +8313,33 @@ getCopyTradeMaxOpenSize(params: {
     );
 ⋮----
 /**
-   * Get Max Withdraw Margin
+   * Get Max Withdraw Margin (Copy Trading)
    * This endpoint can query the maximum amount of margin that the current position supports withdrawal.
    */
 getCopyTradeMaxWithdrawMargin(params: {
     symbol: string;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
 }): Promise<APISuccessResponse<string>>
 ⋮----
 /**
-   * Add Isolated Margin
+   * Add Isolated Margin (Copy Trading)
    * Add Isolated Margin Manually.
    */
 addCopyTradeIsolatedMargin(params: {
     symbol: string;
     margin: number;
     bizNo: string;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
 }): Promise<APISuccessResponse<CopyTradePosition>>
 ⋮----
 /**
-   * Remove Isolated Margin
+   * Remove Isolated Margin (Copy Trading)
    * Remove Isolated Margin Manually.
    */
 removeCopyTradeIsolatedMargin(params: {
     symbol: string;
     withdrawAmount: string;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
 }): Promise<APISuccessResponse<string>>
 ⋮----
 /**
@@ -8051,14 +8353,48 @@ modifyCopyTradeRiskLimitLevel(params: {
 }): Promise<APISuccessResponse<boolean>>
 ⋮----
 /**
-   * Modify Isolated Margin Auto-Deposit Status
+   * Modify Isolated Margin Auto-Deposit Status (Copy Trading)
    * This endpoint is only applicable to isolated margin and is no longer recommended. It is recommended to use cross margin instead.
    * @deprecated - It is recommended to use cross margin instead
    */
 updateCopyTradeAutoDepositStatus(params: {
     symbol: string;
     status: boolean;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
 }): Promise<APISuccessResponse<boolean>>
+⋮----
+/**
+   * Switch Margin Mode (Copy Trading)
+   * Modify the margin mode of the current symbol.
+   */
+switchCopyTradeMarginMode(
+    params: CopyTradeSwitchMarginModeRequest,
+): Promise<APISuccessResponse<CopyTradeSwitchMarginModeResponse>>
+⋮----
+/**
+   * Modify Cross Margin Leverage (Copy Trading)
+   * This interface can modify the current symbol's cross-margin leverage multiple.
+   */
+updateCopyTradeCrossMarginLeverage(
+    params: CopyTradeChangeCrossMarginLeverageRequest,
+): Promise<APISuccessResponse<boolean>>
+⋮----
+/**
+   * Get Cross Margin Requirement (Copy Trading)
+   * This endpoint supports querying the cross margin requirements of a symbol by position value.
+   */
+getCopyTradeCrossMarginRequirement(
+    params: CopyTradeGetCrossMarginRequirementRequest,
+): Promise<APISuccessResponse<CopyTradeCrossMarginRequirement[]>>
+⋮----
+/**
+   * Switch Position Mode (Copy Trading)
+   * This interface is used to toggle between one-way mode and hedge mode for the position mode.
+   * Applies to all futures trading pairs.
+   */
+switchCopyTradePositionMode(
+    params: CopyTradeSwitchPositionModeRequest,
+): Promise<APISuccessResponse<CopyTradeSwitchPositionModeResponse>>
 /**
    *
    * REST - Futures - Broker
@@ -8346,6 +8682,98 @@ private setupDefaultEventListeners()
 /**
        * General event handlers for monitoring the WebsocketClient
        */
+⋮----
+// Blind JSON.stringify can fail on circular references
+⋮----
+// JSON.stringify({ ...data, target: 'WebSocket' }),
+
+================
+File: examples/WebSockets/ws-api-client.ts
+================
+/**
+ * KuCoin WebSocket API Client - Complete Example
+ *
+ * This example demonstrates all available WebSocket API operations:
+ * - Spot trading: submit, modify, cancel, sync operations
+ * - Margin trading: submit and cancel orders
+ * - Futures trading: submit, cancel, batch operations
+ *
+ * Usage:
+ * Make sure to set your API credentials in environment variables:
+ *    - API_KEY
+ *    - API_SECRET
+ *    - API_PASSPHRASE
+ *
+ *  or pass them as arguments to the constructor
+ */
+⋮----
+import { DefaultLogger, WebsocketAPIClient } from '../../src/index.js';
+⋮----
+async function main()
+⋮----
+// For a more detailed view of the WebsocketClient, enable the `trace` level by uncommenting the below line:
+// trace: (...params) => console.log(new Date(), 'trace', ...params),
+⋮----
+passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
+⋮----
+// If you want your own event handlers instead of the default ones with logs, disable this setting and see the `attachEventHandlers` example below:
+// attachEventListeners: false
+⋮----
+// Example usage for each WebSocket API operation
+⋮----
+// 1. Submit Spot Order
+⋮----
+price: '20000', // Very low price to avoid accidental execution
+⋮----
+// 2. Submit Sync Spot Order
+⋮----
+price: '1000', // Very high price to avoid accidental execution
+⋮----
+// 3. Modify Spot Order (requires existing order ID)
+⋮----
+orderId: '68cc3476693c1c00072ef1d9', // Replace with actual order ID
+⋮----
+// 4. Cancel Spot Order
+⋮----
+orderId: '68cc34c6693c1c0007301929', // Replace with actual order ID
+⋮----
+// 5. Cancel Sync Spot Order
+⋮----
+orderId: '68cc3530b9870a0007670294', // Replace with actual client order ID
+⋮----
+// 6. Submit Margin Order
+⋮----
+price: '19000', // Very low price to avoid accidental execution
+⋮----
+isIsolated: false, // false for cross margin, true for isolated
+⋮----
+// 7. Cancel Margin Order
+⋮----
+orderId: 'your-margin-order-id-here', // Replace with actual order ID
+⋮----
+// 8. Submit Futures Order
+⋮----
+price: '1000', // Very low price to avoid accidental execution
+⋮----
+positionSide: 'LONG', // needed if trading two-way (hedge) position mode
+⋮----
+// 9. Cancel Futures Order
+⋮----
+orderId: '358196976308797441', // Replace with actual order ID
+⋮----
+// 10. Submit Multiple Futures Orders
+⋮----
+price: '1000', // Very low price to avoid accidental execution
+⋮----
+positionSide: 'LONG', // Needed if trading hedge/two-way mode. Optional in one-way mode.
+⋮----
+price: '1010', // Very low price to avoid accidental execution
+⋮----
+// 11. Cancel Multiple Futures Orders
+⋮----
+orderIdsList: ['order-id-1', 'order-id-2'], // Replace with actual order IDs
+⋮----
+// Start executing the example workflow
 
 ================
 File: src/types/response/futures.types.ts
@@ -9235,267 +9663,35 @@ export interface CopyTradePosition {
   bankruptPrice: string;
   settleCurrency: string;
 }
-
-================
-File: src/types/websockets/ws-api.ts
-================
-import { WS_KEY_MAP, WsKey } from '../../lib/websocket/websocket-util.js';
-import { BatchCancelOrdersRequest, Order } from '../request/futures.types.js';
-import { SubmitHFMarginOrderRequest } from '../request/spot-margin-trading.js';
-import {
-  ModifyHFOrderRequest,
-  SubmitHFOrderRequest,
-} from '../request/spot-trading.js';
-import {
-  BatchCancelOrderResult,
-  SubmitMultipleOrdersFuturesResponse,
-} from '../response/futures.types.js';
-import { MarginSubmitOrderV3Response } from '../response/spot-margin-trading.js';
-import {
-  SubmitHFOrderSyncResponse,
-  SyncCancelHFOrderResponse,
-} from '../response/spot-trading.js';
-⋮----
-export type WsOperation =
-  | 'subscribe'
-  | 'unsubscribe'
-  | 'login'
-  | 'access'
-  | 'request'
-  | 'ping';
-⋮----
-export interface WsRequestOperation<TWSTopic extends string> {
-  id: number;
-  type: WsOperation;
-  topic: TWSTopic;
-  privateChannel: boolean;
-  response: boolean;
-}
-⋮----
-export type Exact<T> = {
-  // This part says: if there's any key that's not in T, it's an error
-  // This conflicts sometimes for some reason...
-  // [K: string]: never;
-} & {
-  [K in keyof T]: T[K];
-};
-⋮----
-// This part says: if there's any key that's not in T, it's an error
-// This conflicts sometimes for some reason...
-// [K: string]: never;
 ⋮----
 /**
- * WS API commands (for sending requests via WS)
+ * Switch Margin Mode Response (Copy Trading)
  */
-⋮----
-export type WsAPIOperation = (typeof WS_API_Operations)[number];
-⋮----
-export interface WsRequestOperationKucoin<
-  TWSTopic extends string,
-  TWSParams extends object = any,
-> {
-  id: string;
-  op: WsOperation | WsAPIOperation;
-  args?: (TWSTopic | string | number)[] | TWSParams; // Business parameters, same as RestAPI
+export interface CopyTradeSwitchMarginModeResponse {
+  symbol: string;
+  marginMode: 'ISOLATED' | 'CROSS';
 }
 ⋮----
-args?: (TWSTopic | string | number)[] | TWSParams; // Business parameters, same as RestAPI
-⋮----
-export interface WSAPIResponse<
-  TResponseData extends object = object,
-  TWSAPIOperation = WsAPIOperation,
-> {
-  /** Auto-generated */
-  id: string;
-
-  op: TWSAPIOperation;
-
-  msg?: string;
-  code: '200000' | string;
-
-  data: TResponseData;
-  inTime: number; //Gateway in time(ms)
-  outTime: number; //Gateway out time(ms)
-  rateLimit?: { limit: number; reset: number; remaining: number };
-
-  wsKey: WsKey;
-  isWSAPIResponse: boolean;
-
-  request?: any;
-}
-⋮----
-/** Auto-generated */
-⋮----
-inTime: number; //Gateway in time(ms)
-outTime: number; //Gateway out time(ms)
-⋮----
-export interface WsAPIWsKeyTopicMap {
-  [WS_KEY_MAP.wsApiSpotV1]: WsAPIOperation;
-  [WS_KEY_MAP.wsApiFuturesV1]: WsAPIOperation;
-}
-⋮----
-export type WSAPICancelOrderRequest = { symbol: string } & (
-  | { orderId: string }
-  | { clientOid: string }
-);
-⋮----
-export interface WSAPIOrderResponse {
-  orderId: string;
-  clientOid: string;
-}
-⋮----
-export interface WsAPITopicRequestParamMap {
-  [key: string]: unknown;
-
-  subscribe: never;
-  unsubscribe: never;
-  login: never;
-  access: never;
-  request: never;
-
-  ping: void;
-
-  'spot.order': SubmitHFOrderRequest;
-  'margin.order': SubmitHFMarginOrderRequest;
-  'futures.order': Order;
-  'spot.cancel': WSAPICancelOrderRequest;
-  'margin.cancel': WSAPICancelOrderRequest;
-  'futures.cancel': { orderId: string } | { clientOid: string; symbol: string };
-  'futures.multi_cancel': BatchCancelOrdersRequest;
-  'futures.multi_order': Order[];
-  'spot.sync_order': SubmitHFOrderRequest;
-  'spot.modify': ModifyHFOrderRequest;
-  'spot.sync_cancel': WSAPICancelOrderRequest;
-}
-⋮----
-export interface WsAPITopicResponseMap {
-  [key: string]: unknown;
-
-  subscribe: never;
-  unsubscribe: never;
-  login: never;
-  access: never;
-  request: never;
-
-  ping: unknown;
-
-  'spot.order': WSAPIResponse<WSAPIOrderResponse>;
-  'margin.order': WSAPIResponse<MarginSubmitOrderV3Response>;
-  'futures.order': WSAPIResponse<WSAPIOrderResponse>;
-  'spot.cancel': WSAPIResponse<WSAPIOrderResponse>;
-  'margin.cancel': WSAPIResponse<WSAPIOrderResponse>;
-  'futures.cancel': WSAPIResponse<
-    { cancelledOrderIds: string[] } | { clientOid: string }
-  >;
-  'futures.multi_cancel': WSAPIResponse<BatchCancelOrderResult[]>;
-  'futures.multi_order': WSAPIResponse<SubmitMultipleOrdersFuturesResponse[]>;
-  'spot.sync_order': WSAPIResponse<SubmitHFOrderSyncResponse>;
-  'spot.modify': WSAPIResponse<{
-    newOrderId: string;
-    clientOid: string;
-  }>;
-  'spot.sync_cancel': WSAPIResponse<SyncCancelHFOrderResponse>;
-}
-⋮----
-export interface WSAPIAuthenticationRequestFromServer {
-  timestamp: number;
-  sessionId: string;
-}
-⋮----
-export interface WSAPIAuthenticationConfirmedFromServer {
-  pingInterval: number;
-  sessionId: string;
-  pingTimeout: number;
-  data: 'welcome';
-}
-
-================
-File: examples/WebSockets/ws-api-client.ts
-================
 /**
- * KuCoin WebSocket API Client - Complete Example
- *
- * This example demonstrates all available WebSocket API operations:
- * - Spot trading: submit, modify, cancel, sync operations
- * - Margin trading: submit and cancel orders
- * - Futures trading: submit, cancel, batch operations
- *
- * Usage:
- * Make sure to set your API credentials in environment variables:
- *    - API_KEY
- *    - API_SECRET
- *    - API_PASSPHRASE
- *
- *  or pass them as arguments to the constructor
+ * Get Cross Margin Requirement Response (Copy Trading)
  */
+export interface CopyTradeCrossMarginRequirement {
+  imr: string;
+  mmr: string;
+  positionValue: string;
+  price: string;
+  size: number;
+  symbol: string;
+}
 ⋮----
-import { DefaultLogger, WebsocketAPIClient } from '../../src/index.js';
+/**
+ * Switch Position Mode Response (Copy Trading)
+ */
+export interface CopyTradeSwitchPositionModeResponse {
+  positionMode: '0' | '1'; // 0 = one-way mode, 1 = hedge mode
+}
 ⋮----
-async function main()
-⋮----
-// For a more detailed view of the WebsocketClient, enable the `trace` level by uncommenting the below line:
-// trace: (...params) => console.log(new Date(), 'trace', ...params),
-⋮----
-passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
-⋮----
-// If you want your own event handlers instead of the default ones with logs, disable this setting and see the `attachEventHandlers` example below:
-// attachEventListeners: false
-⋮----
-// Example usage for each WebSocket API operation
-⋮----
-// 1. Submit Spot Order
-⋮----
-price: '20000', // Very low price to avoid accidental execution
-⋮----
-// 2. Submit Sync Spot Order
-⋮----
-price: '1000', // Very high price to avoid accidental execution
-⋮----
-// 3. Modify Spot Order (requires existing order ID)
-⋮----
-orderId: '68cc3476693c1c00072ef1d9', // Replace with actual order ID
-⋮----
-// 4. Cancel Spot Order
-⋮----
-orderId: '68cc34c6693c1c0007301929', // Replace with actual order ID
-⋮----
-// 5. Cancel Sync Spot Order
-⋮----
-orderId: '68cc3530b9870a0007670294', // Replace with actual client order ID
-⋮----
-// 6. Submit Margin Order
-⋮----
-price: '19000', // Very low price to avoid accidental execution
-⋮----
-isIsolated: false, // false for cross margin, true for isolated
-⋮----
-// 7. Cancel Margin Order
-⋮----
-orderId: 'your-margin-order-id-here', // Replace with actual order ID
-⋮----
-// 8. Submit Futures Order
-⋮----
-price: '1000', // Very low price to avoid accidental execution
-⋮----
-positionSide: 'LONG', // needed if trading two-way (hedge) position mode
-⋮----
-// 9. Cancel Futures Order
-⋮----
-orderId: '358196976308797441', // Replace with actual order ID
-⋮----
-// 10. Submit Multiple Futures Orders
-⋮----
-price: '1000', // Very low price to avoid accidental execution
-⋮----
-positionSide: 'LONG', // Needed if trading hedge/two-way mode. Optional in one-way mode.
-⋮----
-price: '1010', // Very low price to avoid accidental execution
-⋮----
-// 11. Cancel Multiple Futures Orders
-⋮----
-orderIdsList: ['order-id-1', 'order-id-2'], // Replace with actual order IDs
-⋮----
-// Start executing the example workflow
+positionMode: '0' | '1'; // 0 = one-way mode, 1 = hedge mode
 
 ================
 File: src/lib/BaseRestClient.ts
@@ -9699,6 +9895,280 @@ File: src/index.ts
 
 
 ================
+File: src/WebsocketClient.ts
+================
+import { FuturesClient } from './FuturesClient.js';
+import { SignedRequest } from './lib/BaseRestClient.js';
+import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
+import { neverGuard } from './lib/misc-util.js';
+import {
+  APIIDFutures,
+  APIIDFuturesSign,
+  APIIDMain,
+  APIIDMainSign,
+  RestClientOptions,
+  serializeParams,
+} from './lib/requestUtils.js';
+import {
+  hashMessage,
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './lib/webCryptoAPI.js';
+import {
+  getPromiseRefForWSAPIRequest,
+  isWSAPIWsKey,
+  WS_KEY_MAP,
+  WsKey,
+  WsTopicRequest,
+} from './lib/websocket/websocket-util.js';
+import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
+import { SpotClient } from './SpotClient.js';
+import { APISuccessResponse } from './types/response/shared.types.js';
+import { WsConnectionInfo } from './types/response/ws.js';
+import {
+  Exact,
+  WSAPIAuthenticationRequestFromServer,
+  WsAPITopicRequestParamMap,
+  WsAPITopicResponseMap,
+  WsAPIWsKeyTopicMap,
+  WsOperation,
+  WsRequestOperation,
+  WsRequestOperationKucoin,
+} from './types/websockets/ws-api.js';
+import { MessageEventLike } from './types/websockets/ws-events.js';
+import { WsMarket } from './types/websockets/ws-general.js';
+⋮----
+function getRandomInt(max: number)
+⋮----
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
+⋮----
+/** If true, will skip auth requirement for WS API connection */
+⋮----
+/** Any WS keys in this list will trigger auth on connect, if credentials are available */
+⋮----
+/** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
+⋮----
+/**
+ * WS topics are always a string for this exchange. Some exchanges use complex objects.
+ */
+type WsTopic = string;
+⋮----
+export class WebsocketClient extends BaseWebsocketClient<WsKey>
+⋮----
+private getRESTClient(wsKey: WsKey): SpotClient | FuturesClient
+⋮----
+const getClientType = (wsKey: WsKey): 'spot' | 'futures' | null =>
+⋮----
+private getRestClientOptions(): RestClientOptions
+⋮----
+private async getWSConnectionInfo(
+    wsKey: WsKey,
+): Promise<APISuccessResponse<WsConnectionInfo>>
+⋮----
+private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method: SignEncodeMethod,
+    algorithm: SignAlgorithm,
+): Promise<string>
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+public connectAll(): Promise<(WSConnectedResult | undefined)[]>
+⋮----
+/**
+   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
+   * Objects should be formatted as {topic: string, params: object}.
+   *
+   * - Subscriptions are automatically routed to the correct websocket connection.
+   * - Authentication/connection is automatic.
+   * - Resubscribe after network issues is automatic.
+   *
+   * Call `unsubscribe(topics)` to remove topics
+   */
+public subscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+)
+⋮----
+/**
+   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
+   *
+   * - Requests are automatically routed to the correct websocket connection.
+   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
+   */
+public unsubscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+)
+⋮----
+async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
+    // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
+    TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
+    TWSAPIResponse extends
+      WsAPITopicResponseMap[TWSOperation] = WsAPITopicResponseMap[TWSOperation],
+  >(
+    wsKey: TWSKey,
+    operation: TWSOperation,
+    params: TWSParams & { signRequest?: boolean },
+    requestFlags?: WSAPIRequestFlags,
+): Promise<TWSAPIResponse>
+⋮----
+// if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
+⋮----
+/**
+     * Base Info:
+     * - https://www.kucoin.com/docs-new/websocket-api/base-info/introduction
+     *
+     * Add/Cancel API info:
+     * - https://www.kucoin.com/docs-new/3470133w0
+     **/
+⋮----
+// this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
+⋮----
+// this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
+⋮----
+// Some commands don't require authentication.
+⋮----
+// this.logger.trace(
+//   'sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...',
+// );
+⋮----
+// this.logger.trace(
+//   'sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok',
+// );
+⋮----
+// Sign, if needed
+⋮----
+// Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
+⋮----
+// Enrich returned promise with request context for easier debugging
+⋮----
+// throw e;
+⋮----
+// Send event.
+⋮----
+// Return deferred promise, so caller can await this call
+⋮----
+/**
+   *
+   * Internal methods
+   *
+   */
+⋮----
+private async signWSAPIRequest<TRequestParams extends string = string>(
+    requestEvent: WsRequestOperationKucoin<TRequestParams>,
+): Promise<WsRequestOperationKucoin<TRequestParams>>
+⋮----
+/**
+   * Whatever url this method returns, it's connected to as-is!
+   *
+   * If a token or anything else is needed in the URL, this is a good place to add it.
+   */
+protected async getWsUrl(wsKey: WsKey): Promise<string>
+⋮----
+// These WS URLs are dynamically fetched via the REST API, as per API spec
+⋮----
+// WS API URL works differently: https://www.kucoin.com/docs-new/3470133w0
+// wss://wsapi.kucoin.com/v1/private?apikey=xxx&sign=xxx&passphrase=xxx&timestamp=xxx
+⋮----
+// ws_url = f"{url}/v1/private?{url_path}&sign={sign_value}&passphrase={passphrase_sign}"
+⋮----
+// original = f"{apikey}{timestamp}"
+⋮----
+// console.log('signParams: ', {
+//   paramsStr,
+//   partnerSignParam,
+//   queryString,
+//   finalUrl,
+// });
+⋮----
+protected sendPingEvent(wsKey: WsKey)
+⋮----
+protected sendPongEvent(wsKey: WsKey)
+⋮----
+// Send a protocol layer pong
+⋮----
+// Not really used for kucoin - they don't send pings
+protected isWsPing(msg: any): boolean
+⋮----
+protected isWsPong(msg: any): boolean
+⋮----
+// this.logger.info(`Not a pong: `, msg);
+⋮----
+protected resolveEmittableEvents(
+    wsKey: WsKey,
+    event: MessageEventLike,
+): EmittableEvent[]
+⋮----
+// parsed: JSON.stringify(parsed, null, 2),
+⋮----
+// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
+⋮----
+// Request/reply pattern for authentication success
+⋮----
+// This is the counterpart to getPromiseRefForWSAPIRequest
+⋮----
+// WS API Exception
+⋮----
+// WS API Success
+⋮----
+/**
+   * Determines if a topic is for a private channel, using a hardcoded list of strings
+   */
+protected isPrivateTopicRequest(
+    request: WsTopicRequest<string>,
+    wsKey: WsKey,
+): boolean
+⋮----
+protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey
+⋮----
+protected getWsMarketForWsKey(key: WsKey): WsMarket
+⋮----
+protected getPrivateWSKeys(): WsKey[]
+⋮----
+/** Force subscription requests to be sent in smaller batches, if a number is returned */
+protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null
+⋮----
+// Return a number if there's a limit on the number of sub topics per rq
+// Always 1 at a time for this exchange
+⋮----
+/**
+   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
+   */
+protected async getWsOperationEventsForTopics(
+    topicRequests: WsTopicRequest<string>[],
+    wsKey: WsKey,
+    operation: WsOperation,
+): Promise<string[]>
+⋮----
+// Operations structured in a way that this exchange understands
+⋮----
+// Events that are ready to send (usually stringified JSON)
+⋮----
+protected async getWsAuthRequestEvent(
+    wsKey: WsKey,
+    eventToAuth?: WSAPIAuthenticationRequestFromServer,
+): Promise<object | string | 'waitForEvent' | void>
+⋮----
+// Send anything for WS API
+⋮----
+// Don't send anything, don't resolve auth promise. Wait for auth handshake from server
+⋮----
+// Don't send anything for all other WS connections, since they auth as part of the connection (not after connect). Returning an empty value here will short-circuit the assertIsAuthenticated workflow.
+
+================
 File: README.md
 ================
 # Node.js & JavaScript SDK for Kucoin REST APIs, Websockets & WebSocket API
@@ -9759,7 +10229,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
     - [Spot & Margin Trading](#spot--margin-trading)
     - [Futures Trading](#futures-trading)
     - [Broker Operations](#broker-operations)
-    - [Unified Trading Account API](#unified-trading-account-api)
+    - [Unified API](#unified-api)
   - [WebSockets](#websockets)
     - [WebSocket Consumers](#websocket-consumers)
       - [Public WebSocket Streams](#public-websocket-streams)
@@ -9894,9 +10364,9 @@ Use the `FuturesClient` for futures trading operations. See [FuturesClient](./sr
 
 Use the `BrokerClient` for broker and sub-account management operations. See [BrokerClient](./src/BrokerClient.ts) for complete API coverage.
 
-### Unified Trading Account API
+### Unified API
 
-The `UnifiedAPIClient` provides access to KuCoin's Unified Trading Account API endpoints, which offer streamlined market data access across Spot, Futures, and Margin trading products.
+The `UnifiedAPIClient` provides access to KuCoin's Unified API endpoints, which offer streamlined market data access across Spot, Futures, and Margin trading products. It doesn't serve a purpose of a UTA account(Unified trading account) - but it is a new generation of API endpoints generalised for all trading products. 
 
 ## WebSockets
 
@@ -10503,6 +10973,8 @@ public async connect(
     throwOnError?: boolean,
 ): Promise<WSConnectedResult | undefined>
 ⋮----
+// Important: don't check for RECONNECTING here, or this clashes with reconnectWithDelay()!
+⋮----
 private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
 ⋮----
 // Native ws ping/pong frames are not in use for okx
@@ -10696,280 +11168,6 @@ public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
 // this.logger.trace('assertIsAuthenticated(): newly authenticated!');
 
 ================
-File: src/WebsocketClient.ts
-================
-import { FuturesClient } from './FuturesClient.js';
-import { SignedRequest } from './lib/BaseRestClient.js';
-import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
-import { neverGuard } from './lib/misc-util.js';
-import {
-  APIIDFutures,
-  APIIDFuturesSign,
-  APIIDMain,
-  APIIDMainSign,
-  RestClientOptions,
-  serializeParams,
-} from './lib/requestUtils.js';
-import {
-  hashMessage,
-  SignAlgorithm,
-  SignEncodeMethod,
-  signMessage,
-} from './lib/webCryptoAPI.js';
-import {
-  getPromiseRefForWSAPIRequest,
-  isWSAPIWsKey,
-  WS_KEY_MAP,
-  WsKey,
-  WsTopicRequest,
-} from './lib/websocket/websocket-util.js';
-import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
-import { SpotClient } from './SpotClient.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
-import { WsConnectionInfo } from './types/response/ws.js';
-import {
-  Exact,
-  WSAPIAuthenticationRequestFromServer,
-  WsAPITopicRequestParamMap,
-  WsAPITopicResponseMap,
-  WsAPIWsKeyTopicMap,
-  WsOperation,
-  WsRequestOperation,
-  WsRequestOperationKucoin,
-} from './types/websockets/ws-api.js';
-import { MessageEventLike } from './types/websockets/ws-events.js';
-import { WsMarket } from './types/websockets/ws-general.js';
-⋮----
-function getRandomInt(max: number)
-⋮----
-export interface WSAPIRequestFlags {
-  /** If true, will skip auth requirement for WS API connection */
-  authIsOptional?: boolean | undefined;
-}
-⋮----
-/** If true, will skip auth requirement for WS API connection */
-⋮----
-/** Any WS keys in this list will trigger auth on connect, if credentials are available */
-⋮----
-/** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
-⋮----
-/**
- * WS topics are always a string for this exchange. Some exchanges use complex objects.
- */
-type WsTopic = string;
-⋮----
-export class WebsocketClient extends BaseWebsocketClient<WsKey>
-⋮----
-private getRESTClient(wsKey: WsKey): SpotClient | FuturesClient
-⋮----
-const getClientType = (wsKey: WsKey): 'spot' | 'futures' | null =>
-⋮----
-private getRestClientOptions(): RestClientOptions
-⋮----
-private async getWSConnectionInfo(
-    wsKey: WsKey,
-): Promise<APISuccessResponse<WsConnectionInfo>>
-⋮----
-private async signMessage(
-    paramsStr: string,
-    secret: string,
-    method: SignEncodeMethod,
-    algorithm: SignAlgorithm,
-): Promise<string>
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-public connectAll(): Promise<(WSConnectedResult | undefined)[]>
-⋮----
-/**
-   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
-   * Objects should be formatted as {topic: string, params: object}.
-   *
-   * - Subscriptions are automatically routed to the correct websocket connection.
-   * - Authentication/connection is automatic.
-   * - Resubscribe after network issues is automatic.
-   *
-   * Call `unsubscribe(topics)` to remove topics
-   */
-public subscribe(
-    requests:
-      | (WsTopicRequest<WsTopic> | WsTopic)
-      | (WsTopicRequest<WsTopic> | WsTopic)[],
-    wsKey: WsKey,
-)
-⋮----
-/**
-   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
-   *
-   * - Requests are automatically routed to the correct websocket connection.
-   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
-   */
-public unsubscribe(
-    requests:
-      | (WsTopicRequest<WsTopic> | WsTopic)
-      | (WsTopicRequest<WsTopic> | WsTopic)[],
-    wsKey: WsKey,
-)
-⋮----
-async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap,
-    TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
-    // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
-    TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
-    TWSAPIResponse extends
-      WsAPITopicResponseMap[TWSOperation] = WsAPITopicResponseMap[TWSOperation],
-  >(
-    wsKey: TWSKey,
-    operation: TWSOperation,
-    params: TWSParams & { signRequest?: boolean },
-    requestFlags?: WSAPIRequestFlags,
-): Promise<TWSAPIResponse>
-⋮----
-// if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
-⋮----
-/**
-     * Base Info:
-     * - https://www.kucoin.com/docs-new/websocket-api/base-info/introduction
-     *
-     * Add/Cancel API info:
-     * - https://www.kucoin.com/docs-new/3470133w0
-     **/
-⋮----
-// this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
-⋮----
-// this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
-⋮----
-// Some commands don't require authentication.
-⋮----
-// this.logger.trace(
-//   'sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...',
-// );
-⋮----
-// this.logger.trace(
-//   'sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok',
-// );
-⋮----
-// Sign, if needed
-⋮----
-// Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
-⋮----
-// Enrich returned promise with request context for easier debugging
-⋮----
-// throw e;
-⋮----
-// Send event.
-⋮----
-// Return deferred promise, so caller can await this call
-⋮----
-/**
-   *
-   * Internal methods
-   *
-   */
-⋮----
-private async signWSAPIRequest<TRequestParams extends string = string>(
-    requestEvent: WsRequestOperationKucoin<TRequestParams>,
-): Promise<WsRequestOperationKucoin<TRequestParams>>
-⋮----
-/**
-   * Whatever url this method returns, it's connected to as-is!
-   *
-   * If a token or anything else is needed in the URL, this is a good place to add it.
-   */
-protected async getWsUrl(wsKey: WsKey): Promise<string>
-⋮----
-// These WS URLs are dynamically fetched via the REST API, as per API spec
-⋮----
-// WS API URL works differently: https://www.kucoin.com/docs-new/3470133w0
-// wss://wsapi.kucoin.com/v1/private?apikey=xxx&sign=xxx&passphrase=xxx&timestamp=xxx
-⋮----
-// ws_url = f"{url}/v1/private?{url_path}&sign={sign_value}&passphrase={passphrase_sign}"
-⋮----
-// original = f"{apikey}{timestamp}"
-⋮----
-// console.log('signParams: ', {
-//   paramsStr,
-//   partnerSignParam,
-//   queryString,
-//   finalUrl,
-// });
-⋮----
-protected sendPingEvent(wsKey: WsKey)
-⋮----
-protected sendPongEvent(wsKey: WsKey)
-⋮----
-// Send a protocol layer pong
-⋮----
-// Not really used for kucoin - they don't send pings
-protected isWsPing(msg: any): boolean
-⋮----
-protected isWsPong(msg: any): boolean
-⋮----
-// this.logger.info(`Not a pong: `, msg);
-⋮----
-protected resolveEmittableEvents(
-    wsKey: WsKey,
-    event: MessageEventLike,
-): EmittableEvent[]
-⋮----
-// parsed: JSON.stringify(parsed, null, 2),
-⋮----
-// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
-⋮----
-// Request/reply pattern for authentication success
-⋮----
-// This is the counterpart to getPromiseRefForWSAPIRequest
-⋮----
-// WS API Exception
-⋮----
-// WS API Success
-⋮----
-/**
-   * Determines if a topic is for a private channel, using a hardcoded list of strings
-   */
-protected isPrivateTopicRequest(
-    request: WsTopicRequest<string>,
-    wsKey: WsKey,
-): boolean
-⋮----
-protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey
-⋮----
-protected getWsMarketForWsKey(key: WsKey): WsMarket
-⋮----
-protected getPrivateWSKeys(): WsKey[]
-⋮----
-/** Force subscription requests to be sent in smaller batches, if a number is returned */
-protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null
-⋮----
-// Return a number if there's a limit on the number of sub topics per rq
-// Always 1 at a time for this exchange
-⋮----
-/**
-   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
-   */
-protected async getWsOperationEventsForTopics(
-    topicRequests: WsTopicRequest<string>[],
-    wsKey: WsKey,
-    operation: WsOperation,
-): Promise<string[]>
-⋮----
-// Operations structured in a way that this exchange understands
-⋮----
-// Events that are ready to send (usually stringified JSON)
-⋮----
-protected async getWsAuthRequestEvent(
-    wsKey: WsKey,
-    eventToAuth?: WSAPIAuthenticationRequestFromServer,
-): Promise<object | string | 'waitForEvent' | void>
-⋮----
-// Send anything for WS API
-⋮----
-// Don't send anything, don't resolve auth promise. Wait for auth handshake from server
-⋮----
-// Don't send anything for all other WS connections, since they auth as part of the connection (not after connect). Returning an empty value here will short-circuit the assertIsAuthenticated workflow.
-
-================
 File: src/SpotClient.ts
 ================
 import { AxiosRequestConfig } from 'axios';
@@ -11042,6 +11240,7 @@ import {
   getHFMarginFillsRequest,
   GetLendingRedemptionOrdersV3Request,
   GetLendingSubscriptionOrdersV3Request,
+  GetMarginCollateralRatioRequest,
   GetMarginOcoOrderByClientOidRequest,
   GetMarginOcoOrderDetailByOrderIdRequest,
   GetMarginStopOrderByClientOidRequest,
@@ -11087,10 +11286,12 @@ import {
 import {
   Account,
   AccountHFMarginTransactions,
+  ApiKeyInfo,
   Balances,
   CreateSubAccount,
   CreateSubAPI,
   DeleteSubAccountAPI,
+  KYCRegion,
   SpotAccountSummary,
   SpotAccountTransaction,
   SpotAccountTransactions,
@@ -11156,6 +11357,7 @@ import {
   LendingRedemption,
   MarginActivePairsV3,
   MarginBorrowHistoryV3,
+  MarginCollateralRatioData,
   MarginConfigInfo,
   MarginInterestRecords,
   MarginLevTokenInfo,
@@ -11269,23 +11471,19 @@ getServiceStatus(): Promise<APISuccessResponse<ServiceStatus>>
 getAccountSummary(): Promise<APISuccessResponse<SpotAccountSummary>>
 ⋮----
 /**
+   * Get KYC Regions
+   *
+   * This endpoint can be used to obtain this user's KYC regions.
+   */
+getKYCRegions(): Promise<APISuccessResponse<KYCRegion[]>>
+⋮----
+/**
    * Get API Key Information
    *
    * Get information about the API key being used. Works for both master and sub user API keys.
+   * Includes KYC region, status, expiration date, and third-party app information.
    */
-getApikeyInfo(): Promise<
-    APISuccessResponse<{
-      remark: string;
-      apiKey: string;
-      apiVersion: number;
-      permission: string;
-      ipWhitelist: string;
-      createdAt: number;
-      uid: number;
-      isMaster: boolean;
-    }>
-  > {
-    return this.getPrivate('api/v1/user/api-key');
+getApikeyInfo(): Promise<APISuccessResponse<ApiKeyInfo>>
 ⋮----
 /**
    * Get Account Type - Spot
@@ -12290,6 +12488,15 @@ getIsolatedMarginSymbolsConfig(): Promise<
     APISuccessResponse<IsolatedMarginSymbolsConfig[]>
   > {
     return this.getPrivate('api/v1/isolated/symbols');
+⋮----
+/**
+   * Get Margin Collateral Ratio
+   *
+   * Request the margin collateral ratio. If currencyList is not specified, all currencies will be returned.
+   */
+getMarginCollateralRatio(
+    params?: GetMarginCollateralRatioRequest,
+): Promise<APISuccessResponse<MarginCollateralRatioData[]>>
 ⋮----
 /**
    *
@@ -13358,7 +13565,7 @@ File: package.json
 ================
 {
   "name": "kucoin-api",
-  "version": "2.3.0",
+  "version": "2.3.2",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",

@@ -273,6 +273,7 @@ export interface CopyTradeOrderRequest {
   closeOrder?: boolean;
   forceHold?: boolean;
   marginMode?: 'ISOLATED' | 'CROSS';
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   price?: string;
   size: number;
   timeInForce?: 'GTC' | 'IOC';
@@ -286,4 +287,36 @@ export interface CopyTradeSLTPOrderRequest extends CopyTradeOrderRequest {
   triggerStopUpPrice?: string; // Take profit price
   triggerStopDownPrice?: string; // Stop loss price
   stopPriceType?: 'TP' | 'MP' | 'IP';
+}
+
+/**
+ * Switch Margin Mode (Copy Trading)
+ */
+export interface CopyTradeSwitchMarginModeRequest {
+  symbol: string;
+  marginMode: 'ISOLATED' | 'CROSS';
+}
+
+/**
+ * Modify Cross Margin Leverage (Copy Trading)
+ */
+export interface CopyTradeChangeCrossMarginLeverageRequest {
+  symbol: string;
+  leverage: string;
+}
+
+/**
+ * Get Cross Margin Requirement (Copy Trading)
+ */
+export interface CopyTradeGetCrossMarginRequirementRequest {
+  symbol: string;
+  positionValue: string;
+  leverage?: string;
+}
+
+/**
+ * Switch Position Mode (Copy Trading)
+ */
+export interface CopyTradeSwitchPositionModeRequest {
+  positionMode: '0' | '1'; // 0 = one-way mode, 1 = hedge mode
 }

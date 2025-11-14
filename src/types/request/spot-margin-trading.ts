@@ -288,3 +288,10 @@ export interface GetMarginOcoOrderByClientOidRequest {
 export interface GetMarginOcoOrderDetailByOrderIdRequest {
   orderId: string; // Order ID
 }
+
+/**
+ * Get Margin Collateral Ratio
+ */
+export interface GetMarginCollateralRatioRequest {
+  currencyList?: string; // If not specified, all currencies will be returned. Supports multiple currencies, separated by commas.
+}

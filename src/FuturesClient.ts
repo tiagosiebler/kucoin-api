@@ -10,8 +10,12 @@ import {
 import {
   AccountFillsRequest,
   BatchCancelOrdersRequest,
+  CopyTradeChangeCrossMarginLeverageRequest,
+  CopyTradeGetCrossMarginRequirementRequest,
   CopyTradeOrderRequest,
   CopyTradeSLTPOrderRequest,
+  CopyTradeSwitchMarginModeRequest,
+  CopyTradeSwitchPositionModeRequest,
   GetFundingHistoryRequest,
   GetFundingRatesRequest,
   GetInterestRatesRequest,
@@ -29,7 +33,10 @@ import {
   AddMargin,
   BatchCancelOrderResult,
   BatchMarginModeUpdateResponse,
+  CopyTradeCrossMarginRequirement,
   CopyTradePosition,
+  CopyTradeSwitchMarginModeResponse,
+  CopyTradeSwitchPositionModeResponse,
   CrossMarginRequirement,
   CrossMarginRiskLimit,
   FullOrderBookDetail,
@@ -791,8 +798,9 @@ export class FuturesClient extends BaseRestClient {
    */
 
   /**
-   * Add Order
-   * Place order to the futures trading system for copy trading
+   * Add Order (Copy Trading)
+   * Place order to the futures trading system for copy trading.
+   * Max leverage is set to 20x, and marginMode supports both ISOLATED and CROSS.
    */
   submitCopyTradeOrder(params: CopyTradeOrderRequest): Promise<
     APISuccessResponse<{
@@ -804,9 +812,10 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
-   * Add Order Test
+   * Add Order Test (Copy Trading)
    * Order test endpoint, the request parameters and return parameters of this endpoint are exactly the same as the order endpoint,
    * and can be used to verify whether the signature is correct and other operations.
+   * Max leverage is set to 20x, and marginMode supports both ISOLATED and CROSS.
    */
   submitCopyTradeOrderTest(params: CopyTradeOrderRequest): Promise<
     APISuccessResponse<{
@@ -818,8 +827,9 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
-   * Add Take Profit And Stop Loss Order
+   * Add Take Profit And Stop Loss Order (Copy Trading)
    * Place take profit and stop loss order supports both take-profit and stop-loss functions, and other functions are exactly the same as the place order endpoint.
+   * Max leverage is set to 20x, and marginMode supports both ISOLATED and CROSS.
    */
   submitCopyTradeSLTPOrder(params: CopyTradeSLTPOrderRequest): Promise<
     APISuccessResponse<{
@@ -876,11 +886,12 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
-   * Get Max Withdraw Margin
+   * Get Max Withdraw Margin (Copy Trading)
    * This endpoint can query the maximum amount of margin that the current position supports withdrawal.
    */
   getCopyTradeMaxWithdrawMargin(params: {
     symbol: string;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   }): Promise<APISuccessResponse<string>> {
     return this.getPrivate(
       'api/v1/copy-trade/futures/position/margin/max-withdraw-margin',
@@ -889,13 +900,14 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
-   * Add Isolated Margin
+   * Add Isolated Margin (Copy Trading)
    * Add Isolated Margin Manually.
    */
   addCopyTradeIsolatedMargin(params: {
     symbol: string;
     margin: number;
     bizNo: string;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   }): Promise<APISuccessResponse<CopyTradePosition>> {
     return this.postPrivate(
       'api/v1/copy-trade/futures/position/margin/deposit-margin',
@@ -904,12 +916,13 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
-   * Remove Isolated Margin
+   * Remove Isolated Margin (Copy Trading)
    * Remove Isolated Margin Manually.
    */
   removeCopyTradeIsolatedMargin(params: {
     symbol: string;
     withdrawAmount: string;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   }): Promise<APISuccessResponse<string>> {
     return this.postPrivate(
       'api/v1/copy-trade/futures/position/margin/withdraw-margin',
@@ -933,16 +946,70 @@ export class FuturesClient extends BaseRestClient {
   }
 
   /**
-   * Modify Isolated Margin Auto-Deposit Status
+   * Modify Isolated Margin Auto-Deposit Status (Copy Trading)
    * This endpoint is only applicable to isolated margin and is no longer recommended. It is recommended to use cross margin instead.
    * @deprecated - It is recommended to use cross margin instead
    */
   updateCopyTradeAutoDepositStatus(params: {
     symbol: string;
     status: boolean;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   }): Promise<APISuccessResponse<boolean>> {
     return this.postPrivate(
       'api/v1/copy-trade/futures/position/margin/auto-deposit-status',
+      params,
+    );
+  }
+
+  /**
+   * Switch Margin Mode (Copy Trading)
+   * Modify the margin mode of the current symbol.
+   */
+  switchCopyTradeMarginMode(
+    params: CopyTradeSwitchMarginModeRequest,
+  ): Promise<APISuccessResponse<CopyTradeSwitchMarginModeResponse>> {
+    return this.postPrivate(
+      'api/v1/copy-trade/futures/position/changeMarginMode',
+      params,
+    );
+  }
+
+  /**
+   * Modify Cross Margin Leverage (Copy Trading)
+   * This interface can modify the current symbol's cross-margin leverage multiple.
+   */
+  updateCopyTradeCrossMarginLeverage(
+    params: CopyTradeChangeCrossMarginLeverageRequest,
+  ): Promise<APISuccessResponse<boolean>> {
+    return this.postPrivate(
+      'api/v2/copy-trade/futures/changeCrossUserLeverage',
+      params,
+    );
+  }
+
+  /**
+   * Get Cross Margin Requirement (Copy Trading)
+   * This endpoint supports querying the cross margin requirements of a symbol by position value.
+   */
+  getCopyTradeCrossMarginRequirement(
+    params: CopyTradeGetCrossMarginRequirementRequest,
+  ): Promise<APISuccessResponse<CopyTradeCrossMarginRequirement[]>> {
+    return this.postPrivate(
+      'api/v2/copy-trade/getCrossModeMarginRequirement',
+      params,
+    );
+  }
+
+  /**
+   * Switch Position Mode (Copy Trading)
+   * This interface is used to toggle between one-way mode and hedge mode for the position mode.
+   * Applies to all futures trading pairs.
+   */
+  switchCopyTradePositionMode(
+    params: CopyTradeSwitchPositionModeRequest,
+  ): Promise<APISuccessResponse<CopyTradeSwitchPositionModeResponse>> {
+    return this.postPrivate(
+      'api/v2/copy-trade/position/switchPositionMode',
       params,
     );
   }
