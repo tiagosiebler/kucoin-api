@@ -1,18 +1,18 @@
-const { UnifiedAPIClient } = require('kucoin-api');
+const { SpotClient } = require('kucoin-api');
 
   // This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
   // This kucoin API SDK is available on npm via "npm install kucoin-api"
-  // ENDPOINT: api/ua/v1/market/ticker
+  // ENDPOINT: api/v3/margin/collateralRatio
   // METHOD: GET
   // PUBLIC: YES
 
-const client = new UnifiedAPIClient({
+const client = new SpotClient({
   apiKey: 'apiKeyHere',
   apiSecret: 'apiSecretHere',
   apiPassphrase: 'apiPassPhraseHere',
 });
 
-client.getTicker(params)
+client.getMarginCollateralRatio(params)
   .then((response) => {
     console.log(response);
   })

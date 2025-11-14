@@ -68,6 +68,7 @@ import {
   getHFMarginFillsRequest,
   GetLendingRedemptionOrdersV3Request,
   GetLendingSubscriptionOrdersV3Request,
+  GetMarginCollateralRatioRequest,
   GetMarginOcoOrderByClientOidRequest,
   GetMarginOcoOrderDetailByOrderIdRequest,
   GetMarginStopOrderByClientOidRequest,
@@ -113,10 +114,12 @@ import {
 import {
   Account,
   AccountHFMarginTransactions,
+  ApiKeyInfo,
   Balances,
   CreateSubAccount,
   CreateSubAPI,
   DeleteSubAccountAPI,
+  KYCRegion,
   SpotAccountSummary,
   SpotAccountTransaction,
   SpotAccountTransactions,
@@ -182,6 +185,7 @@ import {
   LendingRedemption,
   MarginActivePairsV3,
   MarginBorrowHistoryV3,
+  MarginCollateralRatioData,
   MarginConfigInfo,
   MarginInterestRecords,
   MarginLevTokenInfo,
@@ -352,22 +356,21 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * Get KYC Regions
+   *
+   * This endpoint can be used to obtain this user's KYC regions.
+   */
+  getKYCRegions(): Promise<APISuccessResponse<KYCRegion[]>> {
+    return this.getPrivate('api/kyc/regions/v4');
+  }
+
+  /**
    * Get API Key Information
    *
    * Get information about the API key being used. Works for both master and sub user API keys.
+   * Includes KYC region, status, expiration date, and third-party app information.
    */
-  getApikeyInfo(): Promise<
-    APISuccessResponse<{
-      remark: string;
-      apiKey: string;
-      apiVersion: number;
-      permission: string;
-      ipWhitelist: string;
-      createdAt: number;
-      uid: number;
-      isMaster: boolean;
-    }>
-  > {
+  getApikeyInfo(): Promise<APISuccessResponse<ApiKeyInfo>> {
     return this.getPrivate('api/v1/user/api-key');
   }
 
@@ -1542,6 +1545,17 @@ export class SpotClient extends BaseRestClient {
     APISuccessResponse<IsolatedMarginSymbolsConfig[]>
   > {
     return this.getPrivate('api/v1/isolated/symbols');
+  }
+
+  /**
+   * Get Margin Collateral Ratio
+   *
+   * Request the margin collateral ratio. If currencyList is not specified, all currencies will be returned.
+   */
+  getMarginCollateralRatio(
+    params?: GetMarginCollateralRatioRequest,
+  ): Promise<APISuccessResponse<MarginCollateralRatioData[]>> {
+    return this.get('api/v3/margin/collateralRatio', params);
   }
 
   /**

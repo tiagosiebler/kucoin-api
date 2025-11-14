@@ -211,3 +211,31 @@ export interface DeleteSubAccountAPI {
   subName: string;
   apiKey: string;
 }
+
+/**
+ * Get KYC Regions Response
+ */
+export interface KYCRegion {
+  code: string; // Two-letter country code
+  enName: string; // English name of the region
+}
+
+/**
+ * Get API Key Info Response
+ */
+export interface ApiKeyInfo {
+  uid: number; // Account UID
+  parentUid?: number; // Master account UID. Returns empty when called by the master account itself
+  region: string; // KYC region of the account, returns the two-letter country code
+  kycStatus: 0 | 1; // KYC status
+  subName?: string; // Sub-account name (not present for the master account)
+  remark: string; // Remarks
+  apiKey: string; // API key
+  apiVersion: number; // API version
+  permission: string; // Permissions
+  ipWhitelist?: string; // IP whitelist (comma-separated list of allowed IPs)
+  isMaster: boolean; // Indicates whether this is the master account
+  createdAt: number; // API key creation timestamp (Unix milliseconds)
+  expiredAt?: number | null; // API key expiration timestamp (Unix milliseconds). Returns null if no expiration is set
+  thirdPartyApp?: string; // Third-party application name. Returns empty string if not associated with any third-party app
+}
