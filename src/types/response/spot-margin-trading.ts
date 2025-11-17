@@ -450,3 +450,17 @@ export interface MarginOcoOrderDetails {
   status: 'NEW' | 'DONE' | 'TRIGGERED' | 'CANCELLED'; // Order status
   orders: MarginOcoOrderSubOrder[]; // Sub-orders array
 }
+
+/**
+ * Get Margin Collateral Ratio Response
+ */
+export interface MarginCollateralRatioItem {
+  lowerLimit: string;
+  upperLimit: string;
+  collateralRatio: string;
+}
+
+export interface MarginCollateralRatioData {
+  currencyList: string[];
+  items: MarginCollateralRatioItem[];
+}

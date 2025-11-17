@@ -673,3 +673,30 @@ export interface CopyTradePosition {
   bankruptPrice: string;
   settleCurrency: string;
 }
+
+/**
+ * Switch Margin Mode Response (Copy Trading)
+ */
+export interface CopyTradeSwitchMarginModeResponse {
+  symbol: string;
+  marginMode: 'ISOLATED' | 'CROSS';
+}
+
+/**
+ * Get Cross Margin Requirement Response (Copy Trading)
+ */
+export interface CopyTradeCrossMarginRequirement {
+  imr: string;
+  mmr: string;
+  positionValue: string;
+  price: string;
+  size: number;
+  symbol: string;
+}
+
+/**
+ * Switch Position Mode Response (Copy Trading)
+ */
+export interface CopyTradeSwitchPositionModeResponse {
+  positionMode: '0' | '1'; // 0 = one-way mode, 1 = hedge mode
+}
