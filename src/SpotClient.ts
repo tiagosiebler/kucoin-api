@@ -22,6 +22,7 @@ import {
   GetAffiliateInviteesRequest,
   GetAffiliateTradeHistoryRequest,
   GetAffiliateTransactionRequest,
+  GetKuminingRequest,
 } from './types/request/spot-affiliate.js';
 import {
   AddConvertLimitOrderRequest,
@@ -135,6 +136,7 @@ import {
   AffiliateInvitees,
   AffiliateTradeHistory,
   AffiliateTransaction,
+  KuminingItem,
 } from './types/response/spot-affiliate.js';
 import {
   ConvertCurrencies,
@@ -200,6 +202,7 @@ import {
   MarginStopOrderResponse,
   MarginStopOrdersList,
   MarginSubmitOrderV3Response,
+  MarketAvailableInventoryItem,
   SingleIsolatedMarginAccountInfo,
   SubmitMarginOrderResponse,
 } from './types/response/spot-margin-trading.js';
@@ -1559,6 +1562,17 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * Get Market Available Inventory
+   *
+   * Request the platform available inventory
+   */
+  getMarketAvailableInventory(params?: {
+    currency?: string;
+  }): Promise<APISuccessResponse<MarketAvailableInventoryItem[]>> {
+    return this.get('api/v3/margin/available-inventory', params);
+  }
+
+  /**
    *
    * REST - MARGIN TRADING - Orders
    *
@@ -2434,6 +2448,17 @@ export class SpotClient extends BaseRestClient {
     params: GetAffiliateTransactionRequest,
   ): Promise<APISuccessResponse<AffiliateTransaction>> {
     return this.getPrivate('api/v2/affiliate/queryTransactionByTime', params);
+  }
+
+  /**
+   * Get Kumining
+   *
+   * The kumining information can be obtained at this endpoint.
+   */
+  getKumining(
+    params?: GetKuminingRequest,
+  ): Promise<APISuccessResponse<KuminingItem[]>> {
+    return this.getPrivate('api/v2/affiliate/queryKumining', params);
   }
 
   /**

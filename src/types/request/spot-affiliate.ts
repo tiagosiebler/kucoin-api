@@ -35,3 +35,12 @@ export interface GetAffiliateTransactionRequest {
   direction?: 'PRE' | 'NEXT'; // optional - Page direction, default: 'NEXT'
   pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
 }
+
+export interface GetKuminingRequest {
+  uid?: string; // optional - User Id
+  startAt?: number; // optional - Start time
+  endAt?: number; // optional - End time
+  lastId?: string; // optional - Last Id
+  direction?: 'PRE' | 'NEXT'; // optional - Page direction
+  pageSize?: number; // optional - Page size >= 1, <= 500, default: 10
+}
