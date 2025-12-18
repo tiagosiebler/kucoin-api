@@ -71,3 +71,12 @@ export interface AffiliateTransaction {
   items: AffiliateTransactionItem[]; // Array of transaction items
   lastId: string; // The offset ID for pagination
 }
+
+export interface KuminingItem {
+  uid: string; // User Id
+  goodsName: string; // Product Name
+  amount: string; // Product amount
+  currency: string; // The currency
+  lastId: string; // Last Id
+  payTime: number; // Trade time
+}

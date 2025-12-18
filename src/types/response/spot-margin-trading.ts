@@ -464,3 +464,11 @@ export interface MarginCollateralRatioData {
   currencyList: string[];
   items: MarginCollateralRatioItem[];
 }
+
+/**
+ * Get Market Available Inventory Response
+ */
+export interface MarketAvailableInventoryItem {
+  currency: string; // Currency
+  borrowableAmount: string; // Borrowable Amount
+}

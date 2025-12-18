@@ -55,6 +55,7 @@ export interface AccountBalance {
   currency: string; // currency code
   riskRatio: number; // Cross margin risk ratio
   maxWithdrawAmount: number; // Maximum withdrawal amount
+  availableMargin: number; // Cross margin available balance
 }
 
 export interface AccountSummary {
@@ -178,6 +179,8 @@ export interface FuturesSymbolInfo {
   fundingFeeRate: number;
   predictedFundingFeeRate: number;
   fundingRateGranularity: number;
+  effectiveFundingRateCycleStartTime: number; // Funding rate time interval (fundingRateGranularity) configuration start effective time
+  currentFundingRateGranularity: number; // Current effective funding rate period granularity (e.g., 8 hours/4 hours)
   openInterest: string;
   turnoverOf24h: number;
   volumeOf24h: number;
