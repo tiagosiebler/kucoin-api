@@ -65,6 +65,8 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
       - [Event Driven API](#event-driven-api)
       - [Promise Driven API](#async-await-api)
 - [Customise Logging](#customise-logging)
+- [Browser/Frontend Usage](#browserfrontend-usage)
+  - [Webpack](#webpack)
 - [LLMs & AI](#use-with-llms--ai)
 - [Used By](#used-by)
 - [Contributions & Thanks](#contributions--thanks)
@@ -425,6 +427,18 @@ const ws = new WebsocketClient(
   logger,
 );
 ```
+
+## Browser/Frontend Usage
+
+### Webpack
+
+Build a bundle using webpack:
+
+- `npm install`
+- `npm run build`
+- `npm run pack`
+
+The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
 
 ## Use with LLMs & AI
 

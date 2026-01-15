@@ -8,6 +8,7 @@ localtest.sh
 testfile.ts
 dist
 repomix.sh
+doc
 
 coverage
 
