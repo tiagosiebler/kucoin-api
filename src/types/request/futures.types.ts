@@ -131,7 +131,13 @@ export interface Order {
   size?: number;
   qty?: string;
   valueQty?: string;
-  timeInForce?: 'GTC' | 'IOC';
+  /**
+   * Time in Force. Added 'RPI' as of 2025.01.02
+   * - GTC: Good Till Cancel (default)
+   * - IOC: Immediate Or Cancel
+   * - RPI: Retail Price Improvement Order (Phase 1: Futures only)
+   */
+  timeInForce?: 'GTC' | 'IOC' | 'RPI';
   postOnly?: boolean;
   hidden?: boolean;
   iceberg?: boolean;
@@ -158,7 +164,13 @@ export interface SLTPOrder {
   size?: number;
   qty?: string;
   valueQty?: string;
-  timeInForce?: 'GTC' | 'IOC';
+  /**
+   * Time in Force. Added 'RPI' as of 2025.01.02
+   * - GTC: Good Till Cancel (default)
+   * - IOC: Immediate Or Cancel
+   * - RPI: Retail Price Improvement Order (Phase 1: Futures only)
+   */
+  timeInForce?: 'GTC' | 'IOC' | 'RPI';
   postOnly?: boolean;
   hidden?: boolean;
   iceberg?: boolean;
@@ -276,7 +288,13 @@ export interface CopyTradeOrderRequest {
   positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   price?: string;
   size: number;
-  timeInForce?: 'GTC' | 'IOC';
+  /**
+   * Time in Force. Added 'RPI' as of 2025.01.02
+   * - GTC: Good Till Cancel (default)
+   * - IOC: Immediate Or Cancel
+   * - RPI: Retail Price Improvement Order (Phase 1: Futures only)
+   */
+  timeInForce?: 'GTC' | 'IOC' | 'RPI';
   postOnly?: boolean;
   hidden?: boolean;
   iceberg?: boolean;
