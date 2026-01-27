@@ -142,6 +142,10 @@ export interface FuturesSymbolInfo {
   baseCurrency: string;
   quoteCurrency: string;
   settleCurrency: string;
+  /** Display symbol for multilingual compatibility (added 2025.12.26 & 2026.01.12) */
+  displaySymbol?: string;
+  /** Display base currency for multilingual compatibility (added 2025.12.26 & 2026.01.12) */
+  displayBaseCurrency?: string;
   maxOrderQty: number;
   maxPrice: number;
   lotSize: number;
@@ -312,6 +316,12 @@ export interface FuturesOrder {
   stopPriceType: 'TP' | 'MP' | 'IP' | '';
   stopTriggered: boolean;
   stopPrice: number | null;
+  /**
+   * Time in Force. Added 'RPI' as of 2025.01.02
+   * - GTC: Good Till Cancel
+   * - IOC: Immediate Or Cancel
+   * - RPI: Retail Price Improvement Order (Phase 1: Futures only)
+   */
   timeInForce: string;
   postOnly: boolean;
   hidden: boolean;
@@ -326,8 +336,10 @@ export interface FuturesOrder {
   isActive: boolean;
   cancelExist: boolean;
   createdAt: number;
+  /** Updated time, standardized to nanoseconds as of 2026.01.12 */
   updatedAt: number;
   endAt: number | null;
+  /** Order time, standardized to nanoseconds as of 2026.01.12 */
   orderTime: number;
   settleCurrency: string;
   marginMode: 'ISOLATED' | 'CROSS';
@@ -390,8 +402,11 @@ export interface FuturesFill {
   displayType: 'limit' | 'market' | 'limit_stop' | 'market_stop';
   tradeType: 'trade' | 'cancel' | 'liquid' | 'adl' | 'settlement';
   subTradeType: string | null; // Deprecated field
+  /** Trade time (execution time), standardized to nanoseconds as of 2026.01.12 */
   tradeTime: number;
   createdAt: number;
+  /** Whether it is an RPI trade (added 2025.01.02) */
+  isRpiTrade?: boolean;
 }
 
 export interface FuturesFills {
