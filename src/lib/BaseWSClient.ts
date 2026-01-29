@@ -751,7 +751,7 @@ export abstract class BaseWebsocketClient<
     );
 
     for (const wsMessage of subscribeWsMessages) {
-      // this.logger.trace(`Sending batch via message: "${wsMessage}"`);
+      this.logger.trace(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, wsMessage);
     }
 

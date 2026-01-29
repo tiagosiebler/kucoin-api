@@ -23,13 +23,6 @@ export type WsOperationV1 =
   | 'request'
   | 'ping';
 
-export type WsOperationV2 =
-  | 'subscribe'
-  | 'unsubscribe'
-  | 'login'
-  | 'ping'
-  | 'pong';
-
 /**
  * Kucoin's format for WS request operations with the V1 WebSockets
  */
@@ -45,7 +38,7 @@ export interface WsRequestOperationV1<TWSTopic extends string> {
  */
 export interface WsRequestOperationV2<TWSTopic extends string> {
   id: string;
-  action: WsOperationV2;
+  action: WsOperationV1;
   channel: TWSTopic;
 }
 
