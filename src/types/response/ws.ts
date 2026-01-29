@@ -10,3 +10,8 @@ export interface WsConnectionInfo {
   token: string;
   instanceServers: WsServerInfo[];
 }
+
+export interface WsConnectionInfoV2 {
+  token: string;
+  instanceServers: undefined;
+}
