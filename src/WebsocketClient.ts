@@ -458,6 +458,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         `{"id": "ping-${this.getNewRequestId()}", "op": "ping", "timestamp": "${Date.now()}"}`,
       );
     }
+    // Compatible for V1 and V2 (Pro)
+    // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#4-ping
     return this.tryWsSend(wsKey, `{ "id": "${Date.now()}", "type": "ping" }`);
   }
 
