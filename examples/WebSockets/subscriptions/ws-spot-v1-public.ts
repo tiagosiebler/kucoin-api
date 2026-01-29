@@ -69,7 +69,7 @@ async function start() {
   });
 
   /**
-   * The following example demonstrates the ways to consume data from the V1 WebSockets. For the V2 (Pro) WebSockets, see ws-v2-spot-public.ts
+   * The following example demonstrates the ways to consume data from the V1 WebSockets. For the V2 (Pro) WebSockets, see ws-spot-v2-public.ts
    */
   try {
     // Optional: await a connection to be ready before subscribing (this is not necessary)
