@@ -33,9 +33,10 @@ import {
   WsAPITopicRequestParamMap,
   WsAPITopicResponseMap,
   WsAPIWsKeyTopicMap,
-  WsOperation,
-  WsRequestOperation,
+  WsOperationV1,
   WsRequestOperationKucoin,
+  WsRequestOperationV1,
+  WsRequestOperationV2,
 } from './types/websockets/ws-api.js';
 import { MessageEventLike } from './types/websockets/ws-events.js';
 import { WsMarket } from './types/websockets/ws-general.js';
@@ -736,6 +737,27 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     return request && PRIVATE_WS_KEYS.includes(wsKey);
   }
 
+  private getWSKeyVersion(wsKey: WsKey): 'v1' | 'v2' {
+    switch (wsKey) {
+      case WS_KEY_MAP.spotPublicV1:
+      case WS_KEY_MAP.spotPrivateV1:
+      case WS_KEY_MAP.futuresPublicV1:
+      case WS_KEY_MAP.futuresPrivateV1:
+      case WS_KEY_MAP.wsApiSpotV1:
+      case WS_KEY_MAP.wsApiFuturesV1: {
+        return 'v1';
+      }
+      case WS_KEY_MAP.spotPublicV2:
+      case WS_KEY_MAP.futuresPublicV2:
+      case WS_KEY_MAP.privateV2: {
+        return 'v2';
+      }
+      default: {
+        throw neverGuard(wsKey, `Unhandled wsKey "${wsKey}"`);
+      }
+    }
+  }
+
   protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey {
     return isPrivate
       ? market === 'spot'
@@ -805,17 +827,32 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   protected async getWsOperationEventsForTopics(
     topicRequests: WsTopicRequest<string>[],
     wsKey: WsKey,
-    operation: WsOperation,
+    operation: WsOperationV1,
   ): Promise<string[]> {
     if (!topicRequests.length) {
       return [];
     }
 
+    const wsKeyVersion = this.getWSKeyVersion(wsKey);
+
     // Operations structured in a way that this exchange understands
     const operationEvents = topicRequests.map((topicRequest) => {
       const isPrivateWsTopic = this.isPrivateTopicRequest(topicRequest, wsKey);
 
-      const wsRequestEvent: WsRequestOperation<WsTopic> = {
+      // V2 (Pro) requests are slightly different:
+      if (wsKeyVersion === 'v2') {
+        // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
+        const wsRequestEvent: WsRequestOperationV2<WsTopic> = {
+          id: getRandomInt(999999999999),
+          action: operation,
+          channel: topicRequest.topic,
+          ...topicRequest.payload,
+        };
+
+        return wsRequestEvent;
+      }
+
+      const wsRequestEvent: WsRequestOperationV1<WsTopic> = {
         id: getRandomInt(999999999999),
         type: operation,
         topic: topicRequest.topic,
