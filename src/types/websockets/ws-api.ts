@@ -44,7 +44,7 @@ export interface WsRequestOperationV1<TWSTopic extends string> {
  * Kucoin's format for WS request operations with the V2 (Pro) WebSockets
  */
 export interface WsRequestOperationV2<TWSTopic extends string> {
-  id: number;
+  id: string;
   action: WsOperationV2;
   channel: TWSTopic;
 }

@@ -521,7 +521,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       const authenticatedEvents = ['login', 'access'];
       const connectionReadyEvents = ['welcome'];
 
-      const eventType = parsed.event || parsed.type;
+      const eventTypeV1 = parsed.event || parsed.type;
+      // v2 / Pro
+      const eventTypeV2 = parsed.T ? 'message' : parsed.message;
+      const eventType = eventTypeV1 || eventTypeV2;
 
       const traceEmittable = false;
       if (traceEmittable) {
@@ -578,6 +581,11 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         if (eventType === 'message') {
           return [{ eventType: 'update', event: parsed }];
         }
+
+        // // v2 / Pro topic message
+        // if (parsed.T && this.getWSKeyVersion(wsKey) === 'v2') {
+        //   return [{ eventType: 'update', event: parsed }];
+        // }
 
         this.logger.error(
           `!! (${wsKey}) Unhandled string event type "${eventType}". Defaulting to "update" channel...`,
@@ -697,6 +705,26 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
             return results;
           }
         }
+      }
+
+      if (typeof parsed.id === 'string' && typeof parsed.result === 'boolean') {
+        // Generic request response
+        //   { id: '168651203381', result: true }
+
+        const isError = parsed.result === false;
+        if (isError) {
+          results.push({
+            eventType: 'exception',
+            event: parsed,
+          });
+          return results;
+        }
+
+        results.push({
+          eventType: 'response',
+          event: parsed,
+        });
+        return results;
       }
 
       this.logger.error(
@@ -843,7 +871,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       if (wsKeyVersion === 'v2') {
         // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
         const wsRequestEvent: WsRequestOperationV2<WsTopic> = {
-          id: getRandomInt(999999999999),
+          id: `${getRandomInt(999999999999)}`,
           action: operation,
           channel: topicRequest.topic,
           ...topicRequest.payload,

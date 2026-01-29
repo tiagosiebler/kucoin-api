@@ -1156,7 +1156,7 @@ export abstract class BaseWebsocketClient<
       if (isBufferMessageEvent(event) && !didDecompress) {
         try {
           const decompressed = await decompressMessageEvent(event);
-          this.logger.trace('Decompressed message event', {
+          this.logger.trace('Decompressed message event from buffer', {
             ...WS_LOGGER_CATEGORY,
             wsKey,
             decompressed,
