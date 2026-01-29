@@ -278,7 +278,7 @@ try {
   /**
    * Examples for public futures websocket topics (that don't require authentication).
    *
-   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
+   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-v1-public.ts & ws-futures-v1-public.ts examples.
    */
   client.subscribe(
     [
@@ -295,6 +295,45 @@ try {
     ],
     'futuresPublicV1',
   );
+
+  /**
+   * The V2 (Pro) WebSockets are also supported, accessible via the corresponding V2 WsKeys. Below is a demonstration for the V2 public futures topics with the WsKey "futuresPublicV2":
+   */
+
+  client.subscribe(
+    [
+      // BTCUSDT tickers for FUTURES market
+      // https://www.kucoin.com/docs-new/3470222w0
+      {
+        topic: 'ticker',
+        payload: {
+          tradeType: 'FUTURES',
+          symbol: 'XBTUSDTM',
+        },
+      },
+      // BTCUSDT orderbook updates for FUTURES market
+      // https://www.kucoin.com/docs-new/3470221w0
+      {
+        topic: 'obu',
+        payload: {
+          tradeType: 'FUTURES',
+          symbol: 'XBTUSDTM',
+          depth: '5', // 1 / 5 / 50 / increment
+          rpiFilter: 0, // 0：Only NoneRPI orders [Default]  1(Only Support Futures)：NoneRPI+ RPI Orders. When rpiFilter=1, "depth" only supports 5/50.
+        },
+      },
+      // BTCUSDT trades for spot market
+      // https://www.kucoin.com/docs-new/3470224w0
+      {
+        topic: 'trade',
+        payload: {
+          tradeType: 'FUTURES',
+          symbol: 'XBTUSDTM',
+        },
+      },
+    ],
+    'futuresPublicV2',
+  );
 } catch (e) {
   console.error(`Subscribe exception: `, e);
 }
@@ -304,7 +343,7 @@ try {
 
 For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
 
-See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail, especially [ws-spot-public.ts](./examples/ws-spot-public.ts), which explains a lot of detail.
+See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples/WebSockets/subscriptions/](./examples/WebSockets/subscriptions/) folder for much more detail, especially [ws-spot-v1-private.ts](./examples/ws-spot-v1-private.ts) and [ws-v2-private.ts](./examples/ws-v2-private.ts), which explain in a lot of detail.
 
 ### WebSocket API
 
