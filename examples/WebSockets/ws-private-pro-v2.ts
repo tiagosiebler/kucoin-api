@@ -2,6 +2,7 @@
 import {
   DefaultLogger,
   WebsocketClient,
+  WS_KEY_MAP,
   WsTopicRequest,
 } from '../../src/index.js';
 // import { DefaultLogger, WebsocketClient } from 'kucoin-api';
@@ -85,11 +86,11 @@ async function start() {
 
   /**
    * The below examples demonstrate consuming private V2 (Pro) WebSocket topics.
-   * For V1 private WebSocket examples, see ws-spot-v1-private.ts and ws-futures-v1-private.ts
+   * For V1 private WebSocket examples, see ws-private-spot-v1.ts and ws-private-futures-v1.ts
    */
   try {
     // Optional: await a connection to be ready before subscribing (this is not necessary)
-    // await client.connect('privateV2');
+    // await client.connect(WS_KEY_MAP.privateProV2);
     // console.log('connected');
 
     /**
@@ -113,7 +114,7 @@ async function start() {
         tradeType: 'SPOT', // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
       },
     };
-    client.subscribe(orderAllSpotRequest, 'privateV2');
+    client.subscribe(orderAllSpotRequest, WS_KEY_MAP.privateProV2);
 
     // Or, subscribe to multiple topics at once:
     client.subscribe(
@@ -183,7 +184,7 @@ async function start() {
           },
         },
       ],
-      'privateV2',
+      WS_KEY_MAP.privateProV2,
     );
   } catch (e) {
     console.error('Subscribe exception: ', e);

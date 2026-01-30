@@ -1,4 +1,4 @@
-# **KuCoin FUTURES API Examples** - Node.js, JavaScript & Typescript SDK for Kucoin REST APIs & WebSockets
+# **KuCoin FUTURES API Examples** - Node.js, JavaScript & Typescript SDK for KuCoin REST APIs & WebSockets
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
@@ -13,9 +13,9 @@ This document provides comprehensive examples for using the KuCoin FUTURES API w
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
-- [KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official Kucoin API docs
+- [KuCoin Documentation](https://docs.kucoin.com/futures/#introduction) - official KuCoin API docs
 
-- [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
+- [Node.js & JavaScript SDK for KuCoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
 
 Current file contains only certain most used examples. If you can't find what you need, you can search through [FuturesClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts) - all of the endpoints and functions will be there! Otherwise, just ask in [Node.js Traders](https://t.me/nodetraders) Telegram group.
 
@@ -53,7 +53,6 @@ Do you need help with Spot? Check out [Spot Quickstart guide](https://github.com
     - [Fills](#fills)
     - [Positions](#positions)
 
-
 - [WebSocket](#websocket)
 - [Community group](#community-group)
 
@@ -72,7 +71,7 @@ yarn add kucoin-api
 
 #### Create API credentials
 
-- [Kucoin API Key Management](https://www.kucoin.com/account/api)
+- [KuCoin API Key Management](https://www.kucoin.com/account/api)
 
 #### Import SDK to your project
 

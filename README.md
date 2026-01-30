@@ -1,4 +1,4 @@
-# Node.js & JavaScript SDK for Kucoin REST APIs, Websockets & WebSocket API
+# Node.js & JavaScript SDK for KuCoin REST APIs, Websockets & WebSocket API
 
 [![Build & Test](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/kucoin-api/actions/workflows/e2etest.yml)
 [![npm version](https://img.shields.io/npm/v/kucoin-api)][1]
@@ -18,10 +18,10 @@
 
 [1]: https://www.npmjs.com/package/kucoin-api
 
-Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSockets:
+Updated & performant JavaScript & Node.js SDK for the KuCoin REST APIs and WebSockets:
 
-- Professional, robust & performant Kucoin SDK with extensive production use in live trading environments.
-- Complete integration with all Kucoin REST APIs and WebSockets.
+- Professional, robust & performant KuCoin SDK with extensive production use in live trading environments.
+- Complete integration with all KuCoin REST APIs and WebSockets.
   - Dedicated REST clients for Spot, Futures, and Broker operations
   - Unified WebSocket client for all markets
   - Dedicated WebSocket API client, to trade on the WebSocket API without the complexity of WebSockets.
@@ -36,7 +36,7 @@ Updated & performant JavaScript & Node.js SDK for the Kucoin REST APIs and WebSo
   - Support for both public and private WebSocket streams.
 - Supports WebSocket API on all available product groups, including Spot & Futures:
   - Use the WebsocketClient's event-driven `sendWSAPIRequest()` method, or;
-  - Use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/WebSockets/ws-api-client.ts](./examples/WebSockets/ws-api-client.ts) for a demonstration.
+  - Use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/WebSockets/WS-API/ws-api-client.ts](./examples/WebSockets/WS-API/ws-api-client.ts) for a demonstration.
 - Browser-friendly HMAC signature mechanism.
 - Automatically supports both ESM and CJS projects.
 - Heavy automated end-to-end testing with real API calls.
@@ -99,7 +99,7 @@ Check out our JavaScript/TypeScript/Node.js SDKs & Projects:
   - [Binance Node.js SDK: binance](https://www.npmjs.com/package/binance)
   - [Gate (gate.com) Node.js SDK: gateio-api](https://www.npmjs.com/package/gateio-api)
   - [Bitget Node.js SDK: bitget-api](https://www.npmjs.com/package/bitget-api)
-  - [Kucoin Node.js SDK: kucoin-api](https://www.npmjs.com/package/kucoin-api)
+  - [KuCoin Node.js SDK: kucoin-api](https://www.npmjs.com/package/kucoin-api)
   - [Coinbase Node.js SDK: coinbase-api](https://www.npmjs.com/package/coinbase-api)
   - [Bitmart Node.js SDK: bitmart-api](https://www.npmjs.com/package/bitmart-api)
 - Try my misc utilities:
@@ -111,18 +111,18 @@ Check out our JavaScript/TypeScript/Node.js SDKs & Projects:
 
 ## Documentation
 
-Most methods accept JS objects. These can be populated using parameters specified by Kucoin's API documentation, or check the type definition in each class within this repository.
+Most methods accept JS objects. These can be populated using parameters specified by KuCoin's API documentation, or check the type definition in each class within this repository.
 
 ### API Documentation Links
 
-- [Kucoin API Documentation](https://www.kucoin.com/docs-new/introduction)
+- [KuCoin API Documentation](https://www.kucoin.com/docs-new/introduction)
 
 ### SDK Documentation & Guides
 
 - Node.js Quick Start Guides
-  - [Spot Node.js Kucoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
-  - [Futures Node.js Kucoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
-- [Futures Node.js Kucoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
+  - [Spot Node.js KuCoin Quick Start Guide](./examples/kucoin-SPOT-examples-nodejs.md)
+  - [Futures Node.js KuCoin Quick Start Guide](./examples/kucoin-FUTURES-examples-nodejs.md)
+- [Futures Node.js KuCoin Order Placement Guide](./examples/rest-futures-orders-guide.ts)
 - [REST Endpoint Function List](./docs/endpointFunctionList.md)
 
 ## Structure
@@ -136,9 +136,9 @@ This project uses typescript. Resources are stored in 2 key structures:
 
 # Usage
 
-Create API credentials on Kucoin's website:
+Create API credentials on KuCoin's website:
 
-- [Kucoin API Key Management](https://www.kucoin.com/account/api)
+- [KuCoin API Key Management](https://www.kucoin.com/account/api)
 
 ## REST API
 
@@ -151,7 +151,7 @@ The SDK provides dedicated REST clients for different trading products:
 
 ### Spot & Margin Trading
 
-To use Kucoin's Spot and Margin APIs, import (or require) the `SpotClient`:
+To use KuCoin's Spot and Margin APIs, import (or require) the `SpotClient`:
 
 ```javascript
 const { SpotClient, FuturesClient } = require('kucoin-api');
@@ -278,7 +278,7 @@ try {
   /**
    * Examples for public futures websocket topics (that don't require authentication).
    *
-   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-v1-public.ts & ws-futures-v1-public.ts examples.
+   * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-private-spot-v1.ts & ws-public-futures-v1.ts examples.
    */
   client.subscribe(
     [
@@ -297,7 +297,7 @@ try {
   );
 
   /**
-   * The V2 (Pro) WebSockets are also supported, accessible via the corresponding V2 WsKeys. Below is a demonstration for the V2 public futures topics with the WsKey "futuresPublicV2":
+   * The V2 (Pro) WebSockets are also supported, accessible via the corresponding V2 WsKeys. Below is a demonstration for the V2 public futures topics with the WsKey "futuresPublicProV2":
    */
 
   client.subscribe(
@@ -332,7 +332,7 @@ try {
         },
       },
     ],
-    'futuresPublicV2',
+    'futuresPublicProV2',
   );
 } catch (e) {
   console.error(`Subscribe exception: `, e);
@@ -343,11 +343,11 @@ try {
 
 For private account data streams, API credentials are required. The WebsocketClient will automatically handle authentication when you provide API credentials.
 
-See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples/WebSockets/subscriptions/](./examples/WebSockets/subscriptions/) folder for much more detail, especially [ws-spot-v1-private.ts](./examples/ws-spot-v1-private.ts) and [ws-v2-private.ts](./examples/ws-v2-private.ts), which explain in a lot of detail.
+See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples/WebSockets/](./examples/WebSockets/) folder for much more detail, especially [ws-private-spot-v1.ts](./examples/WebSockets/ws-private-spot-v1.ts) and [ws-private-pro-v2.ts](./examples/WebSockets/ws-private-pro-v2.ts), which explain in a lot of detail.
 
 ### WebSocket API
 
-Kucoin also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API. There are two key ways of interacting with the WebSocket API. The existing WebsocketClient allows raw event routing via the awaitable sendWSAPIRequest() method, or for a much simpler & convenient interface, use the promise-driven API. The surface feels like a REST API, but routing is automatically routed via a dedicated WebSocket connection.
+KuCoin also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API. There are two key ways of interacting with the WebSocket API. The existing WebsocketClient allows raw event routing via the awaitable sendWSAPIRequest() method, or for a much simpler & convenient interface, use the promise-driven API. The surface feels like a REST API, but routing is automatically routed via a dedicated WebSocket connection.
 
 #### Event Driven API
 
@@ -361,7 +361,7 @@ The WebSocket API is also available in a promise-wrapped REST-like format. Eithe
 
 It provides one function per endpoint, feels like a REST API and will automatically route your request via an automatically persisted, authenticated and health-checked WebSocket API connection.
 
-Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets. For more detailed demonstration, take a look at the [examples/WebSockets/ws-api-client.ts](./examples/WebSockets//ws-api-client.ts) example:
+Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets. For more detailed demonstration, take a look at the [examples/WebSockets/WS-API/ws-api-client.ts](./examples/WebSockets/WS-API/ws-api-client.ts) example:
 
 ```typescript
 import { DefaultLogger, WebsocketAPIClient } from 'kucoin-api';

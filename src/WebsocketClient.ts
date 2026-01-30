@@ -56,15 +56,15 @@ export interface WSAPIRequestFlags {
 const PRIVATE_WS_KEYS: WsKey[] = [
   WS_KEY_MAP.spotPrivateV1,
   WS_KEY_MAP.futuresPrivateV1,
-  WS_KEY_MAP.privateV2,
+  WS_KEY_MAP.privateProV2,
 ];
 
 /** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
 export const PUBLIC_WS_KEYS: WsKey[] = [
   WS_KEY_MAP.spotPublicV1,
   WS_KEY_MAP.futuresPublicV1,
-  WS_KEY_MAP.spotPublicV2,
-  WS_KEY_MAP.futuresPublicV2,
+  WS_KEY_MAP.spotPublicProV2,
+  WS_KEY_MAP.futuresPublicProV2,
 ];
 
 /**
@@ -86,8 +86,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       if (wsKey.startsWith('spot')) return 'spot';
       if (wsKey.startsWith('futures')) return 'futures';
 
-      if (wsKey === WS_KEY_MAP.privateV2) {
-        return 'spot'; // arbitrarily pick spot for privateV2, as it covers both spot & futures
+      if (wsKey === WS_KEY_MAP.privateProV2) {
+        return 'spot'; // arbitrarily pick spot for privateProV2, as it covers both spot & futures
       }
 
       return null;
@@ -127,7 +127,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   ): Promise<APISuccessResponse<WsConnectionInfo | WsConnectionInfoV2>> {
     const restClient = this.getRESTClient(wsKey);
 
-    if (wsKey === WS_KEY_MAP.privateV2) {
+    if (wsKey === WS_KEY_MAP.privateProV2) {
       return restClient.getPrivateWSConnectionTokenV2();
     }
 
@@ -362,7 +362,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         const connectionUrl = `${server.endpoint}?token=${connectionInfo.data.token}`;
         return connectionUrl;
       }
-      case WS_KEY_MAP.privateV2: {
+      case WS_KEY_MAP.privateProV2: {
         // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#3-create-connection
         const baseWSUrl = 'wss://wsapi-push.kucoin.com/?token=';
 
@@ -372,10 +372,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         return connectionUrl;
       }
       // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta
-      case WS_KEY_MAP.spotPublicV2: {
+      case WS_KEY_MAP.spotPublicProV2: {
         return 'wss://x-push-spot.kucoin.com';
       }
-      case WS_KEY_MAP.futuresPublicV2: {
+      case WS_KEY_MAP.futuresPublicProV2: {
         return 'wss://x-push-futures.kucoin.com';
       }
       case WS_KEY_MAP.wsApiSpotV1:
@@ -777,9 +777,9 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       case WS_KEY_MAP.wsApiFuturesV1: {
         return 'v1';
       }
-      case WS_KEY_MAP.spotPublicV2:
-      case WS_KEY_MAP.futuresPublicV2:
-      case WS_KEY_MAP.privateV2: {
+      case WS_KEY_MAP.spotPublicProV2:
+      case WS_KEY_MAP.futuresPublicProV2:
+      case WS_KEY_MAP.privateProV2: {
         return 'v2';
       }
       default: {
@@ -803,18 +803,18 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     switch (key) {
       case WS_KEY_MAP.futuresPrivateV1:
       case WS_KEY_MAP.futuresPublicV1:
-      case WS_KEY_MAP.futuresPublicV2:
+      case WS_KEY_MAP.futuresPublicProV2:
       case WS_KEY_MAP.wsApiFuturesV1: {
         return 'futures';
       }
       case WS_KEY_MAP.spotPrivateV1:
       case WS_KEY_MAP.spotPublicV1:
-      case WS_KEY_MAP.spotPublicV2:
+      case WS_KEY_MAP.spotPublicProV2:
       case WS_KEY_MAP.wsApiSpotV1: {
         return 'spot';
       }
-      case WS_KEY_MAP.privateV2: {
-        return 'spot'; // arbitrarily pick spot for privateV2, as it covers both spot & futures
+      case WS_KEY_MAP.privateProV2: {
+        return 'spot'; // arbitrarily pick spot for privateProV2, as it covers both spot & futures
       }
       default: {
         throw neverGuard(key, `Unhandled ws key "${key}"`);
@@ -831,13 +831,13 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     switch (wsKey) {
       case WS_KEY_MAP.futuresPrivateV1:
       case WS_KEY_MAP.futuresPublicV1:
-      case WS_KEY_MAP.futuresPublicV2:
+      case WS_KEY_MAP.futuresPublicProV2:
       case WS_KEY_MAP.spotPrivateV1:
       case WS_KEY_MAP.spotPublicV1:
-      case WS_KEY_MAP.spotPublicV2:
+      case WS_KEY_MAP.spotPublicProV2:
       case WS_KEY_MAP.wsApiSpotV1:
       case WS_KEY_MAP.wsApiFuturesV1:
-      case WS_KEY_MAP.privateV2: {
+      case WS_KEY_MAP.privateProV2: {
         // Return a number if there's a limit on the number of sub topics per rq
         // Always 1 at a time for this exchange
         return 1;
