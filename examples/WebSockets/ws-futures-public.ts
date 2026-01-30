@@ -1,41 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient } from '../../../src/index.js';
+import { WebsocketClient } from '../../src/index.js';
 // import { DefaultLogger, WebsocketClient } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
 async function start() {
-  // Optional: inject and customise a logger for more control over internal logging
+  // Optional: fully customise the logging experience by injecting a custom logger
   // const logger: typeof DefaultLogger = {
   //   ...DefaultLogger,
   //   trace: (...params) => {
   //     if (
   //       [
   //         'Sending ping',
-  //         // 'Sending upstream ws message: ',
+  //         'Sending upstream ws message: ',
   //         'Received pong',
   //       ].includes(params[0])
   //     ) {
   //       return;
   //     }
-  //     console.log('trace', JSON.stringify(params, null, 2));
+  //     console.log('trace', params);
   //   },
   // };
 
-  const account = {
-    key: process.env.API_KEY || 'keyHere',
-    secret: process.env.API_SECRET || 'secretHere',
-    passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
-  };
-
-  console.log('connecting with ', account);
-  const client = new WebsocketClient(
-    {
-      apiKey: account.key,
-      apiSecret: account.secret,
-      apiPassphrase: account.passphrase,
-    },
-    // logger,
-  );
+  // const client = new WebsocketClient({}, logger);
+  const client = new WebsocketClient();
 
   client.on('open', (data) => {
     console.log('open: ', data?.wsKey);
@@ -79,25 +66,27 @@ async function start() {
 
   try {
     // Optional: await a connection to be ready before subscribing (this is not necessary)
-    // await client.connect('futuresPrivateV1');
-    // console.log('connected');
+    // await client.connect('futuresPublicV1');
 
     /**
-     * For more detailed usage info, refer to the ws-spot-public.ts example.
+     * Examples for public futures websocket topics (that don't require authentication).
      *
-     * Below are some examples for subscribing to private futures websockets.
-     * Note: all "private" websocket topics should use the "futuresPrivateV1" wsKey.
+     * These should all subscribe via the "futuresPublicV1" wsKey. For detailed usage, refer to the ws-spot-public.ts example.
      */
     client.subscribe(
       [
-        '/contractMarket/tradeOrders:XBTUSDM',
-        '/contractMarket/tradeOrders',
-        '/contractMarket/advancedOrders',
-        '/contractAccount/wallet',
-        '/contract/position:XBTUSDM',
-        '/contract/positionAll',
+        '/contractMarket/tickerV2:XBTUSDM',
+        '/contractMarket/ticker:XBTUSDM',
+        '/contractMarket/level2:XBTUSDM',
+        '/contractMarket/execution:XBTUSDM',
+        '/contractMarket/level2Depth5:XBTUSDM',
+        '/contractMarket/level2Depth50:XBTUSDM',
+        '/contractMarket/limitCandle:XBTUSDTM_1hour',
+        '/contract/instrument:XBTUSDM',
+        '/contract/announcement',
+        '/contractMarket/snapshot:XBTUSDM',
       ],
-      'futuresPrivateV1',
+      'futuresPublicV1',
     );
   } catch (e) {
     console.error('Subscribe exception: ', e);

@@ -1,4 +1,4 @@
-import { FuturesClient } from '../src/index.ts';
+import { FuturesClient } from '../../src/index.ts';
 // import { FuturesClient } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
@@ -29,12 +29,12 @@ async function start() {
       type: 'market',
       symbol: 'XBTUSDTM',
       size: 1,
-      leverage: '2',
+      leverage: 2,
     });
 
     console.log('orderRes ', JSON.stringify(orderRes, null, 2));
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 
