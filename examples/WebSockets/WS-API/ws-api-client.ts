@@ -15,7 +15,7 @@
  *  or pass them as arguments to the constructor
  */
 
-import { DefaultLogger, WebsocketAPIClient } from '../../src/index.js';
+import { DefaultLogger, WebsocketAPIClient } from '../../../src/index.js';
 
 async function main() {
   const customLogger = {
