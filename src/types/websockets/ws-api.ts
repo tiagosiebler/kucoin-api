@@ -15,7 +15,7 @@ import {
   SyncCancelHFOrderResponse,
 } from '../response/spot-trading.js';
 
-export type WsOperationV1 =
+export type WsOperation =
   | 'subscribe'
   | 'unsubscribe'
   | 'login'
@@ -28,7 +28,7 @@ export type WsOperationV1 =
  */
 export interface WsRequestOperationV1<TWSTopic extends string> {
   id: number;
-  type: WsOperationV1;
+  type: WsOperation;
   topic: TWSTopic;
   privateChannel: boolean;
   response: boolean;
@@ -38,7 +38,7 @@ export interface WsRequestOperationV1<TWSTopic extends string> {
  */
 export interface WsRequestOperationV2<TWSTopic extends string> {
   id: string;
-  action: WsOperationV1;
+  action: WsOperation;
   channel: TWSTopic;
 }
 
@@ -75,7 +75,7 @@ export interface WsRequestOperationKucoin<
   TWSParams extends object = any,
 > {
   id: string;
-  op: WsOperationV1 | WsAPIOperation;
+  op: WsOperation | WsAPIOperation;
   args?: (TWSTopic | string | number)[] | TWSParams; // Business parameters, same as RestAPI
 }
 

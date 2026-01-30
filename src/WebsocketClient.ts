@@ -31,7 +31,7 @@ import {
   WsAPITopicRequestParamMap,
   WsAPITopicResponseMap,
   WsAPIWsKeyTopicMap,
-  WsOperationV1,
+  WsOperation,
   WsRequestOperationKucoin,
   WsRequestOperationV1,
   WsRequestOperationV2,
@@ -855,7 +855,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   protected async getWsOperationEventsForTopics(
     topicRequests: WsTopicRequest<string>[],
     wsKey: WsKey,
-    operation: WsOperationV1,
+    operation: WsOperation,
   ): Promise<string[]> {
     if (!topicRequests.length) {
       return [];

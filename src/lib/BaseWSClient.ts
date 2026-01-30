@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import WebSocket from 'isomorphic-ws';
 
-import { WsOperationV1 } from '../types/websockets/ws-api.js';
+import { WsOperation } from '../types/websockets/ws-api.js';
 import {
   isMessageEvent,
   MessageEventLike,
@@ -244,7 +244,7 @@ export abstract class BaseWebsocketClient<
   protected abstract getWsOperationEventsForTopics(
     topics: WsTopicRequest<WSTopic>[],
     wsKey: TWSKey,
-    operation: WsOperationV1,
+    operation: WsOperation,
   ): Promise<string[]>;
 
   protected abstract getPrivateWSKeys(): TWSKey[];
