@@ -1052,12 +1052,28 @@ export class FuturesClient extends BaseRestClient {
    *
    */
 
+  /**
+   * Public V1 WS Connection Token & URL
+   */
   getPublicWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
     return this.post('api/v1/bullet-public');
   }
 
+  /**
+   * Private V1 WS Connection Token & URL
+   */
   getPrivateWSConnectionToken(): Promise<APISuccessResponse<WsConnectionInfo>> {
     return this.postPrivate('api/v1/bullet-private');
+  }
+
+  /**
+   * Fetch connection token for V2 (Pro) private connections. Not needed for public.
+   * Only returns token, no URL.
+   */
+  getPrivateWSConnectionTokenV2(): Promise<
+    APISuccessResponse<WsConnectionInfo>
+  > {
+    return this.postPrivate('api/v2/bullet-private');
   }
 
   /*

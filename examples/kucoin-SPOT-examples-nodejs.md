@@ -1,4 +1,4 @@
-# **KuCoin SPOT API Examples** - Node.js, JavaScript & Typescript SDK for Kucoin REST APIs & WebSockets
+# **KuCoin SPOT API Examples** - Node.js, JavaScript & Typescript SDK for KuCoin REST APIs & WebSockets
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
@@ -13,9 +13,9 @@ This document provides comprehensive examples for using the KuCoin SPOT API with
 
 If you are here, it means you will be great addition to our [Node.js Traders](https://t.me/nodetraders) community on Telegram where we discuss trading ideas, provide support regarding SDKs and share valuable resources!
 
-- [KuCoin Documentation](https://www.kucoin.com/docs/beginners/introduction) - official Kucoin API docs
+- [KuCoin Documentation](https://www.kucoin.com/docs/beginners/introduction) - official KuCoin API docs
 
-- [Node.js & JavaScript SDK for Kucoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
+- [Node.js & JavaScript SDK for KuCoin](https://github.com/tiagosiebler/kucoin-api) - Github repo of our SDK
 
 Current file contains only certain most used examples. If you can't find what you need, you can search through [SpotClient.ts](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts) - all of the endpoints and functions will be there! Otherwise, just ask in [Node.js Traders](https://t.me/nodetraders) Telegram group.
 
@@ -73,7 +73,7 @@ yarn add kucoin-api
 
 #### Create API credentials
 
-- [Kucoin API Key Management](https://www.kucoin.com/account/api)
+- [KuCoin API Key Management](https://www.kucoin.com/account/api)
 
 #### Import SDK to your project
 
@@ -327,7 +327,7 @@ spotClient.getKlines({
 
 #### General info
 
-Please, read official [Kucoin API docs](https://www.kucoin.com/docs/rest/spot-trading/orders/place-order) to understand how to place orders, cancel orders, etc. and what is needed for each endpoint. These are just low-end examples to understand how to use it with SDK.
+Please, read official [KuCoin API docs](https://www.kucoin.com/docs/rest/spot-trading/orders/place-order) to understand how to place orders, cancel orders, etc. and what is needed for each endpoint. These are just low-end examples to understand how to use it with SDK.
 
 #### Market Short
 

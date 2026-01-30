@@ -23,12 +23,23 @@ export type WsOperation =
   | 'request'
   | 'ping';
 
-export interface WsRequestOperation<TWSTopic extends string> {
+/**
+ * Kucoin's format for WS request operations with the V1 WebSockets
+ */
+export interface WsRequestOperationV1<TWSTopic extends string> {
   id: number;
   type: WsOperation;
   topic: TWSTopic;
   privateChannel: boolean;
   response: boolean;
+}
+/**
+ * Kucoin's format for WS request operations with the V2 (Pro) WebSockets
+ */
+export interface WsRequestOperationV2<TWSTopic extends string> {
+  id: string;
+  action: WsOperation;
+  channel: TWSTopic;
 }
 
 export type Exact<T> = {

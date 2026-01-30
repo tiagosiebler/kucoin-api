@@ -15,6 +15,9 @@ import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
 import { DefaultLogger } from './websocket/logger.js';
 import {
+  bufferLooksLikeText,
+  decompressMessageEvent,
+  isBufferMessageEvent,
   safeTerminateWs,
   WsTopicRequest,
   WsTopicRequestOrStringTopic,
@@ -748,7 +751,7 @@ export abstract class BaseWebsocketClient<
     );
 
     for (const wsMessage of subscribeWsMessages) {
-      // this.logger.trace(`Sending batch via message: "${wsMessage}"`);
+      this.logger.trace(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, wsMessage);
     }
 
@@ -1027,7 +1030,12 @@ export abstract class BaseWebsocketClient<
     return;
   }
 
-  private onWsMessage(event: unknown, wsKey: TWSKey, ws: WebSocket) {
+  private async onWsMessage(
+    event: unknown,
+    wsKey: TWSKey,
+    ws: WebSocket,
+    didDecompress = false,
+  ): Promise<unknown> {
     try {
       // any message can clear the pong timer - wouldn't get a message if the ws wasn't working
       this.clearPongTimer(wsKey);
@@ -1145,13 +1153,37 @@ export abstract class BaseWebsocketClient<
         return;
       }
 
+      if (isBufferMessageEvent(event) && !didDecompress) {
+        try {
+          const decompressed = await decompressMessageEvent(event);
+          this.logger.trace('Decompressed message event from buffer', {
+            ...WS_LOGGER_CATEGORY,
+            wsKey,
+            decompressed,
+          });
+
+          return this.onWsMessage(decompressed, wsKey, ws, true);
+        } catch (e) {
+          this.logger.error('Failed to decompress ws message event', {
+            ...WS_LOGGER_CATEGORY,
+            wsKey,
+            exception: e,
+            message: event || 'no message',
+            event,
+          });
+          return;
+        }
+      }
+
       this.logger.error(
         'Unhandled/unrecognised ws event message - unexpected message format',
         {
           ...WS_LOGGER_CATEGORY,
           message: event || 'no message',
           event,
+          // eventStr: JSON.stringify(event, null, 2),
           wsKey,
+          didDecompress,
         },
       );
     } catch (e) {

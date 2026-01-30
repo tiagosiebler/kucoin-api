@@ -1,15 +1,20 @@
-module.exports = {
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { FlatCompat } = require('@eslint/eslintrc');
+
+// Bridge old-style ESLint config into the flat config format required by ESLint v9+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  resolvePluginsRelativeTo: __dirname,
+});
+
+module.exports = compat.config({
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.linting.json',
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: [
-    '@typescript-eslint/eslint-plugin',
-    'simple-import-sort',
-    'require-extensions',
-  ],
+  plugins: ['@typescript-eslint', 'simple-import-sort', 'require-extensions'],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
@@ -46,7 +51,7 @@ module.exports = {
     'no-mixed-spaces-and-tabs': 2,
     'no-use-before-define': [2, 'nofunc'],
     'no-unreachable': ['warn'],
-    // 'no-unused-vars': ['warn'],
+    'no-unused-vars': ['warn'],
     'no-extra-parens': ['off'],
     'no-mixed-operators': ['off'],
     quotes: [2, 'single', 'avoid-escape'],
@@ -56,4 +61,4 @@ module.exports = {
     'keyword-spacing': 2,
     'space-unary-ops': 2,
   },
-};
+});

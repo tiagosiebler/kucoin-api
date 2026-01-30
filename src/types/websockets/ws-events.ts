@@ -4,10 +4,10 @@ export interface WsDataEvent<TData = any, TWSKey = string> {
   wsKey: TWSKey;
 }
 
-export interface MessageEventLike {
+export interface MessageEventLike<TDataType = string> {
   target: WebSocket;
   type: 'message';
-  data: string;
+  data: TDataType;
 }
 
 export function isMessageEvent(msg: unknown): msg is MessageEventLike {

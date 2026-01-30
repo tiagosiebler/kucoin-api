@@ -1,5 +1,4 @@
 import { FuturesClient } from './FuturesClient.js';
-import { SignedRequest } from './lib/BaseRestClient.js';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
 import {
@@ -11,7 +10,6 @@ import {
   serializeParams,
 } from './lib/requestUtils.js';
 import {
-  hashMessage,
   SignAlgorithm,
   SignEncodeMethod,
   signMessage,
@@ -26,7 +24,7 @@ import {
 import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
 import { SpotClient } from './SpotClient.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
-import { WsConnectionInfo } from './types/response/ws.js';
+import { WsConnectionInfo, WsConnectionInfoV2 } from './types/response/ws.js';
 import {
   Exact,
   WSAPIAuthenticationRequestFromServer,
@@ -34,8 +32,9 @@ import {
   WsAPITopicResponseMap,
   WsAPIWsKeyTopicMap,
   WsOperation,
-  WsRequestOperation,
   WsRequestOperationKucoin,
+  WsRequestOperationV1,
+  WsRequestOperationV2,
 } from './types/websockets/ws-api.js';
 import { MessageEventLike } from './types/websockets/ws-events.js';
 import { WsMarket } from './types/websockets/ws-general.js';
@@ -55,12 +54,15 @@ export interface WSAPIRequestFlags {
 const PRIVATE_WS_KEYS: WsKey[] = [
   WS_KEY_MAP.spotPrivateV1,
   WS_KEY_MAP.futuresPrivateV1,
+  WS_KEY_MAP.privateProV2,
 ];
 
 /** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
 export const PUBLIC_WS_KEYS: WsKey[] = [
   WS_KEY_MAP.spotPublicV1,
   WS_KEY_MAP.futuresPublicV1,
+  WS_KEY_MAP.spotPublicProV2,
+  WS_KEY_MAP.futuresPublicProV2,
 ];
 
 /**
@@ -81,6 +83,11 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     const getClientType = (wsKey: WsKey): 'spot' | 'futures' | null => {
       if (wsKey.startsWith('spot')) return 'spot';
       if (wsKey.startsWith('futures')) return 'futures';
+
+      if (wsKey === WS_KEY_MAP.privateProV2) {
+        return 'spot'; // arbitrarily pick spot for privateProV2, as it covers both spot & futures
+      }
+
       return null;
     };
 
@@ -115,8 +122,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
   private async getWSConnectionInfo(
     wsKey: WsKey,
-  ): Promise<APISuccessResponse<WsConnectionInfo>> {
+  ): Promise<APISuccessResponse<WsConnectionInfo | WsConnectionInfoV2>> {
     const restClient = this.getRESTClient(wsKey);
+
+    if (wsKey === WS_KEY_MAP.privateProV2) {
+      return restClient.getPrivateWSConnectionTokenV2();
+    }
 
     if (PRIVATE_WS_KEYS.includes(wsKey)) {
       return restClient.getPrivateWSConnectionToken();
@@ -329,8 +340,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           ...connectionInfo,
         });
 
-        const server = connectionInfo.data.instanceServers[0];
-        if (!server) {
+        const servers = connectionInfo.data.instanceServers;
+        if (!servers || !servers.length) {
           this.logger.error(
             'No servers returned by connection info response?',
             JSON.stringify(
@@ -345,10 +356,26 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           throw new Error('No servers returned by connection info response?');
         }
 
+        const server = servers[0];
         const connectionUrl = `${server.endpoint}?token=${connectionInfo.data.token}`;
         return connectionUrl;
       }
+      case WS_KEY_MAP.privateProV2: {
+        // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#3-create-connection
+        const baseWSUrl = 'wss://wsapi-push.kucoin.com/?token=';
 
+        const connectionInfo = await this.getWSConnectionInfo(wsKey);
+
+        const connectionUrl = baseWSUrl + connectionInfo.data.token;
+        return connectionUrl;
+      }
+      // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta
+      case WS_KEY_MAP.spotPublicProV2: {
+        return 'wss://x-push-spot.kucoin.com';
+      }
+      case WS_KEY_MAP.futuresPublicProV2: {
+        return 'wss://x-push-futures.kucoin.com';
+      }
       case WS_KEY_MAP.wsApiSpotV1:
       case WS_KEY_MAP.wsApiFuturesV1: {
         // WS API URL works differently: https://www.kucoin.com/docs-new/3470133w0
@@ -429,6 +456,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         `{"id": "ping-${this.getNewRequestId()}", "op": "ping", "timestamp": "${Date.now()}"}`,
       );
     }
+    // Compatible for V1 and V2 (Pro)
+    // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#4-ping
     return this.tryWsSend(wsKey, `{ "id": "${Date.now()}", "type": "ping" }`);
   }
 
@@ -492,7 +521,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       const authenticatedEvents = ['login', 'access'];
       const connectionReadyEvents = ['welcome'];
 
-      const eventType = parsed.event || parsed.type;
+      const eventTypeV1 = parsed.event || parsed.type;
+      // v2 / Pro
+      const eventTypeV2 = parsed.T ? 'message' : parsed.message;
+      const eventType = eventTypeV1 || eventTypeV2;
 
       const traceEmittable = false;
       if (traceEmittable) {
@@ -670,6 +702,26 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         }
       }
 
+      if (typeof parsed.id === 'string' && typeof parsed.result === 'boolean') {
+        // Generic request response
+        //   { id: '168651203381', result: true }
+
+        const isError = parsed.result === false;
+        if (isError) {
+          results.push({
+            eventType: 'exception',
+            event: parsed,
+          });
+          return results;
+        }
+
+        results.push({
+          eventType: 'response',
+          event: parsed,
+        });
+        return results;
+      }
+
       this.logger.error(
         `!! (${wsKey}) Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
         parsed,
@@ -708,6 +760,27 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     return request && PRIVATE_WS_KEYS.includes(wsKey);
   }
 
+  private getWSKeyVersion(wsKey: WsKey): 'v1' | 'v2' {
+    switch (wsKey) {
+      case WS_KEY_MAP.spotPublicV1:
+      case WS_KEY_MAP.spotPrivateV1:
+      case WS_KEY_MAP.futuresPublicV1:
+      case WS_KEY_MAP.futuresPrivateV1:
+      case WS_KEY_MAP.wsApiSpotV1:
+      case WS_KEY_MAP.wsApiFuturesV1: {
+        return 'v1';
+      }
+      case WS_KEY_MAP.spotPublicProV2:
+      case WS_KEY_MAP.futuresPublicProV2:
+      case WS_KEY_MAP.privateProV2: {
+        return 'v2';
+      }
+      default: {
+        throw neverGuard(wsKey, `Unhandled wsKey "${wsKey}"`);
+      }
+    }
+  }
+
   protected getWsKeyForMarket(market: WsMarket, isPrivate: boolean): WsKey {
     return isPrivate
       ? market === 'spot'
@@ -718,21 +791,23 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         : WS_KEY_MAP.futuresPublicV1;
   }
 
+  /** Not really in use for Kucoin */
   protected getWsMarketForWsKey(key: WsKey): WsMarket {
     switch (key) {
       case WS_KEY_MAP.futuresPrivateV1:
-      case WS_KEY_MAP.futuresPublicV1: {
+      case WS_KEY_MAP.futuresPublicV1:
+      case WS_KEY_MAP.futuresPublicProV2:
+      case WS_KEY_MAP.wsApiFuturesV1: {
         return 'futures';
       }
       case WS_KEY_MAP.spotPrivateV1:
-      case WS_KEY_MAP.spotPublicV1: {
-        return 'spot';
-      }
+      case WS_KEY_MAP.spotPublicV1:
+      case WS_KEY_MAP.spotPublicProV2:
       case WS_KEY_MAP.wsApiSpotV1: {
         return 'spot';
       }
-      case WS_KEY_MAP.wsApiFuturesV1: {
-        return 'futures';
+      case WS_KEY_MAP.privateProV2: {
+        return 'spot'; // arbitrarily pick spot for privateProV2, as it covers both spot & futures
       }
       default: {
         throw neverGuard(key, `Unhandled ws key "${key}"`);
@@ -749,10 +824,13 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     switch (wsKey) {
       case WS_KEY_MAP.futuresPrivateV1:
       case WS_KEY_MAP.futuresPublicV1:
+      case WS_KEY_MAP.futuresPublicProV2:
       case WS_KEY_MAP.spotPrivateV1:
       case WS_KEY_MAP.spotPublicV1:
+      case WS_KEY_MAP.spotPublicProV2:
       case WS_KEY_MAP.wsApiSpotV1:
-      case WS_KEY_MAP.wsApiFuturesV1: {
+      case WS_KEY_MAP.wsApiFuturesV1:
+      case WS_KEY_MAP.privateProV2: {
         // Return a number if there's a limit on the number of sub topics per rq
         // Always 1 at a time for this exchange
         return 1;
@@ -778,11 +856,26 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       return [];
     }
 
+    const wsKeyVersion = this.getWSKeyVersion(wsKey);
+
     // Operations structured in a way that this exchange understands
     const operationEvents = topicRequests.map((topicRequest) => {
       const isPrivateWsTopic = this.isPrivateTopicRequest(topicRequest, wsKey);
 
-      const wsRequestEvent: WsRequestOperation<WsTopic> = {
+      // V2 (Pro) requests are slightly different:
+      if (wsKeyVersion === 'v2') {
+        // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
+        const wsRequestEvent: WsRequestOperationV2<WsTopic> = {
+          id: `${getRandomInt(999999999999)}`,
+          action: operation,
+          channel: topicRequest.topic,
+          ...topicRequest.payload,
+        };
+
+        return wsRequestEvent;
+      }
+
+      const wsRequestEvent: WsRequestOperationV1<WsTopic> = {
         id: getRandomInt(999999999999),
         type: operation,
         topic: topicRequest.topic,
