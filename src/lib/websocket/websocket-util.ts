@@ -13,7 +13,7 @@ export const WS_KEY_MAP = {
   spotPublicProV2: 'spotPublicProV2',
   /** Dedicated V2 (Pro) connection for push of public futures market data */
   futuresPublicProV2: 'futuresPublicProV2',
-  /** shared V2 (Pro) connection for all private data (spot & futures) */
+  /** Shared (spot & futures) V2 (Pro) connection for all private data */
   privateProV2: 'privateProV2',
   wsApiSpotV1: 'wsApiSpotV1',
   wsApiFuturesV1: 'wsApiFuturesV1',
