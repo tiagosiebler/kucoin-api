@@ -3,7 +3,7 @@ import {
   DefaultLogger,
   WebsocketClient,
   WsTopicRequest,
-} from '../../../src/index.js';
+} from '../../src/index.js';
 // import { DefaultLogger, WebsocketClient } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 

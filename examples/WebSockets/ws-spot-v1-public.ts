@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { WebsocketClient, WsTopicRequest } from '../../src/index.js';
+import {
+  DefaultLogger,
+  WebsocketClient,
+  WsTopicRequest,
+} from '../../src/index.js';
 // import { DefaultLogger, WebsocketClient, WsTopicRequest } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
@@ -64,6 +68,9 @@ async function start() {
     });
   });
 
+  /**
+   * The following example demonstrates the ways to consume data from the V1 WebSockets. For the V2 (Pro) WebSockets, see ws-spot-v2-public.ts
+   */
   try {
     // Optional: await a connection to be ready before subscribing (this is not necessary)
     // await client.connect('spotPublicV1');
@@ -138,7 +145,7 @@ async function start() {
       'spotPublicV1',
     );
   } catch (e) {
-    console.error('Subscribe exception: ', e);
+    console.error('Subscribe V1 exception: ', e);
   }
 }
 
