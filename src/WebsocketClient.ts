@@ -582,11 +582,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           return [{ eventType: 'update', event: parsed }];
         }
 
-        // // v2 / Pro topic message
-        // if (parsed.T && this.getWSKeyVersion(wsKey) === 'v2') {
-        //   return [{ eventType: 'update', event: parsed }];
-        // }
-
         this.logger.error(
           `!! (${wsKey}) Unhandled string event type "${eventType}". Defaulting to "update" channel...`,
           parsed,
