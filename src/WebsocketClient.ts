@@ -1,5 +1,4 @@
 import { FuturesClient } from './FuturesClient.js';
-import { SignedRequest } from './lib/BaseRestClient.js';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
 import {
@@ -11,7 +10,6 @@ import {
   serializeParams,
 } from './lib/requestUtils.js';
 import {
-  hashMessage,
   SignAlgorithm,
   SignEncodeMethod,
   signMessage,
