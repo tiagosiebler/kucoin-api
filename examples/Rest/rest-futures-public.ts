@@ -1,4 +1,4 @@
-import { FuturesClient } from '../src/index.ts';
+import { FuturesClient } from '../../src/index.ts';
 // import { FuturesClient } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
@@ -21,7 +21,7 @@ async function start() {
     });
     console.log('klines:', JSON.stringify(klines, null, 2));
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 

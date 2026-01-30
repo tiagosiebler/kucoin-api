@@ -1,4 +1,4 @@
-import { FuturesClient } from '../src/index.ts';
+import { FuturesClient } from '../../src/index.ts';
 // import { FuturesClient } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
@@ -57,7 +57,7 @@ async function start() {
     // A MARKET SHORT of 2 contracts of XBT using leverage of 5:
     const marketShort = client.submitOrder({
       clientOid: '123456789',
-      leverage: '5',
+      leverage: 5,
       side: 'sell',
       size: 2,
       symbol: 'XBTUSDTM',
@@ -69,7 +69,7 @@ async function start() {
     // A MARKET LONG of 2 contracts of XBT using leverage of 5:
     const marketLong = client.submitOrder({
       clientOid: '123456789',
-      leverage: '5',
+      leverage: 5,
       side: 'buy',
       size: 2,
       symbol: 'XBTUSDTM',
@@ -81,7 +81,7 @@ async function start() {
     // A LIMIT SHORT of 2 contracts of XBT using leverage of 5:
     const limitShort = client.submitOrder({
       clientOid: '123456789',
-      leverage: '5',
+      leverage: 5,
       price: '70300.31',
       side: 'sell',
       size: 2,
@@ -94,7 +94,7 @@ async function start() {
     // A LIMIT LONG of 2 contracts of XBT using leverage of 5:
     const limitLong = client.submitOrder({
       clientOid: '123456789',
-      leverage: '5',
+      leverage: 5,
       price: '40300.31',
       side: 'buy',
       size: 2,
@@ -126,7 +126,7 @@ async function start() {
     // A LIMIT CLOSE of a LONG example:
     const limitCloseLong = client.submitOrder({
       clientOid: '123456789',
-      leverage: '5',
+      leverage: 5,
       price: '70300.31',
       closeOrder: true,
       side: 'sell',
@@ -140,7 +140,7 @@ async function start() {
     // A LIMIT CLOSE of a SHORT example:
     const limitCloseShort = client.submitOrder({
       clientOid: '123456789',
-      leverage: '5',
+      leverage: 5,
       price: '40300.31',
       closeOrder: true,
       side: 'buy',
@@ -156,6 +156,7 @@ async function start() {
       clientOid: '123456789',
       closeOrder: true,
       stop: 'down',
+      side: 'buy',
       stopPrice: '40200.31',
       stopPriceType: 'TP',
       symbol: 'XBTUSDTM',
@@ -169,6 +170,7 @@ async function start() {
       clientOid: '123456789',
       closeOrder: true,
       stop: 'up',
+      side: 'sell',
       stopPrice: '40200.31',
       stopPriceType: 'TP',
       symbol: 'XBTUSDTM',
@@ -178,7 +180,7 @@ async function start() {
 
     console.log('Stoploss short: ', stopLossShort);
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 

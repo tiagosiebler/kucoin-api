@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient, WS_KEY_MAP } from '../../src/index.js';
+import {
+  DefaultLogger,
+  WebsocketClient,
+  WS_KEY_MAP,
+} from '../../../src/index.js';
 // import { DefaultLogger, WebsocketClient, WS_KEY_MAP } from 'kucoin-api';
 // normally you should install this module via npm: `npm install kucoin-api`
 
