@@ -1,5 +1,4 @@
 import {
-  DefaultLogger,
   WebsocketClient,
   WS_KEY_MAP,
   WsTopicRequest,
