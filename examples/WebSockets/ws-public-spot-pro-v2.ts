@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import {
-  DefaultLogger,
   WebsocketClient,
   WS_KEY_MAP,
   WsTopicRequest,
