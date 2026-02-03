@@ -49,7 +49,7 @@ Notes:
 Directory Structure
 ================================================================
 examples/
-  Auth/
+  auth/
     authorizationHeader.ts
     fasterHmacSign.ts
   Rest/
@@ -143,80 +143,6 @@ tsconfig.linting.json
 ================================================================
 Files
 ================================================================
-
-================
-File: examples/Auth/authorizationHeader.ts
-================
-import { SpotClient } from '../../src/index.js';
-⋮----
-// or
-// import { SpotClient } from 'kucoin-api';
-⋮----
-async function start()
-⋮----
-/**
-   * All REST clients support passing the access token. If available, sign will be skipped for the request and the access token will instead be used via an authorization header.
-   *
-   * More details: https://github.com/tiagosiebler/kucoin-api/issues/2
-   */
-⋮----
-// If you later need to set a new access token (e.g. it expired):
-
-================
-File: examples/Auth/fasterHmacSign.ts
-================
-import { createHmac } from 'crypto';
-⋮----
-import { DefaultLogger, SpotClient, WebsocketClient } from '../../src/index.js';
-⋮----
-// or
-// import { createHmac } from 'crypto';
-// import { DefaultLogger, RestClientV3, WebsocketClientV3 } from 'bitget-api';
-⋮----
-/**
- * Injecting a custom signMessage function.
- *
- * As of version 3.0.0 of the bitget-api Node.js/TypeScript/JavaScript
- * SDK for Bitget, the SDK uses the Web Crypto API for signing requests.
- * While it is compatible with Node and Browser environments, it is
- * slightly slower than using Node's native crypto module (only
- * available in backend Node environments).
- *
- * For latency sensitive users, you can inject the previous node crypto sign
- * method (or your own even faster implementation), if this change affects you.
- *
- * This example demonstrates how to inject a custom sign function, to achieve
- * the same peformance as seen before the Web Crypto API was introduced.
- *
- * For context on standard usage, the "signMessage" function is used:
- * - During every single API call
- * - After opening a new private WebSocket connection
- */
-⋮----
-/**
-   * Overkill in almost every case, but if you need any optimisation available,
-   * you can inject a faster sign mechanism such as node's native createHmac:
-   */
-⋮----
-// Optional, uncomment the "trace" override to log a lot more info about what the WS client is doing
-⋮----
-// trace: (...params) => console.log('trace', ...params),
-⋮----
-/**
-     * Overkill in almost every case, but if you need any optimisation available,
-     * you can inject a faster sign mechanism such as node's native createHmac:
-     */
-⋮----
-function setWsClientEventListeners(
-  websocketClient: WebsocketClient,
-  accountRef: string,
-): Promise<void>
-⋮----
-// console.log('raw message received ', JSON.stringify(data, null, 2));
-⋮----
-// Simple promise to ensure we're subscribed before trying anything else
-⋮----
-// Start trading
 
 ================
 File: examples/tsconfig.examples.json
@@ -2343,6 +2269,80 @@ File: tsconfig.esm.json
   },
   "include": ["src/**/*.*"]
 }
+
+================
+File: examples/auth/authorizationHeader.ts
+================
+import { SpotClient } from '../../src/index.js';
+⋮----
+// or
+// import { SpotClient } from 'kucoin-api';
+⋮----
+async function start()
+⋮----
+/**
+   * All REST clients support passing the access token. If available, sign will be skipped for the request and the access token will instead be used via an authorization header.
+   *
+   * More details: https://github.com/tiagosiebler/kucoin-api/issues/2
+   */
+⋮----
+// If you later need to set a new access token (e.g. it expired):
+
+================
+File: examples/auth/fasterHmacSign.ts
+================
+import { createHmac } from 'crypto';
+⋮----
+import { DefaultLogger, SpotClient, WebsocketClient } from '../../src/index.js';
+⋮----
+// or
+// import { createHmac } from 'crypto';
+// import { DefaultLogger, RestClientV3, WebsocketClientV3 } from 'bitget-api';
+⋮----
+/**
+ * Injecting a custom signMessage function.
+ *
+ * As of version 3.0.0 of the bitget-api Node.js/TypeScript/JavaScript
+ * SDK for Bitget, the SDK uses the Web Crypto API for signing requests.
+ * While it is compatible with Node and Browser environments, it is
+ * slightly slower than using Node's native crypto module (only
+ * available in backend Node environments).
+ *
+ * For latency sensitive users, you can inject the previous node crypto sign
+ * method (or your own even faster implementation), if this change affects you.
+ *
+ * This example demonstrates how to inject a custom sign function, to achieve
+ * the same peformance as seen before the Web Crypto API was introduced.
+ *
+ * For context on standard usage, the "signMessage" function is used:
+ * - During every single API call
+ * - After opening a new private WebSocket connection
+ */
+⋮----
+/**
+   * Overkill in almost every case, but if you need any optimisation available,
+   * you can inject a faster sign mechanism such as node's native createHmac:
+   */
+⋮----
+// Optional, uncomment the "trace" override to log a lot more info about what the WS client is doing
+⋮----
+// trace: (...params) => console.log('trace', ...params),
+⋮----
+/**
+     * Overkill in almost every case, but if you need any optimisation available,
+     * you can inject a faster sign mechanism such as node's native createHmac:
+     */
+⋮----
+function setWsClientEventListeners(
+  websocketClient: WebsocketClient,
+  accountRef: string,
+): Promise<void>
+⋮----
+// console.log('raw message received ', JSON.stringify(data, null, 2));
+⋮----
+// Simple promise to ensure we're subscribed before trying anything else
+⋮----
+// Start trading
 
 ================
 File: examples/Rest/rest-futures-orders-guide.ts
@@ -5000,305 +5000,6 @@ The new generation of KuCoin's APIs. It was briefly named Unified Trading APIs (
 All examples for this version are labelled with "v2" and tend to use the "v2" WsKeys. Private WebSocket topics in KuCoin's V2 Pro APIs also share 1 connection (via the "privateProV2" WsKey). Previously in v1 these were split across two different connections.
 
 ================
-File: examples/WebSockets/ws-private-pro-v2.ts
-================
-import {
-  DefaultLogger,
-  WebsocketClient,
-  WS_KEY_MAP,
-  WsTopicRequest,
-} from '../../src/index.js';
-// import { DefaultLogger, WebsocketClient } from 'kucoin-api';
-// normally you should install this module via npm: `npm install kucoin-api`
-⋮----
-async function start()
-⋮----
-// Optional: inject a custom logger to override internal logging behaviour
-// const logger: typeof DefaultLogger = {
-//   ...DefaultLogger,
-//   trace: (...params) => {
-//     // Simple way to exclude certain messages from trace logs
-//     if (
-//       [
-//         'Sending ping',
-//         // 'Sending upstream ws message: ',
-//         'Received pong',
-//         'Decompressed message event from buffer',
-//       ].includes(params[0])
-//     ) {
-//       return;
-//     }
-//     console.log('trace', JSON.stringify(params, null, 2));
-//   },
-// };
-⋮----
-passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
-⋮----
-// logger,
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// throw new Error('res?');
-⋮----
-/**
-   * The below examples demonstrate consuming private V2 (Pro) WebSocket topics.
-   * For V1 private WebSocket examples, see ws-private-spot-v1.ts and ws-private-futures-v1.ts
-   */
-⋮----
-// Optional: await a connection to be ready before subscribing (this is not necessary)
-// await client.connect(WS_KEY_MAP.privateProV2);
-// console.log('connected');
-⋮----
-/**
-     * Structure your requests into the following format. The below example will be sent as per the example in the docs. The parameters are automatically merged into the request. Just follow the example below:
-     * {
-     *   "id": "1545910660739", // OPTIONAL
-     *   "action": "SUBSCRIBE", // or UNSUBSCRIBE
-     *   "channel":"orderAll", //
-     *   "tradeType": "SPOT" // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
-     * }
-     *
-     * https://www.kucoin.com/docs-new/3470228w0
-     */
-⋮----
-/**
-       * Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
-       * For more info on parameters, see: https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
-       */
-⋮----
-tradeType: 'SPOT', // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
-⋮----
-// Or, subscribe to multiple topics at once:
-⋮----
-// Other markets for orderAll topic:
-// https://www.kucoin.com/docs-new/3470228w0
-⋮----
-tradeType: 'FUTURES', // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
-⋮----
-// Specific order updates for a given symbol:
-// https://www.kucoin.com/docs-new/3470228w0
-⋮----
-tradeType: 'SPOT', // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
-⋮----
-// Futures positions:
-// https://www.kucoin.com/docs-new/3470233w0
-⋮----
-tradeType: 'FUTURES', //  FUTURES / UNIFIED
-⋮----
-tradeType: 'FUTURES', //  FUTURES / UNIFIED
-⋮----
-// Account balance updates:
-// https://www.kucoin.com/docs-new/3470231w0
-⋮----
-accountType: 'TRADING', // TRADING / ISOLATED / CROSS / FUTURES / UNIFIED
-⋮----
-// Execution/trade updates:
-// https://www.kucoin.com/docs-new/3470232w0
-⋮----
-tradeType: 'SPOT', // SPOT / ISOLATED / CROSS / FUTURES / UNIFIED
-⋮----
-// Liquidation warnings:
-// https://www.kucoin.com/docs-new/3470236w0
-⋮----
-// Leverage updates:
-// https://www.kucoin.com/docs-new/3470237w0
-
-================
-File: examples/WebSockets/ws-public-futures-pro-v2.ts
-================
-/* eslint-disable no-unused-vars */
-import {
-  DefaultLogger,
-  WebsocketClient,
-  WS_KEY_MAP,
-  WsTopicRequest,
-} from '../../src/index.js';
-// import { DefaultLogger, WebsocketClient, WsTopicRequest } from 'kucoin-api';
-// normally you should install this module via npm: `npm install kucoin-api`
-⋮----
-async function start()
-⋮----
-// Optional: fully customise the logging experience by injecting a custom logger
-// const logger: typeof DefaultLogger = {
-//   ...DefaultLogger,
-//   trace: (...params) => {
-//     if (
-//       [
-//         'Sending ping',
-//         'Sending upstream ws message: ',
-//         'Received pong',
-//         'Decompressed message event from buffer',
-//       ].includes(params[0])
-//     ) {
-//       return;
-//     }
-//     console.log('trace', params);
-//   },
-// };
-⋮----
-// const client = new WebsocketClient({}, logger);
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// throw new Error('res?');
-⋮----
-/**
-   * The following example demonstrates the ways to consume data from the V2 (Pro) WebSockets. For the V1 examples, ws-public-futures-v1.ts
-   */
-⋮----
-// Optional: await a connection to be ready before subscribing (this is not necessary)
-// await client.connect(WS_KEY_MAP.futuresPublicProV2);
-⋮----
-/**
-     * Structure your requests into the following format. The below example will be sent as per the example in the docs. The parameters are automatically merged into the request. Just follow the example below:
-     * {
-     *    "id": "1545910660739", // automatically generated by SDK
-     *    "action": "SUBSCRIBE", // automatically added by SDK
-     *    "channel":"kline",
-     *    "tradeType": "FUTURES",       // SPOT / FUTURES
-     *    "symbol": "XBTUSDTM",
-     *    "interval": "1min"
-     * }
-     *
-     * https://www.kucoin.com/docs-new/3470223w0
-     */
-⋮----
-/**
-       * Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
-       * For more info on parameters, see: https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
-       */
-⋮----
-// this needs to match the WsKey below.
-// tradeType: SPOT ==> spotPublicProV2
-// tradeType: FUTURES ==> futuresPublicProV2
-⋮----
-/**
-     * Or, send an array of structured objects with parameters, if you wanted to send multiple in one request
-     *
-     */
-⋮----
-// BTCUSDT tickers for FUTURES market
-// https://www.kucoin.com/docs-new/3470222w0
-⋮----
-// BTCUSDT orderbook updates for FUTURES market
-// https://www.kucoin.com/docs-new/3470221w0
-⋮----
-depth: '5', // 1 / 5 / 50 / increment
-rpiFilter: 0, // 0：Only NoneRPI orders [Default]  1(Only Support Futures)：NoneRPI+ RPI Orders. When rpiFilter=1, "depth" only supports 5/50.
-⋮----
-// BTCUSDT trades for spot market
-// https://www.kucoin.com/docs-new/3470224w0
-
-================
-File: examples/WebSockets/ws-public-spot-pro-v2.ts
-================
-/* eslint-disable no-unused-vars */
-import {
-  DefaultLogger,
-  WebsocketClient,
-  WS_KEY_MAP,
-  WsTopicRequest,
-} from '../../src/index.js';
-// import { DefaultLogger, WebsocketClient, WsTopicRequest } from 'kucoin-api';
-// normally you should install this module via npm: `npm install kucoin-api`
-⋮----
-async function start()
-⋮----
-// Optional: fully customise the logging experience by injecting a custom logger
-// const logger: typeof DefaultLogger = {
-//   ...DefaultLogger,
-//   trace: (...params) => {
-//     if (
-//       [
-//         'Sending ping',
-//         'Sending upstream ws message: ',
-//         'Received pong',
-//       ].includes(params[0])
-//     ) {
-//       return;
-//     }
-//     console.log('trace', params);
-//   },
-// };
-⋮----
-// const client = new WebsocketClient({}, logger);
-⋮----
-// Data received
-⋮----
-// Something happened, attempting to reconenct
-⋮----
-// Reconnect successful
-⋮----
-// Connection closed. If unexpected, expect reconnect -> reconnected.
-⋮----
-// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
-⋮----
-// throw new Error('res?');
-⋮----
-/**
-   * The following example demonstrates the ways to consume data from the V2 (Pro) WebSockets. For the V1 examples, ws-private-spot-v1.ts
-   */
-⋮----
-// Optional: await a connection to be ready before subscribing (this is not necessary)
-// await client.connect(WS_KEY_MAP.spotPublicProV2);
-⋮----
-/**
-     * Structure your requests into the following format. The below example will be sent as per the example in the docs. The parameters are automatically merged into the request. Just follow the example below:
-     * {
-     *    "id": "1545910660739", // automatically generated by SDK
-     *    "action": "SUBSCRIBE", // automatically added by SDK
-     *    "channel":"kline",
-     *    "tradeType": "SPOT",       // SPOT / FUTURES
-     *    "symbol": "BTC-USDT",
-     *    "interval": "1min"
-     * }
-     *
-     * https://www.kucoin.com/docs-new/3470223w0
-     */
-⋮----
-/**
-       * Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
-       * For more info on parameters, see: https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
-       */
-⋮----
-// this needs to match the WsKey below.
-// tradeType: SPOT ==> spotPublicProV2
-// tradeType: FUTURES ==> futuresPublicProV2
-⋮----
-/**
-     * Or, send an array of structured objects with parameters, if you wanted to send multiple in one request
-     *
-     */
-⋮----
-// BTCUSDT tickers for spot market
-// https://www.kucoin.com/docs-new/3470222w0
-⋮----
-// BTCUSDT orderbook updates for spot market
-// https://www.kucoin.com/docs-new/3470221w0
-⋮----
-depth: '5', // 1 / 5 / 50 / increment
-rpiFilter: 0, // 0：Only NoneRPI orders [Default]  1(Only Support Futures)：NoneRPI+ RPI Orders. When rpiFilter=1, "depth" only supports 5/50.
-⋮----
-// BTCUSDT trades for spot market
-// https://www.kucoin.com/docs-new/3470224w0
-
-================
 File: src/lib/websocket/logger.ts
 ================
 /* eslint-disable no-unused-vars */
@@ -7287,6 +6988,302 @@ export interface MessageEventLike<TDataType = string> {
 }
 ⋮----
 export function isMessageEvent(msg: unknown): msg is MessageEventLike
+
+================
+File: examples/WebSockets/ws-private-pro-v2.ts
+================
+import {
+  WebsocketClient,
+  WS_KEY_MAP,
+  WsTopicRequest,
+} from '../../src/index.js';
+// import { DefaultLogger, WebsocketClient } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
+⋮----
+async function start()
+⋮----
+// Optional: inject a custom logger to override internal logging behaviour
+// const logger: typeof DefaultLogger = {
+//   ...DefaultLogger,
+//   trace: (...params) => {
+//     // Simple way to exclude certain messages from trace logs
+//     if (
+//       [
+//         'Sending ping',
+//         // 'Sending upstream ws message: ',
+//         'Received pong',
+//         'Decompressed message event from buffer',
+//       ].includes(params[0])
+//     ) {
+//       return;
+//     }
+//     console.log('trace', JSON.stringify(params, null, 2));
+//   },
+// };
+⋮----
+passphrase: process.env.API_PASSPHRASE || 'apiPassPhraseHere', // This is NOT your account password
+⋮----
+// logger,
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// throw new Error('res?');
+⋮----
+/**
+   * The below examples demonstrate consuming private V2 (Pro) WebSocket topics.
+   * For V1 private WebSocket examples, see ws-private-spot-v1.ts and ws-private-futures-v1.ts
+   */
+⋮----
+// Optional: await a connection to be ready before subscribing (this is not necessary)
+// await client.connect(WS_KEY_MAP.privateProV2);
+// console.log('connected');
+⋮----
+/**
+     * Structure your requests into the following format. The below example will be sent as per the example in the docs. The parameters are automatically merged into the request. Just follow the example below:
+     * {
+     *   "id": "1545910660739", // OPTIONAL
+     *   "action": "SUBSCRIBE", // or UNSUBSCRIBE
+     *   "channel":"orderAll", //
+     *   "tradeType": "SPOT" // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
+     * }
+     *
+     * https://www.kucoin.com/docs-new/3470228w0
+     */
+⋮----
+/**
+       * Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
+       * For more info on parameters, see: https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
+       */
+⋮----
+tradeType: 'SPOT', // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
+⋮----
+// Or, subscribe to multiple topics at once:
+⋮----
+// Other markets for orderAll topic:
+// https://www.kucoin.com/docs-new/3470228w0
+⋮----
+tradeType: 'FUTURES', // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
+⋮----
+// Specific order updates for a given symbol:
+// https://www.kucoin.com/docs-new/3470228w0
+⋮----
+tradeType: 'SPOT', // SPOT / FUTURES / ISOLATED / CROSS / UNIFIED
+⋮----
+// Futures positions:
+// https://www.kucoin.com/docs-new/3470233w0
+⋮----
+tradeType: 'FUTURES', //  FUTURES / UNIFIED
+⋮----
+tradeType: 'FUTURES', //  FUTURES / UNIFIED
+⋮----
+// Account balance updates:
+// https://www.kucoin.com/docs-new/3470231w0
+⋮----
+accountType: 'TRADING', // TRADING / ISOLATED / CROSS / FUTURES / UNIFIED
+⋮----
+// Execution/trade updates:
+// https://www.kucoin.com/docs-new/3470232w0
+⋮----
+tradeType: 'SPOT', // SPOT / ISOLATED / CROSS / FUTURES / UNIFIED
+⋮----
+// Liquidation warnings:
+// https://www.kucoin.com/docs-new/3470236w0
+⋮----
+// Leverage updates:
+// https://www.kucoin.com/docs-new/3470237w0
+
+================
+File: examples/WebSockets/ws-public-futures-pro-v2.ts
+================
+/* eslint-disable no-unused-vars */
+import {
+  WebsocketClient,
+  WS_KEY_MAP,
+  WsTopicRequest,
+} from '../../src/index.js';
+// import { DefaultLogger, WebsocketClient, WsTopicRequest } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
+⋮----
+async function start()
+⋮----
+// Optional: fully customise the logging experience by injecting a custom logger
+// const logger: typeof DefaultLogger = {
+//   ...DefaultLogger,
+//   trace: (...params) => {
+//     if (
+//       [
+//         'Sending ping',
+//         'Sending upstream ws message: ',
+//         'Received pong',
+//         'Decompressed message event from buffer',
+//       ].includes(params[0])
+//     ) {
+//       return;
+//     }
+//     console.log('trace', params);
+//   },
+// };
+⋮----
+// const client = new WebsocketClient({}, logger);
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// throw new Error('res?');
+⋮----
+/**
+   * The following example demonstrates the ways to consume data from the V2 (Pro) WebSockets. For the V1 examples, ws-public-futures-v1.ts
+   */
+⋮----
+// Optional: await a connection to be ready before subscribing (this is not necessary)
+// await client.connect(WS_KEY_MAP.futuresPublicProV2);
+⋮----
+/**
+     * Structure your requests into the following format. The below example will be sent as per the example in the docs. The parameters are automatically merged into the request. Just follow the example below:
+     * {
+     *    "id": "1545910660739", // automatically generated by SDK
+     *    "action": "SUBSCRIBE", // automatically added by SDK
+     *    "channel":"kline",
+     *    "tradeType": "FUTURES",       // SPOT / FUTURES
+     *    "symbol": "XBTUSDTM",
+     *    "interval": "1min"
+     * }
+     *
+     * https://www.kucoin.com/docs-new/3470223w0
+     */
+⋮----
+/**
+       * Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
+       * For more info on parameters, see: https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
+       */
+⋮----
+// this needs to match the WsKey below.
+// tradeType: SPOT ==> spotPublicProV2
+// tradeType: FUTURES ==> futuresPublicProV2
+⋮----
+/**
+     * Or, send an array of structured objects with parameters, if you wanted to send multiple in one request
+     *
+     */
+⋮----
+// BTCUSDT tickers for FUTURES market
+// https://www.kucoin.com/docs-new/3470222w0
+⋮----
+// BTCUSDT orderbook updates for FUTURES market
+// https://www.kucoin.com/docs-new/3470221w0
+⋮----
+depth: '5', // 1 / 5 / 50 / increment
+rpiFilter: 0, // 0：Only NoneRPI orders [Default]  1(Only Support Futures)：NoneRPI+ RPI Orders. When rpiFilter=1, "depth" only supports 5/50.
+⋮----
+// BTCUSDT trades for spot market
+// https://www.kucoin.com/docs-new/3470224w0
+
+================
+File: examples/WebSockets/ws-public-spot-pro-v2.ts
+================
+/* eslint-disable no-unused-vars */
+import {
+  WebsocketClient,
+  WS_KEY_MAP,
+  WsTopicRequest,
+} from '../../src/index.js';
+// import { DefaultLogger, WebsocketClient, WsTopicRequest } from 'kucoin-api';
+// normally you should install this module via npm: `npm install kucoin-api`
+⋮----
+async function start()
+⋮----
+// Optional: fully customise the logging experience by injecting a custom logger
+// const logger: typeof DefaultLogger = {
+//   ...DefaultLogger,
+//   trace: (...params) => {
+//     if (
+//       [
+//         'Sending ping',
+//         'Sending upstream ws message: ',
+//         'Received pong',
+//       ].includes(params[0])
+//     ) {
+//       return;
+//     }
+//     console.log('trace', params);
+//   },
+// };
+⋮----
+// const client = new WebsocketClient({}, logger);
+⋮----
+// Data received
+⋮----
+// Something happened, attempting to reconenct
+⋮----
+// Reconnect successful
+⋮----
+// Connection closed. If unexpected, expect reconnect -> reconnected.
+⋮----
+// Reply to a request, e.g. "subscribe"/"unsubscribe"/"authenticate"
+⋮----
+// throw new Error('res?');
+⋮----
+/**
+   * The following example demonstrates the ways to consume data from the V2 (Pro) WebSockets. For the V1 examples, ws-private-spot-v1.ts
+   */
+⋮----
+// Optional: await a connection to be ready before subscribing (this is not necessary)
+// await client.connect(WS_KEY_MAP.spotPublicProV2);
+⋮----
+/**
+     * Structure your requests into the following format. The below example will be sent as per the example in the docs. The parameters are automatically merged into the request. Just follow the example below:
+     * {
+     *    "id": "1545910660739", // automatically generated by SDK
+     *    "action": "SUBSCRIBE", // automatically added by SDK
+     *    "channel":"kline",
+     *    "tradeType": "SPOT",       // SPOT / FUTURES
+     *    "symbol": "BTC-USDT",
+     *    "interval": "1min"
+     * }
+     *
+     * https://www.kucoin.com/docs-new/3470223w0
+     */
+⋮----
+/**
+       * Anything in the payload will be merged into the subscribe "request", allowing you to send misc parameters supported by the exchange.
+       * For more info on parameters, see: https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
+       */
+⋮----
+// this needs to match the WsKey below.
+// tradeType: SPOT ==> spotPublicProV2
+// tradeType: FUTURES ==> futuresPublicProV2
+⋮----
+/**
+     * Or, send an array of structured objects with parameters, if you wanted to send multiple in one request
+     *
+     */
+⋮----
+// BTCUSDT tickers for spot market
+// https://www.kucoin.com/docs-new/3470222w0
+⋮----
+// BTCUSDT orderbook updates for spot market
+// https://www.kucoin.com/docs-new/3470221w0
+⋮----
+depth: '5', // 1 / 5 / 50 / increment
+rpiFilter: 0, // 0：Only NoneRPI orders [Default]  1(Only Support Futures)：NoneRPI+ RPI Orders. When rpiFilter=1, "depth" only supports 5/50.
+⋮----
+// BTCUSDT trades for spot market
+// https://www.kucoin.com/docs-new/3470224w0
 
 ================
 File: src/lib/requestUtils.ts
