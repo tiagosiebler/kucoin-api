@@ -36,7 +36,12 @@ export function isDeepObjectMatch(object1: any, object2: any): boolean {
     const value1 = object1[key];
     const value2 = object2[key];
 
-    if (typeof value1 === 'object' && typeof value2 === 'object' && value1 !== null && value2 !== null) {
+    if (
+      typeof value1 === 'object' &&
+      typeof value2 === 'object' &&
+      value1 !== null &&
+      value2 !== null
+    ) {
       if (!isDeepObjectMatch(value1, value2)) {
         return false;
       }

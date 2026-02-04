@@ -1,4 +1,4 @@
-import { isDeepObjectMatch } from '../../src/lib/websocket/WsStore';
+import { isDeepObjectMatch } from '../../src/lib/websocket/WsStore.js';
 
 describe('WsStore', () => {
   describe('isDeepObjectMatch()', () => {
