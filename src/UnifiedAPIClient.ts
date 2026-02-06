@@ -88,14 +88,6 @@ import {
  * that unify market data access across Spot, Futures, and Margin trading.
  */
 export class UnifiedAPIClient extends BaseRestClient {
-  constructor(
-    restClientOptions: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {},
-  ) {
-    super(restClientOptions, requestOptions);
-    return this;
-  }
-
   getClientType(): RestClientType {
     return REST_CLIENT_TYPE_ENUM.unifiedTradingAccount;
   }

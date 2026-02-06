@@ -247,14 +247,6 @@ import { WsConnectionInfo } from './types/response/ws.js';
  *
  */
 export class SpotClient extends BaseRestClient {
-  constructor(
-    restClientOptions: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {},
-  ) {
-    super(restClientOptions, requestOptions);
-    return this;
-  }
-
   getClientType(): RestClientType {
     return REST_CLIENT_TYPE_ENUM.main;
   }

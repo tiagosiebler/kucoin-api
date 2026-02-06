@@ -75,14 +75,6 @@ import { WsConnectionInfo } from './types/response/ws.js';
  *
  */
 export class FuturesClient extends BaseRestClient {
-  constructor(
-    restClientOptions: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {},
-  ) {
-    super(restClientOptions, requestOptions);
-    return this;
-  }
-
   getClientType(): RestClientType {
     return REST_CLIENT_TYPE_ENUM.futures;
   }
