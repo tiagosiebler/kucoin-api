@@ -1,27 +1,37 @@
+import { neverGuard } from './misc-util.js';
+
 /**
  * Used to switch how authentication/requests work under the hood
  */
 export const REST_CLIENT_TYPE_ENUM = {
-  /** Spot & Margin */
+  /** Global & AU: Spot & Margin */
   main: 'main',
-  /** Futures */
+  /** Global & AU: Futures */
   futures: 'futures',
-  /** Broker */
+  /** Global: Broker */
   broker: 'broker',
-  /** Unified Trading Account */
+  /** Global: Unified Trading Account */
   unifiedTradingAccount: 'unifiedTradingAccount',
+  /** Dedicated EU: main (Spot & Margin). No futures at this time. */
+  mainEU: 'mainEU',
 } as const;
 
 export type RestClientType =
   (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
 
-const kucoinURLMap = {
+const kucoinURLMap: Record<RestClientType, string> = {
   [REST_CLIENT_TYPE_ENUM.main]: 'https://api.kucoin.com',
+  // https://www.kucoin.com/en-eu/docs-new/introduction/eu
+  [REST_CLIENT_TYPE_ENUM.mainEU]: 'https://api.kucoin.eu',
   [REST_CLIENT_TYPE_ENUM.futures]: 'https://api-futures.kucoin.com',
   [REST_CLIENT_TYPE_ENUM.broker]: 'https://api-broker.kucoin.com',
   [REST_CLIENT_TYPE_ENUM.unifiedTradingAccount]: 'https://api.kucoin.com',
 } as const;
 
+export type APIRegion = 'global' | 'EU' | 'AU';
+
+// TODO: how can user specify non-global market (e.g. EU or AU)? what did I do for other exchanges?
+// TODO: API calls for AU require extra header (X-SITE-TYPE: australia)
 export interface RestClientOptions {
   /** Your API key */
   apiKey?: string;
@@ -40,6 +50,20 @@ export interface RestClientOptions {
 
   /** The API key version. Defaults to "2" right now. You can see this in your API management page */
   apiKeyVersion?: number | string;
+
+  /**
+   * The API region you would like to work with:
+   * - Global (default)
+   *   - API Docs: https://www.kucoin.com/docs-new/introduction
+   * - EU:
+   *   - API Docs: https://www.kucoin.com/en-eu/docs-new/introduction/eu
+   *   - Behaves the same as global, but keep in mind that futures may not be available at this time for EU users.
+   * - AU:
+   *   - API Docs: https://www.kucoin.com/en-au/docs-new/introduction/au
+   *   - Ensures regional market data is retrieved (e.g. correct trading pairs, correct tickers, etc).
+   *   - Also ensures requests for AU users include the required extra header (X-SITE-TYPE: australia).
+   */
+  apiRegion?: APIRegion;
 
   /** Default: false. If true, we'll throw errors if any params are undefined */
   strictParamValidation?: boolean;
@@ -111,16 +135,48 @@ export const APIIDFuturesSign = '7f7fb0d6-e600-4ef4-8fe3-41e6aea9af84';
 
 export function getRestBaseUrl(
   useTestnet: boolean,
-  restInverseOptions: RestClientOptions,
+  restOptions: RestClientOptions,
   restClientType: RestClientType,
 ): string {
+  let resolvedClientType = restClientType;
+
+  // Override to EU URL for EU regional users
+  if (restOptions.apiRegion === 'EU') {
+    switch (restClientType) {
+      case REST_CLIENT_TYPE_ENUM.main:
+      case REST_CLIENT_TYPE_ENUM.mainEU: {
+        resolvedClientType = REST_CLIENT_TYPE_ENUM.mainEU;
+        break;
+      }
+      case REST_CLIENT_TYPE_ENUM.futures: {
+        console.warn(
+          'Futures market is not available for EU users at this time. API requests may not function as expected',
+        );
+        break;
+      }
+      case REST_CLIENT_TYPE_ENUM.broker: {
+        break;
+      }
+      case REST_CLIENT_TYPE_ENUM.unifiedTradingAccount: {
+        resolvedClientType = REST_CLIENT_TYPE_ENUM.mainEU;
+        break;
+      }
+      default: {
+        throw neverGuard(
+          restClientType,
+          `Unhandled REST Client Type "${restClientType}"`,
+        );
+      }
+    }
+  }
+
   const exchangeBaseUrls = {
-    livenet: kucoinURLMap[restClientType],
+    livenet: kucoinURLMap[resolvedClientType],
     testnet: 'https://noTestnet',
   };
 
-  if (restInverseOptions.baseUrl) {
-    return restInverseOptions.baseUrl;
+  if (restOptions.baseUrl) {
+    return restOptions.baseUrl;
   }
 
   if (useTestnet) {

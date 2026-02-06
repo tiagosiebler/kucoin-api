@@ -362,10 +362,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       }
       case WS_KEY_MAP.privateProV2: {
         // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#3-create-connection
-        const baseWSUrl = 'wss://wsapi-push.kucoin.com/?token=';
 
         const connectionInfo = await this.getWSConnectionInfo(wsKey);
 
+        const baseWSUrl = 'wss://wsapi-push.kucoin.com/?token=';
         const connectionUrl = baseWSUrl + connectionInfo.data.token;
         return connectionUrl;
       }

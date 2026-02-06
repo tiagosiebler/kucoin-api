@@ -129,6 +129,14 @@ export abstract class BaseRestClient {
       },
     };
 
+    // If AU market, this ensures market data API calls return correct AU-specific data (e.g. correct trading pairs, tickers, etc).
+    if (restClientOptions.apiRegion === 'AU') {
+      this.globalRequestOptions.headers = {
+        ...this.globalRequestOptions.headers,
+        'X-SITE-TYPE': 'australia',
+      };
+    }
+
     // If enabled, configure a https agent with keepAlive enabled
     // NOTE: This is Node.js-only functionality. In browser environments, this code is skipped
     // as the 'https' module is excluded via webpack fallback configuration.
