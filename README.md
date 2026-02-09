@@ -18,6 +18,9 @@
 
 [1]: https://www.npmjs.com/package/kucoin-api
 
+> [!TIP]
+> Upcoming change: As part of the Siebly.io brand, this SDK will soon be hosted under the [Siebly.io GitHub organisation](https://github.com/sieblyio). The migration is seamless and requires no user changes.
+
 Updated & performant JavaScript & Node.js SDK for the KuCoin REST APIs and WebSockets:
 
 - Professional, robust & performant KuCoin SDK with extensive production use in live trading environments.
@@ -64,6 +67,7 @@ Updated & performant JavaScript & Node.js SDK for the KuCoin REST APIs and WebSo
     - [WebSocket API](#websocket-api)
       - [Event Driven API](#event-driven-api)
       - [Promise Driven API](#async-await-api)
+    - [KuCoin EU & Other Regions](#kucoin-eu--other-regions)
 - [Customise Logging](#customise-logging)
 - [Browser/Frontend Usage](#browserfrontend-usage)
   - [Webpack](#webpack)
@@ -428,6 +432,39 @@ wsClient
   .catch((e) => {
     console.log('Futures order error:', e);
   });
+```
+
+---
+
+## KuCoin EU & Other Regions
+
+Below is an example for using this Node.js, TypeScript & JavaScript SDK for KuCoin's APIs, using an account registered on the KuCoin EU domain:
+
+```typescript
+const client = new SpotClient({
+  apiKey: API_KEY,
+  apiSecret: API_SECRET,
+  apiPassphrase: API_PASSPHRASE,
+  // apiRegion: 'global', // KuCoin.com, the default behaviour. Or 'EU' or 'AU':
+  apiRegion: 'EU', // KuCoin EU,
+  // apiRegion: 'AU', // KuCoin AU
+});
+
+try {
+  const accountSummary = await client.getAccountSummary();
+  console.log('accountSummary ', JSON.stringify(accountSummary, null, 2));
+} catch (e) {
+  console.error('Req error: ', e);
+}
+
+const wsClient = new WebsocketClient({
+  apiKey: account.key,
+  apiSecret: account.secret,
+  apiPassphrase: account.passphrase,
+  apiRegion: 'EU', // for KuCoin EU, or 'global' for KuCoin.com (default) or 'AU' for Australia
+});
+
+// ...
 ```
 
 ---

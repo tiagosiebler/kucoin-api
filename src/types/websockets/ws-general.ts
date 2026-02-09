@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import type { ClientRequestArgs } from 'http';
 import WebSocket from 'isomorphic-ws';
 
-import { RestClientOptions } from '../../lib/requestUtils.js';
+import { APIRegion, RestClientOptions } from '../../lib/requestUtils.js';
 
 /** General configuration for the WebsocketClient */
 export interface WSClientConfigurableOptions {
@@ -14,6 +14,20 @@ export interface WSClientConfigurableOptions {
 
   /** Your API passphrase (can be anything) that you included when creating this API key */
   apiPassphrase?: string;
+
+  /**
+   * The API region you would like to work with:
+   * - Global (default)
+   *   - API Docs: https://www.kucoin.com/docs-new/introduction
+   * - EU:
+   *   - API Docs: https://www.kucoin.com/en-eu/docs-new/introduction/eu
+   *   - Behaves the same as global, but keep in mind that futures may not be available at this time for EU users.
+   * - AU:
+   *   - API Docs: https://www.kucoin.com/en-au/docs-new/introduction/au
+   *   - Ensures regional market data is retrieved (e.g. correct trading pairs, correct tickers, etc).
+   *   - Also ensures requests for AU users include the required extra header (X-SITE-TYPE: australia).
+   */
+  apiRegion?: APIRegion;
 
   /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
   recvWindow?: number;
