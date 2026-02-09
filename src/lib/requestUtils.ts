@@ -69,7 +69,7 @@ export interface RestClientOptions {
   strictParamValidation?: boolean;
 
   /**
-   * Optionally override API protocol + domain
+   * Optionally override API protocol + domain. This will override any domain influence from the apiRegion parameter.
    * e.g baseUrl: 'https://api.kucoin.com'
    **/
   baseUrl?: string;
@@ -140,6 +140,10 @@ export function getRestBaseUrl(
 ): string {
   let resolvedClientType = restClientType;
 
+  if (restOptions.baseUrl) {
+    return restOptions.baseUrl;
+  }
+
   // Override to EU URL for EU regional users
   if (restOptions.apiRegion === 'EU') {
     switch (restClientType) {
@@ -174,10 +178,6 @@ export function getRestBaseUrl(
     livenet: kucoinURLMap[resolvedClientType],
     testnet: 'https://noTestnet',
   };
-
-  if (restOptions.baseUrl) {
-    return restOptions.baseUrl;
-  }
 
   if (useTestnet) {
     return exchangeBaseUrls.testnet;
