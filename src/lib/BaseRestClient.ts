@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 // NOTE: https.Agent is Node.js-only and not available in browser environments
 // Browser builds (via webpack) exclude this module - see webpack.config.js fallback settings
