@@ -1,11 +1,5 @@
-import { AxiosRequestConfig } from 'axios';
-
 import { BaseRestClient } from './lib/BaseRestClient.js';
-import {
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-} from './lib/requestUtils.js';
+import { REST_CLIENT_TYPE_ENUM, RestClientType } from './lib/requestUtils.js';
 import {
   BatchCancelOrdersRequestUTA,
   BatchPlaceOrderRequestUTA,

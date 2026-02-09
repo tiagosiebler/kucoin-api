@@ -30,8 +30,6 @@ const kucoinURLMap: Record<RestClientType, string> = {
 
 export type APIRegion = 'global' | 'EU' | 'AU';
 
-// TODO: how can user specify non-global market (e.g. EU or AU)? what did I do for other exchanges?
-// TODO: API calls for AU require extra header (X-SITE-TYPE: australia)
 export interface RestClientOptions {
   /** Your API key */
   apiKey?: string;
