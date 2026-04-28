@@ -57,7 +57,8 @@ export interface AccountHFMarginTransactions {
   amount: string;
   fee: string;
   balance: string;
-  accountType: 'MARGIN_V2' | 'ISOLATED_V2';
+  /** Migrating from MARGIN_V2/ISOLATED_V2 to MARGIN/ISOLATED per SPOT Margin HF migration */
+  accountType: 'MARGIN' | 'ISOLATED' | 'MARGIN_V2' | 'ISOLATED_V2';
   bizType:
     | 'TRANSFER'
     | 'MARGIN_EXCHANGE'
@@ -238,4 +239,5 @@ export interface ApiKeyInfo {
   createdAt: number; // API key creation timestamp (Unix milliseconds)
   expiredAt?: number | null; // API key expiration timestamp (Unix milliseconds). Returns null if no expiration is set
   thirdPartyApp?: string; // Third-party application name. Returns empty string if not associated with any third-party app
+  siteType?: 'global' | 'turkey' | 'australia' | 'europe' | 'thailand'; // Site Type
 }

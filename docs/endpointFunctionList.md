@@ -51,206 +51,206 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| [getMyIp()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L334) |  | GET | `api/v1/ip` |
-| [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L342) |  | GET | `api/v1/status` |
-| [getAccountSummary()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L357) | :closed_lock_with_key:  | GET | `api/v2/user-info` |
-| [getKYCRegions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L366) | :closed_lock_with_key:  | GET | `api/kyc/regions/v4` |
-| [getApikeyInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L376) | :closed_lock_with_key:  | GET | `api/v1/user/api-key` |
-| [getUserType()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L385) | :closed_lock_with_key:  | GET | `api/v1/hf/accounts/opened` |
-| [getBalances()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L394) | :closed_lock_with_key:  | GET | `api/v1/accounts` |
-| [getAccountDetail()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L405) | :closed_lock_with_key:  | GET | `api/v1/accounts/{accountId}` |
-| [getMarginBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L416) | :closed_lock_with_key:  | GET | `api/v3/margin/accounts` |
-| [getIsolatedMarginBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L427) | :closed_lock_with_key:  | GET | `api/v3/isolated/accounts` |
-| [getTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L440) | :closed_lock_with_key:  | GET | `api/v1/accounts/ledgers` |
-| [getHFTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L452) | :closed_lock_with_key:  | GET | `api/v1/hf/accounts/ledgers` |
-| [getHFMarginTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L464) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/account/ledgers` |
-| [createSubAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L481) | :closed_lock_with_key:  | POST | `api/v2/sub/user/created` |
-| [enableSubAccountMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L493) | :closed_lock_with_key:  | POST | `api/v3/sub/user/margin/enable` |
-| [enableSubAccountFutures()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L503) | :closed_lock_with_key:  | POST | `api/v3/sub/user/futures/enable` |
-| [getSubAccountsV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L512) | :closed_lock_with_key:  | GET | `api/v2/sub/user` |
-| [getSubAccountBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L524) | :closed_lock_with_key:  | GET | `api/v1/sub-accounts/{subUserId}` |
-| [getSubAccountBalancesV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L539) | :closed_lock_with_key:  | GET | `api/v2/sub-accounts` |
-| [createSubAPI()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L557) | :closed_lock_with_key:  | POST | `api/v1/sub/api-key` |
-| [updateSubAPI()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L568) | :closed_lock_with_key:  | POST | `api/v1/sub/api-key/update` |
-| [getSubAPIs()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L580) | :closed_lock_with_key:  | GET | `api/v1/sub/api-key` |
-| [deleteSubAPI()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L592) | :closed_lock_with_key:  | DELETE | `api/v1/sub/api-key` |
-| [createDepositAddressV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L609) | :closed_lock_with_key:  | POST | `api/v3/deposit-address/create` |
-| [getDepositAddressesV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L621) | :closed_lock_with_key:  | GET | `api/v3/deposit-addresses` |
-| [getDeposits()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L635) | :closed_lock_with_key:  | GET | `api/v1/deposits` |
-| [getWithdrawalQuotas()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L652) | :closed_lock_with_key:  | GET | `api/v1/withdrawals/quotas` |
-| [submitWithdrawV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L664) | :closed_lock_with_key:  | POST | `api/v3/withdrawals` |
-| [cancelWithdrawal()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L677) | :closed_lock_with_key:  | DELETE | `api/v1/withdrawals/{withdrawalId}` |
-| [getWithdrawals()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L689) | :closed_lock_with_key:  | GET | `api/v1/withdrawals` |
-| [getWithdrawalById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L700) | :closed_lock_with_key:  | GET | `api/v1/withdrawals/{withdrawalId}` |
-| [getTransferable()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L717) | :closed_lock_with_key:  | GET | `api/v1/accounts/transferable` |
-| [submitFlexTransfer()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L728) | :closed_lock_with_key:  | POST | `api/v3/accounts/universal-transfer` |
-| [getBasicUserFee()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L747) | :closed_lock_with_key:  | GET | `api/v1/base-fee` |
-| [getTradingPairFee()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L763) | :closed_lock_with_key:  | GET | `api/v1/trade-fees` |
-| [getAnnouncements()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L786) |  | GET | `api/v3/announcements` |
-| [getCurrency()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L797) |  | GET | `api/v3/currencies/{currency}` |
-| [getCurrencies()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L809) |  | GET | `api/v3/currencies` |
-| [getSymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L819) |  | GET | `api/v2/symbols/{symbol}` |
-| [getSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L831) |  | GET | `api/v2/symbols` |
-| [getTicker()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L844) |  | GET | `api/v1/market/orderbook/level1` |
-| [getTickers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L853) |  | GET | `api/v1/market/allTickers` |
-| [getTradeHistories()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L864) |  | GET | `api/v1/market/histories` |
-| [getKlines()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L876) |  | GET | `api/v1/market/candles` |
-| [getOrderBookLevel20()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L887) |  | GET | `api/v1/market/orderbook/level2_20` |
-| [getOrderBookLevel100()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L898) |  | GET | `api/v1/market/orderbook/level2_100` |
-| [getFullOrderBook()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L909) | :closed_lock_with_key:  | GET | `api/v3/market/orderbook/level2` |
-| [getCallAuctionPartOrderBook()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L921) |  | GET | `api/v1/market/orderbook/callauction/level2_{size}` |
-| [getCallAuctionInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L938) |  | GET | `api/v1/market/callauctionData` |
-| [getFiatPrice()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L949) |  | GET | `api/v1/prices` |
-| [get24hrStats()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L958) |  | GET | `api/v1/market/stats` |
-| [getMarkets()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L969) |  | GET | `api/v1/markets` |
-| [submitHFOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L986) | :closed_lock_with_key:  | POST | `api/v1/hf/orders` |
-| [submitHFOrderSync()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1002) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/sync` |
-| [submitHFOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1014) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/test` |
-| [submitHFMultipleOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1023) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/multi` |
-| [submitHFMultipleOrdersSync()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1035) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/multi/sync` |
-| [cancelHFOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1047) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/{orderId}` |
-| [cancelHFOrderSync()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1061) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/{orderId}` |
-| [cancelHFOrderByClientOId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1077) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/client-order/{clientOid}` |
-| [cancelHFOrderSyncByClientOId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1097) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/client-order/{clientOid}` |
-| [cancelHFOrdersNumber()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1112) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/cancel/{orderId}` |
-| [cancelHFAllOrdersBySymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1127) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders` |
-| [cancelHFAllOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1138) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/cancelAll` |
-| [updateHFOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1147) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/alter` |
-| [getHFOrderDetailsByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1161) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/{orderId}` |
-| [getHFOrderDetailsByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1173) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/client-order/{clientOid}` |
-| [getHFActiveSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1188) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active/symbols` |
-| [getHFActiveOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1203) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active` |
-| [getHFActiveOrdersPaginated()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1215) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active/page` |
-| [getHFCompletedOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1237) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/done` |
-| [getHFFilledOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1251) | :closed_lock_with_key:  | GET | `api/v1/hf/fills` |
-| [cancelHFOrderAutoSettingQuery()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1266) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/dead-cancel-all/query` |
-| [cancelHFOrderAutoSetting()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1279) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/dead-cancel-all` |
-| [submitStopOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1296) | :closed_lock_with_key:  | POST | `api/v1/stop-order` |
-| [cancelStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1307) | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/cancelOrderByClientOid` |
-| [cancelStopOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1327) | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/{orderId}` |
-| [cancelStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1340) | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/cancel` |
-| [getStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1353) | :closed_lock_with_key:  | GET | `api/v1/stop-order` |
-| [getStopOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1366) | :closed_lock_with_key:  | GET | `api/v1/stop-order/{orderId}` |
-| [getStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1377) | :closed_lock_with_key:  | GET | `api/v1/stop-order/queryOrderByClientOid` |
-| [submitOCOOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1389) | :closed_lock_with_key:  | POST | `api/v3/oco/order` |
-| [cancelOCOOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1402) | :closed_lock_with_key:  | DELETE | `api/v3/oco/order/{orderId}` |
-| [cancelOCOOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1415) | :closed_lock_with_key:  | DELETE | `api/v3/oco/client-order/{clientOid}` |
-| [cancelMultipleOCOOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1428) | :closed_lock_with_key:  | DELETE | `api/v3/oco/orders` |
-| [getOCOOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1444) | :closed_lock_with_key:  | GET | `api/v3/oco/order/{orderId}` |
-| [getOCOOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1455) | :closed_lock_with_key:  | GET | `api/v3/oco/client-order/{clientOid}` |
-| [getOCOOrderDetails()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1466) | :closed_lock_with_key:  | GET | `api/v3/oco/order/details/{orderId}` |
-| [getOCOOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1477) | :closed_lock_with_key:  | GET | `api/v3/oco/orders` |
-| [getMarginActivePairsV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1494) | :closed_lock_with_key:  | GET | `api/v3/margin/symbols` |
-| [getMarginConfigInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1507) |  | GET | `api/v1/margin/config` |
-| [getMarginLeveragedToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1516) | :closed_lock_with_key:  | GET | `api/v3/etf/info` |
-| [getMarginMarkPrices()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1527) |  | GET | `api/v3/mark-price/all-symbols` |
-| [getMarginMarkPrice()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1536) |  | GET | `api/v1/mark-price/{symbol}/current` |
-| [getIsolatedMarginSymbolsConfig()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1547) | :closed_lock_with_key:  | GET | `api/v1/isolated/symbols` |
-| [getMarginCollateralRatio()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1558) |  | GET | `api/v3/margin/collateralRatio` |
-| [getMarketAvailableInventory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1569) |  | GET | `api/v3/margin/available-inventory` |
-| [submitHFMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1586) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/order` |
-| [submitHFMarginOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1597) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/order/test` |
-| [cancelHFMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1608) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/{orderId}` |
-| [cancelHFMarginOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1624) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/client-order/{clientOid}` |
-| [cancelHFAllMarginOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1643) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders` |
-| [getHFMarginOpenSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1655) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/order/active/symbols` |
-| [getHFActiveMarginOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1666) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/active` |
-| [getHFMarginFilledOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1677) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/done` |
-| [getHFMarginFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1691) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/fills` |
-| [getHFMarginOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1705) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/{orderId}` |
-| [getHFMarginOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1717) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/client-order/{clientOid}?symbol={symbol}` |
-| [addMarginStopOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1731) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/stop-order` |
-| [cancelMarginStopOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1742) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/stop-order/cancel-by-id?orderId={orderId}` |
-| [cancelMarginStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1755) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/stop-order/cancel-by-clientOid` |
-| [batchCancelMarginStopOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1769) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/stop-order/cancel` |
-| [getMarginStopOrdersList()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1780) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/stop-orders` |
-| [getMarginStopOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1791) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/stop-order/orderId?orderId={orderId}` |
-| [getMarginStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1804) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/stop-order/clientOid` |
-| [addMarginOcoOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1815) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/oco-order` |
-| [cancelMarginOcoOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1826) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/oco-order/cancel-by-id?orderId={orderId}` |
-| [cancelMarginOcoOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1839) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/oco-order/cancel-by-clientOid` |
-| [batchCancelMarginOcoOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1853) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/oco-order/cancel` |
-| [getMarginOcoOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1864) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/oco-order/clientOid` |
-| [getMarginOcoOrderDetailByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1875) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/oco-order/detail/orderId?orderId={orderId}` |
-| [getBorrowInterestRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1894) | :closed_lock_with_key:  | GET | `api/v3/margin/borrowRate` |
-| [marginBorrowV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1905) | :closed_lock_with_key:  | POST | `api/v3/margin/borrow` |
-| [getMarginBorrowHistoryV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1916) | :closed_lock_with_key:  | GET | `api/v3/margin/borrow` |
-| [marginRepayV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1927) | :closed_lock_with_key:  | POST | `api/v3/margin/repay` |
-| [getMarginRepayHistoryV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1938) | :closed_lock_with_key:  | GET | `api/v3/margin/repay` |
-| [getMarginInterestRecordsV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1949) | :closed_lock_with_key:  | GET | `api/v3/margin/interest` |
-| [updateMarginLeverageV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1960) | :closed_lock_with_key:  | POST | `api/v3/position/update-user-leverage` |
-| [getLendingCurrencyV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1979) |  | GET | `api/v3/project/list` |
-| [getLendingInterestRateV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1990) |  | GET | `api/v3/project/marketInterestRate` |
-| [submitLendingSubscriptionV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2006) | :closed_lock_with_key:  | POST | `api/v3/purchase` |
-| [updateLendingSubscriptionOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2023) | :closed_lock_with_key:  | POST | `api/v3/lend/purchase/update` |
-| [getLendingSubscriptionOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2034) | :closed_lock_with_key:  | GET | `api/v3/purchase/orders` |
-| [submitLendingRedemptionV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2045) | :closed_lock_with_key:  | POST | `api/v3/redeem` |
-| [getLendingRedemptionOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2062) | :closed_lock_with_key:  | GET | `api/v3/redeem/orders` |
-| [getMarginRiskLimitConfig()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2079) | :closed_lock_with_key:  | GET | `api/v3/margin/currencies` |
-| [getConvertSymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2096) |  | GET | `api/v1/convert/symbol` |
-| [getConvertCurrencies()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2107) |  | GET | `api/v1/convert/currencies` |
-| [submitConvertOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2116) | :closed_lock_with_key:  | POST | `api/v1/convert/order` |
-| [getConvertQuote()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2127) | :closed_lock_with_key:  | GET | `api/v1/convert/quote` |
-| [getConvertOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2138) | :closed_lock_with_key:  | GET | `api/v1/convert/order/detail` |
-| [getConvertOrderHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2149) | :closed_lock_with_key:  | GET | `api/v1/convert/order/history` |
-| [submitConvertLimitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2160) | :closed_lock_with_key:  | POST | `api/v1/convert/limit/order` |
-| [getConvertLimitQuote()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2171) | :closed_lock_with_key:  | GET | `api/v1/convert/limit/quote` |
-| [getConvertLimitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2182) | :closed_lock_with_key:  | GET | `api/v1/convert/limit/order/detail` |
-| [getConvertLimitOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2193) | :closed_lock_with_key:  | GET | `api/v1/convert/limit/orders` |
-| [cancelConvertLimitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2204) | :closed_lock_with_key:  | DELETE | `api/v1/convert/limit/order/cancel` |
-| [subscribeEarnFixedIncome()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2222) | :closed_lock_with_key:  | POST | `api/v1/earn/orders` |
-| [getEarnRedeemPreview()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2233) | :closed_lock_with_key:  | GET | `api/v1/earn/redeem-preview` |
-| [submitRedemption()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2244) | :closed_lock_with_key:  | DELETE | `api/v1/earn/orders` |
-| [getEarnSavingsProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2255) | :closed_lock_with_key:  | GET | `api/v1/earn/saving/products` |
-| [getEarnPromotionProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2266) | :closed_lock_with_key:  | GET | `api/v1/earn/promotion/products` |
-| [getEarnFixedIncomeHoldAssets()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2277) | :closed_lock_with_key:  | GET | `api/v1/earn/hold-assets` |
-| [getEarnStakingProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2288) | :closed_lock_with_key:  | GET | `api/v1/earn/staking/products` |
-| [getEarnKcsStakingProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2300) | :closed_lock_with_key:  | GET | `api/v1/earn/kcs-staking/products` |
-| [getEarnEthStakingProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2312) | :closed_lock_with_key:  | GET | `api/v1/earn/eth-staking/products` |
-| [submitStructuredProductPurchase()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2329) | :closed_lock_with_key:  | POST | `api/v1/struct-earn/orders` |
-| [getDualInvestmentProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2340) |  | GET | `api/v1/struct-earn/dual/products` |
-| [getStructuredProductOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2351) | :closed_lock_with_key:  | GET | `api/v1/struct-earn/orders` |
-| [getDiscountRateConfigs()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2369) | :closed_lock_with_key:  | GET | `api/v1/otc-loan/discount-rate-configs` |
-| [getOtcLoan()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2380) | :closed_lock_with_key:  | GET | `api/v1/otc-loan/loan` |
-| [getOtcLoanAccounts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2389) | :closed_lock_with_key:  | GET | `api/v1/otc-loan/accounts` |
-| [getAffiliateUserRebateInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2405) | :closed_lock_with_key:  | GET | `api/v2/affiliate/inviter/statistics` |
-| [getAffiliateInvitees()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2414) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryInvitees` |
-| [getAffiliateCommission()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2425) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryMyCommission` |
-| [getAffiliateTradeHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2436) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryTransactionByUid` |
-| [getAffiliateTransaction()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2447) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryTransactionByTime` |
-| [getKumining()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2458) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryKumining` |
-| [getBrokerRebateOrderDownloadLink()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2476) | :closed_lock_with_key:  | GET | `api/v1/broker/api/rebase/download` |
-| [getBrokerRebateOrderDownloadLinkV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2489) | :closed_lock_with_key:  | GET | `api/v2/broker/api/rebase/download` |
-| [getPublicWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2506) |  | POST | `api/v1/bullet-public` |
-| [getPrivateWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2513) | :closed_lock_with_key:  | POST | `api/v1/bullet-private` |
-| [getPrivateWSConnectionTokenV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2521) | :closed_lock_with_key:  | POST | `api/v2/bullet-private` |
-| [getSubAccountsV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2543) | :closed_lock_with_key:  | GET | `api/v1/sub/user` |
-| [getSubAccountBalancesV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2551) | :closed_lock_with_key:  | GET | `api/v1/sub-accounts` |
-| [getMarginBalances()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2565) | :closed_lock_with_key:  | GET | `api/v1/margin/account` |
-| [createDepositAddress()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2583) | :closed_lock_with_key:  | POST | `api/v1/deposit-addresses` |
-| [getDepositAddressesV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2593) | :closed_lock_with_key:  | GET | `api/v2/deposit-addresses` |
-| [getDepositAddressV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2602) | :closed_lock_with_key:  | GET | `api/v1/deposit-addresses` |
-| [getHistoricalDepositsV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2613) | :closed_lock_with_key:  | GET | `api/v1/hist-deposits` |
-| [getHistoricalWithdrawalsV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2629) | :closed_lock_with_key:  | GET | `api/v1/hist-withdrawals` |
-| [submitWithdraw()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2638) | :closed_lock_with_key:  | POST | `api/v1/withdrawals` |
-| [submitTransferMasterSub()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2654) | :closed_lock_with_key:  | POST | `api/v2/accounts/sub-transfer` |
-| [submitInnerTransfer()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2666) | :closed_lock_with_key:  | POST | `api/v2/accounts/inner-transfer` |
-| [submitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2684) | :closed_lock_with_key:  | POST | `api/v1/orders` |
-| [submitOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2696) | :closed_lock_with_key:  | POST | `api/v1/orders/test` |
-| [submitMultipleOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2704) | :closed_lock_with_key:  | POST | `api/v1/orders/multi` |
-| [cancelOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2715) | :closed_lock_with_key:  | DELETE | `api/v1/orders/{orderId}` |
-| [cancelOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2727) | :closed_lock_with_key:  | DELETE | `api/v1/order/client-order/{clientOid}` |
-| [cancelAllOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2740) | :closed_lock_with_key:  | DELETE | `api/v1/orders` |
-| [getOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2752) | :closed_lock_with_key:  | GET | `api/v1/orders` |
-| [getRecentOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2762) | :closed_lock_with_key:  | GET | `api/v1/limit/orders` |
-| [getOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2773) | :closed_lock_with_key:  | GET | `api/v1/orders/{orderId}` |
-| [getOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2783) | :closed_lock_with_key:  | GET | `api/v1/order/client-order/{clientOid}` |
-| [getFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2799) | :closed_lock_with_key:  | GET | `api/v1/fills` |
-| [getRecentFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2809) | :closed_lock_with_key:  | GET | `api/v1/limit/fills` |
-| [submitMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2823) | :closed_lock_with_key:  | POST | `api/v1/margin/order` |
-| [submitMarginOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2833) | :closed_lock_with_key:  | POST | `api/v1/margin/order/test` |
-| [getIsolatedMarginAccounts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2847) | :closed_lock_with_key:  | GET | `api/v1/isolated/accounts` |
-| [getIsolatedMarginAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2857) | :closed_lock_with_key:  | GET | `api/v1/isolated/account/{symbol}` |
+| [getMyIp()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L321) |  | GET | `api/v1/ip` |
+| [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L329) |  | GET | `api/v1/status` |
+| [getAccountSummary()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L344) | :closed_lock_with_key:  | GET | `api/v2/user-info` |
+| [getKYCRegions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L353) | :closed_lock_with_key:  | GET | `api/kyc/regions/v4` |
+| [getApikeyInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L363) | :closed_lock_with_key:  | GET | `api/v1/user/api-key` |
+| [getUserType()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L372) | :closed_lock_with_key:  | GET | `api/v1/hf/accounts/opened` |
+| [getBalances()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L381) | :closed_lock_with_key:  | GET | `api/v1/accounts` |
+| [getAccountDetail()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L392) | :closed_lock_with_key:  | GET | `api/v1/accounts/{accountId}` |
+| [getMarginBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L403) | :closed_lock_with_key:  | GET | `api/v3/margin/accounts` |
+| [getIsolatedMarginBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L414) | :closed_lock_with_key:  | GET | `api/v3/isolated/accounts` |
+| [getTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L427) | :closed_lock_with_key:  | GET | `api/v1/accounts/ledgers` |
+| [getHFTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L439) | :closed_lock_with_key:  | GET | `api/v1/hf/accounts/ledgers` |
+| [getHFMarginTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L451) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/account/ledgers` |
+| [createSubAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L468) | :closed_lock_with_key:  | POST | `api/v2/sub/user/created` |
+| [enableSubAccountMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L480) | :closed_lock_with_key:  | POST | `api/v3/sub/user/margin/enable` |
+| [enableSubAccountFutures()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L490) | :closed_lock_with_key:  | POST | `api/v3/sub/user/futures/enable` |
+| [getSubAccountsV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L499) | :closed_lock_with_key:  | GET | `api/v2/sub/user` |
+| [getSubAccountBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L511) | :closed_lock_with_key:  | GET | `api/v1/sub-accounts/{subUserId}` |
+| [getSubAccountBalancesV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L526) | :closed_lock_with_key:  | GET | `api/v2/sub-accounts` |
+| [createSubAPI()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L544) | :closed_lock_with_key:  | POST | `api/v1/sub/api-key` |
+| [updateSubAPI()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L555) | :closed_lock_with_key:  | POST | `api/v1/sub/api-key/update` |
+| [getSubAPIs()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L567) | :closed_lock_with_key:  | GET | `api/v1/sub/api-key` |
+| [deleteSubAPI()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L579) | :closed_lock_with_key:  | DELETE | `api/v1/sub/api-key` |
+| [createDepositAddressV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L596) | :closed_lock_with_key:  | POST | `api/v3/deposit-address/create` |
+| [getDepositAddressesV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L608) | :closed_lock_with_key:  | GET | `api/v3/deposit-addresses` |
+| [getDeposits()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L622) | :closed_lock_with_key:  | GET | `api/v1/deposits` |
+| [getWithdrawalQuotas()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L639) | :closed_lock_with_key:  | GET | `api/v1/withdrawals/quotas` |
+| [submitWithdrawV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L651) | :closed_lock_with_key:  | POST | `api/v3/withdrawals` |
+| [cancelWithdrawal()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L664) | :closed_lock_with_key:  | DELETE | `api/v1/withdrawals/{withdrawalId}` |
+| [getWithdrawals()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L676) | :closed_lock_with_key:  | GET | `api/v1/withdrawals` |
+| [getWithdrawalById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L687) | :closed_lock_with_key:  | GET | `api/v1/withdrawals/{withdrawalId}` |
+| [getTransferable()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L705) | :closed_lock_with_key:  | GET | `api/v1/accounts/transferable` |
+| [submitFlexTransfer()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L717) | :closed_lock_with_key:  | POST | `api/v3/accounts/universal-transfer` |
+| [getBasicUserFee()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L736) | :closed_lock_with_key:  | GET | `api/v1/base-fee` |
+| [getTradingPairFee()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L752) | :closed_lock_with_key:  | GET | `api/v1/trade-fees` |
+| [getAnnouncements()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L775) |  | GET | `api/v3/announcements` |
+| [getCurrency()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L786) |  | GET | `api/v3/currencies/{currency}` |
+| [getCurrencies()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L798) |  | GET | `api/v3/currencies` |
+| [getSymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L808) |  | GET | `api/v2/symbols/{symbol}` |
+| [getSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L820) |  | GET | `api/v2/symbols` |
+| [getTicker()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L833) |  | GET | `api/v1/market/orderbook/level1` |
+| [getTickers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L842) |  | GET | `api/v1/market/allTickers` |
+| [getTradeHistories()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L853) |  | GET | `api/v1/market/histories` |
+| [getKlines()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L865) |  | GET | `api/v1/market/candles` |
+| [getOrderBookLevel20()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L876) |  | GET | `api/v1/market/orderbook/level2_20` |
+| [getOrderBookLevel100()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L887) |  | GET | `api/v1/market/orderbook/level2_100` |
+| [getFullOrderBook()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L898) | :closed_lock_with_key:  | GET | `api/v3/market/orderbook/level2` |
+| [getCallAuctionPartOrderBook()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L910) |  | GET | `api/v1/market/orderbook/callauction/level2_{size}` |
+| [getCallAuctionInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L927) |  | GET | `api/v1/market/callauctionData` |
+| [getFiatPrice()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L938) |  | GET | `api/v1/prices` |
+| [get24hrStats()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L947) |  | GET | `api/v1/market/stats` |
+| [getMarkets()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L958) |  | GET | `api/v1/markets` |
+| [submitHFOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L975) | :closed_lock_with_key:  | POST | `api/v1/hf/orders` |
+| [submitHFOrderSync()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L991) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/sync` |
+| [submitHFOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1003) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/test` |
+| [submitHFMultipleOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1012) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/multi` |
+| [submitHFMultipleOrdersSync()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1024) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/multi/sync` |
+| [cancelHFOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1036) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/{orderId}` |
+| [cancelHFOrderSync()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1050) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/{orderId}` |
+| [cancelHFOrderByClientOId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1066) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/client-order/{clientOid}` |
+| [cancelHFOrderSyncByClientOId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1086) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/sync/client-order/{clientOid}` |
+| [cancelHFOrdersNumber()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1101) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/cancel/{orderId}` |
+| [cancelHFAllOrdersBySymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1116) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders` |
+| [cancelHFAllOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1127) | :closed_lock_with_key:  | DELETE | `api/v1/hf/orders/cancelAll` |
+| [updateHFOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1136) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/alter` |
+| [getHFOrderDetailsByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1150) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/{orderId}` |
+| [getHFOrderDetailsByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1162) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/client-order/{clientOid}` |
+| [getHFActiveSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1177) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active/symbols` |
+| [getHFActiveOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1192) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active` |
+| [getHFActiveOrdersPaginated()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1204) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/active/page` |
+| [getHFCompletedOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1226) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/done` |
+| [getHFFilledOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1240) | :closed_lock_with_key:  | GET | `api/v1/hf/fills` |
+| [cancelHFOrderAutoSettingQuery()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1255) | :closed_lock_with_key:  | GET | `api/v1/hf/orders/dead-cancel-all/query` |
+| [cancelHFOrderAutoSetting()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1268) | :closed_lock_with_key:  | POST | `api/v1/hf/orders/dead-cancel-all` |
+| [submitStopOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1285) | :closed_lock_with_key:  | POST | `api/v1/stop-order` |
+| [cancelStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1296) | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/cancelOrderByClientOid` |
+| [cancelStopOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1316) | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/{orderId}` |
+| [cancelStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1329) | :closed_lock_with_key:  | DELETE | `api/v1/stop-order/cancel` |
+| [getStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1342) | :closed_lock_with_key:  | GET | `api/v1/stop-order` |
+| [getStopOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1355) | :closed_lock_with_key:  | GET | `api/v1/stop-order/{orderId}` |
+| [getStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1366) | :closed_lock_with_key:  | GET | `api/v1/stop-order/queryOrderByClientOid` |
+| [submitOCOOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1378) | :closed_lock_with_key:  | POST | `api/v3/oco/order` |
+| [cancelOCOOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1391) | :closed_lock_with_key:  | DELETE | `api/v3/oco/order/{orderId}` |
+| [cancelOCOOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1404) | :closed_lock_with_key:  | DELETE | `api/v3/oco/client-order/{clientOid}` |
+| [cancelMultipleOCOOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1417) | :closed_lock_with_key:  | DELETE | `api/v3/oco/orders` |
+| [getOCOOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1433) | :closed_lock_with_key:  | GET | `api/v3/oco/order/{orderId}` |
+| [getOCOOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1444) | :closed_lock_with_key:  | GET | `api/v3/oco/client-order/{clientOid}` |
+| [getOCOOrderDetails()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1455) | :closed_lock_with_key:  | GET | `api/v3/oco/order/details/{orderId}` |
+| [getOCOOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1466) | :closed_lock_with_key:  | GET | `api/v3/oco/orders` |
+| [getMarginActivePairsV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1483) | :closed_lock_with_key:  | GET | `api/v3/margin/symbols` |
+| [getMarginConfigInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1496) |  | GET | `api/v1/margin/config` |
+| [getMarginLeveragedToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1505) | :closed_lock_with_key:  | GET | `api/v3/etf/info` |
+| [getMarginMarkPrices()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1516) |  | GET | `api/v3/mark-price/all-symbols` |
+| [getMarginMarkPrice()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1525) |  | GET | `api/v1/mark-price/{symbol}/current` |
+| [getIsolatedMarginSymbolsConfig()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1536) | :closed_lock_with_key:  | GET | `api/v1/isolated/symbols` |
+| [getMarginCollateralRatio()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1547) |  | GET | `api/v3/margin/collateralRatio` |
+| [getMarketAvailableInventory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1558) |  | GET | `api/v3/margin/available-inventory` |
+| [submitHFMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1575) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/order` |
+| [submitHFMarginOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1586) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/order/test` |
+| [cancelHFMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1597) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/{orderId}` |
+| [cancelHFMarginOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1613) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders/client-order/{clientOid}` |
+| [cancelHFAllMarginOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1632) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/orders` |
+| [getHFMarginOpenSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1644) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/order/active/symbols` |
+| [getHFActiveMarginOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1655) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/active` |
+| [getHFMarginFilledOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1666) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/done` |
+| [getHFMarginFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1680) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/fills` |
+| [getHFMarginOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1694) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/{orderId}` |
+| [getHFMarginOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1706) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/orders/client-order/{clientOid}?symbol={symbol}` |
+| [addMarginStopOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1720) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/stop-order` |
+| [cancelMarginStopOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1731) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/stop-order/cancel-by-id?orderId={orderId}` |
+| [cancelMarginStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1744) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/stop-order/cancel-by-clientOid` |
+| [batchCancelMarginStopOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1758) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/stop-order/cancel` |
+| [getMarginStopOrdersList()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1769) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/stop-orders` |
+| [getMarginStopOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1780) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/stop-order/orderId?orderId={orderId}` |
+| [getMarginStopOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1793) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/stop-order/clientOid` |
+| [addMarginOcoOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1804) | :closed_lock_with_key:  | POST | `api/v3/hf/margin/oco-order` |
+| [cancelMarginOcoOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1815) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/oco-order/cancel-by-id?orderId={orderId}` |
+| [cancelMarginOcoOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1828) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/oco-order/cancel-by-clientOid` |
+| [batchCancelMarginOcoOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1842) | :closed_lock_with_key:  | DELETE | `api/v3/hf/margin/oco-order/cancel` |
+| [getMarginOcoOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1853) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/oco-order/clientOid` |
+| [getMarginOcoOrderDetailByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1864) | :closed_lock_with_key:  | GET | `api/v3/hf/margin/oco-order/detail/orderId?orderId={orderId}` |
+| [getBorrowInterestRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1883) | :closed_lock_with_key:  | GET | `api/v3/margin/borrowRate` |
+| [marginBorrowV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1894) | :closed_lock_with_key:  | POST | `api/v3/margin/borrow` |
+| [getMarginBorrowHistoryV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1905) | :closed_lock_with_key:  | GET | `api/v3/margin/borrow` |
+| [marginRepayV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1916) | :closed_lock_with_key:  | POST | `api/v3/margin/repay` |
+| [getMarginRepayHistoryV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1927) | :closed_lock_with_key:  | GET | `api/v3/margin/repay` |
+| [getMarginInterestRecordsV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1938) | :closed_lock_with_key:  | GET | `api/v3/margin/interest` |
+| [updateMarginLeverageV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1949) | :closed_lock_with_key:  | POST | `api/v3/position/update-user-leverage` |
+| [getLendingCurrencyV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1968) |  | GET | `api/v3/project/list` |
+| [getLendingInterestRateV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1979) |  | GET | `api/v3/project/marketInterestRate` |
+| [submitLendingSubscriptionV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L1995) | :closed_lock_with_key:  | POST | `api/v3/purchase` |
+| [updateLendingSubscriptionOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2012) | :closed_lock_with_key:  | POST | `api/v3/lend/purchase/update` |
+| [getLendingSubscriptionOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2023) | :closed_lock_with_key:  | GET | `api/v3/purchase/orders` |
+| [submitLendingRedemptionV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2034) | :closed_lock_with_key:  | POST | `api/v3/redeem` |
+| [getLendingRedemptionOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2051) | :closed_lock_with_key:  | GET | `api/v3/redeem/orders` |
+| [getMarginRiskLimitConfig()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2068) | :closed_lock_with_key:  | GET | `api/v3/margin/currencies` |
+| [getConvertSymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2085) |  | GET | `api/v1/convert/symbol` |
+| [getConvertCurrencies()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2096) |  | GET | `api/v1/convert/currencies` |
+| [submitConvertOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2105) | :closed_lock_with_key:  | POST | `api/v1/convert/order` |
+| [getConvertQuote()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2116) | :closed_lock_with_key:  | GET | `api/v1/convert/quote` |
+| [getConvertOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2127) | :closed_lock_with_key:  | GET | `api/v1/convert/order/detail` |
+| [getConvertOrderHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2138) | :closed_lock_with_key:  | GET | `api/v1/convert/order/history` |
+| [submitConvertLimitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2149) | :closed_lock_with_key:  | POST | `api/v1/convert/limit/order` |
+| [getConvertLimitQuote()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2160) | :closed_lock_with_key:  | GET | `api/v1/convert/limit/quote` |
+| [getConvertLimitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2171) | :closed_lock_with_key:  | GET | `api/v1/convert/limit/order/detail` |
+| [getConvertLimitOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2182) | :closed_lock_with_key:  | GET | `api/v1/convert/limit/orders` |
+| [cancelConvertLimitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2193) | :closed_lock_with_key:  | DELETE | `api/v1/convert/limit/order/cancel` |
+| [subscribeEarnFixedIncome()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2211) | :closed_lock_with_key:  | POST | `api/v1/earn/orders` |
+| [getEarnRedeemPreview()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2222) | :closed_lock_with_key:  | GET | `api/v1/earn/redeem-preview` |
+| [submitRedemption()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2233) | :closed_lock_with_key:  | DELETE | `api/v1/earn/orders` |
+| [getEarnSavingsProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2244) | :closed_lock_with_key:  | GET | `api/v1/earn/saving/products` |
+| [getEarnPromotionProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2255) | :closed_lock_with_key:  | GET | `api/v1/earn/promotion/products` |
+| [getEarnFixedIncomeHoldAssets()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2266) | :closed_lock_with_key:  | GET | `api/v1/earn/hold-assets` |
+| [getEarnStakingProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2277) | :closed_lock_with_key:  | GET | `api/v1/earn/staking/products` |
+| [getEarnKcsStakingProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2289) | :closed_lock_with_key:  | GET | `api/v1/earn/kcs-staking/products` |
+| [getEarnEthStakingProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2301) | :closed_lock_with_key:  | GET | `api/v1/earn/eth-staking/products` |
+| [submitStructuredProductPurchase()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2318) | :closed_lock_with_key:  | POST | `api/v1/struct-earn/orders` |
+| [getDualInvestmentProducts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2329) |  | GET | `api/v1/struct-earn/dual/products` |
+| [getStructuredProductOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2340) | :closed_lock_with_key:  | GET | `api/v1/struct-earn/orders` |
+| [getDiscountRateConfigs()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2358) | :closed_lock_with_key:  | GET | `api/v1/otc-loan/discount-rate-configs` |
+| [getOtcLoan()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2369) | :closed_lock_with_key:  | GET | `api/v1/otc-loan/loan` |
+| [getOtcLoanAccounts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2378) | :closed_lock_with_key:  | GET | `api/v1/otc-loan/accounts` |
+| [getAffiliateUserRebateInfo()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2394) | :closed_lock_with_key:  | GET | `api/v2/affiliate/inviter/statistics` |
+| [getAffiliateInvitees()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2403) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryInvitees` |
+| [getAffiliateCommission()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2414) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryMyCommission` |
+| [getAffiliateTradeHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2425) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryTransactionByUid` |
+| [getAffiliateTransaction()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2436) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryTransactionByTime` |
+| [getKumining()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2447) | :closed_lock_with_key:  | GET | `api/v2/affiliate/queryKumining` |
+| [getBrokerRebateOrderDownloadLink()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2465) | :closed_lock_with_key:  | GET | `api/v1/broker/api/rebase/download` |
+| [getBrokerRebateOrderDownloadLinkV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2478) | :closed_lock_with_key:  | GET | `api/v2/broker/api/rebase/download` |
+| [getPublicWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2495) |  | POST | `api/v1/bullet-public` |
+| [getPrivateWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2502) | :closed_lock_with_key:  | POST | `api/v1/bullet-private` |
+| [getPrivateWSConnectionTokenV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2510) | :closed_lock_with_key:  | POST | `api/v2/bullet-private` |
+| [getSubAccountsV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2532) | :closed_lock_with_key:  | GET | `api/v1/sub/user` |
+| [getSubAccountBalancesV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2540) | :closed_lock_with_key:  | GET | `api/v1/sub-accounts` |
+| [getMarginBalances()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2555) | :closed_lock_with_key:  | GET | `api/v1/margin/account` |
+| [createDepositAddress()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2573) | :closed_lock_with_key:  | POST | `api/v1/deposit-addresses` |
+| [getDepositAddressesV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2583) | :closed_lock_with_key:  | GET | `api/v2/deposit-addresses` |
+| [getDepositAddressV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2592) | :closed_lock_with_key:  | GET | `api/v1/deposit-addresses` |
+| [getHistoricalDepositsV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2603) | :closed_lock_with_key:  | GET | `api/v1/hist-deposits` |
+| [getHistoricalWithdrawalsV1()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2619) | :closed_lock_with_key:  | GET | `api/v1/hist-withdrawals` |
+| [submitWithdraw()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2628) | :closed_lock_with_key:  | POST | `api/v1/withdrawals` |
+| [submitTransferMasterSub()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2644) | :closed_lock_with_key:  | POST | `api/v2/accounts/sub-transfer` |
+| [submitInnerTransfer()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2656) | :closed_lock_with_key:  | POST | `api/v2/accounts/inner-transfer` |
+| [submitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2674) | :closed_lock_with_key:  | POST | `api/v1/orders` |
+| [submitOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2686) | :closed_lock_with_key:  | POST | `api/v1/orders/test` |
+| [submitMultipleOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2694) | :closed_lock_with_key:  | POST | `api/v1/orders/multi` |
+| [cancelOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2705) | :closed_lock_with_key:  | DELETE | `api/v1/orders/{orderId}` |
+| [cancelOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2717) | :closed_lock_with_key:  | DELETE | `api/v1/order/client-order/{clientOid}` |
+| [cancelAllOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2730) | :closed_lock_with_key:  | DELETE | `api/v1/orders` |
+| [getOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2742) | :closed_lock_with_key:  | GET | `api/v1/orders` |
+| [getRecentOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2752) | :closed_lock_with_key:  | GET | `api/v1/limit/orders` |
+| [getOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2763) | :closed_lock_with_key:  | GET | `api/v1/orders/{orderId}` |
+| [getOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2773) | :closed_lock_with_key:  | GET | `api/v1/order/client-order/{clientOid}` |
+| [getFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2789) | :closed_lock_with_key:  | GET | `api/v1/fills` |
+| [getRecentFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2799) | :closed_lock_with_key:  | GET | `api/v1/limit/fills` |
+| [submitMarginOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2814) | :closed_lock_with_key:  | POST | `api/v1/margin/order` |
+| [submitMarginOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2825) | :closed_lock_with_key:  | POST | `api/v1/margin/order/test` |
+| [getIsolatedMarginAccounts()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2840) | :closed_lock_with_key:  | GET | `api/v1/isolated/accounts` |
+| [getIsolatedMarginAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/SpotClient.ts#L2851) | :closed_lock_with_key:  | GET | `api/v1/isolated/account/{symbol}` |
 
 # FuturesClient.ts
 
@@ -258,88 +258,88 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| [getBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L110) | :closed_lock_with_key:  | GET | `api/v1/account-overview` |
-| [getTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L120) | :closed_lock_with_key:  | GET | `api/v1/transaction-history` |
-| [getSubBalances()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L139) | :closed_lock_with_key:  | GET | `api/v1/account-overview-all` |
-| [getTradingPairFee()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L158) | :closed_lock_with_key:  | GET | `api/v1/trade-fees` |
-| [getSymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L179) |  | GET | `api/v1/contracts/{symbol}` |
-| [getSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L190) |  | GET | `api/v1/contracts/active` |
-| [getTicker()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L198) |  | GET | `api/v1/ticker` |
-| [getTickers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L208) |  | GET | `api/v1/allTickers` |
-| [getFullOrderBookLevel2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L216) |  | GET | `api/v1/level2/snapshot` |
-| [getPartOrderBookLevel2Depth20()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L226) |  | GET | `api/v1/level2/depth20` |
-| [getPartOrderBookLevel2Depth100()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L236) |  | GET | `api/v1/level2/depth100` |
-| [getMarketTrades()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L246) |  | GET | `api/v1/trade/history` |
-| [getKlines()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L256) |  | GET | `api/v1/kline/query` |
-| [getMarkPrice()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L266) |  | GET | `api/v1/mark-price/{symbol}/current` |
-| [getIndex()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L276) |  | GET | `api/v1/index/query` |
-| [getInterestRates()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L289) |  | GET | `api/v1/interest/query` |
-| [getPremiumIndex()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L302) |  | GET | `api/v1/premium/query` |
-| [get24HourTransactionVolume()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L315) |  | GET | `api/v1/trade-statistics` |
-| [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L335) |  | GET | `api/v1/status` |
-| [submitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L349) | :closed_lock_with_key:  | POST | `api/v1/orders` |
-| [submitNewOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L362) | :closed_lock_with_key:  | POST | `api/v1/orders/test` |
-| [submitMultipleOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L373) | :closed_lock_with_key:  | POST | `api/v1/orders/multi` |
-| [submitSLTPOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L383) | :closed_lock_with_key:  | POST | `api/v1/st-orders` |
-| [cancelOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L396) | :closed_lock_with_key:  | DELETE | `api/v1/orders/{orderId}` |
-| [cancelOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L406) | :closed_lock_with_key:  | DELETE | `api/v1/orders/client-order/{clientOid}` |
-| [batchCancelOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L420) | :closed_lock_with_key:  | DELETE | `api/v1/orders/multi-cancel` |
-| [cancelAllOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L430) | :closed_lock_with_key:  | DELETE | `api/v3/orders` |
-| [cancelAllStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L440) | :closed_lock_with_key:  | DELETE | `api/v1/stopOrders` |
-| [getOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L450) | :closed_lock_with_key:  | GET | `api/v1/orders/{orderId}` |
-| [getOrderByClientOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L460) | :closed_lock_with_key:  | GET | `api/v1/orders/byClientOid` |
-| [getOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L470) | :closed_lock_with_key:  | GET | `api/v1/orders` |
-| [getRecentOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L480) | :closed_lock_with_key:  | GET | `api/v1/recentDoneOrders` |
-| [getStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L490) | :closed_lock_with_key:  | GET | `api/v1/stopOrders` |
-| [getOpenOrderStatistics()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L500) | :closed_lock_with_key:  | GET | `api/v1/openOrderStatistics` |
-| [getRecentFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L510) | :closed_lock_with_key:  | GET | `api/v1/recentFills` |
-| [getFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L521) | :closed_lock_with_key:  | GET | `api/v1/fills` |
-| [getMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L537) | :closed_lock_with_key:  | GET | `api/v2/position/getMarginMode` |
-| [updateMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L550) | :closed_lock_with_key:  | POST | `api/v2/position/changeMarginMode` |
-| [batchSwitchMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L566) | :closed_lock_with_key:  | POST | `api/v2/position/batchChangeMarginMode` |
-| [getMaxOpenSize()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L577) | :closed_lock_with_key:  | GET | `api/v2/getMaxOpenSize` |
-| [getPosition()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L588) | :closed_lock_with_key:  | GET | `api/v1/position` |
-| [getPositionV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L598) | :closed_lock_with_key:  | GET | `api/v2/position` |
-| [getPositions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L608) | :closed_lock_with_key:  | GET | `api/v1/positions` |
-| [getHistoryPositions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L618) | :closed_lock_with_key:  | GET | `api/v1/history-positions` |
-| [getMaxWithdrawMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L632) | :closed_lock_with_key:  | GET | `api/v1/margin/maxWithdrawMargin` |
-| [getCrossMarginLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L642) | :closed_lock_with_key:  | GET | `api/v2/getCrossUserLeverage` |
-| [changeCrossMarginLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L655) | :closed_lock_with_key:  | POST | `api/v2/changeCrossUserLeverage` |
-| [depositMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L671) | :closed_lock_with_key:  | POST | `api/v1/position/margin/deposit-margin` |
-| [getCrossMarginRiskLimit()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L683) | :closed_lock_with_key:  | GET | `api/v2/batchGetCrossOrderLimit` |
-| [withdrawMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L695) | :closed_lock_with_key:  | POST | `api/v1/margin/withdrawMargin` |
-| [getCrossMarginRequirement()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L706) | :closed_lock_with_key:  | GET | `api/v2/getCrossModeMarginRequirement` |
-| [getRiskLimitLevel()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L718) | :closed_lock_with_key:  | GET | `api/v1/contracts/risk-limit/{symbol}` |
-| [updateRiskLimitLevel()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L728) | :closed_lock_with_key:  | POST | `api/v1/position/risk-limit-level/change` |
-| [getPositionMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L739) | :closed_lock_with_key:  | GET | `api/v2/position/getPositionMode` |
-| [updatePositionMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L747) | :closed_lock_with_key:  | POST | `api/v2/position/switchPositionMode` |
-| [getFundingRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L765) | :closed_lock_with_key:  | GET | `api/v1/funding-rate/{symbol}/current` |
-| [getFundingRates()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L775) | :closed_lock_with_key:  | GET | `api/v1/contract/funding-rates` |
-| [getFundingHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L785) | :closed_lock_with_key:  | GET | `api/v1/funding-history` |
-| [submitCopyTradeOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L805) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/orders` |
-| [submitCopyTradeOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L820) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/orders/test` |
-| [submitCopyTradeSLTPOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L834) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/st-orders` |
-| [cancelCopyTradeOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L847) | :closed_lock_with_key:  | DELETE | `api/v1/copy-trade/futures/orders` |
-| [cancelCopyTradeOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L857) | :closed_lock_with_key:  | DELETE | `api/v1/copy-trade/futures/orders/client-order` |
-| [getCopyTradeMaxOpenSize()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L871) | :closed_lock_with_key:  | GET | `api/v1/copy-trade/futures/get-max-open-size` |
-| [getCopyTradeMaxWithdrawMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L892) | :closed_lock_with_key:  | GET | `api/v1/copy-trade/futures/position/margin/max-withdraw-margin` |
-| [addCopyTradeIsolatedMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L906) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/margin/deposit-margin` |
-| [removeCopyTradeIsolatedMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L922) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/margin/withdraw-margin` |
-| [modifyCopyTradeRiskLimitLevel()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L938) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/risk-limit-level/change` |
-| [updateCopyTradeAutoDepositStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L953) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/margin/auto-deposit-status` |
-| [switchCopyTradeMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L968) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/changeMarginMode` |
-| [updateCopyTradeCrossMarginLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L981) | :closed_lock_with_key:  | POST | `api/v2/copy-trade/futures/changeCrossUserLeverage` |
-| [getCopyTradeCrossMarginRequirement()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L994) | :closed_lock_with_key:  | POST | `api/v2/copy-trade/getCrossModeMarginRequirement` |
-| [switchCopyTradePositionMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1008) | :closed_lock_with_key:  | POST | `api/v2/copy-trade/position/switchPositionMode` |
-| [getBrokerRebateOrderDownloadLink()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1028) | :closed_lock_with_key:  | GET | `api/v1/broker/api/rebase/download` |
-| [getBrokerRebateOrderDownloadLinkV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1041) | :closed_lock_with_key:  | GET | `api/v2/broker/api/rebase/download` |
-| [getPublicWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1058) |  | POST | `api/v1/bullet-public` |
-| [getPrivateWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1065) | :closed_lock_with_key:  | POST | `api/v1/bullet-private` |
-| [getPrivateWSConnectionTokenV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1073) | :closed_lock_with_key:  | POST | `api/v2/bullet-private` |
-| [submitTransferOut()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1088) | :closed_lock_with_key:  | POST | `api/v3/transfer-out` |
-| [submitTransferIn()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1099) | :closed_lock_with_key:  | POST | `api/v1/transfer-in` |
-| [getTransfers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1110) | :closed_lock_with_key:  | GET | `api/v1/transfer-list` |
-| [updateAutoDepositStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1125) | :closed_lock_with_key:  | POST | `api/v1/position/margin/auto-deposit-status` |
+| [getBalance()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L97) | :closed_lock_with_key:  | GET | `api/v1/account-overview` |
+| [getTransactions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L107) | :closed_lock_with_key:  | GET | `api/v1/transaction-history` |
+| [getSubBalances()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L126) | :closed_lock_with_key:  | GET | `api/v1/account-overview-all` |
+| [getTradingPairFee()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L145) | :closed_lock_with_key:  | GET | `api/v1/trade-fees` |
+| [getSymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L166) |  | GET | `api/v1/contracts/{symbol}` |
+| [getSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L177) |  | GET | `api/v1/contracts/active` |
+| [getTicker()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L185) |  | GET | `api/v1/ticker` |
+| [getTickers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L195) |  | GET | `api/v1/allTickers` |
+| [getFullOrderBookLevel2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L203) |  | GET | `api/v1/level2/snapshot` |
+| [getPartOrderBookLevel2Depth20()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L213) |  | GET | `api/v1/level2/depth20` |
+| [getPartOrderBookLevel2Depth100()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L223) |  | GET | `api/v1/level2/depth100` |
+| [getMarketTrades()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L233) |  | GET | `api/v1/trade/history` |
+| [getKlines()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L243) |  | GET | `api/v1/kline/query` |
+| [getMarkPrice()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L253) |  | GET | `api/v1/mark-price/{symbol}/current` |
+| [getIndex()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L263) |  | GET | `api/v1/index/query` |
+| [getInterestRates()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L276) |  | GET | `api/v1/interest/query` |
+| [getPremiumIndex()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L289) |  | GET | `api/v1/premium/query` |
+| [get24HourTransactionVolume()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L302) |  | GET | `api/v1/trade-statistics` |
+| [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L322) |  | GET | `api/v1/status` |
+| [submitOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L336) | :closed_lock_with_key:  | POST | `api/v1/orders` |
+| [submitNewOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L349) | :closed_lock_with_key:  | POST | `api/v1/orders/test` |
+| [submitMultipleOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L360) | :closed_lock_with_key:  | POST | `api/v1/orders/multi` |
+| [submitSLTPOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L370) | :closed_lock_with_key:  | POST | `api/v1/st-orders` |
+| [cancelOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L383) | :closed_lock_with_key:  | DELETE | `api/v1/orders/{orderId}` |
+| [cancelOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L393) | :closed_lock_with_key:  | DELETE | `api/v1/orders/client-order/{clientOid}` |
+| [batchCancelOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L407) | :closed_lock_with_key:  | DELETE | `api/v1/orders/multi-cancel` |
+| [cancelAllOrdersV3()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L417) | :closed_lock_with_key:  | DELETE | `api/v3/orders` |
+| [cancelAllStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L427) | :closed_lock_with_key:  | DELETE | `api/v1/stopOrders` |
+| [getOrderByOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L437) | :closed_lock_with_key:  | GET | `api/v1/orders/{orderId}` |
+| [getOrderByClientOrderId()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L447) | :closed_lock_with_key:  | GET | `api/v1/orders/byClientOid` |
+| [getOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L457) | :closed_lock_with_key:  | GET | `api/v1/orders` |
+| [getRecentOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L467) | :closed_lock_with_key:  | GET | `api/v1/recentDoneOrders` |
+| [getStopOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L477) | :closed_lock_with_key:  | GET | `api/v1/stopOrders` |
+| [getOpenOrderStatistics()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L487) | :closed_lock_with_key:  | GET | `api/v1/openOrderStatistics` |
+| [getRecentFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L497) | :closed_lock_with_key:  | GET | `api/v1/recentFills` |
+| [getFills()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L508) | :closed_lock_with_key:  | GET | `api/v1/fills` |
+| [getMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L524) | :closed_lock_with_key:  | GET | `api/v2/position/getMarginMode` |
+| [updateMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L537) | :closed_lock_with_key:  | POST | `api/v2/position/changeMarginMode` |
+| [batchSwitchMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L553) | :closed_lock_with_key:  | POST | `api/v2/position/batchChangeMarginMode` |
+| [getMaxOpenSize()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L564) | :closed_lock_with_key:  | GET | `api/v2/getMaxOpenSize` |
+| [getPosition()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L575) | :closed_lock_with_key:  | GET | `api/v1/position` |
+| [getPositionV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L585) | :closed_lock_with_key:  | GET | `api/v2/position` |
+| [getPositions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L595) | :closed_lock_with_key:  | GET | `api/v1/positions` |
+| [getHistoryPositions()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L605) | :closed_lock_with_key:  | GET | `api/v1/history-positions` |
+| [getMaxWithdrawMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L619) | :closed_lock_with_key:  | GET | `api/v1/margin/maxWithdrawMargin` |
+| [getCrossMarginLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L629) | :closed_lock_with_key:  | GET | `api/v2/getCrossUserLeverage` |
+| [changeCrossMarginLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L642) | :closed_lock_with_key:  | POST | `api/v2/changeCrossUserLeverage` |
+| [depositMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L658) | :closed_lock_with_key:  | POST | `api/v1/position/margin/deposit-margin` |
+| [getCrossMarginRiskLimit()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L670) | :closed_lock_with_key:  | GET | `api/v2/batchGetCrossOrderLimit` |
+| [withdrawMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L682) | :closed_lock_with_key:  | POST | `api/v1/margin/withdrawMargin` |
+| [getCrossMarginRequirement()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L693) | :closed_lock_with_key:  | GET | `api/v2/getCrossModeMarginRequirement` |
+| [getRiskLimitLevel()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L705) | :closed_lock_with_key:  | GET | `api/v1/contracts/risk-limit/{symbol}` |
+| [updateRiskLimitLevel()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L715) | :closed_lock_with_key:  | POST | `api/v1/position/risk-limit-level/change` |
+| [getPositionMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L726) | :closed_lock_with_key:  | GET | `api/v2/position/getPositionMode` |
+| [updatePositionMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L734) | :closed_lock_with_key:  | POST | `api/v2/position/switchPositionMode` |
+| [getFundingRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L752) | :closed_lock_with_key:  | GET | `api/v1/funding-rate/{symbol}/current` |
+| [getFundingRates()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L762) | :closed_lock_with_key:  | GET | `api/v1/contract/funding-rates` |
+| [getFundingHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L772) | :closed_lock_with_key:  | GET | `api/v1/funding-history` |
+| [submitCopyTradeOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L792) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/orders` |
+| [submitCopyTradeOrderTest()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L807) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/orders/test` |
+| [submitCopyTradeSLTPOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L821) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/st-orders` |
+| [cancelCopyTradeOrderById()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L834) | :closed_lock_with_key:  | DELETE | `api/v1/copy-trade/futures/orders` |
+| [cancelCopyTradeOrderByClientOid()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L844) | :closed_lock_with_key:  | DELETE | `api/v1/copy-trade/futures/orders/client-order` |
+| [getCopyTradeMaxOpenSize()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L858) | :closed_lock_with_key:  | GET | `api/v1/copy-trade/futures/get-max-open-size` |
+| [getCopyTradeMaxWithdrawMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L879) | :closed_lock_with_key:  | GET | `api/v1/copy-trade/futures/position/margin/max-withdraw-margin` |
+| [addCopyTradeIsolatedMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L893) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/margin/deposit-margin` |
+| [removeCopyTradeIsolatedMargin()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L909) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/margin/withdraw-margin` |
+| [modifyCopyTradeRiskLimitLevel()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L925) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/risk-limit-level/change` |
+| [updateCopyTradeAutoDepositStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L940) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/margin/auto-deposit-status` |
+| [switchCopyTradeMarginMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L955) | :closed_lock_with_key:  | POST | `api/v1/copy-trade/futures/position/changeMarginMode` |
+| [updateCopyTradeCrossMarginLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L968) | :closed_lock_with_key:  | POST | `api/v2/copy-trade/futures/changeCrossUserLeverage` |
+| [getCopyTradeCrossMarginRequirement()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L981) | :closed_lock_with_key:  | POST | `api/v2/copy-trade/getCrossModeMarginRequirement` |
+| [switchCopyTradePositionMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L995) | :closed_lock_with_key:  | POST | `api/v2/copy-trade/position/switchPositionMode` |
+| [getBrokerRebateOrderDownloadLink()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1015) | :closed_lock_with_key:  | GET | `api/v1/broker/api/rebase/download` |
+| [getBrokerRebateOrderDownloadLinkV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1028) | :closed_lock_with_key:  | GET | `api/v2/broker/api/rebase/download` |
+| [getPublicWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1045) |  | POST | `api/v1/bullet-public` |
+| [getPrivateWSConnectionToken()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1052) | :closed_lock_with_key:  | POST | `api/v1/bullet-private` |
+| [getPrivateWSConnectionTokenV2()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1060) | :closed_lock_with_key:  | POST | `api/v2/bullet-private` |
+| [submitTransferOut()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1075) | :closed_lock_with_key:  | POST | `api/v3/transfer-out` |
+| [submitTransferIn()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1086) | :closed_lock_with_key:  | POST | `api/v1/transfer-in` |
+| [getTransfers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1097) | :closed_lock_with_key:  | GET | `api/v1/transfer-list` |
+| [updateAutoDepositStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/FuturesClient.ts#L1112) | :closed_lock_with_key:  | POST | `api/v1/position/margin/auto-deposit-status` |
 
 # WebsocketAPIClient.ts
 
@@ -365,41 +365,49 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| [getAnnouncements()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L114) |  | GET | `api/ua/v1/market/announcement` |
-| [getCurrency()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L124) |  | GET | `api/ua/v1/market/currency` |
-| [getSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L134) |  | GET | `api/ua/v1/market/instrument` |
-| [getTickers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L144) |  | GET | `api/ua/v1/market/ticker` |
-| [getTrades()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L154) |  | GET | `api/ua/v1/market/trade` |
-| [getOrderBook()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L164) |  | GET | `api/ua/v1/market/orderbook` |
-| [getKlines()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L174) |  | GET | `api/ua/v1/market/kline` |
-| [getCurrentFundingRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L184) |  | GET | `api/ua/v1/market/funding-rate` |
-| [getHistoryFundingRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L194) |  | GET | `api/ua/v1/market/funding-rate-history` |
-| [getCrossMarginConfig()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L204) |  | GET | `api/ua/v1/market/cross-config` |
-| [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L214) |  | GET | `api/ua/v1/server/status` |
-| [getClassicAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L231) | :closed_lock_with_key:  | GET | `api/ua/v1/account/balance` |
-| [getAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L241) | :closed_lock_with_key:  | GET | `api/ua/v1/unified/account/balance` |
-| [getAccountOverview()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L249) | :closed_lock_with_key:  | GET | `api/ua/v1/unified/account/overview` |
-| [getSubAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L259) | :closed_lock_with_key:  | GET | `api/ua/v1/sub-account/balance` |
-| [getTransferQuotas()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L270) | :closed_lock_with_key:  | GET | `api/ua/v1/account/transfer-quota` |
-| [flexTransfer()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L281) | :closed_lock_with_key:  | POST | `api/ua/v1/account/transfer` |
-| [setSubAccountTransferPermission()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L291) | :closed_lock_with_key:  | POST | `api/ua/v1/sub-account/canTransferOut` |
-| [getAccountMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L301) | :closed_lock_with_key:  | GET | `api/ua/v1/account/mode` |
-| [setAccountMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L309) | :closed_lock_with_key:  | POST | `api/ua/v1/account/mode` |
-| [getFeeRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L321) | :closed_lock_with_key:  | GET | `api/ua/v1/user/fee-rate` |
-| [getAccountLedger()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L336) | :closed_lock_with_key:  | GET | `api/ua/v1/account/ledger` |
-| [getInterestHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L350) | :closed_lock_with_key:  | GET | `api/ua/v1/account/interest-history` |
-| [modifyLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L360) | :closed_lock_with_key:  | POST | `api/ua/v1/unified/account/modify-leverage` |
-| [getDepositAddress()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L375) | :closed_lock_with_key:  | GET | `api/ua/v1/asset/deposit/address` |
-| [placeOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L395) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/detail` |
-| [batchPlaceOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L413) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/detail` |
-| [getOrderDetails()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L431) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/detail` |
-| [getOpenOrderList()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L445) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/open-list` |
-| [getOrderHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L459) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/history` |
-| [getTradeHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L472) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/execution` |
-| [cancelOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L484) | :closed_lock_with_key:  | POST | `api/ua/v1/dcp/set` |
-| [batchCancelOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L501) | :closed_lock_with_key:  | POST | `api/ua/v1/dcp/set` |
-| [setDCP()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L519) | :closed_lock_with_key:  | POST | `api/ua/v1/dcp/set` |
-| [getDCP()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L530) | :closed_lock_with_key:  | GET | `api/ua/v1/dcp/query` |
-| [getPositionList()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L547) | :closed_lock_with_key:  | GET | `api/ua/v1/unified/position/open-list` |
-| [getPositionsHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L560) | :closed_lock_with_key:  | GET | `api/ua/v1/position/history` |
-| [getAccountPositionTiers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L571) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/position/tiers` |
+| [getAnnouncements()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L115) |  | GET | `api/ua/v1/market/announcement` |
+| [getCurrency()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L125) |  | GET | `api/ua/v1/market/currency` |
+| [getThirdPartyCustodyCurrencies()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L135) |  | GET | `api/ua/v1/oes/currency` |
+| [getSymbols()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L145) |  | GET | `api/ua/v1/market/instrument` |
+| [getTickers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L155) |  | GET | `api/ua/v1/market/ticker` |
+| [getTrades()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L165) |  | GET | `api/ua/v1/market/trade` |
+| [getOrderBook()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L175) |  | GET | `api/ua/v1/market/orderbook` |
+| [getKlines()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L185) |  | GET | `api/ua/v1/market/kline` |
+| [getCurrentFundingRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L195) |  | GET | `api/ua/v1/market/funding-rate` |
+| [getHistoryFundingRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L205) |  | GET | `api/ua/v1/market/funding-rate-history` |
+| [getCrossMarginConfig()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L215) |  | GET | `api/ua/v1/market/cross-config` |
+| [getBorrowableCurrencies()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L225) |  | GET | `api/ua/v1/market/borrowable-currency` |
+| [getServiceStatus()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L235) |  | GET | `api/ua/v1/server/status` |
+| [getClassicAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L252) | :closed_lock_with_key:  | GET | `api/ua/v1/account/balance` |
+| [getAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L262) | :closed_lock_with_key:  | GET | `api/ua/v1/unified/account/balance` |
+| [getAccountOverview()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L270) | :closed_lock_with_key:  | GET | `api/ua/v1/unified/account/overview` |
+| [getSubAccount()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L280) | :closed_lock_with_key:  | GET | `api/ua/v1/sub-account/balance` |
+| [getTransferQuotas()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L291) | :closed_lock_with_key:  | GET | `api/ua/v1/account/transfer-quota` |
+| [flexTransfer()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L302) | :closed_lock_with_key:  | POST | `api/ua/v1/account/transfer` |
+| [setSubAccountTransferPermission()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L312) | :closed_lock_with_key:  | POST | `api/ua/v1/sub-account/canTransferOut` |
+| [getAccountMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L322) | :closed_lock_with_key:  | GET | `api/ua/v1/account/mode` |
+| [setAccountMode()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L330) | :closed_lock_with_key:  | POST | `api/ua/v1/account/mode` |
+| [getFeeRate()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L342) | :closed_lock_with_key:  | GET | `api/ua/v1/user/fee-rate` |
+| [getAccountLedger()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L357) | :closed_lock_with_key:  | GET | `api/ua/v1/account/ledger` |
+| [getInterestHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L371) | :closed_lock_with_key:  | GET | `api/ua/v1/account/interest-history` |
+| [getBorrowingRatesAndLimits()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L381) | :closed_lock_with_key:  | GET | `api/ua/v1/account/interest-limits` |
+| [modifyLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L391) | :closed_lock_with_key:  | POST | `api/ua/v1/unified/account/modify-leverage` |
+| [modifyMarginCrossLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L404) | :closed_lock_with_key:  | POST | `api/ua/v1/{accountMode}/account/modify-leverage-margin-cross` |
+| [getLeverage()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L418) | :closed_lock_with_key:  | GET | `api/ua/v1/unified/account/leverage` |
+| [getDepositAddress()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L430) | :closed_lock_with_key:  | GET | `api/ua/v1/asset/deposit/address` |
+| [getThirdPartyCustodyQuota()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L440) | :closed_lock_with_key:  | GET | `api/ua/v1/oes/custody-quota` |
+| [placeOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L460) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/detail` |
+| [batchPlaceOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L481) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/detail` |
+| [getOrderDetails()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L499) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/detail` |
+| [getOpenOrderList()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L513) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/open-list` |
+| [getOrderHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L527) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/history` |
+| [getTradeHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L540) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/order/execution` |
+| [cancelOrder()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L552) | :closed_lock_with_key:  | POST | `api/ua/v1/unified/order/cancel-all` |
+| [batchCancelOrders()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L569) | :closed_lock_with_key:  | POST | `api/ua/v1/unified/order/cancel-all` |
+| [batchCancelOrdersBySymbol()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L584) | :closed_lock_with_key:  | POST | `api/ua/v1/unified/order/cancel-all` |
+| [setDCP()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L597) | :closed_lock_with_key:  | POST | `api/ua/v1/dcp/set` |
+| [getDCP()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L608) | :closed_lock_with_key:  | GET | `api/ua/v1/dcp/query` |
+| [getPositionList()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L626) | :closed_lock_with_key:  | GET | `api/ua/v1/unified/position/open-list` |
+| [getPositionsHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L639) | :closed_lock_with_key:  | GET | `api/ua/v1/position/history` |
+| [getPrivateFundingFeeHistory()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L649) | :closed_lock_with_key:  | GET | `api/ua/v1/position/funding-history` |
+| [getAccountPositionTiers()](https://github.com/tiagosiebler/kucoin-api/blob/master/src/UnifiedAPIClient.ts#L660) | :closed_lock_with_key:  | GET | `api/ua/v1/{accountMode}/position/tiers` |

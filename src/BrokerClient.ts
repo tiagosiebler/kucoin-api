@@ -71,7 +71,7 @@ export class BrokerClient extends BaseRestClient {
    *
    * This interface supports the creation of Broker sub-account APIKEY.
    * Supports up to 20 IPs in the whitelist.
-   * Only General, Spot, and Futures permissions can be set.
+   * Permissions: General, Spot, Margin, Futures, InnerTransfer, Transfer, Earn.
    * Label must be between 4 and 32 characters.
    */
   createSubAccountApi(
@@ -97,7 +97,7 @@ export class BrokerClient extends BaseRestClient {
    *
    * This interface supports modifying the Broker's sub-account APIKEY.
    * Supports up to 20 IPs in the whitelist.
-   * Only General, Spot, and Futures permissions can be set.
+   * Permissions: General, Spot, Margin, Futures, InnerTransfer, Transfer, Earn.
    * Label must be between 4 and 32 characters.
    */
   updateSubAccountApi(

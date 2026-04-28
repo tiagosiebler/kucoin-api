@@ -398,7 +398,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Account - Cross Margin
    *
-   * Request via this endpoint to get the info of the cross margin account.
+   * Request cross margin account info. Preferred queryType: MARGIN. MARGIN_V2 phased out gradually.
    */
   getMarginBalance(
     params?: GetMarginBalanceRequest,
@@ -409,7 +409,7 @@ export class SpotClient extends BaseRestClient {
   /**
    * Get Account - Isolated Margin
    *
-   * Request via this endpoint to get the info of the isolated margin account.
+   * Request isolated margin account info. Preferred queryType: ISOLATED. ISOLATED_V2 phased out gradually.
    */
   getIsolatedMarginBalance(
     params?: GetIsolatedMarginBalanceRequest,
@@ -700,6 +700,7 @@ export class SpotClient extends BaseRestClient {
    * Get Transfer Quotas
    *
    * This endpoint returns the transferable balance of a specified account.
+   * Preferred type: MARGIN, ISOLATED. V2 (MARGIN_V2, ISOLATED_V2) phased out gradually.
    */
   getTransferable(
     params: GetTransferableRequest,
@@ -710,7 +711,8 @@ export class SpotClient extends BaseRestClient {
   /**
    * Flex Transfer
    *
-   * This endpoint can be used for transfers between master and sub accounts and inner transfers
+   * Transfers between master/sub accounts and inner transfers.
+   * Preferred account types: MARGIN, ISOLATED. For non-INTERNAL type, use MARGIN/ISOLATED (not MARGIN_V2/ISOLATED_V2).
    */
   submitFlexTransfer(params: FlexTransferRequest): Promise<
     APISuccessResponse<{
@@ -2546,8 +2548,9 @@ export class SpotClient extends BaseRestClient {
    */
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the getMarginBalance() endpoint instead of this endpoint
+   * @deprecated SPOT Margin LF endpoint no longer available (2026.03.04).
+   * Use getMarginBalance() instead.
+   * @see https://www.kucoin.com/announcement/kucoin-margin-notice-250702
    */
   getMarginBalances(): Promise<
     APISuccessResponse<{
@@ -2804,8 +2807,9 @@ export class SpotClient extends BaseRestClient {
    */
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the submitHFMarginOrder() endpoint instead of this endpoint
+   * @deprecated SPOT Margin LF endpoint no longer available (2026.03.04).
+   * Use submitHFMarginOrder() instead.
+   * @see https://www.kucoin.com/announcement/kucoin-margin-notice-250702
    */
   submitMarginOrder(
     params: SubmitMarginOrderRequest,
@@ -2814,8 +2818,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the submitHFMarginOrderTest() endpoint instead of this endpoint
+   * @deprecated SPOT Margin LF endpoint no longer available (2026.03.04).
+   * Use submitHFMarginOrderTest() instead.
+   * @see https://www.kucoin.com/announcement/kucoin-margin-notice-250702
    */
   submitMarginOrderTest(): Promise<any> {
     return this.postPrivate('api/v1/margin/order/test');
@@ -2828,8 +2833,9 @@ export class SpotClient extends BaseRestClient {
    */
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the getMarginBalance() endpoint instead of this endpoint
+   * @deprecated SPOT Margin LF endpoint no longer available (2026.03.04).
+   * Use getIsolatedMarginBalance() instead.
+   * @see https://www.kucoin.com/announcement/kucoin-margin-notice-250702
    */
   getIsolatedMarginAccounts(params?: {
     balanceCurrency?: 'USDT' | 'KCS' | 'BTC';
@@ -2838,8 +2844,9 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
-   * @deprecated This method is deprecated.
-   * It is recommended to use the getIsolatedMarginBalance() endpoint instead of this endpoint
+   * @deprecated SPOT Margin LF endpoint no longer available (2026.03.04).
+   * Use getIsolatedMarginBalance() instead.
+   * @see https://www.kucoin.com/announcement/kucoin-margin-notice-250702
    */
   getIsolatedMarginAccount(params: {
     symbol: string;

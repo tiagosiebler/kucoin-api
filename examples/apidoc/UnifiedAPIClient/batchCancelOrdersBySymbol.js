@@ -12,7 +12,7 @@ const client = new UnifiedAPIClient({
   apiPassphrase: 'apiPassPhraseHere',
 });
 
-client.batchCancelOrders(params)
+client.batchCancelOrdersBySymbol(params)
   .then((response) => {
     console.log(response);
   })

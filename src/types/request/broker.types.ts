@@ -10,7 +10,14 @@ export interface GetBrokerSubAccountsRequest {
   pageSize?: number;
 }
 
-export type BrokerSubAccountPermission = 'general' | 'spot' | 'futures';
+export type BrokerSubAccountPermission =
+  | 'General'
+  | 'Spot'
+  | 'Margin'
+  | 'Futures'
+  | 'InnerTransfer'
+  | 'Transfer'
+  | 'Earn';
 
 export interface CreateBrokerSubAccountApiRequest {
   uid: string;

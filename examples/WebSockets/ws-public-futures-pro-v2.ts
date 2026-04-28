@@ -121,6 +121,13 @@ async function start() {
             symbol: 'XBTUSDTM',
           },
         },
+        {
+          topic: 'ticker',
+          payload: {
+            tradeType: 'FUTURES',
+            symbols: ['ETHUSDTM', 'XRPUSDTM'],
+          },
+        },
         // BTCUSDT orderbook updates for FUTURES market
         // https://www.kucoin.com/docs-new/3470221w0
         {

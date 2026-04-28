@@ -2,7 +2,7 @@ const { UnifiedAPIClient } = require('kucoin-api');
 
   // This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
   // This kucoin API SDK is available on npm via "npm install kucoin-api"
-  // ENDPOINT: api/ua/v1/dcp/set
+  // ENDPOINT: api/ua/v1/unified/order/cancel-all
   // METHOD: POST
   // PUBLIC: NO
 

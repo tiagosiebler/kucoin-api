@@ -111,6 +111,7 @@ export interface FlexTransferRequest {
     | 'TRADE_HF'
     | 'MARGIN_V2'
     | 'ISOLATED_V2'
+    | 'UNIFIED'
     | 'OPTION';
   fromAccountTag?: string;
   type: 'INTERNAL' | 'PARENT_TO_SUB' | 'SUB_TO_PARENT';
@@ -124,6 +125,7 @@ export interface FlexTransferRequest {
     | 'TRADE_HF'
     | 'MARGIN_V2'
     | 'ISOLATED_V2'
+    | 'UNIFIED'
     | 'OPTION';
   toAccountTag?: string;
 }

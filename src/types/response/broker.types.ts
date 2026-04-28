@@ -42,7 +42,15 @@ export interface BrokerSubAccountApi {
   label: string;
   apiKey: string;
   apiVersion: number;
-  permissions: ('General' | 'Spot' | 'Futures')[];
+  permissions: (
+    | 'General'
+    | 'Spot'
+    | 'Margin'
+    | 'Futures'
+    | 'InnerTransfer'
+    | 'Transfer'
+    | 'Earn'
+  )[];
   ipWhitelist: string[];
   createdAt: number;
 }

@@ -120,6 +120,14 @@ async function start() {
             symbol: 'BTC-USDT',
           },
         },
+        // Multi-symbol ticker: use `symbols` instead of `symbol`
+        {
+          topic: 'ticker',
+          payload: {
+            tradeType: 'SPOT',
+            symbols: ['ETH-USDT', 'XRP-USDT'],
+          },
+        },
         // BTCUSDT orderbook updates for spot market
         // https://www.kucoin.com/docs-new/3470221w0
         {
