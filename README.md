@@ -45,6 +45,7 @@ Updated & performant JavaScript & Node.js SDK for the KuCoin REST APIs and WebSo
 - Heavy automated end-to-end testing with real API calls.
 - Proxy support via axios integration.
 - Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+- QuickStart Guide: [Kucoin JavaScript QuickStart Guide](https://siebly.io/sdk/kucoin/javascript)
 
 ## Table of Contents
 
