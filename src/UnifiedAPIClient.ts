@@ -9,6 +9,7 @@ import {
   GetAccountLedgerRequestUTA,
   GetAccountPositionTiersRequestUTA,
   GetAnnouncementsRequestUTA,
+  GetBorrowingRatesAndLimitsRequestUTA,
   GetClassicAccountRequestUTA,
   GetCurrencyRequestUTA,
   GetCurrentFundingRateRequestUTA,
@@ -18,20 +19,25 @@ import {
   GetHistoryFundingRateRequestUTA,
   GetInterestHistoryRequestUTA,
   GetKlinesRequestUTA,
+  GetLeverageRequestUTA,
   GetOpenOrderListRequestUTA,
   GetOrderBookRequestUTA,
   GetOrderDetailsRequestUTA,
   GetOrderHistoryRequestUTA,
   GetPositionListRequestUTA,
   GetPositionsHistoryRequestUTA,
+  GetPrivateFundingFeeHistoryRequestUTA,
   GetServiceStatusRequestUTA,
   GetSubAccountRequestUTA,
   GetSymbolRequestUTA,
+  GetThirdPartyCustodyCurrenciesRequestUTA,
+  GetThirdPartyCustodyQuotaRequestUTA,
   GetTickerRequestUTA,
   GetTradeHistoryRequestUTA,
   GetTradesRequestUTA,
   GetTransferQuotasRequestUTA,
   ModifyLeverageRequestUTA,
+  ModifyMarginCrossLeverageRequestUTA,
   PlaceOrderRequestUTA,
   SetAccountModeRequestUTA,
   SetDCPRequestUTA,
@@ -42,6 +48,7 @@ import {
   BatchCancelOrdersBySymbolResponseUTA,
   BatchCancelOrdersResponseUTA,
   BatchPlaceOrderResponseUTA,
+  BorrowableCurrencyUTA,
   CancelOrderResponseUTA,
   DCPResponseUTA,
   DepositAddressUTA,
@@ -51,6 +58,7 @@ import {
   GetAccountModeResponseUTA,
   GetAccountOverviewResponseUTA,
   GetAnnouncementsResponseUTA,
+  GetBorrowingRatesAndLimitsResponseUTA,
   GetClassicAccountResponseUTA,
   GetCrossMarginConfigResponseUTA,
   GetCurrencyResponseUTA,
@@ -59,10 +67,12 @@ import {
   GetHistoryFundingRateResponseUTA,
   GetInterestHistoryResponseUTA,
   GetKlinesResponseUTA,
+  GetLeverageItemUTA,
   GetOpenOrderListResponseUTA,
   GetOrderBookResponseUTA,
   GetOrderHistoryResponseUTA,
   GetPositionsHistoryResponseUTA,
+  GetPrivateFundingFeeHistoryResponseUTA,
   GetServiceStatusResponseUTA,
   GetSubAccountResponseUTA,
   GetSymbolResponseUTA,
@@ -70,11 +80,14 @@ import {
   GetTradeHistoryResponseUTA,
   GetTradesResponseUTA,
   GetTransferQuotasResponseUTA,
+  ModifyMarginCrossLeverageResponseUTA,
   OrderDetailsUTA,
   PlaceOrderResponseUTA,
   PositionTierUTA,
   PositionUTA,
   SubAccountTransferPermissionUTA,
+  ThirdPartyCustodyCurrencyUTA,
+  ThirdPartyCustodyQuotaUTA,
 } from './types/response/uta-types.js';
 
 /**
@@ -113,6 +126,16 @@ export class UnifiedAPIClient extends BaseRestClient {
     params?: GetCurrencyRequestUTA,
   ): Promise<APISuccessResponse<GetCurrencyResponseUTA>> {
     return this.get('api/ua/v1/market/currency', params);
+  }
+
+  /**
+   * Get Third-Party Custody Currencies
+   * Query settlement currencies supported by third-party (OES) custodian institutions.
+   */
+  getThirdPartyCustodyCurrencies(
+    params?: GetThirdPartyCustodyCurrenciesRequestUTA,
+  ): Promise<APISuccessResponse<ThirdPartyCustodyCurrencyUTA[]>> {
+    return this.get('api/ua/v1/oes/currency', params);
   }
 
   /**
@@ -193,6 +216,16 @@ export class UnifiedAPIClient extends BaseRestClient {
     APISuccessResponse<GetCrossMarginConfigResponseUTA>
   > {
     return this.get('api/ua/v1/market/cross-config');
+  }
+
+  /**
+   * Get Borrowable Currencies
+   * List of borrowable currencies (UTA / public).
+   */
+  getBorrowableCurrencies(): Promise<
+    APISuccessResponse<BorrowableCurrencyUTA[]>
+  > {
+    return this.get('api/ua/v1/market/borrowable-currency');
   }
 
   /**
@@ -342,6 +375,16 @@ export class UnifiedAPIClient extends BaseRestClient {
   }
 
   /**
+   * Get Borrowing Rates and Limits
+   * Hourly/daily rates and borrow limits (UTA).
+   */
+  getBorrowingRatesAndLimits(
+    params: GetBorrowingRatesAndLimitsRequestUTA,
+  ): Promise<APISuccessResponse<GetBorrowingRatesAndLimitsResponseUTA>> {
+    return this.getPrivate('api/ua/v1/account/interest-limits', params);
+  }
+
+  /**
    * Modify Leverage (UTA)
    * This interface supports modify leverage of the specified symbol.
    */
@@ -352,6 +395,30 @@ export class UnifiedAPIClient extends BaseRestClient {
       'api/ua/v1/unified/account/modify-leverage',
       params,
     );
+  }
+
+  /**
+   * Modify Leverage Margin Cross (UTA)
+   * Update leverage for a currency in UTA cross margin.
+   */
+  modifyMarginCrossLeverage(
+    params: ModifyMarginCrossLeverageRequestUTA,
+    accountMode: 'unified' = 'unified',
+  ): Promise<APISuccessResponse<ModifyMarginCrossLeverageResponseUTA>> {
+    return this.postPrivate(
+      `api/ua/v1/${accountMode}/account/modify-leverage-margin-cross`,
+      params,
+    );
+  }
+
+  /**
+   * Get Leverage (UTA)
+   * Query leverage for MARGIN (currency) or FUTURES (symbol).
+   */
+  getLeverage(
+    params: GetLeverageRequestUTA,
+  ): Promise<APISuccessResponse<GetLeverageItemUTA[]>> {
+    return this.getPrivate('api/ua/v1/unified/account/leverage', params);
   }
 
   /**
@@ -367,6 +434,16 @@ export class UnifiedAPIClient extends BaseRestClient {
   }
 
   /**
+   * Get Third-Party Custody Account Currency Limits
+   * OES remaining custody quota per custodian and settlement currency.
+   */
+  getThirdPartyCustodyQuota(
+    params?: GetThirdPartyCustodyQuotaRequestUTA,
+  ): Promise<APISuccessResponse<ThirdPartyCustodyQuotaUTA[]>> {
+    return this.getPrivate('api/ua/v1/oes/custody-quota', params);
+  }
+
+  /**
    *
    * REST - Unified Trading Account - Orders
    *
@@ -378,7 +455,7 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Supports RPI (Retail Price Improvement) orders for Futures as of 2025.01.02.
    * Note: timeInForce supports 'RPI' value for Futures only (Phase 1).
    * Note: For Classic mode, tradeType is required in query param.
-   * Note: For Unified mode, tradeType should not be in query param.
+   * Note: For Unified mode, tradeType is sent in the request body (incl. MARGIN as of 2026.04.19).
    */
   placeOrder(
     params: PlaceOrderRequestUTA,
@@ -389,6 +466,9 @@ export class UnifiedAPIClient extends BaseRestClient {
       accountMode === 'classic'
         ? `api/ua/v1/${accountMode}/order/place?tradeType=${tradeType}`
         : `api/ua/v1/${accountMode}/order/place`;
+    if (accountMode === 'unified') {
+      return this.postPrivate(url, { ...bodyParams, tradeType });
+    }
     return this.postPrivate(url, bodyParams);
   }
 
@@ -541,6 +621,7 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Get Position List (UTA)
    * Get the position details of all open positions.
    * Note: creationTime standardized to nanoseconds as of 2026.01.12.
+   * Note: pageNumber, pageSize query params and liquidationPrice in each position (as of 2026.04.09).
    */
   getPositionList(
     params?: GetPositionListRequestUTA,
@@ -559,6 +640,16 @@ export class UnifiedAPIClient extends BaseRestClient {
     params?: GetPositionsHistoryRequestUTA,
   ): Promise<APISuccessResponse<GetPositionsHistoryResponseUTA>> {
     return this.getPrivate('api/ua/v1/position/history', params);
+  }
+
+  /**
+   * Get Private Funding Fee History
+   * Settled funding fee records for the current account.
+   */
+  getPrivateFundingFeeHistory(
+    params?: GetPrivateFundingFeeHistoryRequestUTA,
+  ): Promise<APISuccessResponse<GetPrivateFundingFeeHistoryResponseUTA>> {
+    return this.getPrivate('api/ua/v1/position/funding-history', params);
   }
 
   /**

@@ -173,6 +173,10 @@ unifiedClient.getHistoryFundingRate({
 
 // Get Cross Margin Config (Spot cross margin)
 unifiedClient.getCrossMarginConfig();
+
+// Borrowable currencies + borrowing rates/limits (UTA)
+unifiedClient.getBorrowableCurrencies();
+unifiedClient.getBorrowingRatesAndLimits({ currency: 'USDT' });
 ```
 
 ### Account
@@ -180,7 +184,7 @@ unifiedClient.getCrossMarginConfig();
 #### Unified and Classic account balance
 
 ```js
-// Get Unified Account (UTA) balance
+// Get Unified Account (UTA) balance — currency rows may include potentialBorrow (2026.04.19)
 unifiedClient.getAccount();
 
 // Get Unified Account overview
@@ -188,7 +192,10 @@ unifiedClient.getAccountOverview();
 
 // Get Classic Account balance (FUNDING, SPOT, FUTURES, CROSS, ISOLATED)
 unifiedClient.getClassicAccount({ accountType: 'SPOT' });
-unifiedClient.getClassicAccount({ accountType: 'FUTURES', currency: 'USDT,XBT' });
+unifiedClient.getClassicAccount({
+  accountType: 'FUTURES',
+  currency: 'USDT,XBT',
+});
 unifiedClient.getClassicAccount({
   accountType: 'ISOLATED',
   accountSubtype: 'BTC-USDT',
@@ -277,6 +284,22 @@ unifiedClient.getInterestHistory({
 // Modify Leverage (Unified Futures)
 unifiedClient.modifyLeverage({ symbol: 'XBTUSDTM', leverage: '5' });
 
+// Cross margin leverage + query leverage (2026.04.19)
+unifiedClient.modifyMarginCrossLeverage(
+  { currency: 'BTC', leverage: '5' },
+  'unified',
+);
+unifiedClient.getLeverage({
+  tradeType: 'FUTURES',
+  marginMode: 'CROSS',
+  symbol: 'XBTUSDTM',
+});
+unifiedClient.getLeverage({
+  tradeType: 'MARGIN',
+  marginMode: 'CROSS',
+  currency: 'BTC',
+});
+
 // Get Deposit Address
 unifiedClient.getDepositAddress({ currency: 'BTC' });
 unifiedClient.getDepositAddress({ currency: 'BTC', chain: 'BTC' });
@@ -286,12 +309,12 @@ unifiedClient.getDepositAddress({ currency: 'BTC', chain: 'BTC' });
 
 #### Place order (Unified vs Classic)
 
-Unified mode: use `accountMode: 'unified'` (default). For unified, `tradeType` is not sent in the request (the client omits it).  
-Classic mode: use `accountMode: 'classic'` and pass `tradeType` in the request (Spot/Futures/Isolated/Cross).
+Unified mode: use `accountMode: 'unified'` (default). For unified, `tradeType` is sent in the JSON body 
+Classic mode: use `accountMode: 'classic'` and pass `tradeType` as a query parameter (Spot/Futures/Isolated/Cross/Margin per API).
 
 ```js
 // Unified mode - Spot limit order (default accountMode is 'unified')
-// tradeType can be omitted in request for unified; if provided it is not sent
+// tradeType is included in the body for unified (e.g. SPOT, MARGIN, FUTURES)
 unifiedClient.placeOrder(
   {
     tradeType: 'SPOT',
@@ -492,6 +515,8 @@ Unified position endpoints apply to the Unified account (Futures positions).
 // Get Position List (all open positions or filter by symbol)
 unifiedClient.getPositionList();
 unifiedClient.getPositionList({ symbol: 'XBTUSDTM' });
+// pageNumber, pageSize and liquidationPrice per row (as of 2026.04.09)
+unifiedClient.getPositionList({ pageNumber: 1, pageSize: 50 });
 
 // Get Positions History (up to 3 months, max 7 days per query)
 unifiedClient.getPositionsHistory({
@@ -501,11 +526,25 @@ unifiedClient.getPositionsHistory({
   pageSize: 50,
 });
 
+// Private funding fee history (2026.04.19)
+unifiedClient.getPrivateFundingFeeHistory({ symbol: 'XBTUSDTM' });
+
 // Get Account Position Tiers (risk limit) - Classic Futures isolated
 unifiedClient.getAccountPositionTiers(
   { symbol: 'XBTUSDTM', tradeType: 'FUTURES', marginMode: 'ISOLATED' },
   'classic',
 );
+```
+
+```js
+// Third-party custody (OES): currencies (public) and account custody limits (private)
+unifiedClient.getThirdPartyCustodyCurrencies();
+unifiedClient.getThirdPartyCustodyCurrencies({
+  custodian: 'BITGO_SG',
+  currency: 'BTC',
+});
+unifiedClient.getThirdPartyCustodyQuota();
+unifiedClient.getThirdPartyCustodyQuota({ custodian: 'CEFFU' });
 ```
 
 ## Websocket
@@ -514,7 +553,7 @@ For WebSocket examples that work with the unified (PRO) API, please refer to:
 
 - [Spot Public Websocket](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/WebSockets/ws-public-spot-pro-v2.ts) (PRO v2)
 - [Futures Public Websocket](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/WebSockets/ws-public-futures-pro-v2.ts) (PRO v2)
-- [Private WebSocket (PRO v2)](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/WebSockets/ws-private-pro-v2.ts)
+- [Private WebSocket (PRO v2)](https://github.com/tiagosiebler/kucoin-api/blob/master/examples/WebSockets/ws-private-pro-v2.ts) — includes `execution.lite`, `accountType: "SPOT"` for spot balance, and comments for Pro API changes (e.g. 2026.03.30: `eT` `match`, BBO/trade high-speed channels on public Pro).
 
 ## Community group
 

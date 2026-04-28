@@ -187,6 +187,12 @@ export interface GetCurrentFundingRateResponseUTA {
   fundingTime: number;
   fundingRateCap: number;
   fundingRateFloor: number;
+  /** Current funding settlement interval (ms); as of 2026.04.19 */
+  currentGranularity: number;
+  /** New interval after change (ms); as of 2026.04.19 */
+  newGranularity: number;
+  /** When newGranularity takes effect (ms); as of 2026.04.19 */
+  newGranularityStartTime: number;
 }
 
 export interface FundingRateHistoryItemUTA {
@@ -197,6 +203,49 @@ export interface FundingRateHistoryItemUTA {
 export interface GetHistoryFundingRateResponseUTA {
   symbol: string;
   list: FundingRateHistoryItemUTA[];
+}
+
+export interface ModifyMarginCrossLeverageResponseUTA {
+  currency?: string;
+  leverage?: string;
+}
+
+/** One row from Get Leverage (UTA) — margin uses currency, futures uses symbol */
+export interface GetLeverageItemUTA {
+  leverage: string;
+  marginMode: string;
+  currency?: string;
+  symbol?: string;
+}
+
+export interface PrivateFundingFeeHistoryItemUTA {
+  symbol: string;
+  marginMode: 'CROSS' | 'ISOLATED';
+  fundingRate: string;
+  markPrice: string;
+  size: string;
+  positionValue: string;
+  fundingFee: string;
+  settleCurrency: string;
+  settlementTime: number;
+}
+
+export interface GetPrivateFundingFeeHistoryResponseUTA {
+  lastId: number;
+  items: PrivateFundingFeeHistoryItemUTA[];
+}
+
+export interface GetBorrowingRatesAndLimitsResponseUTA {
+  currentRateHourly: string;
+  currentRateDaily: string;
+  borrowLimitTotal: string;
+  borrowLimitTotalHold: string;
+  borrowLimitHold: string;
+  interestFreeBorrowLimit: string;
+}
+
+export interface BorrowableCurrencyUTA {
+  currency: string;
 }
 
 export interface GetCrossMarginConfigResponseUTA {
@@ -222,6 +271,8 @@ export interface AccountCurrencyUTA {
   available: string;
   balance: string;
   equity: string;
+  /** Potential borrow reserved by open orders (UTA; as of 2026.04.19) */
+  potentialBorrow?: string;
   liability?: string;
   totalCrossMargin?: string;
   crossPosMargin?: string;
@@ -372,7 +423,7 @@ export interface DepositAddressUTA {
  */
 
 export interface PlaceOrderResponseUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   orderId: string;
   clientOid: string;
   /** Timestamp when system completes order request in nanoseconds. Classic mode not supported */
@@ -392,12 +443,12 @@ export interface BatchPlaceOrderItemResponseUTA {
 }
 
 export interface BatchPlaceOrderResponseUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   items: BatchPlaceOrderItemResponseUTA[];
 }
 
 export interface OrderDetailsUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   orderId: string;
   clientOid: string;
   /**
@@ -459,13 +510,13 @@ export interface GetOpenOrderListResponseUTA {
   pageSize?: number;
   totalNum?: number;
   totalPage?: number;
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   items: OrderDetailsUTA[];
 }
 
 export interface GetOrderHistoryResponseUTA {
   lastId: number;
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   items: OrderDetailsUTA[];
 }
 
@@ -493,12 +544,12 @@ export interface TradeHistoryItemUTA {
 
 export interface GetTradeHistoryResponseUTA {
   lastId: number;
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   items: TradeHistoryItemUTA[];
 }
 
 export interface CancelOrderResponseUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   orderId?: string;
   clientOid?: string;
   /** Timestamp when system completes order cancellation request (nanoseconds). Only for unified accounts */
@@ -515,7 +566,7 @@ export interface BatchCancelOrderItemResponseUTA {
 }
 
 export interface BatchCancelOrdersResponseUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   items: BatchCancelOrderItemResponseUTA[];
 }
 
@@ -568,6 +619,8 @@ export interface PositionUTA {
   maintenanceMargin: string;
   /** Timestamp when position was first opened (nanoseconds, standardized as of 2026.01.12) */
   creationTime: number;
+  /** Estimated liquidation price (as of 2026.04.09) */
+  liquidationPrice: string;
 }
 
 export interface PositionHistoryItemUTA {
@@ -593,6 +646,21 @@ export interface PositionHistoryItemUTA {
 export interface GetPositionsHistoryResponseUTA {
   items: PositionHistoryItemUTA[];
   lastId?: number;
+}
+
+/** Row from Get Third-Party Custody Currencies */
+export interface ThirdPartyCustodyCurrencyUTA {
+  custodian: string;
+  currency: string;
+  precision: number;
+}
+
+/** Row from Get Third-Party Custody Account Currency Limits */
+export interface ThirdPartyCustodyQuotaUTA {
+  custodian: string;
+  currency: string;
+  /** Remaining custodial quota (shared across custodian sub-accounts under master) */
+  custodyQuota: string;
 }
 
 export interface PositionTierUTA {

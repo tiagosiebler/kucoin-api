@@ -221,9 +221,29 @@ export interface GetInterestHistoryRequestUTA {
   size?: number; // Default 50, max 1000
 }
 
+export interface GetBorrowingRatesAndLimitsRequestUTA {
+  currency: string;
+}
+
 export interface ModifyLeverageRequestUTA {
   symbol: string;
   leverage: string;
+}
+
+/** UTA cross margin only — path includes accountMode (typically unified) */
+export interface ModifyMarginCrossLeverageRequestUTA {
+  leverage: string;
+  /** Cross margin currency (e.g. BTC) */
+  currency?: string;
+}
+
+export interface GetLeverageRequestUTA {
+  tradeType: 'MARGIN' | 'FUTURES';
+  marginMode: 'CROSS' | 'ISOLATED';
+  /** Required for MARGIN when not returning all; optional => all for MARGIN */
+  currency?: string;
+  /** Required for FUTURES when not returning all; optional => all for FUTURES */
+  symbol?: string;
 }
 
 export interface GetDepositAddressRequestUTA {
@@ -236,7 +256,7 @@ export interface GetDepositAddressRequestUTA {
  */
 
 export interface PlaceOrderRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   clientOid?: string; // Mandatory for futures and margin; optional otherwise. Max 40 chars
   symbol: string;
   side: 'BUY' | 'SELL';
@@ -273,19 +293,19 @@ export interface PlaceOrderRequestUTA {
 }
 
 export interface BatchPlaceOrderRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   orderList: Omit<PlaceOrderRequestUTA, 'tradeType'>[];
 }
 
 export interface GetOrderDetailsRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   symbol: string;
   orderId?: string; // At least one of orderId or clientOid required
   clientOid?: string; // At least one of orderId or clientOid required
 }
 
 export interface GetOpenOrderListRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   symbol?: string; // Required for SPOT, ISOLATED, and CROSS
   orderFilter?: 'NORMAL' | 'CONDITION'; // Defaults to NORMAL
   startAt?: number; // milliseconds
@@ -295,7 +315,7 @@ export interface GetOpenOrderListRequestUTA {
 }
 
 export interface GetOrderHistoryRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   symbol?: string; // Required for SPOT, ISOLATED, and CROSS
   side?: 'BUY' | 'SELL';
   orderFilter?: 'NORMAL' | 'CONDITION'; // Defaults to NORMAL
@@ -306,7 +326,7 @@ export interface GetOrderHistoryRequestUTA {
 }
 
 export interface GetTradeHistoryRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   symbol?: string; // Required for SPOT, ISOLATED, and CROSS
   orderId?: string;
   side?: 'BUY' | 'SELL';
@@ -318,7 +338,7 @@ export interface GetTradeHistoryRequestUTA {
 }
 
 export interface CancelOrderRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   symbol: string; // For FUTURES optional for single order cancellation (ignored if orderId provided); For UTA FUTURES, required
   orderId?: string; // At least one of orderId or clientOid required
   clientOid?: string; // At least one of orderId or clientOid required
@@ -331,7 +351,7 @@ export interface CancelOrderItemRequestUTA {
 }
 
 export interface BatchCancelOrdersRequestUTA {
-  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS';
+  tradeType: 'SPOT' | 'FUTURES' | 'ISOLATED' | 'CROSS' | 'MARGIN';
   cancelOrderList: CancelOrderItemRequestUTA[]; // Maximum 20 orders
 }
 
@@ -359,6 +379,40 @@ export interface GetDCPRequestUTA {
 
 export interface GetPositionListRequestUTA {
   symbol?: string; // Optional, if not provided returns all open positions
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+/** Third-party custody (OES) custodian codes */
+export type ThirdPartyCustodyCustodianUTA =
+  | 'BITGO_SG'
+  | 'BITGO_SD'
+  | 'CACTUS'
+  | 'CEFFU';
+
+/**
+ * Get Third-Party Custody Currencies (public)
+ * Settlement currencies supported per custodian.
+ */
+export interface GetThirdPartyCustodyCurrenciesRequestUTA {
+  /** If omitted, returns all custodian rows */
+  custodian?: ThirdPartyCustodyCustodianUTA;
+  /** If omitted, all currencies for the selected custodian(s) */
+  currency?: string;
+}
+
+/**
+ * Get Third-Party Custody Account Currency Limits (private)
+ * Remaining OES custody quota per custodian/currency.
+ */
+export interface GetThirdPartyCustodyQuotaRequestUTA {
+  /**
+   * If sub-account API key is used, this parameter is ignored; only the
+   * custodian bound to the sub-account is returned (per API docs).
+   */
+  custodian?: ThirdPartyCustodyCustodianUTA;
+  /** If omitted, limits for all currencies under the custodian */
+  currency?: string;
 }
 
 export interface GetPositionsHistoryRequestUTA {
@@ -367,6 +421,15 @@ export interface GetPositionsHistoryRequestUTA {
   endAt?: number; // milliseconds
   lastId?: number; // For cursor-based pagination
   pageSize?: number; // Default 10, max 200
+}
+
+/** Settled funding fee history (private) */
+export interface GetPrivateFundingFeeHistoryRequestUTA {
+  symbol?: string;
+  startAt?: number;
+  endAt?: number;
+  lastId?: number;
+  pageSize?: number;
 }
 
 export interface GetAccountPositionTiersRequestUTA {
