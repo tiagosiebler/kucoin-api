@@ -1,4 +1,6 @@
-const { WebsocketAPIClient } = require('kucoin-api');
+import { WebsocketAPIClient } from 'kucoin-api';
+// or, if require is preferred:
+// const { WebsocketAPIClient } = require('kucoin-api');
 
 // This example shows how to call this kucoin WebSocket API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
 // This kucoin API SDK is available on npm via "npm install kucoin-api"

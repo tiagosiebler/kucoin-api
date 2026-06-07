@@ -1,10 +1,12 @@
-const { UnifiedAPIClient } = require('kucoin-api');
+import { UnifiedAPIClient } from 'kucoin-api';
+// or, if require is preferred:
+// const { UnifiedAPIClient } = require('kucoin-api');
 
-  // This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
-  // This kucoin API SDK is available on npm via "npm install kucoin-api"
-  // ENDPOINT: api/ua/v1/market/cross-config
-  // METHOD: GET
-  // PUBLIC: YES
+// This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
+// This kucoin API SDK is available on npm via "npm install kucoin-api"
+// ENDPOINT: api/ua/v1/market/cross-config
+// METHOD: GET
+// PUBLIC: YES
 
 const client = new UnifiedAPIClient({
   apiKey: 'apiKeyHere',
