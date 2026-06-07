@@ -400,7 +400,7 @@ export interface FuturesFill {
   settleCurrency: string;
   orderType: 'market' | 'limit';
   displayType: 'limit' | 'market' | 'limit_stop' | 'market_stop';
-  tradeType: 'trade' | 'cancel' | 'liquid' | 'adl' | 'settlement';
+  tradeType: 'trade' | 'liquid' | 'adl' | 'settlement';
   subTradeType: string | null; // Deprecated field
   /** Trade time (execution time), standardized to nanoseconds as of 2026.01.12 */
   tradeTime: number;

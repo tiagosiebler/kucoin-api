@@ -1,8 +1,11 @@
 import { BaseRestClient } from './lib/BaseRestClient.js';
 import { REST_CLIENT_TYPE_ENUM, RestClientType } from './lib/requestUtils.js';
 import {
+  AddSubAccountApiRequestUTA,
+  AddSubAccountRequestUTA,
   BatchCancelOrdersBySymbolRequestUTA,
   BatchCancelOrdersRequestUTA,
+  BatchModifyMarginModeRequestUTA,
   BatchPlaceOrderRequestUTA,
   CancelOrderRequestUTA,
   FlexTransferRequestUTA,
@@ -36,17 +39,24 @@ import {
   GetTradeHistoryRequestUTA,
   GetTradesRequestUTA,
   GetTransferQuotasRequestUTA,
+  GetWithdrawalQuotasRequestUTA,
+  ModifyIsolatedFuturesMarginRequestUTA,
   ModifyLeverageRequestUTA,
   ModifyMarginCrossLeverageRequestUTA,
   PlaceOrderRequestUTA,
   SetAccountModeRequestUTA,
   SetDCPRequestUTA,
   SetSubAccountTransferPermissionRequestUTA,
+  SubmitWithdrawRequestUTA,
 } from './types/request/uta-types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
 import {
+  AddSubAccountApiResponseUTA,
+  AddSubAccountResponseUTA,
+  ApiKeyInfoUTA,
   BatchCancelOrdersBySymbolResponseUTA,
   BatchCancelOrdersResponseUTA,
+  BatchModifyMarginModeResponseUTA,
   BatchPlaceOrderResponseUTA,
   BorrowableCurrencyUTA,
   CancelOrderResponseUTA,
@@ -80,14 +90,18 @@ import {
   GetTradeHistoryResponseUTA,
   GetTradesResponseUTA,
   GetTransferQuotasResponseUTA,
+  KYCRegionUTA,
+  ModifyIsolatedFuturesMarginResponseUTA,
   ModifyMarginCrossLeverageResponseUTA,
   OrderDetailsUTA,
   PlaceOrderResponseUTA,
   PositionTierUTA,
   PositionUTA,
   SubAccountTransferPermissionUTA,
+  SubmitWithdrawResponseUTA,
   ThirdPartyCustodyCurrencyUTA,
   ThirdPartyCustodyQuotaUTA,
+  WithdrawalQuotasUTA,
 } from './types/response/uta-types.js';
 
 /**
@@ -287,6 +301,7 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Get Transfer Quotas
    * This endpoint returns the transferable balance of a specified account.
    * Note: AccountType enum value changed from TRADING to SPOT as of 2026.01.17.
+   * Note: UNIFIED accountType supported as of latest UTA update.
    */
   getTransferQuotas(
     params: GetTransferQuotasRequestUTA,
@@ -353,6 +368,7 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Note: direction values unified to uppercase IN/OUT as of 2026.01.17.
    * Note: For Futures - id changed from Number to String, balance/amount changed from Number to String as of 2026.01.17.
    * Note: ts standardized to nanoseconds as of 2026.01.12.
+   * Note: amount is always returned as a positive number as of 2026.04.28; use direction (IN/OUT) to determine flow.
    */
   getAccountLedger(
     params: GetAccountLedgerRequestUTA,
@@ -434,6 +450,73 @@ export class UnifiedAPIClient extends BaseRestClient {
   }
 
   /**
+   * Get API Key Info (UTA)
+   * Get the API key information for the key used to call this endpoint.
+   * Works for both master and sub user API keys. Added 2026.05.15.
+   */
+  getApiKeyInfo(): Promise<APISuccessResponse<ApiKeyInfoUTA>> {
+    return this.getPrivate('api/ua/v1/user/api-key');
+  }
+
+  /**
+   * Get KYC Regions (UTA)
+   * Obtain the list of KYC regions. Added 2026.05.15.
+   */
+  getKYCRegions(): Promise<APISuccessResponse<KYCRegionUTA[]>> {
+    return this.get('api/ua/v1/user/kyc-region');
+  }
+
+  /**
+   * Add Sub-Account (UTA)
+   * Create a sub-account. Added 2026.05.15.
+   */
+  addSubAccount(
+    params: AddSubAccountRequestUTA,
+  ): Promise<APISuccessResponse<AddSubAccountResponseUTA>> {
+    return this.postPrivate('api/ua/v1/user/sub/create-sub-account', params);
+  }
+
+  /**
+   * Add Sub-Account API (UTA)
+   * Create an API key for a sub-account. Added 2026.05.15.
+   */
+  addSubAccountApi(
+    params: AddSubAccountApiRequestUTA,
+  ): Promise<APISuccessResponse<AddSubAccountApiResponseUTA>> {
+    return this.postPrivate('api/ua/v1/user/create-sub-api-key', params);
+  }
+
+  /**
+   * Get Withdrawal Quotas (UTA)
+   * Obtain withdrawal quota information for a currency. Added 2026.05.15.
+   */
+  getWithdrawalQuotas(
+    params: GetWithdrawalQuotasRequestUTA,
+  ): Promise<APISuccessResponse<WithdrawalQuotasUTA>> {
+    return this.getPrivate('api/ua/v1/withdrawals/quotas', params);
+  }
+
+  /**
+   * Withdraw (UTA)
+   * Withdraw the specified currency. Added 2026.05.15.
+   */
+  submitWithdraw(
+    params: SubmitWithdrawRequestUTA,
+  ): Promise<APISuccessResponse<SubmitWithdrawResponseUTA>> {
+    return this.postPrivate('api/ua/v1/withdrawal', params);
+  }
+
+  /**
+   * Cancel Withdrawal (UTA)
+   * Cancel a withdrawal request in PROCESSING status. Added 2026.05.15.
+   */
+  cancelWithdrawal(params?: {
+    withdrawalId?: string;
+  }): Promise<APISuccessResponse<string | null>> {
+    return this.deletePrivate('api/ua/v1/withdrawal', params);
+  }
+
+  /**
    * Get Third-Party Custody Account Currency Limits
    * OES remaining custody quota per custodian and settlement currency.
    */
@@ -456,6 +539,7 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Note: timeInForce supports 'RPI' value for Futures only (Phase 1).
    * Note: For Classic mode, tradeType is required in query param.
    * Note: For Unified mode, tradeType is sent in the request body (incl. MARGIN as of 2026.04.19).
+   * Note: closeOrder supported for closing futures position by symbol.
    */
   placeOrder(
     params: PlaceOrderRequestUTA,
@@ -579,7 +663,7 @@ export class UnifiedAPIClient extends BaseRestClient {
 
   /**
    * Batch Cancel Orders By Symbol
-   * Cancels orders in batch by symbol. UTA only. Supports SPOT (non-margin) and Futures Cross Margin.
+   * Cancels orders in batch by symbol. UTA only. Supports SPOT (non-margin), FUTURES, and MARGIN (Spot-Margin as of 2026.05.15).
    */
   batchCancelOrdersBySymbol(
     params: BatchCancelOrdersBySymbolRequestUTA,
@@ -622,11 +706,33 @@ export class UnifiedAPIClient extends BaseRestClient {
    * Get the position details of all open positions.
    * Note: creationTime standardized to nanoseconds as of 2026.01.12.
    * Note: pageNumber, pageSize query params and liquidationPrice in each position (as of 2026.04.09).
+   * Note: adlPercentage added 2026.05.15.
+   * Note: positionMargin and riskRatio added in latest UTA update.
    */
   getPositionList(
     params?: GetPositionListRequestUTA,
   ): Promise<APISuccessResponse<PositionUTA[]>> {
     return this.getPrivate('api/ua/v1/unified/position/open-list', params);
+  }
+
+  /**
+   * Batch Modify Margin Mode (UTA)
+   * Batch modify the margin mode for futures positions.
+   */
+  batchModifyMarginMode(
+    params: BatchModifyMarginModeRequestUTA,
+  ): Promise<APISuccessResponse<BatchModifyMarginModeResponseUTA>> {
+    return this.postPrivate('api/ua/v1/unified/position/margin-mode', params);
+  }
+
+  /**
+   * Modify Isolated Futures Margin (UTA)
+   * Extract or add margin for an isolated futures position.
+   */
+  modifyIsolatedFuturesMargin(
+    params: ModifyIsolatedFuturesMarginRequestUTA,
+  ): Promise<APISuccessResponse<ModifyIsolatedFuturesMarginResponseUTA>> {
+    return this.postPrivate('api/ua/v1/unified/position/modify-margin', params);
   }
 
   /**

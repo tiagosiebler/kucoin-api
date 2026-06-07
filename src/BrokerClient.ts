@@ -4,6 +4,7 @@ import {
   BrokerTransferRequest,
   CreateBrokerSubAccountApiRequest,
   DeleteBrokerSubAccountApiRequest,
+  FastApiWithdrawApplyRequest,
   GetBrokerDepositListRequest,
   GetBrokerInfoRequest,
   GetBrokerSubAccountApisRequest,
@@ -18,6 +19,7 @@ import {
   BrokerWithdrawalRecord,
   CreateBrokerSubAccountApiResponse,
   CreateBrokerSubAccountResponse,
+  FastApiWithdrawApplyResponse,
   GetBrokerSubAccountsResponse,
 } from './types/response/broker.types.js';
 import { APISuccessResponse } from './types/response/shared.types.js';
@@ -174,6 +176,13 @@ export class BrokerClient extends BaseRestClient {
    * - PROCESSING: Processing
    * - SUCCESS: Successful
    * - FAILURE: Failed
+   * - PRE_SUCCESS: Funds credited ahead of final block confirmation
+   * - WAIT_TRM_MGT: Under compliance verification
+   * - TRM_MGT_REJECTED: Rejected after compliance verification
+   * - ROLLBACKING: Reversing deposit
+   * - ROLLBACK: Deposit reversed, no funds credited
+   * - WAIT_RISK_MGT: Under risk verification
+   * - RISK_MGT_REJECTED: Rejected after risk verification
    */
   getDeposits(
     params?: GetBrokerDepositListRequest,
@@ -191,6 +200,13 @@ export class BrokerClient extends BaseRestClient {
    * - PROCESSING: Processing
    * - SUCCESS: Successful
    * - FAILURE: Failed
+   * - PRE_SUCCESS: Funds credited ahead of final block confirmation
+   * - WAIT_TRM_MGT: Under compliance verification
+   * - TRM_MGT_REJECTED: Rejected after compliance verification
+   * - ROLLBACKING: Reversing deposit
+   * - ROLLBACK: Deposit reversed, no funds credited
+   * - WAIT_RISK_MGT: Under risk verification
+   * - RISK_MGT_REJECTED: Rejected after risk verification
    */
   getDeposit(params: {
     currency: string;
@@ -236,5 +252,17 @@ export class BrokerClient extends BaseRestClient {
     }>
   > {
     return this.getPrivate('api/v1/broker/nd/rebase/download', params);
+  }
+
+  /**
+   * Apply for Fast Withdrawal
+   *
+   * Submit a Fast API withdrawal request to an external address or internal account.
+   * Initial request returns 2FA factors; resubmit with validation to complete withdrawal.
+   */
+  applyFastWithdrawal(
+    params: FastApiWithdrawApplyRequest,
+  ): Promise<APISuccessResponse<FastApiWithdrawApplyResponse>> {
+    return this.postPrivate('api/v2/broker/withdrawal', params);
   }
 }

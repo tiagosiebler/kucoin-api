@@ -1,6 +1,6 @@
 {
   "name": "kucoin-api",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
@@ -49,9 +49,7 @@
     "prettier": "^3.3.3",
     "ts-jest": "^29.2.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
-  },
-  "optionalDependencies": {
+    "typescript": "^5.7.3",
     "webpack": "^5.0.0",
     "webpack-bundle-analyzer": "^5.1.1",
     "webpack-cli": "^4.0.0"

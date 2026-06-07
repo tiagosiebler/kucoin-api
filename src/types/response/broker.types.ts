@@ -63,6 +63,18 @@ export type BrokerTransferAccountType =
   | 'ISOLATED';
 export type BrokerTransferStatus = 'PROCESSING' | 'SUCCESS' | 'FAILURE';
 
+export type BrokerDepositStatus =
+  | 'PROCESSING'
+  | 'SUCCESS'
+  | 'FAILURE'
+  | 'PRE_SUCCESS'
+  | 'WAIT_TRM_MGT'
+  | 'TRM_MGT_REJECTED'
+  | 'ROLLBACKING'
+  | 'ROLLBACK'
+  | 'WAIT_RISK_MGT'
+  | 'RISK_MGT_REJECTED';
+
 export interface BrokerTransferHistory {
   orderId: string;
   currency: string;
@@ -88,12 +100,30 @@ export interface BrokerDepositRecord {
   currency: string;
   isInner: boolean;
   walletTxId: string;
-  status: BrokerTransferStatus;
+  status: BrokerDepositStatus;
   remark: string;
   chain: string;
   createdAt: number;
   updatedAt: number;
+  statusRemark?: string;
+  preConfirms?: number;
+  confirms?: number;
+  currentConfirms?: number;
 }
+
+export interface FastApiWithdrawApplyInitialResponse {
+  transactionId: string;
+  allFactors: string[][];
+  sentFactors: string[][];
+}
+
+export interface FastApiWithdrawApplyCompleteResponse {
+  withdrawalId: string;
+}
+
+export type FastApiWithdrawApplyResponse =
+  | FastApiWithdrawApplyInitialResponse
+  | FastApiWithdrawApplyCompleteResponse;
 
 export type BrokerWithdrawalStatus =
   | 'PROCESSING'
