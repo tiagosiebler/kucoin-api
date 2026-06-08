@@ -1498,6 +1498,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated Get ETF Info endpoint deprecated (2026.05.08). /api/v3/etf/info is no longer supported.
    * Get ETF Info
    *
    * This endpoint returns leveraged token information

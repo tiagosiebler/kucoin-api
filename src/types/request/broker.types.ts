@@ -60,9 +60,53 @@ export interface BrokerTransferRequest {
 
 export interface GetBrokerDepositListRequest {
   currency?: string;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  status?:
+    | 'PROCESSING'
+    | 'SUCCESS'
+    | 'FAILURE'
+    | 'PRE_SUCCESS'
+    | 'WAIT_TRM_MGT'
+    | 'TRM_MGT_REJECTED'
+    | 'ROLLBACKING'
+    | 'ROLLBACK'
+    | 'WAIT_RISK_MGT'
+    | 'RISK_MGT_REJECTED';
   hash?: string;
   startTimestamp?: number;
   endTimestamp?: number;
   limit?: number;
+}
+
+export interface FastApiWithdrawValidationFactor {
+  factorType: string;
+  factorValue: string;
+}
+
+export interface FastApiWithdrawValidation {
+  factors: FastApiWithdrawValidationFactor[];
+  transactionId: string;
+}
+
+export interface FastApiWithdrawApplyRequest {
+  address: string;
+  amount: number;
+  currency: string;
+  memo: string;
+  remark: string;
+  chain?: string;
+  feeDeductType?: 'EXTERNAL' | 'INTERNAL';
+  isInner?: boolean;
+  wallet?: string;
+  withdrawType?: 'ADDRESS' | 'MAIL' | 'PHONE' | 'UID';
+  validation?: FastApiWithdrawValidation;
+  tin?: string;
+  country?: string;
+  lastName?: string;
+  firstName?: string;
+  identityNo?: string;
+  companyName?: string;
+  identityType?: string;
+  receiverType?: 'COMPANY' | 'INDIVIDUAL';
+  questionnaire?: string;
+  reasonOfTransfer?: string;
 }

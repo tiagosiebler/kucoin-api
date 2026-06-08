@@ -209,7 +209,7 @@ export interface GetAccountLedgerRequestUTA {
   lastId?: number;
   startAt?: number; // milliseconds
   endAt?: number; // milliseconds
-  pageSize?: number; // Default 100, max 200
+  pageSize?: number; // Default 100; max depends on accountType: UNIFIED/SPOT 200, FUNDING/CROSS/ISOLATED 500, FUTURES 100
 }
 
 export interface GetInterestHistoryRequestUTA {
@@ -251,6 +251,39 @@ export interface GetDepositAddressRequestUTA {
   chain?: string; // If both currency and chain provided, address will be created if not exists
 }
 
+export interface GetWithdrawalQuotasRequestUTA {
+  currency: string;
+  chainId?: string;
+}
+
+export interface SubmitWithdrawRequestUTA {
+  currency: string;
+  toAddress: string;
+  amount: string;
+  withdrawType: 'ADDRESS' | 'UID' | 'MAIL' | 'PHONE';
+  chainId?: string;
+  memo?: string;
+  isInner?: boolean;
+  remark?: string;
+  feeDeductType?: 'INTERNAL' | 'EXTERNAL';
+}
+
+export interface AddSubAccountRequestUTA {
+  password: string;
+  subName: string;
+  access: 'Spot' | 'Futures' | 'Margin' | string;
+  remarks?: string;
+}
+
+export interface AddSubAccountApiRequestUTA {
+  subName: string;
+  passphrase: string;
+  remark: string;
+  permission?: string;
+  ipWhitelist?: string;
+  expire?: '-1' | '30' | '90' | '180' | '360';
+}
+
 /**
  * Order Endpoints
  */
@@ -290,6 +323,8 @@ export interface PlaceOrderRequestUTA {
   tpTriggerPriceType?: 'TP' | 'IP' | 'MP';
   slTriggerPrice?: string; // Only for Futures
   slTriggerPriceType?: 'TP' | 'IP' | 'MP';
+  /** Close position for symbol; ignores side/size and cancels pending close orders. Default false */
+  closeOrder?: boolean;
 }
 
 export interface BatchPlaceOrderRequestUTA {
@@ -381,6 +416,20 @@ export interface GetPositionListRequestUTA {
   symbol?: string; // Optional, if not provided returns all open positions
   pageNumber?: number;
   pageSize?: number;
+}
+
+export interface BatchModifyMarginModeRequestUTA {
+  /** Trading pair symbol(s), comma-separated for batch */
+  symbol: string;
+  marginMode: 'CROSS' | 'ISOLATED';
+}
+
+export interface ModifyIsolatedFuturesMarginRequestUTA {
+  type: 'DEPOSIT' | 'WITHDRAW';
+  amount: string;
+  symbol: string;
+  tradeType: 'FUTURES' | 'MARGIN';
+  positionSide?: 'LONG' | 'SHORT' | 'BOTH';
 }
 
 /** Third-party custody (OES) custodian codes */

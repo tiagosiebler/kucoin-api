@@ -334,7 +334,7 @@ export interface GetSubAccountResponseUTA {
 export interface GetTransferQuotasResponseUTA {
   currency: string;
   transferable: string;
-  accountType: string;
+  accountType: 'FUNDING' | 'SPOT' | 'FUTURES' | 'ISOLATED' | 'UNIFIED';
 }
 
 export interface FlexTransferResponseUTA {
@@ -376,6 +376,7 @@ export interface AccountLedgerItemUTA {
   currency: string;
   direction: 'IN' | 'OUT';
   businessType: string;
+  /** Change in funds balance. Always positive as of 2026.04.28; use direction (IN/OUT) for flow. */
   amount: string;
   balance: string;
   fee: string;
@@ -410,12 +411,78 @@ export interface DepositAddressUTA {
   address: string;
   memo: string;
   chainId: string;
-  to: 'MAIN' | 'TRADE';
+  to: 'FUNDING' | 'SPOT' | 'UNIFIED';
   currency: string;
   contractAddress: string;
   chainName: string;
   expirationDate: string;
   remark: string;
+}
+
+export interface WithdrawalQuotasUTA {
+  currency: string;
+  limitBTCAmount: string;
+  usedBTCAmount: string;
+  quotaCurrency: string;
+  limitQuotaCurrencyAmount: string;
+  usedQuotaCurrencyAmount: string;
+  remainAmount: string;
+  availableAmount: string;
+  withdrawMinFee: string;
+  innerWithdrawMinFee: string;
+  withdrawMinSize: string;
+  isWithdrawEnabled: boolean;
+  precision: number;
+  reason: string | null;
+  lockedAmount: string;
+  chainId: string;
+  chainName: string;
+}
+
+export interface SubmitWithdrawResponseUTA {
+  withdrawalId: string;
+}
+
+export interface AddSubAccountResponseUTA {
+  uid: number;
+  subName: string;
+  remarks: string;
+  access: string;
+}
+
+export interface AddSubAccountApiResponseUTA {
+  subName: string;
+  remark: string;
+  apiKey: string;
+  apiSecret: string;
+  apiVersion: number;
+  passphrase: string;
+  permission: string;
+  ipWhitelist?: string;
+  createdAt: number;
+}
+
+export interface KYCRegionUTA {
+  code: string;
+  enName: string;
+}
+
+export interface ApiKeyInfoUTA {
+  uid: number;
+  parentUid?: number;
+  region: string;
+  kycStatus: 0 | 1;
+  subName?: string;
+  remark: string;
+  apiKey: string;
+  apiVersion: number;
+  permission: string;
+  ipWhitelist?: string;
+  isMaster: boolean;
+  createdAt: number;
+  expiredAt?: number | null;
+  thirdPartyApp?: string;
+  siteType?: 'global' | 'turkey' | 'australia' | 'europe' | 'thailand';
 }
 
 /**
@@ -610,6 +677,8 @@ export interface PositionUTA {
   size: string; // Positive = long, negative = short
   entryPrice: string;
   positionValue: string;
+  /** Margin occupied by the futures position */
+  positionMargin: string;
   markPrice: string;
   leverage: string;
   unrealizedPnL: string;
@@ -621,6 +690,10 @@ export interface PositionUTA {
   creationTime: number;
   /** Estimated liquidation price (as of 2026.04.09) */
   liquidationPrice: string;
+  /** ADL ranking percentile (0.12 = 12%). Added 2026.05.15 */
+  adlPercentage: string;
+  /** Isolated futures risk ratio (0.65 = 65%). Empty for cross margin positions */
+  riskRatio: string;
 }
 
 export interface PositionHistoryItemUTA {
@@ -671,4 +744,20 @@ export interface PositionTierUTA {
   maxLeverage: string;
   initialMarginRate: string;
   maintainMarginRate: string;
+}
+
+export interface BatchModifyMarginModeItemUTA {
+  symbol: string;
+  marginMode: string;
+  code: string;
+  msg: string;
+}
+
+export interface BatchModifyMarginModeResponseUTA {
+  ts: number;
+  items: BatchModifyMarginModeItemUTA[];
+}
+
+export interface ModifyIsolatedFuturesMarginResponseUTA {
+  ts: number;
 }

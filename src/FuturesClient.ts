@@ -504,6 +504,7 @@ export class FuturesClient extends BaseRestClient {
    * Get Trade History
    * Get a list of recent fills.
    * If you need to get your recent trade history with low latency, please query endpoint Get List of Orders Completed in 24h. The requested data is not real-time.
+   * Note: For liquidation orders, tradeType returns liquid (as of 2026.05.15).
    */
   getFills(
     params?: AccountFillsRequest,

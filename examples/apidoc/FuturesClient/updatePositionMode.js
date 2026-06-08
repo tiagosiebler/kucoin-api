@@ -1,10 +1,12 @@
-const { FuturesClient } = require('kucoin-api');
+import { FuturesClient } from 'kucoin-api';
+// or, if require is preferred:
+// const { FuturesClient } = require('kucoin-api');
 
-  // This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
-  // This kucoin API SDK is available on npm via "npm install kucoin-api"
-  // ENDPOINT: api/v2/position/switchPositionMode
-  // METHOD: POST
-  // PUBLIC: NO
+// This example shows how to call this kucoin API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "kucoin-api" for kucoin exchange
+// This kucoin API SDK is available on npm via "npm install kucoin-api"
+// ENDPOINT: api/v2/position/switchPositionMode
+// METHOD: POST
+// PUBLIC: NO
 
 const client = new FuturesClient({
   apiKey: 'apiKeyHere',
