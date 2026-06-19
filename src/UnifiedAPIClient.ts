@@ -1,6 +1,13 @@
 import { BaseRestClient } from './lib/BaseRestClient.js';
-import { REST_CLIENT_TYPE_ENUM, RestClientType } from './lib/requestUtils.js';
+import type {
+  InternalRequestContext,
+  RestClientType,
+} from './lib/requestUtils.js';
 import {
+  isUTAMainClientType,
+  REST_CLIENT_TYPE_ENUM,
+} from './lib/requestUtils.js';
+import type {
   AddSubAccountApiRequestUTA,
   AddSubAccountRequestUTA,
   BatchCancelOrdersBySymbolRequestUTA,
@@ -49,8 +56,8 @@ import {
   SetSubAccountTransferPermissionRequestUTA,
   SubmitWithdrawRequestUTA,
 } from './types/request/uta-types.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
-import {
+import type { APISuccessResponse } from './types/response/shared.types.js';
+import type {
   AddSubAccountApiResponseUTA,
   AddSubAccountResponseUTA,
   ApiKeyInfoUTA,
@@ -550,10 +557,22 @@ export class UnifiedAPIClient extends BaseRestClient {
       accountMode === 'classic'
         ? `api/ua/v1/${accountMode}/order/place?tradeType=${tradeType}`
         : `api/ua/v1/${accountMode}/order/place`;
+
+    const internalReqContext: InternalRequestContext = {
+      derivedClientType: isUTAMainClientType(params)
+        ? REST_CLIENT_TYPE_ENUM.main
+        : REST_CLIENT_TYPE_ENUM.futures,
+    };
+
     if (accountMode === 'unified') {
-      return this.postPrivate(url, { ...bodyParams, tradeType });
+      return this.postPrivate(
+        url,
+        { ...bodyParams, tradeType },
+        internalReqContext,
+      );
     }
-    return this.postPrivate(url, bodyParams);
+
+    return this.postPrivate(url, bodyParams, internalReqContext);
   }
 
   /**
@@ -570,7 +589,14 @@ export class UnifiedAPIClient extends BaseRestClient {
       accountMode === 'classic'
         ? `api/ua/v1/${accountMode}/order/place-batch?tradeType=${params.tradeType}`
         : `api/ua/v1/${accountMode}/order/place-batch`;
-    return this.postPrivate(url, params);
+
+    const internalReqContext: InternalRequestContext = {
+      derivedClientType: isUTAMainClientType(params)
+        ? REST_CLIENT_TYPE_ENUM.main
+        : REST_CLIENT_TYPE_ENUM.futures,
+    };
+
+    return this.postPrivate(url, params, internalReqContext);
   }
 
   /**

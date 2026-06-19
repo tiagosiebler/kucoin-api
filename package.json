@@ -1,7 +1,7 @@
 {
   "name": "kucoin-api",
-  "version": "2.5.3",
-  "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
+  "version": "2.5.4",
+  "description": "Complete & robust JavaScript SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && bash ./postBuild.sh",
@@ -88,5 +88,5 @@
   "bugs": {
     "url": "https://github.com/tiagosiebler/kucoin-api/issues"
   },
-  "homepage": "https://github.com/tiagosiebler/kucoin-api#readme"
+  "homepage": "https://siebly.io/sdk/kucoin/javascript"
 }

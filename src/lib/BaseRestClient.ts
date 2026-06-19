@@ -11,7 +11,8 @@ import {
   APIIDMain,
   APIIDMainSign,
   getRestBaseUrl,
-  REST_CLIENT_TYPE_ENUM,
+  InternalRequestContext,
+  isMainSignClientType,
   RestClientOptions,
   RestClientType,
   serializeParams,
@@ -225,8 +226,12 @@ export abstract class BaseRestClient {
     return this._call('GET', endpoint, params, false);
   }
 
-  postPrivate(endpoint: string, params?: any) {
-    return this._call('POST', endpoint, params, false);
+  postPrivate(
+    endpoint: string,
+    params?: any,
+    internalReqContext?: InternalRequestContext,
+  ) {
+    return this._call('POST', endpoint, params, false, internalReqContext);
   }
 
   deletePrivate(endpoint: string, params?: any) {
@@ -241,6 +246,7 @@ export abstract class BaseRestClient {
     endpoint: string,
     params?: any,
     isPublicApi?: boolean,
+    internalReqContext?: InternalRequestContext,
   ): Promise<any> {
     // Sanity check to make sure it's only ever prefixed by one forward slash
     const requestUrl = [this.baseUrl, endpoint].join(
@@ -254,6 +260,7 @@ export abstract class BaseRestClient {
       requestUrl,
       params,
       isPublicApi,
+      internalReqContext,
     );
 
     if (ENABLE_HTTP_TRACE) {
@@ -440,6 +447,7 @@ export abstract class BaseRestClient {
     url: string,
     params?: any,
     isPublicApi?: boolean,
+    internalReqContext?: InternalRequestContext,
   ): Promise<AxiosRequestConfig> {
     const options: AxiosRequestConfig = {
       ...this.globalRequestOptions,
@@ -468,22 +476,21 @@ export abstract class BaseRestClient {
       isPublicApi,
     );
 
+    const isMainSignMechanic = isMainSignClientType(
+      this.getClientType(),
+      internalReqContext,
+    );
+
     const authHeaders = {
       'KC-API-KEY': this.apiKey,
-      'KC-API-PARTNER':
-        this.getClientType() === REST_CLIENT_TYPE_ENUM.main
-          ? APIIDMain
-          : APIIDFutures,
+      'KC-API-PARTNER': isMainSignMechanic ? APIIDMain : APIIDFutures,
       'KC-API-TIMESTAMP': signResult.timestamp,
       'KC-API-KEY-VERSION': this.options.apiKeyVersion,
     };
 
     const partnerSignParam = `${authHeaders['KC-API-TIMESTAMP']}${authHeaders['KC-API-PARTNER']}${authHeaders['KC-API-KEY']}`;
 
-    const partnerSign =
-      this.getClientType() === REST_CLIENT_TYPE_ENUM.main
-        ? APIIDMainSign
-        : APIIDFuturesSign;
+    const partnerSign = isMainSignMechanic ? APIIDMainSign : APIIDFuturesSign;
 
     const partnerSignResult = await this.signMessage(
       partnerSignParam,
