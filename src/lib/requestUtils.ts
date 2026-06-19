@@ -97,6 +97,48 @@ export interface RestClientOptions {
   customSignMessageFn?: (message: string, secret: string) => Promise<string>;
 }
 
+export interface InternalRequestContext {
+  derivedClientType?: RestClientType;
+}
+
+export function isMainSignClientType(
+  clientType: RestClientType,
+  internalReqContext?: InternalRequestContext,
+): boolean {
+  switch (clientType) {
+    case REST_CLIENT_TYPE_ENUM.main:
+    case REST_CLIENT_TYPE_ENUM.mainEU:
+    case REST_CLIENT_TYPE_ENUM.broker:
+      return true;
+
+    case REST_CLIENT_TYPE_ENUM.futures:
+      return false;
+
+    case REST_CLIENT_TYPE_ENUM.unifiedTradingAccount:
+      if (internalReqContext?.derivedClientType) {
+        return isMainSignClientType(internalReqContext.derivedClientType);
+      }
+      return true;
+    default:
+      neverGuard(clientType, `Unhandled client type: "${clientType}"`);
+  }
+  return false;
+}
+
+/**
+ * All non-futures requests resolve to the "main" (non-futures) sign mechanic, by checking the tradeType param for is futures or not.
+ */
+export function isUTAMainClientType(params?: Record<string, any>): boolean {
+  //
+  if (params?.tradeType === 'FUTURES') {
+    return false;
+  }
+  // cross & isolated are a part of classic margin, resolves to main
+  // margin resolves to main
+  // spot resolves to main
+  return true;
+}
+
 export function serializeParams<T extends Record<string, any> | undefined = {}>(
   params: T,
   strict_validation: boolean | undefined,
