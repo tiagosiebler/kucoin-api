@@ -126,7 +126,18 @@ export interface TickerUTA {
   lastPrice: string;
   open: string;
   size: string;
+  /** Absolute price change over 24h (as of 2026.07.01) */
+  priceChange?: string;
+  /** Relative price change over 24h, e.g. 0.0036 = 0.36% (as of 2026.07.01) */
+  priceChangePercent?: string;
+  /** Index price (Futures tickers; as of 2026.07.01) */
+  indexPrice?: string;
+  /** Mark price (Futures tickers; as of 2026.07.01) */
+  markPrice?: string;
 }
+
+/** Fiat prices keyed by currency symbol (UTA Get Fiat Price) */
+export type GetFiatPriceResponseUTA = Record<string, string>;
 
 export interface GetTickerResponseUTA {
   tradeType: string;
@@ -271,6 +282,8 @@ export interface AccountCurrencyUTA {
   available: string;
   balance: string;
   equity: string;
+  /** Platform-level margin collateral status (as of 2026.07.01) */
+  collateralStatus?: string;
   /** Potential borrow reserved by open orders (UTA; as of 2026.04.19) */
   potentialBorrow?: string;
   liability?: string;
@@ -760,4 +773,33 @@ export interface BatchModifyMarginModeResponseUTA {
 
 export interface ModifyIsolatedFuturesMarginResponseUTA {
   ts: number;
+}
+
+export interface RateLimitItemUTA {
+  uid: string;
+  rate: number;
+}
+
+export interface GetRateLimitResponseUTA {
+  list: RateLimitItemUTA[];
+}
+
+export interface GetRateLimitCapResponseUTA {
+  vipLevel: number;
+  mainRateLimit: number;
+  subRateLimit: number;
+  allocatedQuota: number;
+  remainingQuota: number;
+  defaultQuota: number;
+}
+
+export interface SetSubAccountsRateLimitResultUTA {
+  uid: string;
+  rate: number;
+  code: string;
+  msg: string;
+}
+
+export interface SetSubAccountsRateLimitResponseUTA {
+  items: SetSubAccountsRateLimitResultUTA[];
 }

@@ -83,12 +83,28 @@ export interface HistoricalDepositItem {
   amount: string;
   walletTxId: string;
   isInner: boolean;
-  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  status: DepositStatus;
 }
+
+export type DepositStatus =
+  | 'PROCESSING'
+  | 'SUCCESS'
+  | 'FAILURE'
+  | 'PRE_SUCCESS'
+  | 'WAIT_TRM_MGT'
+  | 'TRM_MGT_REJECTED'
+  | 'ROLLBACKING'
+  | 'ROLLBACK'
+  | 'WAIT_RISK_MGT'
+  | 'RISK_MGT_REJECTED';
+
 export interface DepositItem {
+  id?: string;
   currency?: string;
   chain?: string;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  status?: DepositStatus;
+  subStatus?: string | null;
+  url?: string | null;
   address?: string;
   memo?: string;
   isInner?: boolean;
@@ -99,6 +115,13 @@ export interface DepositItem {
   updatedAt?: number;
   remark?: string;
   arrears?: boolean;
+  needSubmitWht?: boolean | null;
+  /** Min number for balance confirmation (as of 2026.07.01) */
+  preConfirms?: number;
+  /** Confirmation number for balance unlock (as of 2026.07.01) */
+  confirms?: number;
+  /** Current deposit confirmation number (as of 2026.07.01) */
+  currentConfirms?: number;
 }
 
 export interface Deposits {

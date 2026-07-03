@@ -1329,12 +1329,28 @@ export interface HistoricalDepositItem {
   amount: string;
   walletTxId: string;
   isInner: boolean;
-  status: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  status: DepositStatus;
 }
+⋮----
+export type DepositStatus =
+  | 'PROCESSING'
+  | 'SUCCESS'
+  | 'FAILURE'
+  | 'PRE_SUCCESS'
+  | 'WAIT_TRM_MGT'
+  | 'TRM_MGT_REJECTED'
+  | 'ROLLBACKING'
+  | 'ROLLBACK'
+  | 'WAIT_RISK_MGT'
+  | 'RISK_MGT_REJECTED';
+⋮----
 export interface DepositItem {
+  id?: string;
   currency?: string;
   chain?: string;
-  status?: 'PROCESSING' | 'SUCCESS' | 'FAILURE';
+  status?: DepositStatus;
+  subStatus?: string | null;
+  url?: string | null;
   address?: string;
   memo?: string;
   isInner?: boolean;
@@ -1345,7 +1361,20 @@ export interface DepositItem {
   updatedAt?: number;
   remark?: string;
   arrears?: boolean;
+  needSubmitWht?: boolean | null;
+  /** Min number for balance confirmation (as of 2026.07.01) */
+  preConfirms?: number;
+  /** Confirmation number for balance unlock (as of 2026.07.01) */
+  confirms?: number;
+  /** Current deposit confirmation number (as of 2026.07.01) */
+  currentConfirms?: number;
 }
+⋮----
+/** Min number for balance confirmation (as of 2026.07.01) */
+⋮----
+/** Confirmation number for balance unlock (as of 2026.07.01) */
+⋮----
+/** Current deposit confirmation number (as of 2026.07.01) */
 ⋮----
 export interface Deposits {
   currentPage: number;
@@ -3734,11 +3763,337 @@ export interface MessageEventLike<TDataType = string> {
 }
 ⋮----
 export function isMessageEvent(msg: unknown): msg is MessageEventLike
+⋮----
+/**
+ * UTA WebSocket private balance push (`channel: balance`).
+ * Field `cS` added 2026.07.01 (platform-level margin collateral status).
+ * @see https://www.kucoin.com/docs-new/3470231w0
+ */
+export interface WsUTABalancePushData {
+  U: number | string;
+  a: string;
+  b: string;
+  c: string;
+  e?: string;
+  h: string;
+  l?: string;
+  /** Platform-level margin collateral status (UNIFIED balance pushes) */
+  cS?: string;
+}
+⋮----
+/** Platform-level margin collateral status (UNIFIED balance pushes) */
+⋮----
+export interface WsUTABalancePush {
+  P: number;
+  T: string;
+  d: WsUTABalancePushData;
+}
+⋮----
+/**
+ * UTA WebSocket private position push (`channel: position` / `positionAll`).
+ * Fields `pM` and `r` added 2026.06.03; `adl` added 2026.05.15.
+ * @see https://www.kucoin.com/docs-new/3470233w0
+ */
+export interface WsUTAPositionPushData {
+  O?: number;
+  U: number;
+  l?: string;
+  q: string;
+  s: string;
+  bP?: string;
+  eP?: string;
+  iM?: string;
+  lP?: string;
+  mM: string;
+  /** Mark price */
+  mP?: string;
+  pV?: string;
+  pi?: string;
+  mmr?: string;
+  mtM?: string;
+  rPL?: string;
+  uPL?: string;
+  /** Margin occupied by the futures position (as of 2026.06.03) */
+  pM?: string;
+  /** Isolated futures risk ratio, e.g. 0.65 = 65% (as of 2026.06.03) */
+  r?: string;
+  /** ADL ranking percentile, e.g. 0.46 = 46% (as of 2026.05.15) */
+  adl?: string;
+}
+⋮----
+/** Mark price */
+⋮----
+/** Margin occupied by the futures position (as of 2026.06.03) */
+⋮----
+/** Isolated futures risk ratio, e.g. 0.65 = 65% (as of 2026.06.03) */
+⋮----
+/** ADL ranking percentile, e.g. 0.46 = 46% (as of 2026.05.15) */
+⋮----
+export interface WsUTAPositionPush {
+  P: number;
+  T: string;
+  d: WsUTAPositionPushData;
+}
+⋮----
+/**
+ * UTA WebSocket public Funding Fee channel (`channel: fundingFee`, FUTURES).
+ * Added 2026.07.01.
+ */
+export interface WsUTAFundingFeePublicPush {
+  T: string;
+  P: number;
+  d: {
+    s: string;
+    fR?: string;
+    fT?: number;
+    M?: number;
+    [key: string]: string | number | boolean | undefined;
+  };
+}
+⋮----
+/**
+ * UTA WebSocket public Mark Price channel (`channel: markPrice`, FUTURES).
+ * Added 2026.07.01.
+ */
+export interface WsUTAMarkPricePublicPush {
+  T: string;
+  P: number;
+  d: {
+    s: string;
+    mP?: string;
+    M?: number;
+    [key: string]: string | number | boolean | undefined;
+  };
+}
+⋮----
+/**
+ * Classic futures WebSocket `/contract/positionAll` funding fee settlement push.
+ * `symbol` added to `data` field 2026.07.01.
+ * @see https://www.kucoin.com/docs-new/3470088w0
+ */
+export interface WsClassicFuturesFundingFeeSettlement {
+  topic: string;
+  subject: 'funding.begin' | 'funding.end';
+  data: {
+    symbol: string;
+    fundingTime: number;
+    fundingRate: number;
+    timestamp: number;
+  };
+}
 
 ================
 File: src/index.ts
 ================
 
+
+================
+File: src/WebsocketAPIClient.ts
+================
+import { DefaultLogger } from './lib/websocket/logger.js';
+import { WS_KEY_MAP, WSAPIWsKey } from './lib/websocket/websocket-util.js';
+import {
+  BatchCancelOrdersRequest,
+  Order,
+} from './types/request/futures.types.js';
+import { SubmitHFMarginOrderRequest } from './types/request/spot-margin-trading.js';
+import {
+  ModifyHFOrderRequest,
+  SubmitHFOrderRequest,
+} from './types/request/spot-trading.js';
+import {
+  BatchCancelOrderResult,
+  SubmitMultipleOrdersFuturesResponse,
+} from './types/response/futures.types.js';
+import { MarginSubmitOrderV3Response } from './types/response/spot-margin-trading.js';
+import {
+  SubmitHFOrderSyncResponse,
+  SyncCancelHFOrderResponse,
+} from './types/response/spot-trading.js';
+import {
+  WSAPICancelOrderRequest,
+  WSAPIOrderResponse,
+  WSAPIResponse,
+} from './types/websockets/ws-api.js';
+import { WSClientConfigurableOptions } from './types/websockets/ws-general.js';
+import { WebsocketClient } from './WebsocketClient.js';
+⋮----
+/**
+ * Configurable options specific to only the REST-like WebsocketAPIClient
+ */
+export interface WSAPIClientConfigurableOptions {
+  /**
+   * Default: true
+   *
+   * Attach default event listeners, which will console log any high level
+   * events (opened/reconnecting/reconnected/etc).
+   *
+   * If you disable this, you should set your own event listeners
+   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
+   */
+  attachEventListeners: boolean;
+}
+⋮----
+/**
+   * Default: true
+   *
+   * Attach default event listeners, which will console log any high level
+   * events (opened/reconnecting/reconnected/etc).
+   *
+   * If you disable this, you should set your own event listeners
+   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
+   */
+⋮----
+/**
+ * This is a minimal Websocket API wrapper around the WebsocketClient.
+ *
+ * Some methods support passing in a custom "wsKey". This is a reference to which WS connection should
+ * be used to transmit that message. This is only useful if you wish to use an alternative wss
+ * domain that is supported by the SDK.
+ *
+ * Note: To use testnet, don't set the wsKey - use `testnet: true` in
+ * the constructor instead.
+ *
+ * Note: You can also directly use the sendWSAPIRequest() method to make WS API calls, but some
+ * may find the below methods slightly more intuitive.
+ *
+ * Refer to the WS API promises example for a more detailed example on using sendWSAPIRequest() directly:
+ * https://github.com/tiagosiebler/binance/blob/master/examples/WebSockets/ws-api-raw-promises.ts#L108
+ */
+export class WebsocketAPIClient
+⋮----
+constructor(
+    options?: WSClientConfigurableOptions &
+      Partial<WSAPIClientConfigurableOptions>,
+    logger?: DefaultLogger,
+)
+⋮----
+public getWSClient(): WebsocketClient
+⋮----
+/**
+   * Submit a spot order
+   */
+submitNewSpotOrder(
+    params: SubmitHFOrderRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIOrderResponse>>
+⋮----
+/**
+   * Modify a spot order
+   */
+modifySpotOrder(
+    params: ModifyHFOrderRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<
+⋮----
+/**
+   * Cancel a spot order
+   */
+cancelSpotOrder(
+    params: WSAPICancelOrderRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIOrderResponse>>
+⋮----
+/**
+   * Submit a sync spot order
+   */
+submitSyncSpotOrder(
+    params: SubmitHFOrderRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<SubmitHFOrderSyncResponse>>
+⋮----
+/**
+   * Cancel a sync spot order
+   */
+cancelSyncSpotOrder(
+    params: WSAPICancelOrderRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<SyncCancelHFOrderResponse>>
+⋮----
+/**
+   * Submit a margin order
+   */
+submitMarginOrder(
+    params: SubmitHFMarginOrderRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<MarginSubmitOrderV3Response>>
+⋮----
+/**
+   * Cancel a margin order
+   */
+cancelMarginOrder(
+    params: WSAPICancelOrderRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIOrderResponse>>
+⋮----
+/**
+   * Submit a futures order
+   */
+submitFuturesOrder(
+    params: Order,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIOrderResponse>>
+⋮----
+/**
+   * Cancel a futures order
+   */
+cancelFuturesOrder(
+    params: { orderId: string } | { clientOid: string; symbol: string },
+    wsKey?: WSAPIWsKey,
+  ): Promise<
+    WSAPIResponse<{ cancelledOrderIds: string[] } | { clientOid: string }>
+  > {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.wsApiFuturesV1,
+      'futures.cancel',
+      params,
+    );
+⋮----
+/**
+   * Submit multiple futures orders
+   */
+submitMultipleFuturesOrders(
+    params: Order[],
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<SubmitMultipleOrdersFuturesResponse[]>>
+⋮----
+/**
+   * Cancel multiple futures orders
+   */
+cancelMultipleFuturesOrders(
+    params: BatchCancelOrdersRequest,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<BatchCancelOrderResult[]>>
+⋮----
+/**
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   * Private methods for handling some of the convenience/automation provided by the WS API Client
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   */
+⋮----
+public connectWSAPI(wsKey: WSAPIWsKey)
+⋮----
+private setupDefaultEventListeners()
+⋮----
+/**
+       * General event handlers for monitoring the WebsocketClient
+       */
+⋮----
+// Blind JSON.stringify can fail on circular references
+⋮----
+// JSON.stringify({ ...data, target: 'WebSocket' }),
 
 ================
 File: webpack/webpack.config.cjs
@@ -7515,418 +7870,6 @@ applyFastWithdrawal(
 ): Promise<APISuccessResponse<FastApiWithdrawApplyResponse>>
 
 ================
-File: src/WebsocketAPIClient.ts
-================
-import { DefaultLogger } from './lib/websocket/logger.js';
-import { WS_KEY_MAP, WSAPIWsKey } from './lib/websocket/websocket-util.js';
-import {
-  BatchCancelOrdersRequest,
-  Order,
-} from './types/request/futures.types.js';
-import { SubmitHFMarginOrderRequest } from './types/request/spot-margin-trading.js';
-import {
-  ModifyHFOrderRequest,
-  SubmitHFOrderRequest,
-} from './types/request/spot-trading.js';
-import {
-  BatchCancelOrderResult,
-  SubmitMultipleOrdersFuturesResponse,
-} from './types/response/futures.types.js';
-import { MarginSubmitOrderV3Response } from './types/response/spot-margin-trading.js';
-import {
-  SubmitHFOrderSyncResponse,
-  SyncCancelHFOrderResponse,
-} from './types/response/spot-trading.js';
-import {
-  WSAPICancelOrderRequest,
-  WSAPIOrderResponse,
-  WSAPIResponse,
-} from './types/websockets/ws-api.js';
-import { WSClientConfigurableOptions } from './types/websockets/ws-general.js';
-import { WebsocketClient } from './WebsocketClient.js';
-⋮----
-/**
- * Configurable options specific to only the REST-like WebsocketAPIClient
- */
-export interface WSAPIClientConfigurableOptions {
-  /**
-   * Default: true
-   *
-   * Attach default event listeners, which will console log any high level
-   * events (opened/reconnecting/reconnected/etc).
-   *
-   * If you disable this, you should set your own event listeners
-   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
-   */
-  attachEventListeners: boolean;
-}
-⋮----
-/**
-   * Default: true
-   *
-   * Attach default event listeners, which will console log any high level
-   * events (opened/reconnecting/reconnected/etc).
-   *
-   * If you disable this, you should set your own event listeners
-   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
-   */
-⋮----
-/**
- * This is a minimal Websocket API wrapper around the WebsocketClient.
- *
- * Some methods support passing in a custom "wsKey". This is a reference to which WS connection should
- * be used to transmit that message. This is only useful if you wish to use an alternative wss
- * domain that is supported by the SDK.
- *
- * Note: To use testnet, don't set the wsKey - use `testnet: true` in
- * the constructor instead.
- *
- * Note: You can also directly use the sendWSAPIRequest() method to make WS API calls, but some
- * may find the below methods slightly more intuitive.
- *
- * Refer to the WS API promises example for a more detailed example on using sendWSAPIRequest() directly:
- * https://github.com/tiagosiebler/binance/blob/master/examples/WebSockets/ws-api-raw-promises.ts#L108
- */
-export class WebsocketAPIClient
-⋮----
-constructor(
-    options?: WSClientConfigurableOptions &
-      Partial<WSAPIClientConfigurableOptions>,
-    logger?: DefaultLogger,
-)
-⋮----
-public getWSClient(): WebsocketClient
-⋮----
-/**
-   * Submit a spot order
-   */
-submitNewSpotOrder(
-    params: SubmitHFOrderRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIOrderResponse>>
-⋮----
-/**
-   * Modify a spot order
-   */
-modifySpotOrder(
-    params: ModifyHFOrderRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<
-⋮----
-/**
-   * Cancel a spot order
-   */
-cancelSpotOrder(
-    params: WSAPICancelOrderRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIOrderResponse>>
-⋮----
-/**
-   * Submit a sync spot order
-   */
-submitSyncSpotOrder(
-    params: SubmitHFOrderRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<SubmitHFOrderSyncResponse>>
-⋮----
-/**
-   * Cancel a sync spot order
-   */
-cancelSyncSpotOrder(
-    params: WSAPICancelOrderRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<SyncCancelHFOrderResponse>>
-⋮----
-/**
-   * Submit a margin order
-   */
-submitMarginOrder(
-    params: SubmitHFMarginOrderRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<MarginSubmitOrderV3Response>>
-⋮----
-/**
-   * Cancel a margin order
-   */
-cancelMarginOrder(
-    params: WSAPICancelOrderRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIOrderResponse>>
-⋮----
-/**
-   * Submit a futures order
-   */
-submitFuturesOrder(
-    params: Order,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIOrderResponse>>
-⋮----
-/**
-   * Cancel a futures order
-   */
-cancelFuturesOrder(
-    params: { orderId: string } | { clientOid: string; symbol: string },
-    wsKey?: WSAPIWsKey,
-  ): Promise<
-    WSAPIResponse<{ cancelledOrderIds: string[] } | { clientOid: string }>
-  > {
-    return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.wsApiFuturesV1,
-      'futures.cancel',
-      params,
-    );
-⋮----
-/**
-   * Submit multiple futures orders
-   */
-submitMultipleFuturesOrders(
-    params: Order[],
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<SubmitMultipleOrdersFuturesResponse[]>>
-⋮----
-/**
-   * Cancel multiple futures orders
-   */
-cancelMultipleFuturesOrders(
-    params: BatchCancelOrdersRequest,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<BatchCancelOrderResult[]>>
-⋮----
-/**
-   *
-   *
-   *
-   *
-   *
-   *
-   *
-   * Private methods for handling some of the convenience/automation provided by the WS API Client
-   *
-   *
-   *
-   *
-   *
-   *
-   *
-   */
-⋮----
-public connectWSAPI(wsKey: WSAPIWsKey)
-⋮----
-private setupDefaultEventListeners()
-⋮----
-/**
-       * General event handlers for monitoring the WebsocketClient
-       */
-⋮----
-// Blind JSON.stringify can fail on circular references
-⋮----
-// JSON.stringify({ ...data, target: 'WebSocket' }),
-
-================
-File: src/lib/BaseRestClient.ts
-================
-/* eslint-disable no-unused-vars */
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-// NOTE: https.Agent is Node.js-only and not available in browser environments
-// Browser builds (via webpack) exclude this module - see webpack.config.js fallback settings
-import https from 'https';
-⋮----
-import { neverGuard } from './misc-util.js';
-import {
-  APIIDFutures,
-  APIIDFuturesSign,
-  APIIDMain,
-  APIIDMainSign,
-  getRestBaseUrl,
-  REST_CLIENT_TYPE_ENUM,
-  RestClientOptions,
-  RestClientType,
-  serializeParams,
-} from './requestUtils.js';
-import {
-  checkWebCryptoAPISupported,
-  SignAlgorithm,
-  SignEncodeMethod,
-  signMessage,
-} from './webCryptoAPI.js';
-⋮----
-export interface SignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign?: T & { sign: string };
-  serializedParams: string;
-  sign: string;
-  queryParamsWithSign: string;
-  timestamp: number;
-  recvWindow: number;
-}
-⋮----
-interface UnsignedRequest<T extends object | undefined = {}> {
-  originalParams: T;
-  paramsWithSign: T;
-}
-⋮----
-type SignMethod = 'kucoin';
-⋮----
-// request: {
-//   url: response.config.url,
-//   method: response.config.method,
-//   data: response.config.data,
-//   headers: response.config.headers,
-// },
-⋮----
-export abstract class BaseRestClient
-⋮----
-/** Defines the client type (affecting how requests & signatures behave) */
-abstract getClientType(): RestClientType;
-⋮----
-/**
-   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
-   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
-   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
-   */
-constructor(
-    restClientOptions: RestClientOptions = {},
-    networkOptions: AxiosRequestConfig = {},
-)
-⋮----
-/** Throw errors if any request params are empty */
-⋮----
-/** in ms == 5 minutes by default */
-⋮----
-/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
-⋮----
-// If AU market, this ensures market data API calls return correct AU-specific data (e.g. correct trading pairs, tickers, etc).
-⋮----
-// If enabled, configure a https agent with keepAlive enabled
-// NOTE: This is Node.js-only functionality. In browser environments, this code is skipped
-// as the 'https' module is excluded via webpack fallback configuration.
-// Browser connection pooling is handled automatically by the browser itself.
-⋮----
-// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
-⋮----
-// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
-// parameter to define a custom httpsAgent with the desired properties
-⋮----
-// Check Web Crypto API support when credentials are provided
-⋮----
-// Throw if one of the 3 values is missing, but at least one of them is set
-⋮----
-/**
-   * Generates a timestamp for signing API requests.
-   *
-   * This method can be overridden or customized using `customTimestampFn`
-   * to implement a custom timestamp synchronization mechanism.
-   * If no custom function is provided, it defaults to the current system time.
-   */
-private getSignTimestampMs(): number
-⋮----
-private hasValidCredentials()
-⋮----
-setAccessToken(newAccessToken: string)
-⋮----
-hasAccessToken(): boolean
-⋮----
-get(endpoint: string, params?: any)
-⋮----
-post(endpoint: string, params?: any)
-⋮----
-getPrivate(endpoint: string, params?: any)
-⋮----
-postPrivate(endpoint: string, params?: any)
-⋮----
-deletePrivate(endpoint: string, params?: any)
-⋮----
-/**
-   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
-   */
-private async _call(
-    method: Method,
-    endpoint: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<any>
-⋮----
-// Sanity check to make sure it's only ever prefixed by one forward slash
-⋮----
-// Build a request and handle signature process
-⋮----
-// Dispatch request
-⋮----
-// Throw if API returns an error (e.g. insufficient balance)
-⋮----
-/**
-   * @private generic handler to parse request exceptions
-   */
-parseException(e: any, requestParams: any): unknown
-⋮----
-// Something happened in setting up the request that triggered an error
-⋮----
-// request made but no response received
-⋮----
-// The request was made and the server responded with a status code
-// that falls out of the range of 2xx
-⋮----
-// console.error('err: ', response?.data);
-⋮----
-// Prevent credentials from leaking into error messages
-⋮----
-private async signMessage(
-    paramsStr: string,
-    secret: string,
-    method: SignEncodeMethod,
-    algorithm: SignAlgorithm,
-): Promise<string>
-⋮----
-/**
-   * @private sign request and set recv window
-   */
-private async signRequest<T extends object | undefined = {}>(
-    data: T,
-    endpoint: string,
-    method: Method,
-    signMethod: SignMethod,
-): Promise<SignedRequest<T>>
-⋮----
-// Only sign when no access token is provided
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: true,
-  ): Promise<UnsignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: false | undefined,
-  ): Promise<SignedRequest<TParams>>;
-⋮----
-private async prepareSignParams<TParams extends object | undefined>(
-    method: Method,
-    endpoint: string,
-    signMethod: SignMethod,
-    params?: TParams,
-    isPublicApi?: boolean,
-)
-⋮----
-/** Returns an axios request object. Handles signing process automatically if this is a private API call */
-private async buildRequest(
-    method: Method,
-    endpoint: string,
-    url: string,
-    params?: any,
-    isPublicApi?: boolean,
-): Promise<AxiosRequestConfig>
-⋮----
-// Support for Authorization header, if provided:
-// https://github.com/tiagosiebler/kucoin-api/issues/2
-// Use restClient.setAccessToken(newToken), if you need to store a new access token
-
-================
 File: src/types/websockets/ws-general.ts
 ================
 import { AxiosRequestConfig } from 'axios';
@@ -8265,11 +8208,16 @@ async function start()
 // BTCUSDT orderbook updates for FUTURES market
 // https://www.kucoin.com/docs-new/3470221w0
 ⋮----
-depth: '5', // 1 / 5 / 50 / increment
+depth: '5', // 1 / 5 / 50 / increment / increment@10ms (2026.06.17: snapshot + 500-level, 10ms batch)
 rpiFilter: 0, // 0：Only NoneRPI orders [Default]  1(Only Support Futures)：NoneRPI+ RPI Orders. When rpiFilter=1, "depth" only supports 5/50.
 ⋮----
 // BTCUSDT trades for spot market
 // https://www.kucoin.com/docs-new/3470224w0
+⋮----
+// UTA public Funding Fee channel (2026.07.01)
+// https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
+⋮----
+// UTA public Mark Price channel (2026.07.01)
 
 ================
 File: examples/WebSockets/ws-public-spot-pro-v2.ts
@@ -8453,165 +8401,215 @@ export async function decompressMessageEvent(
 start(controller)
 
 ================
-File: src/lib/requestUtils.ts
+File: src/lib/BaseRestClient.ts
 ================
+/* eslint-disable no-unused-vars */
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
+// NOTE: https.Agent is Node.js-only and not available in browser environments
+// Browser builds (via webpack) exclude this module - see webpack.config.js fallback settings
+import https from 'https';
+⋮----
 import { neverGuard } from './misc-util.js';
+import {
+  APIIDFutures,
+  APIIDFuturesSign,
+  APIIDMain,
+  APIIDMainSign,
+  getRestBaseUrl,
+  InternalRequestContext,
+  isMainSignClientType,
+  RestClientOptions,
+  RestClientType,
+  serializeParams,
+} from './requestUtils.js';
+import {
+  checkWebCryptoAPISupported,
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './webCryptoAPI.js';
 ⋮----
-/**
- * Used to switch how authentication/requests work under the hood
- */
-⋮----
-/** Global & AU: Spot & Margin */
-⋮----
-/** Global & AU: Futures */
-⋮----
-/** Global: Broker */
-⋮----
-/** Global: Unified Trading Account */
-⋮----
-/** Dedicated EU: main (Spot & Margin). No futures at this time. */
-⋮----
-export type RestClientType =
-  (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
-⋮----
-// https://www.kucoin.com/en-eu/docs-new/introduction/eu
-⋮----
-export type APIRegion = 'global' | 'EU' | 'AU';
-⋮----
-export interface RestClientOptions {
-  /** Your API key */
-  apiKey?: string;
-
-  /** Your API secret */
-  apiSecret?: string;
-
-  /** Your API passphrase (can be anything) that you set when creating this API key (NOT your account password) */
-  apiPassphrase?: string;
-
-  /**
-   * Use access token instead of sign, if this is provided.
-   * For guidance refer to: https://github.com/tiagosiebler/kucoin-api/issues/2
-   */
-  apiAccessToken?: string;
-
-  /** The API key version. Defaults to "2" right now. You can see this in your API management page */
-  apiKeyVersion?: number | string;
-
-  /**
-   * The API region you would like to work with:
-   * - Global (default)
-   *   - API Docs: https://www.kucoin.com/docs-new/introduction
-   * - EU:
-   *   - API Docs: https://www.kucoin.com/en-eu/docs-new/introduction/eu
-   *   - Behaves the same as global, but keep in mind that futures may not be available at this time for EU users.
-   * - AU:
-   *   - API Docs: https://www.kucoin.com/en-au/docs-new/introduction/au
-   *   - Ensures regional market data is retrieved (e.g. correct trading pairs, correct tickers, etc).
-   *   - Also ensures requests for AU users include the required extra header (X-SITE-TYPE: australia).
-   */
-  apiRegion?: APIRegion;
-
-  /** Default: false. If true, we'll throw errors if any params are undefined */
-  strictParamValidation?: boolean;
-
-  /**
-   * Optionally override API protocol + domain. This will override any domain influence from the apiRegion parameter.
-   * e.g baseUrl: 'https://api.kucoin.com'
-   **/
-  baseUrl?: string;
-
-  /** Default: true. whether to try and post-process request exceptions (and throw them). */
-  parseExceptions?: boolean;
-
-  customTimestampFn?: () => number;
-
-  /**
-   * Enable keep alive for REST API requests (via axios).
-   */
-  keepAlive?: boolean;
-
-  /**
-   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-   * Only relevant if keepAlive is set to true.
-   * Default: 1000 (defaults comes from https agent)
-   */
-  keepAliveMsecs?: number;
-
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+export interface SignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign?: T & { sign: string };
+  serializedParams: string;
+  sign: string;
+  queryParamsWithSign: string;
+  timestamp: number;
+  recvWindow: number;
 }
 ⋮----
-/** Your API key */
+interface UnsignedRequest<T extends object | undefined = {}> {
+  originalParams: T;
+  paramsWithSign: T;
+}
 ⋮----
-/** Your API secret */
+type SignMethod = 'kucoin';
 ⋮----
-/** Your API passphrase (can be anything) that you set when creating this API key (NOT your account password) */
+// request: {
+//   url: response.config.url,
+//   method: response.config.method,
+//   data: response.config.data,
+//   headers: response.config.headers,
+// },
+⋮----
+export abstract class BaseRestClient
+⋮----
+/** Defines the client type (affecting how requests & signatures behave) */
+abstract getClientType(): RestClientType;
 ⋮----
 /**
-   * Use access token instead of sign, if this is provided.
-   * For guidance refer to: https://github.com/tiagosiebler/kucoin-api/issues/2
+   * Create an instance of the REST client. Pass API credentials in the object in the first parameter.
+   * @param {RestClientOptions} [restClientOptions={}] options to configure REST API connectivity
+   * @param {AxiosRequestConfig} [networkOptions={}] HTTP networking options for axios
    */
+constructor(
+    restClientOptions: RestClientOptions = {},
+    networkOptions: AxiosRequestConfig = {},
+)
 ⋮----
-/** The API key version. Defaults to "2" right now. You can see this in your API management page */
+/** Throw errors if any request params are empty */
 ⋮----
-/**
-   * The API region you would like to work with:
-   * - Global (default)
-   *   - API Docs: https://www.kucoin.com/docs-new/introduction
-   * - EU:
-   *   - API Docs: https://www.kucoin.com/en-eu/docs-new/introduction/eu
-   *   - Behaves the same as global, but keep in mind that futures may not be available at this time for EU users.
-   * - AU:
-   *   - API Docs: https://www.kucoin.com/en-au/docs-new/introduction/au
-   *   - Ensures regional market data is retrieved (e.g. correct trading pairs, correct tickers, etc).
-   *   - Also ensures requests for AU users include the required extra header (X-SITE-TYPE: australia).
-   */
+/** in ms == 5 minutes by default */
 ⋮----
-/** Default: false. If true, we'll throw errors if any params are undefined */
+/** inject custom rquest options based on axios specs - see axios docs for more guidance on AxiosRequestConfig: https://github.com/axios/axios#request-config */
 ⋮----
-/**
-   * Optionally override API protocol + domain. This will override any domain influence from the apiRegion parameter.
-   * e.g baseUrl: 'https://api.kucoin.com'
-   **/
+// If AU market, this ensures market data API calls return correct AU-specific data (e.g. correct trading pairs, tickers, etc).
 ⋮----
-/** Default: true. whether to try and post-process request exceptions (and throw them). */
+// If enabled, configure a https agent with keepAlive enabled
+// NOTE: This is Node.js-only functionality. In browser environments, this code is skipped
+// as the 'https' module is excluded via webpack fallback configuration.
+// Browser connection pooling is handled automatically by the browser itself.
 ⋮----
-/**
-   * Enable keep alive for REST API requests (via axios).
-   */
+// Extract existing https agent parameters, if provided, to prevent the keepAlive flag from overwriting an existing https agent completely
+⋮----
+// For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
+// parameter to define a custom httpsAgent with the desired properties
+⋮----
+// Check Web Crypto API support when credentials are provided
+⋮----
+// Throw if one of the 3 values is missing, but at least one of them is set
 ⋮----
 /**
-   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-   * Only relevant if keepAlive is set to true.
-   * Default: 1000 (defaults comes from https agent)
-   */
-⋮----
-/**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   * Generates a timestamp for signing API requests.
    *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   * This method can be overridden or customized using `customTimestampFn`
+   * to implement a custom timestamp synchronization mechanism.
+   * If no custom function is provided, it defaults to the current system time.
    */
+private getSignTimestampMs(): number
 ⋮----
-export function serializeParams<T extends Record<string, any> | undefined = {}>(
-  params: T,
-  strict_validation: boolean | undefined,
-  encodeValues: boolean,
-  prefixWith: string,
-): string
+private hasValidCredentials()
 ⋮----
-// Only prefix if there's a value
+setAccessToken(newAccessToken: string)
 ⋮----
-export function getRestBaseUrl(
-  useTestnet: boolean,
-  restOptions: RestClientOptions,
-  restClientType: RestClientType,
-): string
+hasAccessToken(): boolean
 ⋮----
-// Override to EU URL for EU regional users
+get(endpoint: string, params?: any)
+⋮----
+post(endpoint: string, params?: any)
+⋮----
+getPrivate(endpoint: string, params?: any)
+⋮----
+postPrivate(
+    endpoint: string,
+    params?: any,
+    internalReqContext?: InternalRequestContext,
+)
+⋮----
+deletePrivate(endpoint: string, params?: any)
+⋮----
+/**
+   * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
+   */
+private async _call(
+    method: Method,
+    endpoint: string,
+    params?: any,
+    isPublicApi?: boolean,
+    internalReqContext?: InternalRequestContext,
+): Promise<any>
+⋮----
+// Sanity check to make sure it's only ever prefixed by one forward slash
+⋮----
+// Build a request and handle signature process
+⋮----
+// Dispatch request
+⋮----
+// Throw if API returns an error (e.g. insufficient balance)
+⋮----
+/**
+   * @private generic handler to parse request exceptions
+   */
+parseException(e: any, requestParams: any): unknown
+⋮----
+// Something happened in setting up the request that triggered an error
+⋮----
+// request made but no response received
+⋮----
+// The request was made and the server responded with a status code
+// that falls out of the range of 2xx
+⋮----
+// console.error('err: ', response?.data);
+⋮----
+// Prevent credentials from leaking into error messages
+⋮----
+private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method: SignEncodeMethod,
+    algorithm: SignAlgorithm,
+): Promise<string>
+⋮----
+/**
+   * @private sign request and set recv window
+   */
+private async signRequest<T extends object | undefined = {}>(
+    data: T,
+    endpoint: string,
+    method: Method,
+    signMethod: SignMethod,
+): Promise<SignedRequest<T>>
+⋮----
+// Only sign when no access token is provided
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: true,
+  ): Promise<UnsignedRequest<TParams>>;
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: false | undefined,
+  ): Promise<SignedRequest<TParams>>;
+⋮----
+private async prepareSignParams<TParams extends object | undefined>(
+    method: Method,
+    endpoint: string,
+    signMethod: SignMethod,
+    params?: TParams,
+    isPublicApi?: boolean,
+)
+⋮----
+/** Returns an axios request object. Handles signing process automatically if this is a private API call */
+private async buildRequest(
+    method: Method,
+    endpoint: string,
+    url: string,
+    params?: any,
+    isPublicApi?: boolean,
+    internalReqContext?: InternalRequestContext,
+): Promise<AxiosRequestConfig>
+⋮----
+// Support for Authorization header, if provided:
+// https://github.com/tiagosiebler/kucoin-api/issues/2
+// Use restClient.setAccessToken(newToken), if you need to store a new access token
 
 ================
 File: src/types/websockets/ws-api.ts
@@ -8798,6 +8796,717 @@ export interface WSAPIAuthenticationConfirmedFromServer {
 }
 
 ================
+File: src/lib/BaseWSClient.ts
+================
+import EventEmitter from 'events';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import { WsOperation } from '../types/websockets/ws-api.js';
+import {
+  isMessageEvent,
+  MessageEventLike,
+} from '../types/websockets/ws-events.js';
+import {
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+  WsEventInternalSrc,
+} from '../types/websockets/ws-general.js';
+import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
+import { DefaultLogger } from './websocket/logger.js';
+import {
+  bufferLooksLikeText,
+  decompressMessageEvent,
+  isBufferMessageEvent,
+  safeTerminateWs,
+  WsTopicRequest,
+  WsTopicRequestOrStringTopic,
+} from './websocket/websocket-util.js';
+import { WsStore } from './websocket/WsStore.js';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './websocket/WsStore.types.js';
+⋮----
+type UseTheExceptionEventInstead = never;
+⋮----
+interface WSClientEventMap<WsKey extends string> {
+  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+  open: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
+
+  /** Reconnecting a dropped connection */
+  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
+
+  /** Successfully reconnected a connection that dropped */
+  reconnected: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
+
+  /** Connection closed */
+  close: (evt: { wsKey: WsKey; event: any }) => void;
+
+  /** Received reply to websocket command (e.g. after subscribing to topics) */
+  response: (response: any & { wsKey: WsKey }) => void;
+
+  /** Received data for topic */
+  update: (response: any & { wsKey: WsKey }) => void;
+
+  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+  exception: (response: any & { wsKey: WsKey }) => void;
+
+  /**
+   * See for more information: https://github.com/tiagosiebler/bybit-api/issues/413
+   * @deprecated Use the 'exception' event instead. The 'error' event had the unintended consequence of throwing an unhandled promise rejection.
+   */
+  error: UseTheExceptionEventInstead;
+
+  /** Confirmation that a connection successfully authenticated */
+  authenticated: (event: { wsKey: WsKey; event: any }) => void;
+}
+⋮----
+/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+⋮----
+/** Reconnecting a dropped connection */
+⋮----
+/** Successfully reconnected a connection that dropped */
+⋮----
+/** Connection closed */
+⋮----
+/** Received reply to websocket command (e.g. after subscribing to topics) */
+⋮----
+/** Received data for topic */
+⋮----
+/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+⋮----
+/**
+   * See for more information: https://github.com/tiagosiebler/bybit-api/issues/413
+   * @deprecated Use the 'exception' event instead. The 'error' event had the unintended consequence of throwing an unhandled promise rejection.
+   */
+⋮----
+/** Confirmation that a connection successfully authenticated */
+⋮----
+export interface EmittableEvent<TEvent = any> {
+  eventType:
+    | 'response'
+    | 'update'
+    | 'exception'
+    | 'connectionReadyForAuth' // tied to specific events we need to wait for, before we can begin post-connect auth
+    | 'authenticated'
+    | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
+  event: TEvent;
+  isWSAPIResponse?: boolean;
+}
+⋮----
+| 'connectionReadyForAuth' // tied to specific events we need to wait for, before we can begin post-connect auth
+⋮----
+| 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
+⋮----
+// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
+export interface BaseWebsocketClient<TWSKey extends string> {
+  on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+
+  emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+}
+⋮----
+on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+⋮----
+emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+⋮----
+/**
+ * Appends wsKey and isWSAPIResponse to all events.
+ * Some events are arrays, this handles that nested scenario too.
+ */
+function getFinalEmittable(
+  emittable: EmittableEvent | EmittableEvent[],
+  wsKey: any,
+  isWSAPIResponse?: boolean,
+): any
+⋮----
+// Some topics just emit an array.
+// This is consistent with how it was before the WS API upgrade:
+⋮----
+// const { event, ...others } = emittable;
+// return {
+//   ...others,
+//   event: event.map((subEvent) =>
+//     getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
+//   ),
+// };
+⋮----
+/**
+ * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
+ *
+ * This method normalises topics into objects (object has topic name + optional params).
+ */
+function getNormalisedTopicRequests(
+  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+): WsTopicRequest<string>[]
+⋮----
+// passed as string, convert to object
+⋮----
+// already a normalised object, thanks to user
+⋮----
+type WSTopic = string;
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export abstract class BaseWebsocketClient<
+TWSKey extends string,
+⋮----
+constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger)
+⋮----
+// Requires a confirmation "response" from the ws connection before assuming it is ready
+⋮----
+// Automatically auth after opening a connection?
+⋮----
+// Automatically include auth/sign with every WS request
+⋮----
+// Automatically re-auth WS API, if we were auth'd before and get reconnected
+⋮----
+// Whether to use native heartbeats (depends on the exchange)
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
+⋮----
+protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract isWsPing(data: any): boolean;
+⋮----
+protected abstract isWsPong(data: any): boolean;
+⋮----
+protected abstract getWsAuthRequestEvent(
+    wsKey: TWSKey,
+    eventToAuth?: object,
+  ): Promise<object | string | 'waitForEvent' | void>;
+⋮----
+protected abstract isPrivateTopicRequest(
+    request: WsTopicRequest<WSTopic>,
+    wsKey: TWSKey,
+  ): boolean;
+⋮----
+/**
+   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
+   */
+protected abstract getWsOperationEventsForTopics(
+    topics: WsTopicRequest<WSTopic>[],
+    wsKey: TWSKey,
+    operation: WsOperation,
+  ): Promise<string[]>;
+⋮----
+protected abstract getPrivateWSKeys(): TWSKey[];
+⋮----
+protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
+⋮----
+protected abstract getMaxTopicsPerSubscribeEvent(
+    wsKey: TWSKey,
+  ): number | null;
+⋮----
+/**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+protected abstract resolveEmittableEvents(
+    wsKey: TWSKey,
+    event: MessageEventLike,
+  ): EmittableEvent[];
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+protected abstract connectAll(): Promise<(WSConnectedResult | undefined)[]>;
+⋮----
+protected isPrivateWsKey(wsKey: TWSKey): boolean
+⋮----
+/** Returns auto-incrementing request ID, used to track promise references for async requests */
+protected getNewRequestId(): string
+⋮----
+// protected abstract sendWSAPIRequest(
+//   wsKey: TWSKey,
+//   operation: string,
+//   params?: any,
+// ): Promise<unknown>;
+⋮----
+/**
+   * Subscribe to one or more topics on a WS connection (identified by WS Key).
+   *
+   * - Topics are automatically cached
+   * - Connections are automatically opened, if not yet connected
+   * - Authentication is automatically handled
+   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
+   *
+   * @param wsTopicRequests array of topics to subscribe to
+   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
+   */
+public subscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<WSTopic>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+⋮----
+// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
+⋮----
+/**
+       * Are we in the process of connection? Nothing to send yet.
+       */
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't request topics yet.
+       *
+       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+protected unsubscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// If not connected, don't need to do anything.
+// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't need to do anything.
+       * We don't subscribe to topics until auth is complete anyway.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+/**
+   * Splits topic requests into two groups, public & private topic requests
+   */
+private sortTopicRequestsIntoPublicPrivate(
+    wsTopicRequests: WsTopicRequest<string>[],
+    wsKey: TWSKey,
+):
+⋮----
+/** Get the WsStore that tracks websockets & topics */
+public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
+⋮----
+public close(wsKey: TWSKey, force?: boolean)
+⋮----
+public closeAll(force?: boolean)
+⋮----
+public isConnected(wsKey: TWSKey): boolean
+⋮----
+/**
+   * Request connection to a specific websocket, instead of waiting for automatic connection.
+   */
+public async connect(
+    wsKey: TWSKey,
+    customUrl?: string | undefined,
+    throwOnError?: boolean,
+): Promise<WSConnectedResult | undefined>
+⋮----
+// Important: don't check for RECONNECTING here, or this clashes with reconnectWithDelay()!
+⋮----
+private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
+⋮----
+// Native ws ping/pong frames are not in use for okx
+⋮----
+private parseWsError(context: string, error: any, wsKey: TWSKey): boolean
+⋮----
+// Allow retry by default (in some places that call this). Prevent deadloop in hard failure (401)
+⋮----
+/** Get a signature, build the auth request and send it */
+private async sendAuthRequest(
+    wsKey: TWSKey,
+    eventToAuth?: object,
+): Promise<unknown>
+⋮----
+// If not required, this won't return anything
+⋮----
+// Short-circuit this for the next time it's called
+⋮----
+private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
+⋮----
+private ping(wsKey: TWSKey)
+⋮----
+private clearTimers(wsKey: TWSKey)
+⋮----
+// Send a ping at intervals
+private clearPingTimer(wsKey: TWSKey)
+⋮----
+// Expect a pong within a time limit
+private clearPongTimer(wsKey: TWSKey)
+⋮----
+// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
+⋮----
+// this.logger.trace(`No active pong timer for "${wsKey}"`);
+⋮----
+/**
+   * Simply builds and sends subscribe events for a list of topics for a ws key
+   *
+   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
+   */
+private async requestSubscribeTopics(
+    wsKey: TWSKey,
+    topics: WsTopicRequest<string>[],
+)
+⋮----
+// Automatically splits requests into smaller batches, if needed
+⋮----
+`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
+⋮----
+/**
+   * Simply builds and sends unsubscribe events for a list of topics for a ws key
+   *
+   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
+   */
+private async requestUnsubscribeTopics(
+    wsKey: TWSKey,
+    wsTopicRequests: WsTopicRequest<string>[],
+)
+⋮----
+/**
+   * Try sending a string event on a WS connection (identified by the WS Key)
+   */
+public tryWsSend(
+    wsKey: TWSKey,
+    wsMessage: string,
+    throwExceptions?: boolean,
+)
+⋮----
+private async onWsOpen(
+    event: WebSocket.Event,
+    wsKey: TWSKey,
+    url: string,
+    ws: WebSocket,
+)
+⋮----
+// Resolve & cleanup deferred "connection attempt in progress" promise
+⋮----
+// Remove before continuing, in case there's more requests queued
+⋮----
+/**
+   * Called automatically once a connection is ready.
+   * - Some exchanges are ready immediately after the connections open.
+   * - Some exchanges send an event to confirm the connection is ready for us.
+   *
+   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
+   */
+private async onWsReadyForEvents(wsKey: TWSKey)
+⋮----
+// Resolve & cleanup deferred "connection attempt in progress" promise
+⋮----
+// Remove before resolving, in case there's more requests queued
+⋮----
+// Some websockets require an auth packet to be sent after opening the connection
+⋮----
+// Reconnect to topics known before it connected
+⋮----
+// Request sub to public topics, if any
+⋮----
+// Request sub to private topics, if auth on connect isn't needed
+⋮----
+/**
+   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
+   *
+   * Only used for exchanges that require auth before sending private topic subscription requests
+   */
+private onWsAuthenticated(
+    wsKey: TWSKey,
+    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
+)
+⋮----
+// Resolve & cleanup deferred "auth attempt in progress" promise
+⋮----
+// Remove before continuing, in case there's more requests queued
+⋮----
+private onWsPing(
+    event: any,
+    wsKey: TWSKey,
+    ws: WebSocket,
+    source: WsEventInternalSrc,
+)
+⋮----
+private onWsPong(event: any, wsKey: TWSKey, source: WsEventInternalSrc)
+⋮----
+private async onWsMessage(
+    event: unknown,
+    wsKey: TWSKey,
+    ws: WebSocket,
+    didDecompress = false,
+): Promise<unknown>
+⋮----
+// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
+⋮----
+// console.log(`raw event: `, { data, dataType, emittableEvents });
+⋮----
+// Other event types are automatically emitted here
+// this.logger.trace(
+//   `onWsMessage().emit(${emittable.eventType})`,
+//   emittableFinalEvent,
+// );
+⋮----
+// this.logger.trace(
+//   `onWsMessage().emit(${emittable.eventType}).done()`,
+//   emittableFinalEvent,
+// );
+⋮----
+// eventStr: JSON.stringify(event, null, 2),
+⋮----
+private onWsClose(event: unknown, wsKey: TWSKey)
+⋮----
+// unintentional close, attempt recovery
+⋮----
+// clean up any pending promises for this connection
+⋮----
+// intentional close - clean up
+// clean up any pending promises for this connection
+⋮----
+// This was an intentional close, delete all state for this connection, as if it never existed:
+⋮----
+private getWs(wsKey: TWSKey)
+⋮----
+private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
+⋮----
+/**
+   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
+   */
+protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// this.logger.trace('assertIsConnected(): awaiting...');
+⋮----
+// this.logger.trace('assertIsConnected(): awaiting...connected!');
+⋮----
+// Start connection, it should automatically store/return a promise.
+// this.logger.trace('assertIsConnected(): connecting...');
+⋮----
+// this.logger.trace('assertIsConnected(): connecting...newly connected!');
+⋮----
+/**
+   * Promise-driven method to assert that a ws has been successfully authenticated (will await until auth is confirmed)
+   */
+public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
+⋮----
+// this.logger.trace('assertIsAuthenticated(): connecting...');
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// this.logger.trace('assertIsAuthenticated(): awaiting...');
+⋮----
+// this.logger.trace('assertIsAuthenticated(): authenticated!');
+⋮----
+// this.logger.trace('assertIsAuthenticated(): ok');
+⋮----
+// Start authentication, it should automatically store/return a promise.
+// this.logger.trace('assertIsAuthenticated(): authenticating...');
+⋮----
+// this.logger.trace('assertIsAuthenticated(): newly authenticated!');
+
+================
+File: src/lib/requestUtils.ts
+================
+import { neverGuard } from './misc-util.js';
+⋮----
+/**
+ * Used to switch how authentication/requests work under the hood
+ */
+⋮----
+/** Global & AU: Spot & Margin */
+⋮----
+/** Global & AU: Futures */
+⋮----
+/** Global: Broker */
+⋮----
+/** Global: Unified Trading Account */
+⋮----
+/** Dedicated EU: main (Spot & Margin). No futures at this time. */
+⋮----
+export type RestClientType =
+  (typeof REST_CLIENT_TYPE_ENUM)[keyof typeof REST_CLIENT_TYPE_ENUM];
+⋮----
+// https://www.kucoin.com/en-eu/docs-new/introduction/eu
+⋮----
+export type APIRegion = 'global' | 'EU' | 'AU';
+⋮----
+export interface RestClientOptions {
+  /** Your API key */
+  apiKey?: string;
+
+  /** Your API secret */
+  apiSecret?: string;
+
+  /** Your API passphrase (can be anything) that you set when creating this API key (NOT your account password) */
+  apiPassphrase?: string;
+
+  /**
+   * Use access token instead of sign, if this is provided.
+   * For guidance refer to: https://github.com/tiagosiebler/kucoin-api/issues/2
+   */
+  apiAccessToken?: string;
+
+  /** The API key version. Defaults to "2" right now. You can see this in your API management page */
+  apiKeyVersion?: number | string;
+
+  /**
+   * The API region you would like to work with:
+   * - Global (default)
+   *   - API Docs: https://www.kucoin.com/docs-new/introduction
+   * - EU:
+   *   - API Docs: https://www.kucoin.com/en-eu/docs-new/introduction/eu
+   *   - Behaves the same as global, but keep in mind that futures may not be available at this time for EU users.
+   * - AU:
+   *   - API Docs: https://www.kucoin.com/en-au/docs-new/introduction/au
+   *   - Ensures regional market data is retrieved (e.g. correct trading pairs, correct tickers, etc).
+   *   - Also ensures requests for AU users include the required extra header (X-SITE-TYPE: australia).
+   */
+  apiRegion?: APIRegion;
+
+  /** Default: false. If true, we'll throw errors if any params are undefined */
+  strictParamValidation?: boolean;
+
+  /**
+   * Optionally override API protocol + domain. This will override any domain influence from the apiRegion parameter.
+   * e.g baseUrl: 'https://api.kucoin.com'
+   **/
+  baseUrl?: string;
+
+  /** Default: true. whether to try and post-process request exceptions (and throw them). */
+  parseExceptions?: boolean;
+
+  customTimestampFn?: () => number;
+
+  /**
+   * Enable keep alive for REST API requests (via axios).
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+}
+⋮----
+/** Your API key */
+⋮----
+/** Your API secret */
+⋮----
+/** Your API passphrase (can be anything) that you set when creating this API key (NOT your account password) */
+⋮----
+/**
+   * Use access token instead of sign, if this is provided.
+   * For guidance refer to: https://github.com/tiagosiebler/kucoin-api/issues/2
+   */
+⋮----
+/** The API key version. Defaults to "2" right now. You can see this in your API management page */
+⋮----
+/**
+   * The API region you would like to work with:
+   * - Global (default)
+   *   - API Docs: https://www.kucoin.com/docs-new/introduction
+   * - EU:
+   *   - API Docs: https://www.kucoin.com/en-eu/docs-new/introduction/eu
+   *   - Behaves the same as global, but keep in mind that futures may not be available at this time for EU users.
+   * - AU:
+   *   - API Docs: https://www.kucoin.com/en-au/docs-new/introduction/au
+   *   - Ensures regional market data is retrieved (e.g. correct trading pairs, correct tickers, etc).
+   *   - Also ensures requests for AU users include the required extra header (X-SITE-TYPE: australia).
+   */
+⋮----
+/** Default: false. If true, we'll throw errors if any params are undefined */
+⋮----
+/**
+   * Optionally override API protocol + domain. This will override any domain influence from the apiRegion parameter.
+   * e.g baseUrl: 'https://api.kucoin.com'
+   **/
+⋮----
+/** Default: true. whether to try and post-process request exceptions (and throw them). */
+⋮----
+/**
+   * Enable keep alive for REST API requests (via axios).
+   */
+⋮----
+/**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+⋮----
+export interface InternalRequestContext {
+  derivedClientType?: RestClientType;
+}
+⋮----
+export function isMainSignClientType(
+  clientType: RestClientType,
+  internalReqContext?: InternalRequestContext,
+): boolean
+⋮----
+/**
+ * All non-futures requests resolve to the "main" (non-futures) sign mechanic, by checking the tradeType param for is futures or not.
+ */
+export function isUTAMainClientType(params?: Record<string, any>): boolean
+⋮----
+//
+⋮----
+// cross & isolated are a part of classic margin, resolves to main
+// margin resolves to main
+// spot resolves to main
+⋮----
+export function serializeParams<T extends Record<string, any> | undefined = {}>(
+  params: T,
+  strict_validation: boolean | undefined,
+  encodeValues: boolean,
+  prefixWith: string,
+): string
+⋮----
+// Only prefix if there's a value
+⋮----
+export function getRestBaseUrl(
+  useTestnet: boolean,
+  restOptions: RestClientOptions,
+  restClientType: RestClientType,
+): string
+⋮----
+// Override to EU URL for EU regional users
+
+================
 File: src/types/request/uta-types.ts
 ================
 /**
@@ -8883,8 +9592,39 @@ export interface GetOrderBookRequestUTA {
    * 1: noneRPI + RPI Orders
    */
 ⋮----
+export interface GetFiatPriceRequestUTA {
+  /** Fiat base currency, e.g. USD, EUR. Default USD */
+  base?: string;
+  /** Comma-separated crypto symbols, e.g. BTC,ETH. Default returns all */
+  currencies?: string;
+}
+⋮----
+/** Fiat base currency, e.g. USD, EUR. Default USD */
+⋮----
+/** Comma-separated crypto symbols, e.g. BTC,ETH. Default returns all */
+⋮----
+export interface GetRateLimitRequestUTA {
+  /** Comma-separated UIDs to query */
+  uids: string;
+}
+⋮----
+/** Comma-separated UIDs to query */
+⋮----
+export interface SetSubAccountsRateLimitItemUTA {
+  uid: string;
+  rate: number;
+}
+⋮----
+export interface SetSubAccountsRateLimitRequestUTA {
+  list: SetSubAccountsRateLimitItemUTA[];
+}
+⋮----
 export interface GetKlinesRequestUTA {
   tradeType: 'SPOT' | 'FUTURES';
+  /**
+   * Trading pair symbol, or futures index/mark/premium kline variants:
+   * `{symbol}-index-price`, `{symbol}-mark-price`, `{symbol}-premium-index`
+   */
   symbol: string;
   interval:
     | '1min'
@@ -8904,6 +9644,11 @@ export interface GetKlinesRequestUTA {
   startAt?: number;
   endAt?: number;
 }
+⋮----
+/**
+   * Trading pair symbol, or futures index/mark/premium kline variants:
+   * `{symbol}-index-price`, `{symbol}-mark-price`, `{symbol}-premium-index`
+   */
 ⋮----
 export interface GetCurrentFundingRateRequestUTA {
   symbol: string;
@@ -10528,7 +11273,26 @@ export interface TickerUTA {
   lastPrice: string;
   open: string;
   size: string;
+  /** Absolute price change over 24h (as of 2026.07.01) */
+  priceChange?: string;
+  /** Relative price change over 24h, e.g. 0.0036 = 0.36% (as of 2026.07.01) */
+  priceChangePercent?: string;
+  /** Index price (Futures tickers; as of 2026.07.01) */
+  indexPrice?: string;
+  /** Mark price (Futures tickers; as of 2026.07.01) */
+  markPrice?: string;
 }
+⋮----
+/** Absolute price change over 24h (as of 2026.07.01) */
+⋮----
+/** Relative price change over 24h, e.g. 0.0036 = 0.36% (as of 2026.07.01) */
+⋮----
+/** Index price (Futures tickers; as of 2026.07.01) */
+⋮----
+/** Mark price (Futures tickers; as of 2026.07.01) */
+⋮----
+/** Fiat prices keyed by currency symbol (UTA Get Fiat Price) */
+export type GetFiatPriceResponseUTA = Record<string, string>;
 ⋮----
 export interface GetTickerResponseUTA {
   tradeType: string;
@@ -10705,6 +11469,8 @@ export interface AccountCurrencyUTA {
   available: string;
   balance: string;
   equity: string;
+  /** Platform-level margin collateral status (as of 2026.07.01) */
+  collateralStatus?: string;
   /** Potential borrow reserved by open orders (UTA; as of 2026.04.19) */
   potentialBorrow?: string;
   liability?: string;
@@ -10720,6 +11486,8 @@ export interface AccountCurrencyUTA {
   liabilityInterest?: string;
   unrealisedPnl?: string;
 }
+⋮----
+/** Platform-level margin collateral status (as of 2026.07.01) */
 ⋮----
 /** Potential borrow reserved by open orders (UTA; as of 2026.04.19) */
 ⋮----
@@ -11265,536 +12033,35 @@ export interface BatchModifyMarginModeResponseUTA {
 export interface ModifyIsolatedFuturesMarginResponseUTA {
   ts: number;
 }
-
-================
-File: src/lib/BaseWSClient.ts
-================
-import EventEmitter from 'events';
-import WebSocket from 'isomorphic-ws';
 ⋮----
-import { WsOperation } from '../types/websockets/ws-api.js';
-import {
-  isMessageEvent,
-  MessageEventLike,
-} from '../types/websockets/ws-events.js';
-import {
-  WebsocketClientOptions,
-  WSClientConfigurableOptions,
-  WsEventInternalSrc,
-} from '../types/websockets/ws-general.js';
-import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
-import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
-import { DefaultLogger } from './websocket/logger.js';
-import {
-  bufferLooksLikeText,
-  decompressMessageEvent,
-  isBufferMessageEvent,
-  safeTerminateWs,
-  WsTopicRequest,
-  WsTopicRequestOrStringTopic,
-} from './websocket/websocket-util.js';
-import { WsStore } from './websocket/WsStore.js';
-import {
-  WSConnectedResult,
-  WsConnectionStateEnum,
-} from './websocket/WsStore.types.js';
-⋮----
-type UseTheExceptionEventInstead = never;
-⋮----
-interface WSClientEventMap<WsKey extends string> {
-  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: {
-    wsKey: WsKey;
-    event: any;
-    wsUrl: string;
-    ws: WebSocket;
-  }) => void;
-
-  /** Reconnecting a dropped connection */
-  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
-
-  /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: {
-    wsKey: WsKey;
-    event: any;
-    wsUrl: string;
-    ws: WebSocket;
-  }) => void;
-
-  /** Connection closed */
-  close: (evt: { wsKey: WsKey; event: any }) => void;
-
-  /** Received reply to websocket command (e.g. after subscribing to topics) */
-  response: (response: any & { wsKey: WsKey }) => void;
-
-  /** Received data for topic */
-  update: (response: any & { wsKey: WsKey }) => void;
-
-  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-  exception: (response: any & { wsKey: WsKey }) => void;
-
-  /**
-   * See for more information: https://github.com/tiagosiebler/bybit-api/issues/413
-   * @deprecated Use the 'exception' event instead. The 'error' event had the unintended consequence of throwing an unhandled promise rejection.
-   */
-  error: UseTheExceptionEventInstead;
-
-  /** Confirmation that a connection successfully authenticated */
-  authenticated: (event: { wsKey: WsKey; event: any }) => void;
+export interface RateLimitItemUTA {
+  uid: string;
+  rate: number;
 }
 ⋮----
-/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-⋮----
-/** Reconnecting a dropped connection */
-⋮----
-/** Successfully reconnected a connection that dropped */
-⋮----
-/** Connection closed */
-⋮----
-/** Received reply to websocket command (e.g. after subscribing to topics) */
-⋮----
-/** Received data for topic */
-⋮----
-/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-⋮----
-/**
-   * See for more information: https://github.com/tiagosiebler/bybit-api/issues/413
-   * @deprecated Use the 'exception' event instead. The 'error' event had the unintended consequence of throwing an unhandled promise rejection.
-   */
-⋮----
-/** Confirmation that a connection successfully authenticated */
-⋮----
-export interface EmittableEvent<TEvent = any> {
-  eventType:
-    | 'response'
-    | 'update'
-    | 'exception'
-    | 'connectionReadyForAuth' // tied to specific events we need to wait for, before we can begin post-connect auth
-    | 'authenticated'
-    | 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
-  event: TEvent;
-  isWSAPIResponse?: boolean;
+export interface GetRateLimitResponseUTA {
+  list: RateLimitItemUTA[];
 }
 ⋮----
-| 'connectionReadyForAuth' // tied to specific events we need to wait for, before we can begin post-connect auth
-⋮----
-| 'connectionReady'; // tied to "requireConnectionReadyConfirmation"
-⋮----
-// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
-export interface BaseWebsocketClient<TWSKey extends string> {
-  on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-
-  emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
+export interface GetRateLimitCapResponseUTA {
+  vipLevel: number;
+  mainRateLimit: number;
+  subRateLimit: number;
+  allocatedQuota: number;
+  remainingQuota: number;
+  defaultQuota: number;
 }
 ⋮----
-on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-⋮----
-emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-⋮----
-/**
- * Appends wsKey and isWSAPIResponse to all events.
- * Some events are arrays, this handles that nested scenario too.
- */
-function getFinalEmittable(
-  emittable: EmittableEvent | EmittableEvent[],
-  wsKey: any,
-  isWSAPIResponse?: boolean,
-): any
-⋮----
-// Some topics just emit an array.
-// This is consistent with how it was before the WS API upgrade:
-⋮----
-// const { event, ...others } = emittable;
-// return {
-//   ...others,
-//   event: event.map((subEvent) =>
-//     getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
-//   ),
-// };
-⋮----
-/**
- * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
- *
- * This method normalises topics into objects (object has topic name + optional params).
- */
-function getNormalisedTopicRequests(
-  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-): WsTopicRequest<string>[]
-⋮----
-// passed as string, convert to object
-⋮----
-// already a normalised object, thanks to user
-⋮----
-type WSTopic = string;
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export abstract class BaseWebsocketClient<
-TWSKey extends string,
-⋮----
-constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger)
-⋮----
-// Requires a confirmation "response" from the ws connection before assuming it is ready
-⋮----
-// Automatically auth after opening a connection?
-⋮----
-// Automatically include auth/sign with every WS request
-⋮----
-// Automatically re-auth WS API, if we were auth'd before and get reconnected
-⋮----
-// Whether to use native heartbeats (depends on the exchange)
-⋮----
-// Check Web Crypto API support when credentials are provided and no custom sign function is used
-⋮----
-protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract isWsPing(data: any): boolean;
-⋮----
-protected abstract isWsPong(data: any): boolean;
-⋮----
-protected abstract getWsAuthRequestEvent(
-    wsKey: TWSKey,
-    eventToAuth?: object,
-  ): Promise<object | string | 'waitForEvent' | void>;
-⋮----
-protected abstract isPrivateTopicRequest(
-    request: WsTopicRequest<WSTopic>,
-    wsKey: TWSKey,
-  ): boolean;
-⋮----
-/**
-   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
-   */
-protected abstract getWsOperationEventsForTopics(
-    topics: WsTopicRequest<WSTopic>[],
-    wsKey: TWSKey,
-    operation: WsOperation,
-  ): Promise<string[]>;
-⋮----
-protected abstract getPrivateWSKeys(): TWSKey[];
-⋮----
-protected abstract getWsUrl(wsKey: TWSKey): Promise<string>;
-⋮----
-protected abstract getMaxTopicsPerSubscribeEvent(
-    wsKey: TWSKey,
-  ): number | null;
-⋮----
-/**
-   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
-   */
-protected abstract resolveEmittableEvents(
-    wsKey: TWSKey,
-    event: MessageEventLike,
-  ): EmittableEvent[];
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-protected abstract connectAll(): Promise<(WSConnectedResult | undefined)[]>;
-⋮----
-protected isPrivateWsKey(wsKey: TWSKey): boolean
-⋮----
-/** Returns auto-incrementing request ID, used to track promise references for async requests */
-protected getNewRequestId(): string
-⋮----
-// protected abstract sendWSAPIRequest(
-//   wsKey: TWSKey,
-//   operation: string,
-//   params?: any,
-// ): Promise<unknown>;
-⋮----
-/**
-   * Subscribe to one or more topics on a WS connection (identified by WS Key).
-   *
-   * - Topics are automatically cached
-   * - Connections are automatically opened, if not yet connected
-   * - Authentication is automatically handled
-   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
-   *
-   * @param wsTopicRequests array of topics to subscribe to
-   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
-   */
-public subscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<WSTopic>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
-⋮----
-/**
-       * Are we in the process of connection? Nothing to send yet.
-       */
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't request topics yet.
-       *
-       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-protected unsubscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// If not connected, don't need to do anything.
-// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't need to do anything.
-       * We don't subscribe to topics until auth is complete anyway.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-/**
-   * Splits topic requests into two groups, public & private topic requests
-   */
-private sortTopicRequestsIntoPublicPrivate(
-    wsTopicRequests: WsTopicRequest<string>[],
-    wsKey: TWSKey,
-):
-⋮----
-/** Get the WsStore that tracks websockets & topics */
-public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
-⋮----
-public close(wsKey: TWSKey, force?: boolean)
-⋮----
-public closeAll(force?: boolean)
-⋮----
-public isConnected(wsKey: TWSKey): boolean
-⋮----
-/**
-   * Request connection to a specific websocket, instead of waiting for automatic connection.
-   */
-public async connect(
-    wsKey: TWSKey,
-    customUrl?: string | undefined,
-    throwOnError?: boolean,
-): Promise<WSConnectedResult | undefined>
-⋮----
-// Important: don't check for RECONNECTING here, or this clashes with reconnectWithDelay()!
-⋮----
-private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
-⋮----
-// Native ws ping/pong frames are not in use for okx
-⋮----
-private parseWsError(context: string, error: any, wsKey: TWSKey): boolean
-⋮----
-// Allow retry by default (in some places that call this). Prevent deadloop in hard failure (401)
-⋮----
-/** Get a signature, build the auth request and send it */
-private async sendAuthRequest(
-    wsKey: TWSKey,
-    eventToAuth?: object,
-): Promise<unknown>
-⋮----
-// If not required, this won't return anything
-⋮----
-// Short-circuit this for the next time it's called
-⋮----
-private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
-⋮----
-private ping(wsKey: TWSKey)
-⋮----
-private clearTimers(wsKey: TWSKey)
-⋮----
-// Send a ping at intervals
-private clearPingTimer(wsKey: TWSKey)
-⋮----
-// Expect a pong within a time limit
-private clearPongTimer(wsKey: TWSKey)
-⋮----
-// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
-⋮----
-// this.logger.trace(`No active pong timer for "${wsKey}"`);
-⋮----
-/**
-   * Simply builds and sends subscribe events for a list of topics for a ws key
-   *
-   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
-   */
-private async requestSubscribeTopics(
-    wsKey: TWSKey,
-    topics: WsTopicRequest<string>[],
-)
-⋮----
-// Automatically splits requests into smaller batches, if needed
-⋮----
-`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
-⋮----
-/**
-   * Simply builds and sends unsubscribe events for a list of topics for a ws key
-   *
-   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
-   */
-private async requestUnsubscribeTopics(
-    wsKey: TWSKey,
-    wsTopicRequests: WsTopicRequest<string>[],
-)
-⋮----
-/**
-   * Try sending a string event on a WS connection (identified by the WS Key)
-   */
-public tryWsSend(
-    wsKey: TWSKey,
-    wsMessage: string,
-    throwExceptions?: boolean,
-)
-⋮----
-private async onWsOpen(
-    event: WebSocket.Event,
-    wsKey: TWSKey,
-    url: string,
-    ws: WebSocket,
-)
-⋮----
-// Resolve & cleanup deferred "connection attempt in progress" promise
-⋮----
-// Remove before continuing, in case there's more requests queued
-⋮----
-/**
-   * Called automatically once a connection is ready.
-   * - Some exchanges are ready immediately after the connections open.
-   * - Some exchanges send an event to confirm the connection is ready for us.
-   *
-   * This method is called to act when the connection is ready. Use `requireConnectionReadyConfirmation` to control how this is called.
-   */
-private async onWsReadyForEvents(wsKey: TWSKey)
-⋮----
-// Resolve & cleanup deferred "connection attempt in progress" promise
-⋮----
-// Remove before resolving, in case there's more requests queued
-⋮----
-// Some websockets require an auth packet to be sent after opening the connection
-⋮----
-// Reconnect to topics known before it connected
-⋮----
-// Request sub to public topics, if any
-⋮----
-// Request sub to private topics, if auth on connect isn't needed
-⋮----
-/**
-   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
-   *
-   * Only used for exchanges that require auth before sending private topic subscription requests
-   */
-private onWsAuthenticated(
-    wsKey: TWSKey,
-    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
-)
-⋮----
-// Resolve & cleanup deferred "auth attempt in progress" promise
-⋮----
-// Remove before continuing, in case there's more requests queued
-⋮----
-private onWsPing(
-    event: any,
-    wsKey: TWSKey,
-    ws: WebSocket,
-    source: WsEventInternalSrc,
-)
-⋮----
-private onWsPong(event: any, wsKey: TWSKey, source: WsEventInternalSrc)
-⋮----
-private async onWsMessage(
-    event: unknown,
-    wsKey: TWSKey,
-    ws: WebSocket,
-    didDecompress = false,
-): Promise<unknown>
-⋮----
-// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
-⋮----
-// console.log(`raw event: `, { data, dataType, emittableEvents });
-⋮----
-// Other event types are automatically emitted here
-// this.logger.trace(
-//   `onWsMessage().emit(${emittable.eventType})`,
-//   emittableFinalEvent,
-// );
-⋮----
-// this.logger.trace(
-//   `onWsMessage().emit(${emittable.eventType}).done()`,
-//   emittableFinalEvent,
-// );
-⋮----
-// eventStr: JSON.stringify(event, null, 2),
-⋮----
-private onWsClose(event: unknown, wsKey: TWSKey)
-⋮----
-// unintentional close, attempt recovery
-⋮----
-// clean up any pending promises for this connection
-⋮----
-// intentional close - clean up
-// clean up any pending promises for this connection
-⋮----
-// This was an intentional close, delete all state for this connection, as if it never existed:
-⋮----
-private getWs(wsKey: TWSKey)
-⋮----
-private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
-⋮----
-/**
-   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
-   */
-protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
-⋮----
-// Already in progress? Await shared promise and retry
-⋮----
-// this.logger.trace('assertIsConnected(): awaiting...');
-⋮----
-// this.logger.trace('assertIsConnected(): awaiting...connected!');
-⋮----
-// Start connection, it should automatically store/return a promise.
-// this.logger.trace('assertIsConnected(): connecting...');
-⋮----
-// this.logger.trace('assertIsConnected(): connecting...newly connected!');
-⋮----
-/**
-   * Promise-driven method to assert that a ws has been successfully authenticated (will await until auth is confirmed)
-   */
-public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
-⋮----
-// this.logger.trace('assertIsAuthenticated(): connecting...');
-⋮----
-// Already in progress? Await shared promise and retry
-⋮----
-// this.logger.trace('assertIsAuthenticated(): awaiting...');
-⋮----
-// this.logger.trace('assertIsAuthenticated(): authenticated!');
-⋮----
-// this.logger.trace('assertIsAuthenticated(): ok');
-⋮----
-// Start authentication, it should automatically store/return a promise.
-// this.logger.trace('assertIsAuthenticated(): authenticating...');
-⋮----
-// this.logger.trace('assertIsAuthenticated(): newly authenticated!');
+export interface SetSubAccountsRateLimitResultUTA {
+  uid: string;
+  rate: number;
+  code: string;
+  msg: string;
+}
+⋮----
+export interface SetSubAccountsRateLimitResponseUTA {
+  items: SetSubAccountsRateLimitResultUTA[];
+}
 
 ================
 File: src/FuturesClient.ts
@@ -15174,8 +15441,15 @@ getIsolatedMarginAccount(params: {
 File: src/UnifiedAPIClient.ts
 ================
 import { BaseRestClient } from './lib/BaseRestClient.js';
-import { REST_CLIENT_TYPE_ENUM, RestClientType } from './lib/requestUtils.js';
+import type {
+  InternalRequestContext,
+  RestClientType,
+} from './lib/requestUtils.js';
 import {
+  isUTAMainClientType,
+  REST_CLIENT_TYPE_ENUM,
+} from './lib/requestUtils.js';
+import type {
   AddSubAccountApiRequestUTA,
   AddSubAccountRequestUTA,
   BatchCancelOrdersBySymbolRequestUTA,
@@ -15194,6 +15468,7 @@ import {
   GetDCPRequestUTA,
   GetDepositAddressRequestUTA,
   GetFeeRateRequestUTA,
+  GetFiatPriceRequestUTA,
   GetHistoryFundingRateRequestUTA,
   GetInterestHistoryRequestUTA,
   GetKlinesRequestUTA,
@@ -15205,6 +15480,7 @@ import {
   GetPositionListRequestUTA,
   GetPositionsHistoryRequestUTA,
   GetPrivateFundingFeeHistoryRequestUTA,
+  GetRateLimitRequestUTA,
   GetServiceStatusRequestUTA,
   GetSubAccountRequestUTA,
   GetSymbolRequestUTA,
@@ -15221,11 +15497,12 @@ import {
   PlaceOrderRequestUTA,
   SetAccountModeRequestUTA,
   SetDCPRequestUTA,
+  SetSubAccountsRateLimitRequestUTA,
   SetSubAccountTransferPermissionRequestUTA,
   SubmitWithdrawRequestUTA,
 } from './types/request/uta-types.js';
-import { APISuccessResponse } from './types/response/shared.types.js';
-import {
+import type { APISuccessResponse } from './types/response/shared.types.js';
+import type {
   AddSubAccountApiResponseUTA,
   AddSubAccountResponseUTA,
   ApiKeyInfoUTA,
@@ -15249,6 +15526,7 @@ import {
   GetCurrencyResponseUTA,
   GetCurrentFundingRateResponseUTA,
   GetFeeRateResponseUTA,
+  GetFiatPriceResponseUTA,
   GetHistoryFundingRateResponseUTA,
   GetInterestHistoryResponseUTA,
   GetKlinesResponseUTA,
@@ -15258,6 +15536,8 @@ import {
   GetOrderHistoryResponseUTA,
   GetPositionsHistoryResponseUTA,
   GetPrivateFundingFeeHistoryResponseUTA,
+  GetRateLimitCapResponseUTA,
+  GetRateLimitResponseUTA,
   GetServiceStatusResponseUTA,
   GetSubAccountResponseUTA,
   GetSymbolResponseUTA,
@@ -15272,6 +15552,7 @@ import {
   PlaceOrderResponseUTA,
   PositionTierUTA,
   PositionUTA,
+  SetSubAccountsRateLimitResponseUTA,
   SubAccountTransferPermissionUTA,
   SubmitWithdrawResponseUTA,
   ThirdPartyCustodyCurrencyUTA,
@@ -15331,6 +15612,7 @@ getSymbols(
 /**
    * Get Ticker
    * Request market tickers for the trading pairs in the market (including 24h volume).
+   * Note: priceChange, priceChangePercent, indexPrice, markPrice added 2026.07.01.
    */
 getTickers(
     params: GetTickerRequestUTA,
@@ -15355,6 +15637,7 @@ getOrderBook(
 /**
    * Get Klines
    * Get the Kline of the symbol. Data are returned in grouped buckets based on requested type.
+   * Note: symbol supports `{symbol}-index-price`, `{symbol}-mark-price`, `{symbol}-premium-index` for futures (2026.07.01).
    */
 getKlines(
     params: GetKlinesRequestUTA,
@@ -15403,6 +15686,20 @@ getServiceStatus(
 ): Promise<APISuccessResponse<GetServiceStatusResponseUTA>>
 ⋮----
 /**
+   * Get Client IP Address
+   * Get the client side IP address. Added 2026.07.01.
+   */
+getClientIPAddress(): Promise<APISuccessResponse<string>>
+⋮----
+/**
+   * Get Fiat Price (UTA)
+   * Request the fiat price of currencies for available trading pairs. Added 2026.07.01.
+   */
+getFiatPrice(
+    params?: GetFiatPriceRequestUTA,
+): Promise<APISuccessResponse<GetFiatPriceResponseUTA>>
+⋮----
+/**
    *
    * REST - Unified Trading Account - Account
    *
@@ -15420,6 +15717,7 @@ getClassicAccount(
 /**
    * Get Account (UTA)
    * Get information for Unified Trading Account.
+   * Note: collateralStatus on currency rows added 2026.07.01.
    */
 getAccount(): Promise<APISuccessResponse<GetClassicAccountResponseUTA>>
 ⋮----
@@ -15573,6 +15871,34 @@ getApiKeyInfo(): Promise<APISuccessResponse<ApiKeyInfoUTA>>
    * Obtain the list of KYC regions. Added 2026.05.15.
    */
 getKYCRegions(): Promise<APISuccessResponse<KYCRegionUTA[]>>
+⋮----
+/**
+   * Get API Rate Limit (UTA)
+   * Query UTA API rate limit for specified UIDs. Added 2026.06.05.
+   */
+getRateLimit(
+    params: GetRateLimitRequestUTA,
+): Promise<APISuccessResponse<GetRateLimitResponseUTA>>
+⋮----
+/**
+   * Get All API Rate Limit (UTA)
+   * Query UTA API rate limit for all accounts under the master. Added 2026.06.05.
+   */
+getAllRateLimit(): Promise<APISuccessResponse<GetRateLimitResponseUTA>>
+⋮----
+/**
+   * Get API Rate Limit Cap (UTA)
+   * Query the master account UTA API rate limit cap and allocation. Added 2026.06.05.
+   */
+getRateLimitCap(): Promise<APISuccessResponse<GetRateLimitCapResponseUTA>>
+⋮----
+/**
+   * Set Sub Accounts API Rate Limit (UTA)
+   * Set UTA API rate limits for sub-accounts. Added 2026.06.05.
+   */
+setSubAccountsRateLimit(
+    params: SetSubAccountsRateLimitRequestUTA,
+): Promise<APISuccessResponse<SetSubAccountsRateLimitResponseUTA>>
 ⋮----
 /**
    * Add Sub-Account (UTA)
@@ -16119,6 +16445,7 @@ File: README.md
 [![npm downloads](https://img.shields.io/npm/dt/kucoin-api)][1]
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/kucoin-api)][1]
 [![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tiagosiebler/kucoin-api)
 
 <p align="center">
   <a href="https://www.npmjs.com/package/kucoin-api">
@@ -16690,8 +17017,8 @@ File: package.json
 ================
 {
   "name": "kucoin-api",
-  "version": "2.5.3",
-  "description": "Complete & robust Node.js SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
+  "version": "2.5.5",
+  "description": "Complete & robust JavaScript SDK for Kucoin's REST APIs and WebSockets, with TypeScript & strong end to end tests.",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && bash ./postBuild.sh",
@@ -16778,7 +17105,7 @@ File: package.json
   "bugs": {
     "url": "https://github.com/tiagosiebler/kucoin-api/issues"
   },
-  "homepage": "https://github.com/tiagosiebler/kucoin-api#readme"
+  "homepage": "https://siebly.io/sdk/kucoin/javascript"
 }
 
 
