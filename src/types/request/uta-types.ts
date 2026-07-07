@@ -75,6 +75,27 @@ export interface GetOrderBookRequestUTA {
   rpiFilter?: 0 | 1;
 }
 
+export interface GetFiatPriceRequestUTA {
+  /** Fiat base currency, e.g. USD, EUR. Default USD */
+  base?: string;
+  /** Comma-separated crypto symbols, e.g. BTC,ETH. Default returns all */
+  currencies?: string;
+}
+
+export interface GetRateLimitRequestUTA {
+  /** Comma-separated UIDs to query */
+  uids: string;
+}
+
+export interface SetSubAccountsRateLimitItemUTA {
+  uid: string;
+  rate: number;
+}
+
+export interface SetSubAccountsRateLimitRequestUTA {
+  list: SetSubAccountsRateLimitItemUTA[];
+}
+
 export interface GetKlinesRequestUTA {
   tradeType: 'SPOT' | 'FUTURES';
   symbol: string;

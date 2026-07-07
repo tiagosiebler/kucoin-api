@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   WebsocketClient,
   WS_KEY_MAP,
@@ -135,7 +134,7 @@ async function start() {
           payload: {
             tradeType: 'FUTURES',
             symbol: 'XBTUSDTM',
-            depth: '5', // 1 / 5 / 50 / increment
+            depth: '5', // 1 / 5 / 50 / increment / increment@10ms (2026.06.17: snapshot + 500-level, 10ms batch)
             rpiFilter: 0, // 0：Only NoneRPI orders [Default]  1(Only Support Futures)：NoneRPI+ RPI Orders. When rpiFilter=1, "depth" only supports 5/50.
           },
         },
@@ -143,6 +142,23 @@ async function start() {
         // https://www.kucoin.com/docs-new/3470224w0
         {
           topic: 'trade',
+          payload: {
+            tradeType: 'FUTURES',
+            symbol: 'XBTUSDTM',
+          },
+        },
+        // UTA public Funding Fee channel
+        // https://www.kucoin.com/docs-new/websocket-api/base-info/introduction-uta#5-subscribe
+        {
+          topic: 'fundingFee',
+          payload: {
+            tradeType: 'FUTURES',
+            symbol: 'XBTUSDTM',
+          },
+        },
+        // UTA public Mark Price channel
+        {
+          topic: 'markPrice',
           payload: {
             tradeType: 'FUTURES',
             symbol: 'XBTUSDTM',

@@ -26,6 +26,7 @@ import type {
   GetDCPRequestUTA,
   GetDepositAddressRequestUTA,
   GetFeeRateRequestUTA,
+  GetFiatPriceRequestUTA,
   GetHistoryFundingRateRequestUTA,
   GetInterestHistoryRequestUTA,
   GetKlinesRequestUTA,
@@ -37,6 +38,7 @@ import type {
   GetPositionListRequestUTA,
   GetPositionsHistoryRequestUTA,
   GetPrivateFundingFeeHistoryRequestUTA,
+  GetRateLimitRequestUTA,
   GetServiceStatusRequestUTA,
   GetSubAccountRequestUTA,
   GetSymbolRequestUTA,
@@ -53,6 +55,7 @@ import type {
   PlaceOrderRequestUTA,
   SetAccountModeRequestUTA,
   SetDCPRequestUTA,
+  SetSubAccountsRateLimitRequestUTA,
   SetSubAccountTransferPermissionRequestUTA,
   SubmitWithdrawRequestUTA,
 } from './types/request/uta-types.js';
@@ -81,6 +84,7 @@ import type {
   GetCurrencyResponseUTA,
   GetCurrentFundingRateResponseUTA,
   GetFeeRateResponseUTA,
+  GetFiatPriceResponseUTA,
   GetHistoryFundingRateResponseUTA,
   GetInterestHistoryResponseUTA,
   GetKlinesResponseUTA,
@@ -90,6 +94,8 @@ import type {
   GetOrderHistoryResponseUTA,
   GetPositionsHistoryResponseUTA,
   GetPrivateFundingFeeHistoryResponseUTA,
+  GetRateLimitCapResponseUTA,
+  GetRateLimitResponseUTA,
   GetServiceStatusResponseUTA,
   GetSubAccountResponseUTA,
   GetSymbolResponseUTA,
@@ -104,6 +110,7 @@ import type {
   PlaceOrderResponseUTA,
   PositionTierUTA,
   PositionUTA,
+  SetSubAccountsRateLimitResponseUTA,
   SubAccountTransferPermissionUTA,
   SubmitWithdrawResponseUTA,
   ThirdPartyCustodyCurrencyUTA,
@@ -257,6 +264,24 @@ export class UnifiedAPIClient extends BaseRestClient {
     params: GetServiceStatusRequestUTA,
   ): Promise<APISuccessResponse<GetServiceStatusResponseUTA>> {
     return this.get('api/ua/v1/server/status', params);
+  }
+
+  /**
+   * Get Client IP Address
+   * Get the client side IP address. Added 2026.07.01.
+   */
+  getClientIPAddress(): Promise<APISuccessResponse<string>> {
+    return this.get('api/ua/v1/user/my-ip');
+  }
+
+  /**
+   * Get Fiat Price (UTA)
+   * Request the fiat price of currencies for available trading pairs. Added 2026.07.01.
+   */
+  getFiatPrice(
+    params?: GetFiatPriceRequestUTA,
+  ): Promise<APISuccessResponse<GetFiatPriceResponseUTA>> {
+    return this.get('api/ua/v1/market/fiat-price', params);
   }
 
   /**
@@ -471,6 +496,42 @@ export class UnifiedAPIClient extends BaseRestClient {
    */
   getKYCRegions(): Promise<APISuccessResponse<KYCRegionUTA[]>> {
     return this.get('api/ua/v1/user/kyc-region');
+  }
+
+  /**
+   * Get API Rate Limit (UTA)
+   * Query UTA API rate limit for specified UIDs. Added 2026.06.05.
+   */
+  getRateLimit(
+    params: GetRateLimitRequestUTA,
+  ): Promise<APISuccessResponse<GetRateLimitResponseUTA>> {
+    return this.getPrivate('api/ua/v1/rate-limit/query', params);
+  }
+
+  /**
+   * Get All API Rate Limit (UTA)
+   * Query UTA API rate limit for all accounts under the master. Added 2026.06.05.
+   */
+  getAllRateLimit(): Promise<APISuccessResponse<GetRateLimitResponseUTA>> {
+    return this.getPrivate('api/ua/v1/rate-limit/query-all');
+  }
+
+  /**
+   * Get API Rate Limit Cap (UTA)
+   * Query the master account UTA API rate limit cap and allocation. Added 2026.06.05.
+   */
+  getRateLimitCap(): Promise<APISuccessResponse<GetRateLimitCapResponseUTA>> {
+    return this.getPrivate('api/ua/v1/rate-limit/query-cap');
+  }
+
+  /**
+   * Set Sub Accounts API Rate Limit (UTA)
+   * Set UTA API rate limits for sub-accounts. Added 2026.06.05.
+   */
+  setSubAccountsRateLimit(
+    params: SetSubAccountsRateLimitRequestUTA,
+  ): Promise<APISuccessResponse<SetSubAccountsRateLimitResponseUTA>> {
+    return this.postPrivate('api/ua/v1/rate-limit/set', params);
   }
 
   /**
