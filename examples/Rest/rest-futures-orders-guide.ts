@@ -21,7 +21,7 @@ async function start() {
      * =======
 
     /**
-     * Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols. 
+     * Futures are contracts, not currencies. In the futures symbols list you will see a "multiplier" field for each of the symbols.
      * Each contract equals to  Multiplier x Size
      * For example:  https://api-futures.kucoin.com/api/v1/contracts/XRPUSDTM  - see the "multiplier" value.
      * */
@@ -55,7 +55,7 @@ async function start() {
      */
 
     // A MARKET SHORT of 2 contracts of XBT using leverage of 5:
-    const marketShort = client.submitOrder({
+    const marketShort = await client.submitOrder({
       clientOid: '123456789',
       leverage: 5,
       side: 'sell',
@@ -67,7 +67,7 @@ async function start() {
     console.log('Market short: ', marketShort);
 
     // A MARKET LONG of 2 contracts of XBT using leverage of 5:
-    const marketLong = client.submitOrder({
+    const marketLong = await client.submitOrder({
       clientOid: '123456789',
       leverage: 5,
       side: 'buy',
@@ -79,7 +79,7 @@ async function start() {
     console.log('Market long: ', marketLong);
 
     // A LIMIT SHORT of 2 contracts of XBT using leverage of 5:
-    const limitShort = client.submitOrder({
+    const limitShort = await client.submitOrder({
       clientOid: '123456789',
       leverage: 5,
       price: '70300.31',
@@ -92,7 +92,7 @@ async function start() {
     console.log('Limit short: ', limitShort);
 
     // A LIMIT LONG of 2 contracts of XBT using leverage of 5:
-    const limitLong = client.submitOrder({
+    const limitLong = await client.submitOrder({
       clientOid: '123456789',
       leverage: 5,
       price: '40300.31',
@@ -112,7 +112,7 @@ async function start() {
     // Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
 
     // A MARKET CLOSE POSITION example:
-    const marketClose = client.submitOrder({
+    const marketClose = await client.submitOrder({
       clientOid: '123456789',
       closeOrder: true,
       symbol: 'XBTUSDTM',
@@ -124,7 +124,7 @@ async function start() {
     console.log('Market close: ', marketClose);
 
     // A LIMIT CLOSE of a LONG example:
-    const limitCloseLong = client.submitOrder({
+    const limitCloseLong = await client.submitOrder({
       clientOid: '123456789',
       leverage: 5,
       price: '70300.31',
@@ -138,7 +138,7 @@ async function start() {
     console.log('Limit close long: ', limitCloseLong);
 
     // A LIMIT CLOSE of a SHORT example:
-    const limitCloseShort = client.submitOrder({
+    const limitCloseShort = await client.submitOrder({
       clientOid: '123456789',
       leverage: 5,
       price: '40300.31',
@@ -152,7 +152,7 @@ async function start() {
     console.log('Limit close short: ', limitCloseShort);
 
     // A STOP LOSS example for a LONG position:
-    const stopLossLong = client.submitOrder({
+    const stopLossLong = await client.submitOrder({
       clientOid: '123456789',
       closeOrder: true,
       stop: 'down',
@@ -166,7 +166,7 @@ async function start() {
     console.log('Stoploss long: ', stopLossLong);
 
     // A STOP LOSS example for a SHORT position:
-    const stopLossShort = client.submitOrder({
+    const stopLossShort = await client.submitOrder({
       clientOid: '123456789',
       closeOrder: true,
       stop: 'up',
