@@ -50,7 +50,7 @@ siebly:
       - Public and private Classic WebSocket channels
       - Safe Spot and Futures test-order examples
       - REST API and WebSocket proxy examples
-    exampleHref: /examples/KuCoin
+    exampleHref: /examples/Kucoin
     exampleLabel: KuCoin SDK examples
     architectureClientSummary: SpotClient, FuturesClient, WebsocketClient, WebsocketAPIClient
     architectureApiTitle: KuCoin API
@@ -211,7 +211,7 @@ siebly:
         href: /sdk/kucoin/javascript
       - heading: KuCoin examples
         summary: Browse runnable REST API and WebSocket examples.
-        href: /examples/KuCoin
+        href: /examples/Kucoin
       - heading: Endpoint map
         summary: Find the SDK method for each supported KuCoin endpoint.
         href: https://github.com/tiagosiebler/kucoin-api/blob/master/docs/endpointFunctionList.md
@@ -238,7 +238,7 @@ The SDK handles private request signing, connection-token requests, product-spec
 - KuCoin JavaScript SDK by Siebly: [`kucoin-api`](https://siebly.io/sdk/kucoin/javascript)
 - npm package: [`kucoin-api`](https://www.npmjs.com/package/kucoin-api)
 - GitHub repository: [`tiagosiebler/kucoin-api`](https://github.com/tiagosiebler/kucoin-api)
-- SDK examples: [KuCoin SDK examples](https://siebly.io/examples/KuCoin)
+- SDK examples: [KuCoin SDK examples](https://siebly.io/examples/Kucoin)
 - SDK endpoint map: [KuCoin JavaScript endpoint reference](./endpointFunctionList.md)
 - Official API documentation: [KuCoin API](https://www.kucoin.com/docs-new/)
 - API authentication: [KuCoin authentication](https://www.kucoin.com/docs-new/authentication)
@@ -1773,7 +1773,7 @@ Allow the SDK to restore cached subscriptions, then reload affected balances, op
 
 ## Next steps
 
-- Browse the [KuCoin SDK examples](https://siebly.io/examples/KuCoin).
+- Browse the [KuCoin SDK examples](https://siebly.io/examples/Kucoin).
 - Find methods in the [complete endpoint map](./endpointFunctionList.md).
 - Review the [KuCoin SDK page](https://siebly.io/sdk/kucoin/javascript).
 - Install or update [`kucoin-api` from npm](https://www.npmjs.com/package/kucoin-api).
