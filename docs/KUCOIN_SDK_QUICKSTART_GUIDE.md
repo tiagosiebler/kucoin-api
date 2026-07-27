@@ -248,7 +248,7 @@ The SDK handles private request signing, connection-token requests, product-spec
 
 ## Why use `kucoin-api`?
 
-Private KuCoin REST API requests require an API key, timestamp, HMAC signature, encrypted API passphrase, and API key version. Classic WebSocket connections use connection tokens, while subscriptions and WebSocket API commands must reach the correct product connection.
+Private KuCoin REST API requests require an API key, timestamp, HMAC signature, HMAC-signed API passphrase, and API key version. Classic WebSocket connections use connection tokens, while subscriptions and WebSocket API commands must reach the correct product connection.
 
 `kucoin-api` handles those mechanics and provides a focused client for each job:
 
@@ -1009,7 +1009,7 @@ Always fetch contract metadata before sizing a Futures order. Use `multiplier`, 
 
 ### Explore other REST API groups
 
-Start with read methods and check account eligibility and API permissions before calling a write method.
+Start with read methods and check account eligibility and API permissions before calling a write method. Unless noted, the methods below are on `SpotClient`.
 
 | Product group             | Representative SDK methods                                                                           |
 | ------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -1022,8 +1022,8 @@ Start with read methods and check account eligibility and API permissions before
 | Earn                      | `getEarnSavingsProducts()`, `getEarnStakingProducts()`                                               |
 | Structured products       | `getDualInvestmentProducts()`, `getStructuredProductOrders()`                                        |
 | Affiliate                 | `getAffiliateInvitees()`, `getAffiliateCommission()`                                                 |
-| Futures copy trading      | `submitCopyTradeOrderTest()`, `getCopyTradeMaxOpenSize()`                                            |
-| Broker                    | `getBrokerInfo()`, `getSubAccounts()`, `getTransferHistory()`                                        |
+| Futures copy trading      | `FuturesClient`: `submitCopyTradeOrderTest()`, `getCopyTradeMaxOpenSize()`                           |
+| Broker                    | `BrokerClient`: `getBrokerInfo()`, `getSubAccounts()`, `getTransferHistory()`                        |
 
 Withdrawals and API-key management are intentionally omitted from runnable examples. They require broader permissions and carry a larger operational risk.
 
@@ -1046,13 +1046,13 @@ Classic WebSockets are the production-oriented default in this guide. Every subs
 
 Useful Classic topics include:
 
-| Product | Public topics                                                                           | Private topics                                                                 |
-| ------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Spot    | `/market/ticker`, `/spotMarket/level2Depth5`, `/market/candles`, `/market/match`        | `/spotMarket/tradeOrdersV2`, `/account/balance`, `/spotMarket/advancedOrders`  |
-| Margin  | `/indicator/index`, `/indicator/markPrice`                                              | `/margin/position`, `/margin/isolatedPosition`                                 |
-| Futures | `/contractMarket/tickerV2`, `/contractMarket/level2Depth5`, `/contractMarket/execution` | `/contractMarket/tradeOrders`, `/contractAccount/wallet`, `/contract/position` |
+| Product | Public topics                                                                           | Private topics                                                                                              |
+| ------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Spot    | `/market/ticker`, `/spotMarket/level2Depth5`, `/market/candles`, `/market/match`        | `/spotMarket/tradeOrdersV2`, `/account/balance`, `/spotMarket/advancedOrders`                               |
+| Margin  | `/indicator/index`, `/indicator/markPrice`                                              | `/margin/position`, `/margin/isolatedPosition:BTC-USDT`                                                     |
+| Futures | `/contractMarket/tickerV2`, `/contractMarket/level2Depth5`, `/contractMarket/execution` | `/contractMarket/tradeOrders:XBTUSDTM`, `/contractAccount/wallet`, `/contract/position:XBTUSDTM`            |
 
-A Spot symbol uses `BTC-USDT`, while a Futures topic uses a contract such as `XBTUSDTM`. Do not route a topic based only on the underlying asset.
+A Spot symbol uses `BTC-USDT`, while a Futures topic uses a contract such as `XBTUSDTM`. Append the symbol or contract where the channel requires it. Do not route a topic based only on the underlying asset.
 
 ### Treat responses and updates differently
 
@@ -1717,7 +1717,7 @@ They map to KuCoin's current high-frequency Spot API paths. Methods such as `sub
 
 ### Should I use `trade` or `trade_hf`?
 
-Most current users use `trade`. Some older high-frequency accounts use `trade_hf`. `getUserType()` is a compatibility check for those older accounts.
+Most current users use `trade`. Some older high-frequency accounts use `trade_hf`. `getUserType()` is a compatibility check for those older accounts. Typed `getBalances()` currently accepts `type: 'main' | 'trade'`; use `getUserType()` before assuming a `trade_hf` balance filter applies.
 
 ### Does KuCoin have a TestNet or sandbox?
 
