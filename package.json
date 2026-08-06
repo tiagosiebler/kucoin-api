@@ -82,10 +82,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tiagosiebler/kucoin-api"
+    "url": "git+https://github.com/sieblyio/kucoin-api.git"
   },
   "bugs": {
-    "url": "https://github.com/tiagosiebler/kucoin-api/issues"
+    "url": "https://github.com/sieblyio/kucoin-api/issues"
   },
   "homepage": "https://siebly.io/sdk/kucoin/javascript"
 }
